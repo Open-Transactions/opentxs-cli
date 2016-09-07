@@ -1,0 +1,130 @@
+-----BEGIN SIGNED SMARTCONTRACT-----
+Hash: HASH256
+
+<smartContract
+ activatorAcctID=""
+ activatorNymID=""
+ canceled="false"
+ cancelerNymID=""
+ creationDate="2015-06-24T06:42:42"
+ lastRecipientAcctID=""
+ lastRecipientNymID=""
+ lastSenderAcctID=""
+ lastSenderNymID=""
+ nextProcessDate="1970-01-01T00:00:00"
+ notaryID=""
+ transactionNum="0"
+ validFrom="2015-06-24T06:42:42"
+ validTo="2015-06-24T06:42:42"
+ version="2.0">
+<scriptableContract
+ numBylaws="1"
+ numParties="2"
+ specifyInstrumentDefinitionID="false"
+ specifyParties="false">
+<party
+ authorizingAgent="agent_alice"
+ name="party_alice"
+ numAccounts="2"
+ numAgents="1"
+ openingTransNo="0"
+ ownerID=""
+ ownerType="nym"
+ signedCopyProvided="false">
+<agent
+ doesAgentRepresentHimself="true"
+ groupName=""
+ isAgentAnIndividual="true"
+ name="agent_alice"
+ nymID=""
+ roleID="" />
+<assetAccount
+ acctID=""
+ agentName=""
+ closingTransNo="0"
+ instrumentDefinitionID=""
+ name="acct_alice_first" />
+<assetAccount
+ acctID=""
+ agentName=""
+ closingTransNo="0"
+ instrumentDefinitionID=""
+ name="acct_alice_second" />
+
+</party>
+<party
+ authorizingAgent="agent_bob"
+ name="party_bob"
+ numAccounts="2"
+ numAgents="1"
+ openingTransNo="0"
+ ownerID=""
+ ownerType="nym"
+ signedCopyProvided="false">
+<agent
+ doesAgentRepresentHimself="true"
+ groupName=""
+ isAgentAnIndividual="true"
+ name="agent_bob"
+ nymID=""
+ roleID="" />
+<assetAccount
+ acctID=""
+ agentName=""
+ closingTransNo="0"
+ instrumentDefinitionID=""
+ name="acct_bob_first" />
+<assetAccount
+ acctID=""
+ agentName=""
+ closingTransNo="0"
+ instrumentDefinitionID=""
+ name="acct_bob_second" />
+
+</party>
+<bylaw
+ language="chai"
+ name="main_bylaws"
+ numCallbacks="0"
+ numClauses="1"
+ numHooks="1"
+ numVariables="1">
+<variable
+ access="persistent"
+ name="bSuccess"
+ type="bool"
+ value="false" />
+<clause
+ name="on_activate">
+eNqlk01v2zAMhs/2r2B8soEsH8VOBXrIuh4GDGuxdOeAkphGWCYFEp2gaPLfRylJ
+Gw9NMKCALxSp5+Ur0uUqWMd1Nb39+e3h8e4r3H6f/JreXcPjxn/a4DNwQEMSLmwE
++XhBoJfYRoK5Dzm8dxPNdo1MdQML738PoL53gBD/YGDtnSA0D5qqKaGENQaIHGa4
+tJpmK3yOxQ1U48+j6i2nvHrLjFJmn1NTxrggM0l3JRlTOJu3zsQateYDdG5D5D5U
++ygXVf1/RJsu8YtX7/FSI5HEgukDVDk6oR3bzL7sHOpep0HYbqF3ItBI1UtZpMJO
+nZwXcl7kfkZjuIHWfcSZ4HZdmSR+qnH1vsZ5t9D1mxSKEnYl0DJSdpXB4/F58P8N
+5cC5uvQIxxYvzKMshsPXlcU0aYtqSbKuyLBBOTOGDLDf7/NhRUGR7DSB3ddE++TI
+DCDD6h+ewZCsfpCL1kVrEk7wUQe7EmeqZfAt5wQ6A6j8OrEG4kpNW60pRrHFoaX0
+dKXQ8PDfzI4d1NL6X4C+MDU=
+
+</clause>
+<hook
+ clause="on_activate"
+ name="cron_activate" />
+
+</bylaw>
+
+</scriptableContract>
+<accountList
+ count="0"
+ type="stash" />
+
+</smartContract>
+-----BEGIN SMARTCONTRACT SIGNATURE-----
+Version: Open Transactions 0.94.0-562-ga35c82f
+Comment: http://github.com/FellowTraveler/Open-Transactions/wiki
+Meta:    SFUK
+
+QxnMyd1vVN9Oa2fyTTHFKuiGn2I5Bw2Xy2EvorL8x/zFM3BazF2OckA1CnEJhMPi
+Lf1Q7GlCnppgREXx5kGoUKaNhIZLOIi/kyKYIKGrLLPGE4W7TDd1D4CjJKiQmVqm
+SgqGXvIo+TpcNhGlUGfDZ8YQ2dYHKwLtbvGWP6f/uLA=
+-----END SMARTCONTRACT SIGNATURE-----

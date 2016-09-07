@@ -22,6 +22,7 @@ profile
 
 # KDevelop noise
 .kdev4
+opentxs-cli.kdev4
 
 # Kate noise
 *.kate-swp

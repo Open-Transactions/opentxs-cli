@@ -39,6 +39,7 @@
 #include "CmdRequestOutBailment.hpp"
 
 #include <opentxs/core/Version.hpp>
+#include <opentxs/client/OTAPI_Wrap.hpp>
 #include <opentxs/client/OT_ME.hpp>
 
 namespace opentxs {
@@ -50,7 +51,7 @@ CmdRequestOutBailment::CmdRequestOutBailment()
     args[1] = "--mynym <nym>";
     args[2] = "--hisnym <nym>";
     args[3] = "--mypurse <purse>";
-    args[3] = "--amount <amount>";
+    args[4] = "--amount <amount>";
     category = catOtherUsers;
     help = "Ask the issuer of a unit to process a withdrawal";
 }
@@ -97,8 +98,13 @@ std::int32_t CmdRequestOutBailment::run(
         return -1;
     }
 
+
+    std::int64_t outbailmentAmount = OTAPI_Wrap::StringToAmount(mypurse, amount);
+    if (OT_ERROR_AMOUNT == outbailmentAmount) {
+        return -1;
+    }
+
     OT_ME ot_me;
-    std::int64_t outbailmentAmount = std::stoi(amount);
     std::string response = ot_me.initiate_outbailment(
         server, mynym, hisnym, mypurse, outbailmentAmount, terms);
     return processResponse(response, "request outbailment");

@@ -50,6 +50,7 @@
 #include "commands/CmdAddAsset.hpp"
 #include "commands/CmdAddServer.hpp"
 #include "commands/CmdAddSignature.hpp"
+#include "commands/CmdArchivePeerReply.hpp"
 #include "commands/CmdBase.hpp"
 #include "commands/CmdCancel.hpp"
 #include "commands/CmdChangePw.hpp"
@@ -188,8 +189,8 @@ CmdBase* cmds[] = {new CmdAcceptAll,       new CmdAcceptInbox,
                    new CmdAcceptPayments,  new CmdAcceptReceipts,
                    new CmdAcceptTransfers, new CmdAcknowledgeBailment,
                    new CmdAcknowledgeOutBailment,
-                   new CmdAddAsset,
-                   new CmdAddServer,       new CmdAddSignature,
+                   new CmdAddAsset,        new CmdAddServer,
+                   new CmdAddSignature,    new CmdArchivePeerReply,
                    new CmdCancel,          new CmdChangePw,
                    new CmdCheckNym,        new CmdClearExpired,
                    new CmdClearRecords,    new CmdConfirm,

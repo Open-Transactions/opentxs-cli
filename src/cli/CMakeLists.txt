@@ -11,6 +11,7 @@ set(cxx-sources
   commands/CmdAddAsset.cpp
   commands/CmdAddServer.cpp
   commands/CmdAddSignature.cpp
+  commands/CmdArchivePeerReply.cpp
   commands/CmdUsageCredits.cpp
   commands/CmdBase.cpp
   commands/CmdBaseAccept.cpp

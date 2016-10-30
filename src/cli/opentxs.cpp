@@ -133,6 +133,7 @@
 #include "commands/CmdShowNyms.hpp"
 #include "commands/CmdShowOffers.hpp"
 #include "commands/CmdShowPayment.hpp"
+#include "commands/CmdShowPhrase.hpp"
 #include "commands/CmdShowPurse.hpp"
 #include "commands/CmdShowRecords.hpp"
 #include "commands/CmdShowSeed.hpp"
@@ -234,6 +235,7 @@ CmdBase* cmds[] = {new CmdAcceptAll,            new CmdAcceptInbox,
                    new CmdShowMint,             new CmdShowMyOffers,
                    new CmdShowNym,              new CmdShowNyms,
                    new CmdShowOffers,           new CmdShowPayment,
+                   new CmdShowPhrase,
                    new CmdShowPurse,            new CmdShowRecords,
                    new CmdShowSeed,             new CmdShowWords,
                    new CmdShowServers,          new CmdShowWallet,

@@ -7,6 +7,7 @@ set(cxx-sources
   commands/CmdAcceptReceipts.cpp
   commands/CmdAcceptTransfers.cpp
   commands/CmdAcknowledgeBailment.cpp
+  commands/CmdAcknowledgeNotice.cpp
   commands/CmdAcknowledgeOutBailment.cpp
   commands/CmdAddAsset.cpp
   commands/CmdAddServer.cpp

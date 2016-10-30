@@ -95,6 +95,7 @@
 #include "commands/CmdNewNymHD.hpp"
 #include "commands/CmdNewNymLegacy.hpp"
 #include "commands/CmdNewOffer.hpp"
+#include "commands/CmdNotifyBailment.hpp"
 #include "commands/CmdOutbox.hpp"
 #include "commands/CmdOutmail.hpp"
 #include "commands/CmdOutpayment.hpp"
@@ -212,7 +213,7 @@ CmdBase* cmds[] = {new CmdAcceptAll,       new CmdAcceptInbox,
                    new CmdNewAccount,      new CmdNewAsset,
                    new CmdNewKey,          new CmdNewNymHD,
                    new CmdNewNymLegacy,
-                   new CmdNewOffer,
+                   new CmdNewOffer,        new CmdNotifyBailment,
                    new CmdOutbox,          new CmdOutmail,
                    new CmdNewBasket,       new CmdOutpayment,
                    new CmdPasswordDecrypt, new CmdPasswordEncrypt,

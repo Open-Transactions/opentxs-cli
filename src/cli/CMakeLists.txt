@@ -60,6 +60,7 @@ set(cxx-sources
   commands/CmdNewNymHD.cpp
   commands/CmdNewNymLegacy.cpp
   commands/CmdNewOffer.cpp
+  commands/CmdNotifyBailment.cpp
   commands/CmdRequestOutBailment.cpp
   commands/CmdOutbox.cpp
   commands/CmdOutmail.cpp

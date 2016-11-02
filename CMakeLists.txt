@@ -101,8 +101,10 @@ message(STATUS "C++ link flags:  ${CMAKE_CXX_LINK_FLAGS}")
 #-----------------------------------------------------------------------------
 # Dependencies
 
-find_library(OPENTXS-CLIENT NAMES opentxs-client)
-find_library(OPENTXS-CORE NAMES opentxs-core)
+list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake")
+
+add_definitions(-DPROTOBUF_INLINE_NOT_IN_HEADERS=0)
+find_package(opentxs REQUIRED)
 
 #-----------------------------------------------------------------------------
 # System libraries used for linking.
@@ -170,6 +172,7 @@ set(dependency_include_dir
 
 include_directories(SYSTEM
   ${dependency_include_dir}
+  ${OPENTXS_INCLUDE_DIRS}
 )
 
 add_subdirectory(deps)

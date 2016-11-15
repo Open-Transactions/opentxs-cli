@@ -74,6 +74,9 @@ set(cxx-sources
   commands/CmdRefresh.cpp
   commands/CmdRefreshAccount.cpp
   commands/CmdRefreshNym.cpp
+  commands/CmdRegisterContractNym.cpp
+  commands/CmdRegisterContractServer.cpp
+  commands/CmdRegisterContractUnit.cpp
   commands/CmdRegisterNym.cpp
   commands/CmdRequestBailment.cpp
   commands/CmdSendCash.cpp

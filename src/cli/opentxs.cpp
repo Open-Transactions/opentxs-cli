@@ -109,6 +109,9 @@
 #include "commands/CmdRefresh.hpp"
 #include "commands/CmdRefreshAccount.hpp"
 #include "commands/CmdRefreshNym.hpp"
+#include "commands/CmdRegisterContractNym.hpp"
+#include "commands/CmdRegisterContractServer.hpp"
+#include "commands/CmdRegisterContractUnit.hpp"
 #include "commands/CmdRegisterNym.hpp"
 #include "commands/CmdRequestBailment.hpp"
 #include "commands/CmdRequestOutBailment.hpp"
@@ -224,6 +227,8 @@ CmdBase* cmds[] = {new CmdAcceptAll,            new CmdAcceptInbox,
                    new CmdProposePlan,          new CmdRefresh,
                    new CmdRefreshAccount,       new CmdRefreshNym,
                    new CmdRequestBailment,      new CmdRequestOutBailment,
+                   new CmdRegisterContractNym,  new CmdRegisterContractServer,
+                   new CmdRegisterContractUnit,
                    new CmdRegisterNym,          new CmdSendCash,
                    new CmdSendCheque,           new CmdSendInvoice,
                    new CmdSendMessage,          new CmdSendVoucher,

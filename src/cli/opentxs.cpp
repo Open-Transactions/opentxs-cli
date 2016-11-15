@@ -46,6 +46,7 @@
 #include "commands/CmdAcceptReceipts.hpp"
 #include "commands/CmdAcceptTransfers.hpp"
 #include "commands/CmdAcknowledgeBailment.hpp"
+#include "commands/CmdAcknowledgeConnection.hpp"
 #include "commands/CmdAcknowledgeNotice.hpp"
 #include "commands/CmdAcknowledgeOutBailment.hpp"
 #include "commands/CmdAddAsset.hpp"
@@ -114,6 +115,7 @@
 #include "commands/CmdRegisterContractUnit.hpp"
 #include "commands/CmdRegisterNym.hpp"
 #include "commands/CmdRequestBailment.hpp"
+#include "commands/CmdRequestConnection.hpp"
 #include "commands/CmdRequestOutBailment.hpp"
 #include "commands/CmdSendCash.hpp"
 #include "commands/CmdSendCheque.hpp"
@@ -194,6 +196,7 @@ CmdBase* cmds[] = {new CmdAcceptAll,            new CmdAcceptInbox,
                    new CmdAcceptInvoices,       new CmdAcceptMoney,
                    new CmdAcceptPayments,       new CmdAcceptReceipts,
                    new CmdAcceptTransfers,      new CmdAcknowledgeBailment,
+                   new CmdAcknowledgeConnection,
                    new CmdAcknowledgeNotice,    new CmdAcknowledgeOutBailment,
                    new CmdAddAsset,             new CmdAddServer,
                    new CmdAddSignature,         new CmdArchivePeerReply,
@@ -226,7 +229,8 @@ CmdBase* cmds[] = {new CmdAcceptAll,            new CmdAcceptInbox,
                    new CmdPingNotary,
                    new CmdProposePlan,          new CmdRefresh,
                    new CmdRefreshAccount,       new CmdRefreshNym,
-                   new CmdRequestBailment,      new CmdRequestOutBailment,
+                   new CmdRequestBailment,      new CmdRequestConnection,
+                   new CmdRequestOutBailment,
                    new CmdRegisterContractNym,  new CmdRegisterContractServer,
                    new CmdRegisterContractUnit,
                    new CmdRegisterNym,          new CmdSendCash,

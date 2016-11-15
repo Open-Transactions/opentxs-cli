@@ -36,8 +36,8 @@
  *
  ************************************************************/
 
-#ifndef OPENTXS_CLIENT_CMDACKNOWLEDGEBAILMENT_HPP
-#define OPENTXS_CLIENT_CMDACKNOWLEDGEBAILMENT_HPP
+#ifndef OPENTXS_CLIENT_CMDACKNOWLEDGECONNECTION_HPP
+#define OPENTXS_CLIENT_CMDACKNOWLEDGECONNECTION_HPP
 
 #include "CmdBase.hpp"
 
@@ -47,23 +47,21 @@
 namespace opentxs
 {
 
-class CmdAcknowledgeBailment : public CmdBase
+class CmdAcknowledgeConnection : public CmdBase
 {
 public:
-    EXPORT CmdAcknowledgeBailment();
-    virtual ~CmdAcknowledgeBailment();
+    EXPORT CmdAcknowledgeConnection();
 
-    EXPORT std::int32_t
-        run(
-            std::string server,
-            std::string mynym,
-            std::string hisnym,
-            std::string mypurse);
+    EXPORT std::int32_t run(
+        std::string server,
+        std::string mynym,
+        std::string hisnym,
+        std::string mypurse);
 
+    virtual ~CmdAcknowledgeConnection() = default;
 protected:
     virtual std::int32_t runWithOptions();
 };
-
 } // namespace opentxs
 
-#endif // OPENTXS_CLIENT_CMDACKNOWLEDGEBAILMENT_HPP
+#endif // OPENTXS_CLIENT_CMDACKNOWLEDGECONNECTION_HPP

@@ -36,8 +36,8 @@
  *
  ************************************************************/
 
-#ifndef OPENTXS_CLIENT_CMDACKNOWLEDGEBAILMENT_HPP
-#define OPENTXS_CLIENT_CMDACKNOWLEDGEBAILMENT_HPP
+#ifndef OPENTXS_CLIENT_CMDREQUESTCONNECTION_HPP
+#define OPENTXS_CLIENT_CMDREQUESTCONNECTION_HPP
 
 #include "CmdBase.hpp"
 
@@ -47,11 +47,11 @@
 namespace opentxs
 {
 
-class CmdAcknowledgeBailment : public CmdBase
+class CmdRequestConnection : public CmdBase
 {
 public:
-    EXPORT CmdAcknowledgeBailment();
-    virtual ~CmdAcknowledgeBailment();
+    EXPORT CmdRequestConnection();
+    virtual ~CmdRequestConnection();
 
     EXPORT std::int32_t
         run(
@@ -63,7 +63,6 @@ public:
 protected:
     virtual std::int32_t runWithOptions();
 };
-
 } // namespace opentxs
 
-#endif // OPENTXS_CLIENT_CMDACKNOWLEDGEBAILMENT_HPP
+#endif // OPENTXS_CLIENT_CMDREQUESTCONNECTION_HPP

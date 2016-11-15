@@ -7,6 +7,7 @@ set(cxx-sources
   commands/CmdAcceptReceipts.cpp
   commands/CmdAcceptTransfers.cpp
   commands/CmdAcknowledgeBailment.cpp
+  commands/CmdAcknowledgeConnection.cpp
   commands/CmdAcknowledgeNotice.cpp
   commands/CmdAcknowledgeOutBailment.cpp
   commands/CmdAddAsset.cpp
@@ -79,6 +80,7 @@ set(cxx-sources
   commands/CmdRegisterContractUnit.cpp
   commands/CmdRegisterNym.cpp
   commands/CmdRequestBailment.cpp
+  commands/CmdRequestConnection.cpp
   commands/CmdSendCash.cpp
   commands/CmdSendCheque.cpp
   commands/CmdSendInvoice.cpp
@@ -143,4 +145,3 @@ target_link_libraries(${MODULE_NAME} ${OPENTXS_LIBRARIES} anyoption)
 install(TARGETS ${MODULE_NAME}
         DESTINATION bin
         COMPONENT main)
-

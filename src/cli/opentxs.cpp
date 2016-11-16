@@ -123,6 +123,7 @@
 #include "commands/CmdSendInvoice.hpp"
 #include "commands/CmdSendMessage.hpp"
 #include "commands/CmdSendVoucher.hpp"
+#include "commands/CmdServerAddClaim.hpp"
 #include "commands/CmdShowAccount.hpp"
 #include "commands/CmdShowAccounts.hpp"
 #include "commands/CmdShowActive.hpp"
@@ -237,6 +238,7 @@ CmdBase* cmds[] = {new CmdAcceptAll,            new CmdAcceptInbox,
                    new CmdRegisterNym,          new CmdSendCash,
                    new CmdSendCheque,           new CmdSendInvoice,
                    new CmdSendMessage,          new CmdSendVoucher,
+                   new CmdServerAddClaim,
                    new CmdShowAccount,          new CmdShowAccounts,
                    new CmdShowActive,           new CmdShowAssets,
                    new CmdShowBalance,          new CmdShowBasket,

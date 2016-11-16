@@ -87,6 +87,7 @@ set(cxx-sources
   commands/CmdSendInvoice.cpp
   commands/CmdSendMessage.cpp
   commands/CmdSendVoucher.cpp
+  commands/CmdServerAddClaim.cpp
   commands/CmdShowAccount.cpp
   commands/CmdShowAccounts.cpp
   commands/CmdShowActive.cpp

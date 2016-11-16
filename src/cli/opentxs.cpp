@@ -105,6 +105,7 @@
 #include "commands/CmdPasswordEncrypt.hpp"
 #include "commands/CmdPayDividend.hpp"
 #include "commands/CmdPayInvoice.hpp"
+#include "commands/CmdPeerStoreSecret.hpp"
 #include "commands/CmdPingNotary.hpp"
 #include "commands/CmdProposePlan.hpp"
 #include "commands/CmdRefresh.hpp"
@@ -228,7 +229,7 @@ CmdBase* cmds[] = {new CmdAcceptAll,            new CmdAcceptInbox,
                    new CmdNewBasket,            new CmdOutpayment,
                    new CmdPasswordDecrypt,      new CmdPasswordEncrypt,
                    new CmdPayDividend,          new CmdPayInvoice,
-                   new CmdPingNotary,
+                   new CmdPeerStoreSecret,      new CmdPingNotary,
                    new CmdProposePlan,          new CmdRefresh,
                    new CmdRefreshAccount,       new CmdRefreshNym,
                    new CmdRequestAdmin,         new CmdRequestBailment,

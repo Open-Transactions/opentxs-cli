@@ -71,6 +71,7 @@ set(cxx-sources
   commands/CmdPasswordEncrypt.cpp
   commands/CmdPayDividend.cpp
   commands/CmdPayInvoice.cpp
+  commands/CmdPeerStoreSecret.cpp
   commands/CmdProposePlan.cpp
   commands/CmdRefresh.cpp
   commands/CmdRefreshAccount.cpp

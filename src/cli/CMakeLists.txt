@@ -79,6 +79,7 @@ set(cxx-sources
   commands/CmdRegisterContractServer.cpp
   commands/CmdRegisterContractUnit.cpp
   commands/CmdRegisterNym.cpp
+  commands/CmdRequestAdmin.cpp
   commands/CmdRequestBailment.cpp
   commands/CmdRequestConnection.cpp
   commands/CmdSendCash.cpp

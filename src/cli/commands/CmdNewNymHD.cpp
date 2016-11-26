@@ -44,6 +44,7 @@
 #include <opentxs/client/OTAPI_Wrap.hpp>
 #include <opentxs/client/OT_ME.hpp>
 #include <opentxs/core/Log.hpp>
+#include <opentxs/core/Types.hpp>
 
 #include <stdint.h>
 #include <iostream>
@@ -56,28 +57,42 @@ CmdNewNymHD::CmdNewNymHD()
 {
     command = "newnymhd";
     args[0] = "--label <label>";
-    args[2] = "[--source <seed fingerprint>]";
+    args[1] = "[--source <seed fingerprint>]";
+    args[2] = "[--index <HD derivation path>]";
     category = catNyms;
     help = "create a new nym using HD key derivation.";
 }
 
-CmdNewNymHD::~CmdNewNymHD()
-{
-}
-
 int32_t CmdNewNymHD::runWithOptions()
 {
-    return run(getOption("label"), getOption("source"));
+    return run(getOption("label"), getOption("source"), getOption("index"));
 }
 
-int32_t CmdNewNymHD::run(string label, string source)
+int32_t CmdNewNymHD::run(string label, string source, string path)
 {
     if (!checkMandatory("label", label)) {
         return -1;
     }
 
+    std::uint32_t nym = 0;
+
+    if (!path.empty()) {
+        try {
+            nym = stoul(path);
+        }
+        catch (std::invalid_argument) { nym = 0; }
+        catch (std::out_of_range) { nym = 0; }
+
+        const std::uint32_t hardened =
+            static_cast<std::uint32_t>(opentxs::Bip32Child::HARDENED);
+
+        if (hardened <= nym) {
+            nym = nym ^ hardened;
+        }
+    }
+
     OT_ME ot_me;
-    string mynym = ot_me.create_nym_hd(source);
+    string mynym = ot_me.create_nym_hd(source, nym);
     if ("" == mynym) {
         otOut << "Error: cannot create new nym.\n";
         return -1;

@@ -84,6 +84,7 @@
 #include "commands/CmdGetReceipt.hpp"
 #include "commands/CmdImportCash.hpp"
 #include "commands/CmdImportNym.hpp"
+#include "commands/CmdImportSeed.hpp"
 #include "commands/CmdInbox.hpp"
 #include "commands/CmdInmail.hpp"
 #include "commands/CmdInpayments.hpp"
@@ -218,6 +219,7 @@ CmdBase* cmds[] = {new CmdAcceptAll,            new CmdAcceptInbox,
                    new CmdGetOffers,            new CmdGetPeerRequests,
                    new CmdGetPeerReplies,       new CmdGetReceipt,
                    new CmdImportCash,           new CmdImportNym,
+                   new CmdImportSeed,
                    new CmdInbox,                new CmdInmail,
                    new CmdInpayments,           new CmdIssueAsset,
                    new CmdKillOffer,            new CmdKillPlan,

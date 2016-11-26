@@ -49,6 +49,7 @@ set(cxx-sources
   commands/CmdGetReceipt.cpp
   commands/CmdImportCash.cpp
   commands/CmdImportNym.cpp
+  commands/CmdImportSeed.cpp
   commands/CmdInbox.cpp
   commands/CmdInmail.cpp
   commands/CmdInpayments.cpp

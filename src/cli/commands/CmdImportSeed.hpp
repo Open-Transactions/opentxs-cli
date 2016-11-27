@@ -36,26 +36,25 @@
  *
  ************************************************************/
 
-#ifndef OPENTXS_CLIENT_CMDNEWNYMHD_HPP
-#define OPENTXS_CLIENT_CMDNEWNYMHD_HPP
+#ifndef OPENTXS_CLIENT_IMPORTSEED_HPP
+#define OPENTXS_CLIENT_IMPORTSEED_HPP
 
 #include "CmdBase.hpp"
 
 namespace opentxs
 {
 
-class CmdNewNymHD : public CmdBase
+class CmdImportSeed : public CmdBase
 {
 public:
-    EXPORT CmdNewNymHD();
-    virtual ~CmdNewNymHD() = default;
+    EXPORT CmdImportSeed();
+    virtual ~CmdImportSeed() = default;
 
-    EXPORT int32_t run(std::string label, std::string source, std::string path);
+    EXPORT int32_t run(const std::string& words, const std::string& phrase);
 
 protected:
     virtual int32_t runWithOptions();
 };
-
 } // namespace opentxs
 
-#endif // OPENTXS_CLIENT_CMDNEWNYMHD_HPP
+#endif // OPENTXS_CLIENT_IMPORTSEED_HPP

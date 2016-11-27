@@ -36,73 +36,49 @@
  *
  ************************************************************/
 
-#include "CmdNewNymHD.hpp"
+#include "CmdImportSeed.hpp"
 
 #include "CmdBase.hpp"
 
 #include <opentxs/core/Version.hpp>
 #include <opentxs/client/OTAPI_Wrap.hpp>
-#include <opentxs/client/OT_ME.hpp>
-#include <opentxs/core/Log.hpp>
-#include <opentxs/core/Types.hpp>
+
 
 #include <stdint.h>
 #include <iostream>
 #include <string>
 
-using namespace opentxs;
-using namespace std;
-
-CmdNewNymHD::CmdNewNymHD()
+namespace opentxs
 {
-    command = "newnymhd";
-    args[0] = "--label <label>";
-    args[1] = "[--source <seed fingerprint>]";
-    args[2] = "[--index <HD derivation path>]";
-    category = catNyms;
-    help = "create a new nym using HD key derivation.";
+CmdImportSeed::CmdImportSeed()
+{
+    command = "importseed";
+    args[0] = "--words <word list>";
+    args[1] = "[--phrase <passphrase>]";
+    category = catWallet;
+    help = "Add a BIP39 seed to the wallet";
 }
 
-int32_t CmdNewNymHD::runWithOptions()
+int32_t CmdImportSeed::runWithOptions()
 {
-    return run(getOption("label"), getOption("source"), getOption("index"));
+    return run(getOption("words"), getOption("phrase"));
 }
 
-int32_t CmdNewNymHD::run(string label, string source, string path)
+int32_t CmdImportSeed::run(const std::string& words, const std::string& phrase)
 {
-    if (!checkMandatory("label", label)) {
+    if (words.empty()) {
+
         return -1;
     }
 
-    std::uint32_t nym = 0;
+    const std::string fingerprint =
+        OTAPI_Wrap::Wallet_ImportSeed(words, phrase);
+    const bool empty = fingerprint.empty();
 
-    if (!path.empty()) {
-        try {
-            nym = stoul(path);
-        }
-        catch (std::invalid_argument) { nym = 0; }
-        catch (std::out_of_range) { nym = 0; }
-
-        const std::uint32_t hardened =
-            static_cast<std::uint32_t>(opentxs::Bip32Child::HARDENED);
-
-        if (hardened <= nym) {
-            nym = nym ^ hardened;
-        }
+    if (!empty) {
+        std::cout << fingerprint << std::endl;
     }
 
-    OT_ME ot_me;
-    string mynym = ot_me.create_nym_hd(source, nym);
-    if ("" == mynym) {
-        otOut << "Error: cannot create new nym.\n";
-        return -1;
-    }
-
-    cout << "New nym: " << mynym << "\n";
-
-    if (!OTAPI_Wrap::SetNym_Name(mynym, mynym, label)) {
-        otOut << "Error: cannot set new nym name.\n";
-        return -1;
-    }
-    return 1;
+    return empty ? -1 : 0;
 }
+} // namespace opentxs

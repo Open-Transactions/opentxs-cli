@@ -60,6 +60,7 @@
 #include "commands/CmdClearExpired.hpp"
 #include "commands/CmdClearRecords.hpp"
 #include "commands/CmdConfirm.hpp"
+#include "commands/CmdConvertPaymentCode.hpp"
 #include "commands/CmdDecode.hpp"
 #include "commands/CmdDecrypt.hpp"
 #include "commands/CmdDeleteInmail.hpp"
@@ -207,6 +208,7 @@ CmdBase* cmds[] = {new CmdAcceptAll,            new CmdAcceptInbox,
                    new CmdCancel,               new CmdChangePw,
                    new CmdCheckNym,             new CmdClearExpired,
                    new CmdClearRecords,         new CmdConfirm,
+                   new CmdConvertPaymentCode,
                    new CmdDecode,               new CmdDecrypt,
                    new CmdDeleteInmail,         new CmdDeleteOutmail,
                    new CmdDeposit,              new CmdDiscard,

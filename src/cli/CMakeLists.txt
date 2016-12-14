@@ -25,6 +25,7 @@ set(cxx-sources
   commands/CmdClearExpired.cpp
   commands/CmdClearRecords.cpp
   commands/CmdConfirm.cpp
+  commands/CmdConvertPaymentCode.cpp
   commands/CmdDecode.cpp
   commands/CmdDecrypt.cpp
   commands/CmdDeleteInmail.cpp

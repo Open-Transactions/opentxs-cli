@@ -77,6 +77,7 @@ set(cxx-sources
   commands/CmdProposePlan.cpp
   commands/CmdRefresh.cpp
   commands/CmdRefreshAccount.cpp
+  commands/CmdRefreshAll.cpp
   commands/CmdRefreshNym.cpp
   commands/CmdRegisterContractNym.cpp
   commands/CmdRegisterContractServer.cpp

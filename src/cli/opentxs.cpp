@@ -103,6 +103,7 @@
 #include "commands/CmdOutbox.hpp"
 #include "commands/CmdOutmail.hpp"
 #include "commands/CmdOutpayment.hpp"
+#include "commands/CmdPairNode.hpp"
 #include "commands/CmdPasswordDecrypt.hpp"
 #include "commands/CmdPasswordEncrypt.hpp"
 #include "commands/CmdPayDividend.hpp"
@@ -232,6 +233,7 @@ CmdBase* cmds[] = {new CmdAcceptAll,            new CmdAcceptInbox,
                    new CmdNewOffer,             new CmdNotifyBailment,
                    new CmdOutbox,               new CmdOutmail,
                    new CmdNewBasket,            new CmdOutpayment,
+                   new CmdPairNode,
                    new CmdPasswordDecrypt,      new CmdPasswordEncrypt,
                    new CmdPayDividend,          new CmdPayInvoice,
                    new CmdPeerStoreSecret,      new CmdPingNotary,

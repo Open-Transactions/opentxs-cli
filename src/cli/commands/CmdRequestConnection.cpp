@@ -101,8 +101,8 @@ std::int32_t CmdRequestConnection::run(
         return -1;
     }
 
-    OT_ME ot_me;
-    std::string response = ot_me.request_connection(
+     
+    std::string response = OT_ME::It().request_connection(
         server, mynym, hisnym, type);
 
     return processResponse(response, "request connection");

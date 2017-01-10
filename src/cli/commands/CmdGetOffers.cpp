@@ -91,9 +91,9 @@ int32_t CmdGetOffers::run(string server, string mynym, string market,
         depth = "50";
     }
 
-    OT_ME ot_me;
+     
     string response =
-        ot_me.get_market_offers(server, mynym, market, stoll(depth));
+        OT_ME::It().get_market_offers(server, mynym, market, stoll(depth));
     if (1 != processResponse(response, "get market offers")) {
         return -1;
     }

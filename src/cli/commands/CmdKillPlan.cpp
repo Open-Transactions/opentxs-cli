@@ -86,10 +86,10 @@ int32_t CmdKillPlan::run(string server, string mynym, string myacct, string id)
         return -1;
     }
 
-    OT_ME ot_me;
+     
     int64_t i;
     sscanf(id.c_str(), "%" SCNd64, &i);
-    string response = ot_me.kill_payment_plan(server, mynym, myacct, i);
+    string response = OT_ME::It().kill_payment_plan(server, mynym, myacct, i);
     return processTxResponse(server, mynym, myacct, response,
                              "kill payment plan");
 }

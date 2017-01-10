@@ -104,9 +104,9 @@ std::int32_t CmdServerAddClaim::run(
         primary = false;
     }
 
-    OT_ME ot_me;
+     
     const std::string response =
-        ot_me.server_add_claim(server, mynym, section, type, value, primary);
+        OT_ME::It().server_add_claim(server, mynym, section, type, value, primary);
 
     return processResponse(response, "server add claim");
 }

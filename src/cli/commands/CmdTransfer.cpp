@@ -43,8 +43,10 @@
 #include <opentxs/core/Version.hpp>
 #include <opentxs/client/MadeEasy.hpp>
 #include <opentxs/client/OTAPI_Wrap.hpp>
-#include <opentxs/core/Log.hpp>
+#include <opentxs/core/app/App.hpp>
+#include <opentxs/core/app/Api.hpp>
 #include <opentxs/core/util/Common.hpp>
+#include <opentxs/core/Log.hpp>
 
 #include <stdint.h>
 #include <ostream>
@@ -114,14 +116,14 @@ int32_t CmdTransfer::run(string myacct, string hisacct, string amount,
     }
 
     string response =
-        MadeEasy::send_transfer(server, mynym, myacct, hisacct, value, memo);
+        App::Me().API().ME().send_transfer(server, mynym, myacct, hisacct, value, memo);
     int32_t reply =
         responseReply(response, server, mynym, myacct, "send_transfer");
     if (1 != reply) {
         return reply;
     }
 
-    if (!MadeEasy::retrieve_account(server, mynym, myacct, true)) {
+    if (!App::Me().API().ME().retrieve_account(server, mynym, myacct, true)) {
         otOut << "Error retrieving intermediary files for account.\n";
         return -1;
     }

@@ -95,8 +95,8 @@ std::int32_t CmdNotifyBailment::run(
         return -1;
     }
 
-    OT_ME ot_me;
-    std::string response = ot_me.notify_bailment(
+     
+    std::string response = OT_ME::It().notify_bailment(
         server, mynym, hisnym, mypurse, txid);
     return processResponse(response, "notify bailment");
 }

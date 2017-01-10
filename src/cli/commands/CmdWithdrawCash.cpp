@@ -44,6 +44,8 @@
 #include <opentxs/client/OTAPI_Wrap.hpp>
 #include <opentxs/client/OT_ME.hpp>
 #include <opentxs/client/MadeEasy.hpp>
+#include <opentxs/core/app/App.hpp>
+#include <opentxs/core/app/Api.hpp>
 #include <opentxs/core/util/Common.hpp>
 #include <opentxs/core/Log.hpp>
 
@@ -108,7 +110,7 @@ int32_t CmdWithdrawCash::withdrawCash(const string& myacct,
 
     string assetContract = OTAPI_Wrap::GetAssetType_Contract(assetType);
     if ("" == assetContract) {
-        string response = MadeEasy::retrieve_contract(server, mynym, assetType);
+        string response = App::Me().API().ME().retrieve_contract(server, mynym, assetType);
         if (1 != responseStatus(response)) {
             otOut << "Error: cannot retrieve asset contract.\n";
             return -1;
@@ -121,21 +123,21 @@ int32_t CmdWithdrawCash::withdrawCash(const string& myacct,
         }
     }
 
-    string mint = MadeEasy::load_or_retrieve_mint(server, mynym, assetType);
+    string mint = App::Me().API().ME().load_or_retrieve_mint(server, mynym, assetType);
     if ("" == mint) {
         otOut << "Error: cannot load asset mint.\n";
         return -1;
     }
 
-    OT_ME ot_me;
-    string response = ot_me.withdraw_cash(server, mynym, myacct, amount);
+     
+    string response = OT_ME::It().withdraw_cash(server, mynym, myacct, amount);
     int32_t reply =
         responseReply(response, server, mynym, myacct, "withdraw_cash");
     if (1 != reply) {
         return reply;
     }
 
-    if (!MadeEasy::retrieve_account(server, mynym, myacct, true)) {
+    if (!App::Me().API().ME().retrieve_account(server, mynym, myacct, true)) {
         otOut << "Error retrieving intermediary files for account.\n";
         return -1;
     }

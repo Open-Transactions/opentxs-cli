@@ -80,8 +80,8 @@ int32_t CmdGetMarkets::run(string server, string mynym)
         return -1;
     }
 
-    OT_ME ot_me;
-    string response = ot_me.get_market_list(server, mynym);
+     
+    string response = OT_ME::It().get_market_list(server, mynym);
     if (1 != responseStatus(response)) {
         otOut << "Error: cannot get market list.\n";
         return -1;

@@ -85,8 +85,8 @@ std::int32_t CmdAcknowledgeNotice::run(
         return -1;
     }
 
-    OT_ME ot_me;
-    std::string response = ot_me.acknowledge_notice(
+     
+    std::string response = OT_ME::It().acknowledge_notice(
         server, mynym, hisnym, mypurse, true);
     return processResponse(response, "acknowledge notice");
 }

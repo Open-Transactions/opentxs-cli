@@ -94,8 +94,8 @@ int32_t CmdUsageCredits::run(string server, string mynym, string hisnym,
         return -1;
     }
 
-    OT_ME ot_me;
-    string response = ot_me.adjust_usage_credits(server, mynym, hisnym, adjust);
+     
+    string response = OT_ME::It().adjust_usage_credits(server, mynym, hisnym, adjust);
     if (1 != processResponse(response, "adjust usage credits")) {
         return -1;
     }

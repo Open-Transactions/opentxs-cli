@@ -42,6 +42,8 @@
 
 #include <opentxs/core/Version.hpp>
 #include <opentxs/client/MadeEasy.hpp>
+#include <opentxs/core/app/App.hpp>
+#include <opentxs/core/app/Api.hpp>
 #include <opentxs/core/Log.hpp>
 
 #include <stdint.h>
@@ -80,7 +82,7 @@ int32_t CmdRefreshNym::run(string server, string mynym)
     }
 
     bool msgWasSent = false;
-    switch (MadeEasy::retrieve_nym(server, mynym, msgWasSent, true)) {
+    switch (App::Me().API().ME().retrieve_nym(server, mynym, msgWasSent, true)) {
     case 1:
         break;
 

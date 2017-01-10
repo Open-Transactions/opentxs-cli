@@ -104,8 +104,8 @@ std::int32_t CmdRequestOutBailment::run(
         return -1;
     }
 
-    OT_ME ot_me;
-    std::string response = ot_me.initiate_outbailment(
+     
+    std::string response = OT_ME::It().initiate_outbailment(
         server, mynym, hisnym, mypurse, outbailmentAmount, terms);
     return processResponse(response, "request outbailment");
 }

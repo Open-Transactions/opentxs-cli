@@ -77,7 +77,7 @@ int32_t CmdRegisterNym::run(string server, string mynym)
         return -1;
     }
 
-    OT_ME ot_me;
-    string response = ot_me.register_nym(server, mynym);
+     
+    string response = OT_ME::It().register_nym(server, mynym);
     return processResponse(response, "register nym");
 }

@@ -201,8 +201,8 @@ int32_t CmdPayInvoice::processPayment(const string& myacct,
         }
     }
     else {
-        OT_ME ot_me;
-        instrument = ot_me.get_payment_instrument(server, mynym, index, inbox);
+         
+        instrument = OT_ME::It().get_payment_instrument(server, mynym, index, inbox);
         if ("" == instrument) {
             otOut << "Error: cannot get payment instrument.\n";
             return -1;

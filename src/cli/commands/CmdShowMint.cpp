@@ -42,6 +42,8 @@
 
 #include <opentxs/core/Version.hpp>
 #include <opentxs/client/MadeEasy.hpp>
+#include <opentxs/core/app/App.hpp>
+#include <opentxs/core/app/Api.hpp>
 #include <opentxs/core/Log.hpp>
 
 #include <stdint.h>
@@ -85,7 +87,7 @@ int32_t CmdShowMint::run(string server, string mynym, string mypurse)
         return -1;
     }
 
-    string mint = MadeEasy::load_or_retrieve_mint(server, mynym, mypurse);
+    string mint = App::Me().API().ME().load_or_retrieve_mint(server, mynym, mypurse);
     if ("" == mint) {
         otOut << "Error: cannot load mint.\n";
         return -1;

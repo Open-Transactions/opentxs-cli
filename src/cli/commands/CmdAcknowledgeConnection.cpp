@@ -86,8 +86,8 @@ std::int32_t CmdAcknowledgeConnection::run(
     std::string password = inputText("Password");
     std::string key = inputText("Key");
 
-    OT_ME ot_me;
-    std::string response = ot_me.acknowledge_connection(
+     
+    std::string response = OT_ME::It().acknowledge_connection(
         server, mynym, hisnym, mypurse, true, url, login, password, key);
 
     return processResponse(response, "acknowledge connection");

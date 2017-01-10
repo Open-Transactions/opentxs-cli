@@ -132,8 +132,8 @@ int32_t CmdProposePlan::run(string server, string mynym, string hisnym,
     otOut << "payment_plan (amount,delay,period): " << paymentplan << "\n";
     otOut << "plan_expiry (length,number): " << planexpiry << "\n";
 
-    OT_ME ot_me;
-    if (!ot_me.make_sure_enough_trans_nums(2, server, mynym)) {
+     
+    if (!OT_ME::It().make_sure_enough_trans_nums(2, server, mynym)) {
         otOut << "Error: cannot reserve transaction numbers.\n";
         return -1;
     }
@@ -158,7 +158,7 @@ int32_t CmdProposePlan::run(string server, string mynym, string hisnym,
     // before sending it -- he already has done that by this point, just as part
     // of the proposal itself.)
 
-    string response = ot_me.send_user_payment(server, mynym, hisnym, plan);
+    string response = OT_ME::It().send_user_payment(server, mynym, hisnym, plan);
     if (1 != responseStatus(response)) {
         otOut << "Error: cannot send payment plan.\n";
         return harvestTxNumbers(plan, mynym);

@@ -82,8 +82,8 @@ std::int32_t CmdRequestAdmin::run(
         return -1;
     }
 
-    OT_ME ot_me;
-    std::string response = ot_me.request_admin(
+     
+    std::string response = OT_ME::It().request_admin(
         server, mynym, hisnym);
 
     return processResponse(response, "request admin");

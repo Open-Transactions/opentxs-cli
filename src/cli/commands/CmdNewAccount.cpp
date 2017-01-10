@@ -44,6 +44,8 @@
 #include <opentxs/core/Version.hpp>
 #include <opentxs/client/OTAPI_Wrap.hpp>
 #include <opentxs/client/MadeEasy.hpp>
+#include <opentxs/core/app/App.hpp>
+#include <opentxs/core/app/Api.hpp>
 
 #include <stdint.h>
 #include <string>
@@ -89,6 +91,6 @@ int32_t CmdNewAccount::run(string server, string mynym, string mypurse)
         registerNym.run(server, mynym);
     }
 
-    string response = MadeEasy::create_asset_acct(server, mynym, mypurse);
+    string response = App::Me().API().ME().create_asset_acct(server, mynym, mypurse);
     return processResponse(response, "create asset account");
 }

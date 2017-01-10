@@ -89,8 +89,8 @@ std::int32_t CmdRequestBailment::run(
         return -1;
     }
 
-    OT_ME ot_me;
-    std::string response = ot_me.initiate_bailment(
+     
+    std::string response = OT_ME::It().initiate_bailment(
         server, mynym, hisnym, mypurse);
     return processResponse(response, "request bailment");
 }

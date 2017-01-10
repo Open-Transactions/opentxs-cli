@@ -42,6 +42,8 @@
 
 #include <opentxs/core/Version.hpp>
 #include <opentxs/client/MadeEasy.hpp>
+#include <opentxs/core/app/App.hpp>
+#include <opentxs/core/app/Api.hpp>
 
 #include <stdint.h>
 #include <string>
@@ -77,6 +79,6 @@ int32_t CmdPingNotary::run(string server, string mynym)
         return -1;
     }
 
-    string response = MadeEasy::ping_notary(server, mynym);
+    string response = App::Me().API().ME().ping_notary(server, mynym);
     return processResponse(response, "ping notary");
 }

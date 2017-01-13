@@ -36,54 +36,46 @@
  *
  ************************************************************/
 
-#include "CmdGetMyOffers.hpp"
-
-#include "CmdBase.hpp"
-#include "CmdShowMyOffers.hpp"
+#include "CmdPairNode.hpp"
 
 #include <opentxs/core/Version.hpp>
-#include <opentxs/client/OT_ME.hpp>
+#include <opentxs/client/OTAPI_Wrap.hpp>
 
-#include <stdint.h>
-#include <string>
+namespace opentxs {
 
-using namespace opentxs;
-using namespace std;
-
-CmdGetMyOffers::CmdGetMyOffers()
+CmdPairNode::CmdPairNode()
 {
-    command = "getmyoffers";
-    args[0] = "--server <server>";
-    args[1] = "--mynym <nym>";
-    category = catMarkets;
-    help = "Download mynym's list of market offers.";
+    command = "pairnode";
+    args[0] = "--mynym <nym>";
+    args[1] = "--hisnym <bridge nym>";
+    args[2] = "--password <server password>";
+    category = catMisc;
+    help = "Pair with a Stash Node";
 }
 
-CmdGetMyOffers::~CmdGetMyOffers()
+std::int32_t CmdPairNode::runWithOptions()
 {
+    return run(
+        getOption("mynym"),
+        getOption("hisnym"),
+        getOption("password"));
 }
 
-int32_t CmdGetMyOffers::runWithOptions()
+std::int32_t CmdPairNode::run(
+    std::string mynym,
+    std::string hisnym,
+    std::string password)
 {
-    return run(getOption("server"), getOption("mynym"));
-}
-
-int32_t CmdGetMyOffers::run(string server, string mynym)
-{
-    if (!checkServer("server", server)) {
-        return -1;
-    }
-
     if (!checkNym("mynym", mynym)) {
         return -1;
     }
 
-     
-    string response = OT_ME::It().get_nym_market_offers(server, mynym);
-    if (1 != processResponse(response, "get market offers")) {
-        return -1;
+    auto result = OTAPI_Wrap::Pair_Node(mynym, hisnym, password);
+
+    if (result) {
+        return 1;
     }
 
-    CmdShowMyOffers showMyOffers;
-    return showMyOffers.run(server, mynym);
+    return 0;
 }
+} // namespace opentxs

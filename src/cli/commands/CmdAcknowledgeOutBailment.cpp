@@ -90,8 +90,8 @@ std::int32_t CmdAcknowledgeOutBailment::run(
         return -1;
     }
 
-    OT_ME ot_me;
-    std::string response = ot_me.acknowledge_outbailment(
+     
+    std::string response = OT_ME::It().acknowledge_outbailment(
         server, mynym, hisnym, mypurse, terms);
     return processResponse(response, "acknowledge outbailment");
 }

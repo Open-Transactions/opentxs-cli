@@ -44,8 +44,10 @@
 #include <opentxs/client/OTAPI_Wrap.hpp>
 #include <opentxs/client/OT_ME.hpp>
 #include <opentxs/client/MadeEasy.hpp>
-#include <opentxs/core/Log.hpp>
+#include <opentxs/core/app/App.hpp>
+#include <opentxs/core/app/Api.hpp>
 #include <opentxs/core/util/Common.hpp>
+#include <opentxs/core/Log.hpp>
 
 #include <stdint.h>
 #include <iostream>
@@ -118,14 +120,14 @@ int32_t CmdWithdrawVoucher::run(string myacct, string hisnym, string amount,
     }
 
     // make sure we can access the public key before trying to write a voucher
-    if ("" == MadeEasy::load_or_retrieve_encrypt_key(server, mynym, hisnym)) {
+    if ("" == App::Me().API().ME().load_or_retrieve_encrypt_key(server, mynym, hisnym)) {
         otOut << "Error: cannot load public key for hisnym.\n";
         return -1;
     }
 
-    OT_ME ot_me;
+     
     string response =
-        ot_me.withdraw_voucher(server, mynym, myacct, hisnym, memo, value);
+        OT_ME::It().withdraw_voucher(server, mynym, myacct, hisnym, memo, value);
     int32_t reply =
         responseReply(response, server, mynym, myacct, "withdraw_voucher");
     if (1 != reply) {
@@ -159,9 +161,9 @@ int32_t CmdWithdrawVoucher::run(string myacct, string hisnym, string amount,
     // Notice how I can send an instrument to myself. This doesn't actually
     // send anything -- it just puts a copy into my outpayments box for
     // safe-keeping.
-    ot_me.send_user_payment(server, mynym, mynym, voucher);
+    OT_ME::It().send_user_payment(server, mynym, mynym, voucher);
 
-    if (!MadeEasy::retrieve_account(server, mynym, myacct, true)) {
+    if (!App::Me().API().ME().retrieve_account(server, mynym, myacct, true)) {
         otOut << "Error retrieving intermediary files for account.\n";
         return -1;
     }

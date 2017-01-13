@@ -90,10 +90,10 @@ int32_t CmdKillOffer::run(string server, string mynym, string myacct, string id)
         return -1;
     }
 
-    OT_ME ot_me;
+     
     int64_t i;
     sscanf(id.c_str(), "%" SCNd64, &i);
-    string response = ot_me.kill_market_offer(server, mynym, myacct, i);
+    string response = OT_ME::It().kill_market_offer(server, mynym, myacct, i);
     return processTxResponse(server, mynym, myacct, response,
                              "kill market offer");
 }

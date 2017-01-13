@@ -92,8 +92,8 @@ std::int32_t CmdPeerStoreSecret::run(
     const std::string secondary = inputText("Passphrase");
 
 
-    OT_ME ot_me;
-    const std::string response = ot_me.store_secret(
+     
+    const std::string response = OT_ME::It().store_secret(
         server, mynym, hisnym, 1, primary, secondary);
 
     return processResponse(response, "peer store secret");

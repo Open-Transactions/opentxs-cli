@@ -43,6 +43,8 @@
 #include <opentxs/core/Version.hpp>
 #include <opentxs/client/MadeEasy.hpp>
 #include <opentxs/client/OTAPI_Wrap.hpp>
+#include <opentxs/core/app/App.hpp>
+#include <opentxs/core/app/Api.hpp>
 #include <opentxs/core/Log.hpp>
 
 #include <stdint.h>
@@ -91,7 +93,7 @@ int32_t CmdShowAccounts::run()
             return -1;
         }
 
-        string accountData = MadeEasy::stat_asset_account(myacct);
+        string accountData = App::Me().API().ME().stat_asset_account(myacct);
         if ("" == accountData) {
             cout << "Error : cannot load account data.\n";
             return -1;

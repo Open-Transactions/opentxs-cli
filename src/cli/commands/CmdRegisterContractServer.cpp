@@ -81,8 +81,8 @@ int32_t CmdRegisterContractServer::run(
         return -1;
     }
 
-    OT_ME ot_me;
-    std::string response = ot_me.register_contract_server(server, mynym, hispurse);
+     
+    std::string response = OT_ME::It().register_contract_server(server, mynym, hispurse);
 
     return processResponse(response, "register contract");
 }

@@ -155,12 +155,12 @@ int32_t CmdNewOffer::run(string myacct, string hisacct, string type,
         return -1;
     }
 
-    OT_ME ot_me;
+     
 
     // NOTE: Removing this for now. It was a special feature for
     // knotwork and currently it's causing me some problems.
     //
-//    ot_me.get_nym_market_offers(server, mynym);
+//    OT_ME::It().get_nym_market_offers(server, mynym);
 //
 //    if (0 > cleanMarketOfferList(server, mynym, myacct, hisacct, type, scale,
 //                                 price)) {
@@ -175,7 +175,7 @@ int32_t CmdNewOffer::run(string myacct, string hisacct, string type,
     sscanf(quantity.c_str(), "%" SCNd64, &q);
     sscanf(price.c_str(), "%" SCNd64, &p);
     sscanf(lifespan.c_str(), "%" SCNd64, &l);
-    string response = ot_me.create_market_offer(myacct, hisacct, s, m, q, p,
+    string response = OT_ME::It().create_market_offer(myacct, hisacct, s, m, q, p,
                                                 type == "ask", l, "", 0);
     return responseReply(response, server, mynym, myacct,
                          "create_market_offer");
@@ -277,10 +277,10 @@ int32_t CmdNewOffer::cleanMarketOfferList(
         otOut << "Canceling market offer with transaction number: " << id
               << ".\n";
 
-        OT_ME ot_me;
+         
         int64_t j;
         sscanf(id.c_str(), "%" SCNd64, &j);
-        string response = ot_me.kill_market_offer(server, mynym, myacct, j);
+        string response = OT_ME::It().kill_market_offer(server, mynym, myacct, j);
         if (0 > processTxResponse(server, mynym, myacct, response,
                                   "kill market offer")) {
             return -1;

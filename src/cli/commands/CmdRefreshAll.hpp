@@ -36,54 +36,25 @@
  *
  ************************************************************/
 
-#include "CmdGetMyOffers.hpp"
+#ifndef OPENTXS_CLIENT_CMDREFRESHALL_HPP
+#define OPENTXS_CLIENT_CMDREFRESHALL_HPP
 
 #include "CmdBase.hpp"
-#include "CmdShowMyOffers.hpp"
 
-#include <opentxs/core/Version.hpp>
-#include <opentxs/client/OT_ME.hpp>
-
-#include <stdint.h>
-#include <string>
-
-using namespace opentxs;
-using namespace std;
-
-CmdGetMyOffers::CmdGetMyOffers()
+namespace opentxs
 {
-    command = "getmyoffers";
-    args[0] = "--server <server>";
-    args[1] = "--mynym <nym>";
-    category = catMarkets;
-    help = "Download mynym's list of market offers.";
-}
 
-CmdGetMyOffers::~CmdGetMyOffers()
+class CmdRefreshAll : public CmdBase
 {
-}
+public:
+    EXPORT CmdRefreshAll();
+    EXPORT ~CmdRefreshAll() = default;
 
-int32_t CmdGetMyOffers::runWithOptions()
-{
-    return run(getOption("server"), getOption("mynym"));
-}
+    EXPORT int32_t run();
 
-int32_t CmdGetMyOffers::run(string server, string mynym)
-{
-    if (!checkServer("server", server)) {
-        return -1;
-    }
+protected:
+    virtual int32_t runWithOptions();
+};
+} // namespace opentxs
 
-    if (!checkNym("mynym", mynym)) {
-        return -1;
-    }
-
-     
-    string response = OT_ME::It().get_nym_market_offers(server, mynym);
-    if (1 != processResponse(response, "get market offers")) {
-        return -1;
-    }
-
-    CmdShowMyOffers showMyOffers;
-    return showMyOffers.run(server, mynym);
-}
+#endif // OPENTXS_CLIENT_CMDREFRESHALL_HPP

@@ -42,6 +42,8 @@
 
 #include <opentxs/core/Version.hpp>
 #include <opentxs/client/MadeEasy.hpp>
+#include <opentxs/core/app/App.hpp>
+#include <opentxs/core/app/Api.hpp>
 #include <opentxs/core/Log.hpp>
 
 #include <stdint.h>
@@ -86,12 +88,12 @@ int32_t CmdSendMessage::run(string server, string mynym, string hisnym)
 
     // make sure we can access the public keys before trying to send a message
 
-    if ("" == MadeEasy::load_or_retrieve_encrypt_key(server, mynym, mynym)) {
+    if ("" == App::Me().API().ME().load_or_retrieve_encrypt_key(server, mynym, mynym)) {
         otOut << "Error: cannot load public key for mynym.\n";
         return -1;
     }
 
-    if ("" == MadeEasy::load_or_retrieve_encrypt_key(server, mynym, hisnym)) {
+    if ("" == App::Me().API().ME().load_or_retrieve_encrypt_key(server, mynym, hisnym)) {
         otOut << "Error: cannot load public key for hisnym.\n";
         return -1;
     }
@@ -101,6 +103,6 @@ int32_t CmdSendMessage::run(string server, string mynym, string hisnym)
         return -1;
     }
 
-    string response = MadeEasy::send_user_msg(server, mynym, hisnym, input);
+    string response = App::Me().API().ME().send_user_msg(server, mynym, hisnym, input);
     return processResponse(response, "send message");
 }

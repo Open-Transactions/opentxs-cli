@@ -91,8 +91,8 @@ int32_t CmdNewNymHD::run(string label, string source, string path)
         }
     }
 
-    OT_ME ot_me;
-    string mynym = ot_me.create_nym_hd(source, nym);
+     
+    string mynym = OT_ME::It().create_nym_hd(source, nym);
     if ("" == mynym) {
         otOut << "Error: cannot create new nym.\n";
         return -1;

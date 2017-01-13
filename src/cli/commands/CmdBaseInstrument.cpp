@@ -42,8 +42,10 @@
 #include <opentxs/client/OTAPI_Wrap.hpp>
 #include <opentxs/client/OT_ME.hpp>
 #include <opentxs/client/MadeEasy.hpp>
-#include <opentxs/core/Log.hpp>
+#include <opentxs/core/app/App.hpp>
+#include <opentxs/core/app/Api.hpp>
 #include <opentxs/core/util/Common.hpp>
+#include <opentxs/core/Log.hpp>
 
 #include <stdint.h>
 #include <ostream>
@@ -133,9 +135,9 @@ int32_t CmdBaseInstrument::sendPayment(const string& cheque, string sender,
         return -1;
     }
 
-    OT_ME ot_me;
+     
     string response =
-        ot_me.send_user_payment(server, sender, recipient, cheque);
+        OT_ME::It().send_user_payment(server, sender, recipient, cheque);
     return processResponse(response, what);
 }
 
@@ -174,15 +176,15 @@ string CmdBaseInstrument::writeCheque(string myacct, string hisnym,
 
     // make sure we can access the public key before trying to write a cheque
     if ("" != hisnym) {
-        if (MadeEasy::load_or_retrieve_encrypt_key(server, mynym, hisnym) ==
+        if (App::Me().API().ME().load_or_retrieve_encrypt_key(server, mynym, hisnym) ==
             "") {
             otOut << "Error: cannot load public key for hisnym.\n";
             return "";
         }
     }
 
-    OT_ME ot_me;
-    if (!ot_me.make_sure_enough_trans_nums(10, server, mynym)) {
+     
+    if (!OT_ME::It().make_sure_enough_trans_nums(10, server, mynym)) {
         otOut << "Error: cannot reserve transaction numbers.\n";
         return "";
     }

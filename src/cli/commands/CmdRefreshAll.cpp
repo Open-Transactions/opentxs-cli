@@ -36,54 +36,29 @@
  *
  ************************************************************/
 
-#include "CmdGetMyOffers.hpp"
-
-#include "CmdBase.hpp"
-#include "CmdShowMyOffers.hpp"
+#include "CmdRefreshAll.hpp"
 
 #include <opentxs/core/Version.hpp>
-#include <opentxs/client/OT_ME.hpp>
+#include <opentxs/client/OTAPI_Wrap.hpp>
 
-#include <stdint.h>
-#include <string>
+namespace opentxs {
 
-using namespace opentxs;
-using namespace std;
-
-CmdGetMyOffers::CmdGetMyOffers()
+CmdRefreshAll::CmdRefreshAll()
 {
-    command = "getmyoffers";
-    args[0] = "--server <server>";
-    args[1] = "--mynym <nym>";
-    category = catMarkets;
-    help = "Download mynym's list of market offers.";
+    command = "refreshall";
+    category = catWallet;
+    help = "Refresh all nyms in the wallet on all servers.";
 }
 
-CmdGetMyOffers::~CmdGetMyOffers()
+int32_t CmdRefreshAll::runWithOptions()
 {
+    return run();
 }
 
-int32_t CmdGetMyOffers::runWithOptions()
+int32_t CmdRefreshAll::run()
 {
-    return run(getOption("server"), getOption("mynym"));
+    OTAPI_Wrap::Trigger_Refresh("");
+
+    return 1;
 }
-
-int32_t CmdGetMyOffers::run(string server, string mynym)
-{
-    if (!checkServer("server", server)) {
-        return -1;
-    }
-
-    if (!checkNym("mynym", mynym)) {
-        return -1;
-    }
-
-     
-    string response = OT_ME::It().get_nym_market_offers(server, mynym);
-    if (1 != processResponse(response, "get market offers")) {
-        return -1;
-    }
-
-    CmdShowMyOffers showMyOffers;
-    return showMyOffers.run(server, mynym);
-}
+} // namespace opentxs

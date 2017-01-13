@@ -90,8 +90,8 @@ std::int32_t CmdAcknowledgeBailment::run(
         return -1;
     }
 
-    OT_ME ot_me;
-    std::string response = ot_me.acknowledge_bailment(
+
+    std::string response = OT_ME::It().acknowledge_bailment(
         server, mynym, hisnym, mypurse, terms);
     return processResponse(response, "acknowledge bailment");
 }

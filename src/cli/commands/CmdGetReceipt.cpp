@@ -119,9 +119,9 @@ int32_t CmdGetReceipt::run(string server, string mynym, string myacct,
         }
     }
 
-    OT_ME ot_me;
+     
     int64_t i;
     sscanf(id.c_str(), "%" SCNd64, &i);
-    string response = ot_me.get_box_receipt(server, mynym, myacct, type, i);
+    string response = OT_ME::It().get_box_receipt(server, mynym, myacct, type, i);
     return processResponse(response, "get box receipt");
 }

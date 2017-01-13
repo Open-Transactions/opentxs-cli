@@ -103,6 +103,7 @@
 #include "commands/CmdOutbox.hpp"
 #include "commands/CmdOutmail.hpp"
 #include "commands/CmdOutpayment.hpp"
+#include "commands/CmdPairNode.hpp"
 #include "commands/CmdPasswordDecrypt.hpp"
 #include "commands/CmdPasswordEncrypt.hpp"
 #include "commands/CmdPayDividend.hpp"
@@ -112,6 +113,7 @@
 #include "commands/CmdProposePlan.hpp"
 #include "commands/CmdRefresh.hpp"
 #include "commands/CmdRefreshAccount.hpp"
+#include "commands/CmdRefreshAll.hpp"
 #include "commands/CmdRefreshNym.hpp"
 #include "commands/CmdRegisterContractNym.hpp"
 #include "commands/CmdRegisterContractServer.hpp"
@@ -231,11 +233,13 @@ CmdBase* cmds[] = {new CmdAcceptAll,            new CmdAcceptInbox,
                    new CmdNewOffer,             new CmdNotifyBailment,
                    new CmdOutbox,               new CmdOutmail,
                    new CmdNewBasket,            new CmdOutpayment,
+                   new CmdPairNode,
                    new CmdPasswordDecrypt,      new CmdPasswordEncrypt,
                    new CmdPayDividend,          new CmdPayInvoice,
                    new CmdPeerStoreSecret,      new CmdPingNotary,
                    new CmdProposePlan,          new CmdRefresh,
-                   new CmdRefreshAccount,       new CmdRefreshNym,
+                   new CmdRefreshAccount,       new CmdRefreshAll,
+                   new CmdRefreshNym,
                    new CmdRequestAdmin,         new CmdRequestBailment,
                    new CmdRequestConnection,    new CmdRequestOutBailment,
                    new CmdRegisterContractNym,  new CmdRegisterContractServer,

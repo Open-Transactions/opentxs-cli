@@ -45,6 +45,8 @@
 #include <opentxs/client/OT_ME.hpp>
 #include <opentxs/client/MadeEasy.hpp>
 #include <opentxs/core/util/Common.hpp>
+#include <opentxs/core/app/App.hpp>
+#include <opentxs/core/app/Api.hpp>
 #include <opentxs/core/Log.hpp>
 
 #include <stdint.h>
@@ -153,8 +155,8 @@ int32_t CmdExchangeBasket::run(string myacct, string direction, string multiple)
         }
     }
 
-    OT_ME ot_me;
-    if (!ot_me.make_sure_enough_trans_nums(20, server, mynym)) {
+     
+    if (!OT_ME::It().make_sure_enough_trans_nums(20, server, mynym)) {
         otOut << "Error: cannot reserve transaction numbers.\n";
         return -1;
     }
@@ -248,7 +250,7 @@ int32_t CmdExchangeBasket::run(string myacct, string direction, string multiple)
         basket = newBasket;
     }
 
-    string response = MadeEasy::exchange_basket_currency(
+    string response = App::Me().API().ME().exchange_basket_currency(
         server, mynym, assetType, basket, myacct, bExchangingIn);
     int32_t reply =
         responseReply(response, server, mynym, myacct, "exchange_basket");
@@ -256,7 +258,7 @@ int32_t CmdExchangeBasket::run(string myacct, string direction, string multiple)
         return reply;
     }
 
-    if (!MadeEasy::retrieve_account(server, mynym, myacct, true)) {
+    if (!App::Me().API().ME().retrieve_account(server, mynym, myacct, true)) {
         otOut << "Error retrieving intermediary files for account.\n";
         return -1;
     }
@@ -319,7 +321,7 @@ int32_t CmdExchangeBasket::showBasketAccounts(const string& server,
                 if (("" == assetType && OTAPI_Wrap::IsBasketCurrency(asset)) ||
                     ("" != assetType && bFilter && assetType == asset) ||
                     ("" != assetType && !bFilter && assetType != asset)) {
-                    string statAccount = MadeEasy::stat_asset_account(acct);
+                    string statAccount = App::Me().API().ME().stat_asset_account(acct);
                     if ("" == statAccount) {
                         otOut << "Error: cannot stat account.\n";
                         return -1;

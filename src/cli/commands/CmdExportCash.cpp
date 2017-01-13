@@ -43,6 +43,8 @@
 #include <opentxs/core/Version.hpp>
 #include <opentxs/client/MadeEasy.hpp>
 #include <opentxs/client/OTAPI_Wrap.hpp>
+#include <opentxs/core/app/App.hpp>
+#include <opentxs/core/app/Api.hpp>
 #include <opentxs/core/Log.hpp>
 
 #include <stdint.h>
@@ -166,7 +168,7 @@ string CmdExportCash::exportCash(const string& server, const string& mynym,
                                  string& retainedCopy) const
 {
     string contract =
-        MadeEasy::load_or_retrieve_contract(server, mynym, assetType);
+        App::Me().API().ME().load_or_retrieve_contract(server, mynym, assetType);
     if ("" == contract) {
         otOut << "Error: cannot load asset contract.\n";
         return "";
@@ -183,6 +185,6 @@ string CmdExportCash::exportCash(const string& server, const string& mynym,
         return "";
     }
 
-    return MadeEasy::exportCashPurse(server, assetType, mynym, instrument,
+    return App::Me().API().ME().exportCashPurse(server, assetType, mynym, instrument,
                                      tokens, hisnym, hasPassword, retainedCopy);
 }

@@ -75,10 +75,13 @@ int32_t CmdShowNym::run(string mynym)
     }
 
     string nymStats = OTAPI_Wrap::GetNym_Stats(mynym);
+
     if ("" == nymStats) {
-        return -1;
+        nymStats = "This nym is not located in the local wallet.";
     }
 
-    cout << nymStats << "\n";
+    std::string claims = OTAPI_Wrap::DumpContactData(mynym);
+
+    cout << nymStats << std::endl << claims;
     return 1;
 }

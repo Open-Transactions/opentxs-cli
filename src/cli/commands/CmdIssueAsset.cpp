@@ -44,6 +44,8 @@
 #include <opentxs/core/Version.hpp>
 #include <opentxs/client/OTAPI_Wrap.hpp>
 #include <opentxs/client/MadeEasy.hpp>
+#include <opentxs/core/app/App.hpp>
+#include <opentxs/core/app/Api.hpp>
 
 #include <stdint.h>
 #include <string>
@@ -90,6 +92,6 @@ int32_t CmdIssueAsset::run(string server, string mynym)
         registerNym.run(server, mynym);
     }
 
-    string response = MadeEasy::issue_asset_type(server, mynym, contract);
+    string response = App::Me().API().ME().issue_asset_type(server, mynym, contract);
     return processResponse(response, "issue asset contract");
 }

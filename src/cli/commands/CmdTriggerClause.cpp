@@ -103,8 +103,8 @@ int32_t CmdTriggerClause::run(string server, string mynym, string id,
         }
     }
 
-    OT_ME ot_me;
+     
     string response =
-        ot_me.trigger_clause(server, mynym, std::stoi(id), clause, param);
+        OT_ME::It().trigger_clause(server, mynym, std::stoi(id), clause, param);
     return processResponse(response, "trigger clause");
 }

@@ -69,6 +69,7 @@ set(cxx-sources
   commands/CmdOutbox.cpp
   commands/CmdOutmail.cpp
   commands/CmdOutpayment.cpp
+  commands/CmdPairNode.cpp
   commands/CmdPasswordDecrypt.cpp
   commands/CmdPasswordEncrypt.cpp
   commands/CmdPayDividend.cpp
@@ -77,6 +78,7 @@ set(cxx-sources
   commands/CmdProposePlan.cpp
   commands/CmdRefresh.cpp
   commands/CmdRefreshAccount.cpp
+  commands/CmdRefreshAll.cpp
   commands/CmdRefreshNym.cpp
   commands/CmdRegisterContractNym.cpp
   commands/CmdRegisterContractServer.cpp

@@ -83,9 +83,9 @@ private:
 
     const std::string spaces18 = "                  ";
 
-    int newArgc;
-    char** newArgv;
-    bool expectFailure;
+    int newArgc{0};
+    char** newArgv{nullptr};
+    bool expectFailure{false};
 };
 } // namespace opentxs
 #endif // __OPENTXS_HPP__

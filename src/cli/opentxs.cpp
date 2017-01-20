@@ -268,6 +268,9 @@ CmdBase* cmds[] = {new CmdAcceptAll,            new CmdAcceptInbox,
                    nullptr};
 
 Opentxs::Opentxs()
+    : newArgc(0)
+    , newArgv(nullptr)
+    , expectFailure(false)
 {
     OTAPI_Wrap::AppInit();
 }

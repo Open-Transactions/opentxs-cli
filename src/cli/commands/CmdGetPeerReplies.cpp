@@ -68,9 +68,20 @@ std::int32_t CmdGetPeerReplies::run(std::string mynym)
         return -1;
     }
 
-    auto output = OTAPI_Wrap::getIncomingReplies(mynym);
+    auto sent = OTAPI_Wrap::getSentReplies(mynym);
+    auto incoming = OTAPI_Wrap::getIncomingReplies(mynym);
+    auto finished = OTAPI_Wrap::getFinishedReplies(mynym);
+    auto processed = OTAPI_Wrap::getProcessedReplies(mynym);
 
-    otOut << output << std::endl;
+    otOut << "Peer reply box contents:" << std::endl;
+    otOut << "Sent box:" << std::endl;
+    otOut << sent << std::endl;
+    otOut << "Incoming box:" << std::endl;
+    otOut << incoming << std::endl;
+    otOut << "Finished box:" << std::endl;
+    otOut << finished << std::endl;
+    otOut << "Processed box:" << std::endl;
+    otOut << processed << std::endl;
 
     return 1;
 }

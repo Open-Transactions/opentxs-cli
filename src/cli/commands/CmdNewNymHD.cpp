@@ -42,7 +42,6 @@
 
 #include <opentxs/core/Version.hpp>
 #include <opentxs/client/OTAPI_Wrap.hpp>
-#include <opentxs/client/OT_ME.hpp>
 #include <opentxs/core/Log.hpp>
 #include <opentxs/core/Types.hpp>
 
@@ -91,8 +90,9 @@ int32_t CmdNewNymHD::run(string label, string source, string path)
         }
     }
 
-     
-    string mynym = OT_ME::It().create_nym_hd(source, nym);
+
+    std::string mynym = OTAPI_Wrap::CreateIndividualNym(label, source, nym);
+
     if ("" == mynym) {
         otOut << "Error: cannot create new nym.\n";
         return -1;
@@ -100,9 +100,5 @@ int32_t CmdNewNymHD::run(string label, string source, string path)
 
     cout << "New nym: " << mynym << "\n";
 
-    if (!OTAPI_Wrap::SetNym_Name(mynym, mynym, label)) {
-        otOut << "Error: cannot set new nym name.\n";
-        return -1;
-    }
     return 1;
 }

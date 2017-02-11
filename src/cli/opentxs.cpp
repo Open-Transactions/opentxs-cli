@@ -63,8 +63,6 @@
 #include "commands/CmdConvertPaymentCode.hpp"
 #include "commands/CmdDecode.hpp"
 #include "commands/CmdDecrypt.hpp"
-#include "commands/CmdDeleteInmail.hpp"
-#include "commands/CmdDeleteOutmail.hpp"
 #include "commands/CmdDeposit.hpp"
 #include "commands/CmdDiscard.hpp"
 #include "commands/CmdEditAccount.hpp"
@@ -87,7 +85,6 @@
 #include "commands/CmdImportNym.hpp"
 #include "commands/CmdImportSeed.hpp"
 #include "commands/CmdInbox.hpp"
-#include "commands/CmdInmail.hpp"
 #include "commands/CmdInpayments.hpp"
 #include "commands/CmdIssueAsset.hpp"
 #include "commands/CmdKillOffer.hpp"
@@ -101,7 +98,6 @@
 #include "commands/CmdNewOffer.hpp"
 #include "commands/CmdNotifyBailment.hpp"
 #include "commands/CmdOutbox.hpp"
-#include "commands/CmdOutmail.hpp"
 #include "commands/CmdOutpayment.hpp"
 #include "commands/CmdPairNode.hpp"
 #include "commands/CmdPasswordDecrypt.hpp"
@@ -212,7 +208,6 @@ CmdBase* cmds[] = {new CmdAcceptAll,            new CmdAcceptInbox,
                    new CmdClearRecords,         new CmdConfirm,
                    new CmdConvertPaymentCode,
                    new CmdDecode,               new CmdDecrypt,
-                   new CmdDeleteInmail,         new CmdDeleteOutmail,
                    new CmdDeposit,              new CmdDiscard,
                    new CmdEditAccount,          new CmdEditAsset,
                    new CmdEditNym,              new CmdEditServer,
@@ -223,17 +218,15 @@ CmdBase* cmds[] = {new CmdAcceptAll,            new CmdAcceptInbox,
                    new CmdGetOffers,            new CmdGetPeerRequests,
                    new CmdGetPeerReplies,       new CmdGetReceipt,
                    new CmdImportCash,           new CmdImportNym,
-                   new CmdImportSeed,
-                   new CmdInbox,                new CmdInmail,
+                   new CmdImportSeed,           new CmdInbox,
                    new CmdInpayments,           new CmdIssueAsset,
                    new CmdKillOffer,            new CmdKillPlan,
                    new CmdNewAccount,           new CmdNewAsset,
                    new CmdNewKey,               new CmdNewNymHD,
                    new CmdNewNymLegacy,
                    new CmdNewOffer,             new CmdNotifyBailment,
-                   new CmdOutbox,               new CmdOutmail,
-                   new CmdNewBasket,            new CmdOutpayment,
-                   new CmdPairNode,
+                   new CmdOutbox,               new CmdNewBasket,
+                   new CmdOutpayment,           new CmdPairNode,
                    new CmdPasswordDecrypt,      new CmdPasswordEncrypt,
                    new CmdPayDividend,          new CmdPayInvoice,
                    new CmdPeerStoreSecret,      new CmdPingNotary,

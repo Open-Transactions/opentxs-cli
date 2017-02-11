@@ -28,8 +28,6 @@ set(cxx-sources
   commands/CmdConvertPaymentCode.cpp
   commands/CmdDecode.cpp
   commands/CmdDecrypt.cpp
-  commands/CmdDeleteInmail.cpp
-  commands/CmdDeleteOutmail.cpp
   commands/CmdDeposit.cpp
   commands/CmdDiscard.cpp
   commands/CmdEditAccount.cpp
@@ -52,7 +50,6 @@ set(cxx-sources
   commands/CmdImportNym.cpp
   commands/CmdImportSeed.cpp
   commands/CmdInbox.cpp
-  commands/CmdInmail.cpp
   commands/CmdInpayments.cpp
   commands/CmdIssueAsset.cpp
   commands/CmdKillOffer.cpp
@@ -67,7 +64,6 @@ set(cxx-sources
   commands/CmdNotifyBailment.cpp
   commands/CmdRequestOutBailment.cpp
   commands/CmdOutbox.cpp
-  commands/CmdOutmail.cpp
   commands/CmdOutpayment.cpp
   commands/CmdPairNode.cpp
   commands/CmdPasswordDecrypt.cpp

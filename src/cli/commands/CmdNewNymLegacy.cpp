@@ -109,7 +109,7 @@ int32_t CmdNewNymLegacy::run(string keybits, string label, string source)
 
     cout << "New nym: " << mynym << "\n";
 
-    if (!OTAPI_Wrap::SetNym_Name(mynym, mynym, label)) {
+    if (!OTAPI_Wrap::SetNym_Alias(mynym, mynym, label)) {
         otOut << "Error: cannot set new nym name.\n";
         return -1;
     }

@@ -36,53 +36,27 @@
  *
  ************************************************************/
 
-#include "CmdEditNym.hpp"
+#ifndef OPENTXS_CLIENT_CMDRENAMENYM_HPP
+#define OPENTXS_CLIENT_CMDRENAMENYM_HPP
 
 #include "CmdBase.hpp"
 
-#include <opentxs/core/Version.hpp>
-#include <opentxs/client/OTAPI_Wrap.hpp>
-#include <opentxs/core/Log.hpp>
-
-#include <stdint.h>
-#include <ostream>
-#include <string>
-
-using namespace opentxs;
-using namespace std;
-
-CmdEditNym::CmdEditNym()
+namespace opentxs
 {
-    command = "editnym";
-    args[0] = "--mynym <nym>";
-    args[1] = "--label <label>";
-    category = catWallet;
-    help = "Edit mynym's label, as it appears in your wallet.";
-}
 
-CmdEditNym::~CmdEditNym()
+class CmdRenameNym : public CmdBase
 {
-}
+protected:
+    std::int32_t runWithOptions() override;
 
-int32_t CmdEditNym::runWithOptions()
-{
-    return run(getOption("mynym"), getOption("label"));
-}
+public:
+    EXPORT CmdRenameNym();
 
-int32_t CmdEditNym::run(string mynym, string label)
-{
-    if (!checkNym("mynym", mynym)) {
-        return -1;
-    }
+    EXPORT std::int32_t run(std::string mynym, std::string label);
 
-    if (!checkMandatory("label", label)) {
-        return -1;
-    }
+    EXPORT ~CmdRenameNym() = default;
+};
 
-    if (!OTAPI_Wrap::SetNym_Alias(mynym, mynym, label)) {
-        otOut << "Error: cannot set nym label.\n";
-        return -1;
-    }
+} // namespace opentxs
 
-    return 1;
-}
+#endif // OPENTXS_CLIENT_CMDRENAMENYM_HPP

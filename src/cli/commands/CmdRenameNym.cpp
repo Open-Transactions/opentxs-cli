@@ -36,40 +36,36 @@
  *
  ************************************************************/
 
-#include "CmdEditNym.hpp"
+#include "CmdRenameNym.hpp"
 
 #include "CmdBase.hpp"
 
 #include <opentxs/core/Version.hpp>
 #include <opentxs/client/OTAPI_Wrap.hpp>
 #include <opentxs/core/Log.hpp>
+#include <opentxs/core/Proto.hpp>
 
 #include <stdint.h>
 #include <ostream>
 #include <string>
 
-using namespace opentxs;
-using namespace std;
+namespace opentxs {
 
-CmdEditNym::CmdEditNym()
+CmdRenameNym::CmdRenameNym()
 {
-    command = "editnym";
+    command = "renamenym";
     args[0] = "--mynym <nym>";
     args[1] = "--label <label>";
     category = catWallet;
-    help = "Edit mynym's label, as it appears in your wallet.";
+    help = "Rename one of your own nyms and set appropriate claims.";
 }
 
-CmdEditNym::~CmdEditNym()
-{
-}
-
-int32_t CmdEditNym::runWithOptions()
+std::int32_t CmdRenameNym::runWithOptions()
 {
     return run(getOption("mynym"), getOption("label"));
 }
 
-int32_t CmdEditNym::run(string mynym, string label)
+std::int32_t CmdRenameNym::run(std::string mynym, std::string label)
 {
     if (!checkNym("mynym", mynym)) {
         return -1;
@@ -79,10 +75,11 @@ int32_t CmdEditNym::run(string mynym, string label)
         return -1;
     }
 
-    if (!OTAPI_Wrap::SetNym_Alias(mynym, mynym, label)) {
-        otOut << "Error: cannot set nym label.\n";
+    if (!OTAPI_Wrap::Rename_Nym(mynym, label, proto::CITEMTYPE_INDIVIDUAL)) {
+        otOut << "Error: cannot rename nym.\n";
         return -1;
     }
 
     return 1;
 }
+} // namespace opentxs

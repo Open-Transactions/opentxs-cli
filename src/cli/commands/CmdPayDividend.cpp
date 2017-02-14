@@ -45,10 +45,10 @@
 
 
 #include <opentxs/core/Version.hpp>
+#include <opentxs/api/Api.hpp>
+#include <opentxs/api/OT.hpp>
 #include <opentxs/client/OT_ME.hpp>
 #include <opentxs/client/MadeEasy.hpp>
-#include <opentxs/core/app/App.hpp>
-#include <opentxs/core/app/Api.hpp>
 #include <opentxs/core/util/Common.hpp>
 #include <opentxs/core/Log.hpp>
 
@@ -113,7 +113,7 @@ int32_t CmdPayDividend::run(string myacct, string hispurse, string amount,
         return -1;
     }
 
-     
+
     string response =
         OT_ME::It().pay_dividend(server, mynym, myacct, hispurse, memo, value);
     int32_t reply =
@@ -122,7 +122,7 @@ int32_t CmdPayDividend::run(string myacct, string hispurse, string amount,
         return reply;
     }
 
-    if (!App::Me().API().ME().retrieve_account(server, mynym, myacct, true)) {
+    if (!OT::App().API().ME().retrieve_account(server, mynym, myacct, true)) {
         otOut << "Error retrieving intermediary files for account.\n";
         return -1;
     }

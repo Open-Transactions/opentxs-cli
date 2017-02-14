@@ -41,9 +41,9 @@
 #include "CmdBase.hpp"
 
 #include <opentxs/core/Version.hpp>
+#include <opentxs/api/Api.hpp>
+#include <opentxs/api/OT.hpp>
 #include <opentxs/client/MadeEasy.hpp>
-#include <opentxs/core/app/App.hpp>
-#include <opentxs/core/app/Api.hpp>
 
 #include <stdint.h>
 #include <iostream>
@@ -75,7 +75,7 @@ int32_t CmdShowAccount::run(string myacct)
         return -1;
     }
 
-    string accountData = App::Me().API().ME().stat_asset_account(myacct);
+    string accountData = OT::App().API().ME().stat_asset_account(myacct);
     if ("" == accountData) {
         cout << "Error trying to stat asset account: " << myacct << "\n";
         return -1;

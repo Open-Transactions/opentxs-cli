@@ -42,11 +42,11 @@
 #include "CmdShowNyms.hpp"
 
 #include <opentxs/core/Version.hpp>
+#include <opentxs/api/OT.hpp>
+#include <opentxs/api/Api.hpp>
 #include <opentxs/client/OTAPI_Wrap.hpp>
 #include <opentxs/client/OT_ME.hpp>
 #include <opentxs/client/MadeEasy.hpp>
-#include <opentxs/core/app/App.hpp>
-#include <opentxs/core/app/Api.hpp>
 #include <opentxs/core/util/Common.hpp>
 #include <opentxs/core/Log.hpp>
 
@@ -128,7 +128,7 @@ int32_t CmdConfirm::run(string server, string mynym, string myacct,
     }
 
     // use specified payment instrument from inpayments
-     
+
     string instrument =
         OT_ME::It().get_payment_instrument(server, mynym, messageNr, "");
     if ("" == instrument) {
@@ -237,7 +237,7 @@ int32_t CmdConfirm::confirmPaymentPlan(const string& mynym,
         return -1;
     }
 
-     
+
     if (!OT_ME::It().make_sure_enough_trans_nums(2, server, senderUser)) {
         otOut << "Error: cannot reserve transaction numbers.\n";
         return -1;
@@ -253,7 +253,7 @@ int32_t CmdConfirm::confirmPaymentPlan(const string& mynym,
     // If we fail, then we need to harvest the transaction numbers back from
     // the payment plan that we confirmed
     string response =
-        App::Me().API().ME().deposit_payment_plan(server, senderUser, confirmed);
+        OT::App().API().ME().deposit_payment_plan(server, senderUser, confirmed);
 
     int32_t success = responseStatus(response);
     if (1 != success) {
@@ -271,7 +271,7 @@ int32_t CmdConfirm::confirmPaymentPlan(const string& mynym,
     if (nullptr != pOptionalOutput)
         *pOptionalOutput = response;
 
-    if (!App::Me().API().ME().retrieve_account(server, senderUser, senderAcct, true)) {
+    if (!OT::App().API().ME().retrieve_account(server, senderUser, senderAcct, true)) {
         otOut << "Error retrieving intermediary files for account.\n";
         return -1;
     }
@@ -502,7 +502,7 @@ int32_t CmdConfirm::activateContract(const string& server, const string& mynym,
         }
     }
 
-     
+
     string response = OT_ME::It().activate_smart_contract(server, mynym, myAcctID,
                                                     myAcctAgentName, contract);
     if (1 != responseStatus(response)) {
@@ -518,7 +518,7 @@ int32_t CmdConfirm::activateContract(const string& server, const string& mynym,
         return reply;
     }
 
-    if (!App::Me().API().ME().retrieve_account(server, mynym, myAcctID, true)) {
+    if (!OT::App().API().ME().retrieve_account(server, mynym, myAcctID, true)) {
         otOut << "Error retrieving intermediary files for account.\n";
     }
 
@@ -569,7 +569,7 @@ int32_t CmdConfirm::sendToNextParty(const string& server, const string& mynym,
         }
     }
 
-     
+
     string response =
         OT_ME::It().send_user_payment(server, mynym, hisNymID, contract);
     if (1 != responseStatus(response)) {
@@ -851,7 +851,7 @@ int32_t CmdConfirm::confirmAccounts(string server, string mynym, string myacct,
         int32_t needed = OTAPI_Wrap::SmartContract_CountNumsNeeded(
             contract, mapAgents[x->first]);
 
-         
+
         if (!OT_ME::It().make_sure_enough_trans_nums(needed + 1, server, mynym)) {
             otOut << "Error: cannot reserve transaction numbers.\n";
             return -1;

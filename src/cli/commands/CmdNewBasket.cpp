@@ -42,10 +42,10 @@
 #include "CmdShowAssets.hpp"
 
 #include <opentxs/core/Version.hpp>
+#include <opentxs/api/Api.hpp>
+#include <opentxs/api/OT.hpp>
 #include <opentxs/client/OTAPI_Wrap.hpp>
 #include <opentxs/client/MadeEasy.hpp>
-#include <opentxs/core/app/App.hpp>
-#include <opentxs/core/app/Api.hpp>
 #include <opentxs/core/Log.hpp>
 
 #include <stdint.h>
@@ -191,7 +191,7 @@ int32_t CmdNewBasket::run(
 
     otOut << "Here's the basket we're issuing:\n\n" << basket << std::endl;
 
-    string response = App::Me().API().ME().issue_basket_currency(server, mynym, basket);
+    string response =OT::App().API().ME().issue_basket_currency(server, mynym, basket);
     int32_t status = responseStatus(response);
     switch (status) {
     case 1: {
@@ -205,7 +205,7 @@ int32_t CmdNewBasket::run(
         string strEnding = ".";
 
         if (bGotNewID) {
-            response = App::Me().API().ME().retrieve_contract(server, mynym, strNewID);
+            response =OT::App().API().ME().retrieve_contract(server, mynym, strNewID);
             strEnding = ": " + strNewID;
 
             if (1 == responseStatus(response)) {

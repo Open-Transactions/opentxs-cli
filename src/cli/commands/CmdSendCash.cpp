@@ -43,11 +43,11 @@
 #include "CmdWithdrawCash.hpp"
 
 #include <opentxs/core/Version.hpp>
+#include <opentxs/api/Api.hpp>
+#include <opentxs/api/OT.hpp>
 #include <opentxs/client/OTAPI_Wrap.hpp>
 #include <opentxs/client/OT_ME.hpp>
 #include <opentxs/client/MadeEasy.hpp>
-#include <opentxs/core/app/App.hpp>
-#include <opentxs/core/app/Api.hpp>
 #include <opentxs/core/util/Common.hpp>
 #include <opentxs/core/Log.hpp>
 
@@ -158,7 +158,7 @@ int32_t CmdSendCash::run(string server, string mynym, string myacct,
     // to, try to get the remaining funds from the account, IF that's available.
 
     // make sure we can access the public key before trying to send cash
-    if ("" == App::Me().API().ME().load_or_retrieve_encrypt_key(server, mynym, hisnym)) {
+    if ("" == OT::App().API().ME().load_or_retrieve_encrypt_key(server, mynym, hisnym)) {
         otOut << "Error: cannot load public key for hisnym.\n";
         return -1;
     }
@@ -221,7 +221,7 @@ int32_t CmdSendCash::sendCash(string& response, const string& server,
         return -1;
     }
 
-     
+
     response =
         OT_ME::It().send_user_cash(server, mynym, hisnym, exportedCash, retainedCopy);
     if (1 != responseStatus(response)) {

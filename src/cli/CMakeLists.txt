@@ -44,6 +44,8 @@ set(cxx-sources
   commands/CmdGetMyOffers.cpp
   commands/CmdGetOffers.cpp
   commands/CmdGetPeerReplies.cpp
+  commands/CmdGetPeerReply.cpp
+  commands/CmdGetPeerRequest.cpp
   commands/CmdGetPeerRequests.cpp
   commands/CmdGetReceipt.cpp
   commands/CmdImportCash.cpp

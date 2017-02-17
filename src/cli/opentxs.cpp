@@ -79,6 +79,8 @@
 #include "commands/CmdGetMyOffers.hpp"
 #include "commands/CmdGetOffers.hpp"
 #include "commands/CmdGetPeerReplies.hpp"
+#include "commands/CmdGetPeerReply.hpp"
+#include "commands/CmdGetPeerRequest.hpp"
 #include "commands/CmdGetPeerRequests.hpp"
 #include "commands/CmdGetReceipt.hpp"
 #include "commands/CmdImportCash.hpp"
@@ -217,7 +219,8 @@ CmdBase* cmds[] = {new CmdAcceptAll,            new CmdAcceptInbox,
                    new CmdExportNym,            new CmdGetInstrumentDefinition,
                    new CmdGetMarkets,           new CmdGetMyOffers,
                    new CmdGetOffers,            new CmdGetPeerRequests,
-                   new CmdGetPeerReplies,       new CmdGetReceipt,
+                   new CmdGetPeerRequest,       new CmdGetPeerReplies,
+                   new CmdGetPeerReply,         new CmdGetReceipt,
                    new CmdImportCash,           new CmdImportNym,
                    new CmdImportSeed,           new CmdInbox,
                    new CmdInpayments,           new CmdIssueAsset,

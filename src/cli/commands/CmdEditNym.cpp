@@ -79,7 +79,7 @@ int32_t CmdEditNym::run(string mynym, string label)
         return -1;
     }
 
-    if (!OTAPI_Wrap::SetNym_Name(mynym, mynym, label)) {
+    if (!OTAPI_Wrap::SetNym_Alias(mynym, mynym, label)) {
         otOut << "Error: cannot set nym label.\n";
         return -1;
     }

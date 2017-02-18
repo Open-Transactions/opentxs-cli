@@ -36,49 +36,30 @@
  *
  ************************************************************/
 
-#include "CmdPingNotary.hpp"
+#ifndef OPENTXS_CLIENT_CMDGETPEERREPLY_HPP
+#define OPENTXS_CLIENT_CMDGETPEERREPLY_HPP
 
 #include "CmdBase.hpp"
 
-#include <opentxs/core/Version.hpp>
-#include <opentxs/api/Api.hpp>
-#include <opentxs/api/OT.hpp>
-#include <opentxs/client/MadeEasy.hpp>
-
-#include <stdint.h>
+#include <cstdint>
 #include <string>
 
-using namespace opentxs;
-using namespace std;
-
-CmdPingNotary::CmdPingNotary()
+namespace opentxs
 {
-    command = "pingnotary";
-    args[0] = "--server <server>";
-    args[1] = "--mynym <nym>";
-    category = catMisc;
-    help = "See if a notary is responsive.";
-}
 
-CmdPingNotary::~CmdPingNotary()
+class CmdGetPeerReply : public CmdBase
 {
-}
+protected:
+    std::int32_t runWithOptions() override;
 
-int32_t CmdPingNotary::runWithOptions()
-{
-    return run(getOption("server"), getOption("mynym"));
-}
+public:
+    EXPORT CmdGetPeerReply();
 
-int32_t CmdPingNotary::run(string server, string mynym)
-{
-    if (!checkServer("server", server)) {
-        return -1;
-    }
+    EXPORT std::int32_t run(std::string mynym, std::string reply);
 
-    if (!checkNym("mynym", mynym)) {
-        return -1;
-    }
+    EXPORT ~CmdGetPeerReply() = default;
+};
 
-    string response = OT::App().API().ME().ping_notary(server, mynym);
-    return processResponse(response, "ping notary");
-}
+} // namespace opentxs
+
+#endif // OPENTXS_CLIENT_CMDGETPEERREPLY_HPP

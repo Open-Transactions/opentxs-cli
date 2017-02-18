@@ -42,10 +42,10 @@
 #include "CmdRefreshNym.hpp"
 
 #include <opentxs/core/Version.hpp>
+#include <opentxs/api/Api.hpp>
+#include <opentxs/api/OT.hpp>
 #include <opentxs/client/OTAPI_Wrap.hpp>
 #include <opentxs/client/MadeEasy.hpp>
-#include <opentxs/core/app/App.hpp>
-#include <opentxs/core/app/Api.hpp>
 #include <opentxs/core/Log.hpp>
 
 #include <stdint.h>
@@ -95,7 +95,7 @@ int32_t CmdRefresh::run(string myacct)
         return -1;
     }
 
-    if (!App::Me().API().ME().retrieve_account(server, mynym, myacct, true)) {
+    if (!OT::App().API().ME().retrieve_account(server, mynym, myacct, true)) {
         otOut << "Error retrieving intermediary files for myacct.\n";
         return -1;
     }

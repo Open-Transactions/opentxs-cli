@@ -41,9 +41,9 @@
 #include "CmdBase.hpp"
 
 #include <opentxs/core/Version.hpp>
+#include <opentxs/api/Api.hpp>
+#include <opentxs/api/OT.hpp>
 #include <opentxs/client/MadeEasy.hpp>
-#include <opentxs/core/app/App.hpp>
-#include <opentxs/core/app/Api.hpp>
 
 #include <stdint.h>
 #include <string>
@@ -112,6 +112,6 @@ int32_t CmdCheckNym::run(string server, string mynym, string hisnym)
 
      */
 
-    string response = App::Me().API().ME().check_nym(server, mynym, hisnym);
+    string response = OT::App().API().ME().check_nym(server, mynym, hisnym);
     return processResponse(response, "check nym");
 }

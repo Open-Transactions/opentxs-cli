@@ -100,8 +100,8 @@ int32_t CmdNewNymLegacy::run(string keybits, string label, string source)
         return -1;
     }
 
-     
-    string mynym = OT_ME::It().create_nym_legacy(bits, source);
+
+    string mynym = OTAPI_Wrap::CreateNymLegacy(bits, source);
     if ("" == mynym) {
         otOut << "Error: cannot create new nym.\n";
         return -1;
@@ -109,7 +109,7 @@ int32_t CmdNewNymLegacy::run(string keybits, string label, string source)
 
     cout << "New nym: " << mynym << "\n";
 
-    if (!OTAPI_Wrap::SetNym_Name(mynym, mynym, label)) {
+    if (!OTAPI_Wrap::SetNym_Alias(mynym, mynym, label)) {
         otOut << "Error: cannot set new nym name.\n";
         return -1;
     }

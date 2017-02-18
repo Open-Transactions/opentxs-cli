@@ -36,69 +36,50 @@
  *
  ************************************************************/
 
-#include "CmdNewNymHD.hpp"
+#include "CmdRenameNym.hpp"
 
 #include "CmdBase.hpp"
 
 #include <opentxs/core/Version.hpp>
 #include <opentxs/client/OTAPI_Wrap.hpp>
 #include <opentxs/core/Log.hpp>
-#include <opentxs/core/Types.hpp>
+#include <opentxs/core/Proto.hpp>
 
 #include <stdint.h>
-#include <iostream>
+#include <ostream>
 #include <string>
 
-using namespace opentxs;
-using namespace std;
+namespace opentxs {
 
-CmdNewNymHD::CmdNewNymHD()
+CmdRenameNym::CmdRenameNym()
 {
-    command = "newnymhd";
-    args[0] = "--label <label>";
-    args[1] = "[--source <seed fingerprint>]";
-    args[2] = "[--index <HD derivation path>]";
-    category = catNyms;
-    help = "create a new nym using HD key derivation.";
+    command = "renamenym";
+    args[0] = "--mynym <nym>";
+    args[1] = "--label <label>";
+    category = catWallet;
+    help = "Rename one of your own nyms and set appropriate claims.";
 }
 
-int32_t CmdNewNymHD::runWithOptions()
+std::int32_t CmdRenameNym::runWithOptions()
 {
-    return run(getOption("label"), getOption("source"), getOption("index"));
+    return run(getOption("mynym"), getOption("label"));
 }
 
-int32_t CmdNewNymHD::run(string label, string source, string path)
+std::int32_t CmdRenameNym::run(std::string mynym, std::string label)
 {
+    if (!checkNym("mynym", mynym)) {
+        return -1;
+    }
+
     if (!checkMandatory("label", label)) {
         return -1;
     }
 
-    std::uint32_t nym = 0;
-
-    if (!path.empty()) {
-        try {
-            nym = stoul(path);
-        }
-        catch (std::invalid_argument) { nym = 0; }
-        catch (std::out_of_range) { nym = 0; }
-
-        const std::uint32_t hardened =
-            static_cast<std::uint32_t>(opentxs::Bip32Child::HARDENED);
-
-        if (hardened <= nym) {
-            nym = nym ^ hardened;
-        }
-    }
-
-
-    std::string mynym = OTAPI_Wrap::CreateIndividualNym(label, source, nym);
-
-    if ("" == mynym) {
-        otOut << "Error: cannot create new nym.\n";
+    if (!OTAPI_Wrap::Rename_Nym(mynym, label, proto::CITEMTYPE_INDIVIDUAL)) {
+        otOut << "Error: cannot rename nym.\n";
         return -1;
     }
 
-    cout << "New nym: " << mynym << "\n";
-
     return 1;
 }
+} // namespace opentxs

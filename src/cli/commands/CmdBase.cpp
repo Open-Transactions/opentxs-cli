@@ -39,6 +39,8 @@
 #include "CmdBase.hpp"
 
 #include <opentxs/core/Version.hpp>
+#include <opentxs/api/OT.hpp>
+#include <opentxs/api/Wallet.hpp>
 #include <opentxs/client/OTAPI_Wrap.hpp>
 #include <opentxs/client/OTWallet.hpp>
 #include <opentxs/client/OT_API.hpp>
@@ -48,8 +50,6 @@
 #include <opentxs/core/Log.hpp>
 #include <opentxs/core/Nym.hpp>
 #include <opentxs/core/String.hpp>
-#include <opentxs/core/app/App.hpp>
-#include <opentxs/core/app/Wallet.hpp>
 #include <opentxs/core/contract/ServerContract.hpp>
 #include <opentxs/core/contract/UnitDefinition.hpp>
 #include <opentxs/core/util/Assert.hpp>
@@ -260,16 +260,16 @@ bool CmdBase::checkPurse(const char* name, string& purse) const
     ConstUnitDefinition pUnit;  // shared_ptr to const.
 
     // See if it's available using the full length ID.
-    if (!theID.empty()) pUnit = App::Me().Contract().UnitDefinition(theID);
+    if (!theID.empty()) pUnit = OT::App().Contract().UnitDefinition(theID);
 
     if (!pUnit) {
-        const auto units = App::Me().Contract().UnitDefinitionList();
+        const auto units = OT::App().Contract().UnitDefinitionList();
 
         // See if it's available using the partial length ID.
         for (auto& it : units) {
             if (0 == it.first.compare(0, purse.length(), purse)) {
                 pUnit =
-                    App::Me().Contract().UnitDefinition(Identifier(it.first));
+                    OT::App().Contract().UnitDefinition(Identifier(it.first));
                 break;
             }
         }
@@ -277,7 +277,7 @@ bool CmdBase::checkPurse(const char* name, string& purse) const
             // See if it's available using the full length name.
             for (auto& it : units) {
                 if (0 == it.second.compare(0, it.second.length(), purse)) {
-                    pUnit = App::Me().Contract().UnitDefinition(
+                    pUnit = OT::App().Contract().UnitDefinition(
                         Identifier(it.first));
                     break;
                 }
@@ -287,7 +287,7 @@ bool CmdBase::checkPurse(const char* name, string& purse) const
                 // See if it's available using the partial name.
                 for (auto& it : units) {
                     if (0 == it.second.compare(0, purse.length(), purse)) {
-                        pUnit = App::Me().Contract().UnitDefinition(
+                        pUnit = OT::App().Contract().UnitDefinition(
                             Identifier(it.first));
                         break;
                     }
@@ -315,15 +315,15 @@ bool CmdBase::checkServer(const char* name, string& server) const
     ConstServerContract pServer;  // shared_ptr to const.
 
     // See if it's available using the full length ID.
-    if (!theID.empty()) pServer = App::Me().Contract().Server(theID);
+    if (!theID.empty()) pServer = OT::App().Contract().Server(theID);
 
     if (!pServer) {
-        const auto servers = App::Me().Contract().ServerList();
+        const auto servers = OT::App().Contract().ServerList();
 
         // See if it's available using the partial length ID.
         for (auto& it : servers) {
             if (0 == it.first.compare(0, server.length(), server)) {
-                pServer = App::Me().Contract().Server(Identifier(it.first));
+                pServer = OT::App().Contract().Server(Identifier(it.first));
                 break;
             }
         }
@@ -331,7 +331,7 @@ bool CmdBase::checkServer(const char* name, string& server) const
             // See if it's available using the full length name.
             for (auto& it : servers) {
                 if (0 == it.second.compare(0, it.second.length(), server)) {
-                    pServer = App::Me().Contract().Server(Identifier(it.first));
+                    pServer = OT::App().Contract().Server(Identifier(it.first));
                     break;
                 }
             }
@@ -341,7 +341,7 @@ bool CmdBase::checkServer(const char* name, string& server) const
                 for (auto& it : servers) {
                     if (0 == it.second.compare(0, server.length(), server)) {
                         pServer =
-                            App::Me().Contract().Server(Identifier(it.first));
+                            OT::App().Contract().Server(Identifier(it.first));
                         break;
                     }
                 }

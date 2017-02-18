@@ -36,69 +36,44 @@
  *
  ************************************************************/
 
-#include "CmdNewNymHD.hpp"
+#include "CmdGetPeerRequest.hpp"
 
 #include "CmdBase.hpp"
-
 #include <opentxs/core/Version.hpp>
 #include <opentxs/client/OTAPI_Wrap.hpp>
 #include <opentxs/core/Log.hpp>
-#include <opentxs/core/Types.hpp>
 
-#include <stdint.h>
-#include <iostream>
-#include <string>
+namespace opentxs {
 
-using namespace opentxs;
-using namespace std;
-
-CmdNewNymHD::CmdNewNymHD()
+CmdGetPeerRequest::CmdGetPeerRequest()
 {
-    command = "newnymhd";
-    args[0] = "--label <label>";
-    args[1] = "[--source <seed fingerprint>]";
-    args[2] = "[--index <HD derivation path>]";
-    category = catNyms;
-    help = "create a new nym using HD key derivation.";
+    command = "getpeerrequest";
+    args[0] = "--mynym <nym>";
+    args[1] = "--request <request ID>";
+    category = catOtherUsers;
+    help = "Show a base64-encoded peer request";
 }
 
-int32_t CmdNewNymHD::runWithOptions()
+std::int32_t CmdGetPeerRequest::runWithOptions()
 {
-    return run(getOption("label"), getOption("source"), getOption("index"));
+    return run(getOption("mynym"), getOption("request"));
 }
 
-int32_t CmdNewNymHD::run(string label, string source, string path)
+std::int32_t CmdGetPeerRequest::run(std::string mynym, std::string request)
 {
-    if (!checkMandatory("label", label)) {
+    if (!checkNym("mynym", mynym)) {
         return -1;
     }
 
-    std::uint32_t nym = 0;
-
-    if (!path.empty()) {
-        try {
-            nym = stoul(path);
-        }
-        catch (std::invalid_argument) { nym = 0; }
-        catch (std::out_of_range) { nym = 0; }
-
-        const std::uint32_t hardened =
-            static_cast<std::uint32_t>(opentxs::Bip32Child::HARDENED);
-
-        if (hardened <= nym) {
-            nym = nym ^ hardened;
-        }
-    }
-
-
-    std::string mynym = OTAPI_Wrap::CreateIndividualNym(label, source, nym);
-
-    if ("" == mynym) {
-        otOut << "Error: cannot create new nym.\n";
+    if (request.empty()) {
         return -1;
     }
 
-    cout << "New nym: " << mynym << "\n";
+    const auto text = OTAPI_Wrap::getRequest_Base64(mynym, request);
+
+    otOut << "Peer request ID: " << request << std::endl;
+    otOut << text << std::endl;
 
     return 1;
 }
+} // namespace opentxs

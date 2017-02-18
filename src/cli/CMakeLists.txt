@@ -44,6 +44,8 @@ set(cxx-sources
   commands/CmdGetMyOffers.cpp
   commands/CmdGetOffers.cpp
   commands/CmdGetPeerReplies.cpp
+  commands/CmdGetPeerReply.cpp
+  commands/CmdGetPeerRequest.cpp
   commands/CmdGetPeerRequests.cpp
   commands/CmdGetReceipt.cpp
   commands/CmdImportCash.cpp
@@ -80,6 +82,7 @@ set(cxx-sources
   commands/CmdRegisterContractServer.cpp
   commands/CmdRegisterContractUnit.cpp
   commands/CmdRegisterNym.cpp
+  commands/CmdRenameNym.cpp
   commands/CmdRequestAdmin.cpp
   commands/CmdRequestBailment.cpp
   commands/CmdRequestConnection.cpp

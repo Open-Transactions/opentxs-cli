@@ -36,69 +36,44 @@
  *
  ************************************************************/
 
-#include "CmdNewNymHD.hpp"
+#include "CmdGetPeerReply.hpp"
 
 #include "CmdBase.hpp"
-
 #include <opentxs/core/Version.hpp>
 #include <opentxs/client/OTAPI_Wrap.hpp>
 #include <opentxs/core/Log.hpp>
-#include <opentxs/core/Types.hpp>
 
-#include <stdint.h>
-#include <iostream>
-#include <string>
+namespace opentxs {
 
-using namespace opentxs;
-using namespace std;
-
-CmdNewNymHD::CmdNewNymHD()
+CmdGetPeerReply::CmdGetPeerReply()
 {
-    command = "newnymhd";
-    args[0] = "--label <label>";
-    args[1] = "[--source <seed fingerprint>]";
-    args[2] = "[--index <HD derivation path>]";
-    category = catNyms;
-    help = "create a new nym using HD key derivation.";
+    command = "getpeerreply";
+    args[0] = "--mynym <nym>";
+    args[1] = "--reply <reply ID>";
+    category = catOtherUsers;
+    help = "Show a base64-encoded peer reply";
 }
 
-int32_t CmdNewNymHD::runWithOptions()
+std::int32_t CmdGetPeerReply::runWithOptions()
 {
-    return run(getOption("label"), getOption("source"), getOption("index"));
+    return run(getOption("mynym"), getOption("reply"));
 }
 
-int32_t CmdNewNymHD::run(string label, string source, string path)
+std::int32_t CmdGetPeerReply::run(std::string mynym, std::string reply)
 {
-    if (!checkMandatory("label", label)) {
+    if (!checkNym("mynym", mynym)) {
         return -1;
     }
 
-    std::uint32_t nym = 0;
-
-    if (!path.empty()) {
-        try {
-            nym = stoul(path);
-        }
-        catch (std::invalid_argument) { nym = 0; }
-        catch (std::out_of_range) { nym = 0; }
-
-        const std::uint32_t hardened =
-            static_cast<std::uint32_t>(opentxs::Bip32Child::HARDENED);
-
-        if (hardened <= nym) {
-            nym = nym ^ hardened;
-        }
-    }
-
-
-    std::string mynym = OTAPI_Wrap::CreateIndividualNym(label, source, nym);
-
-    if ("" == mynym) {
-        otOut << "Error: cannot create new nym.\n";
+    if (reply.empty()) {
         return -1;
     }
 
-    cout << "New nym: " << mynym << "\n";
+    const auto text = OTAPI_Wrap::getReply_Base64(mynym, reply);
+
+    otOut << "Peer reply ID: " << reply << std::endl;
+    otOut << text << std::endl;
 
     return 1;
 }
+} // namespace opentxs

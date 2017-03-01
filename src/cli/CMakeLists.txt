@@ -39,6 +39,8 @@ set(cxx-sources
   commands/CmdExchangeBasket.cpp
   commands/CmdExportCash.cpp
   commands/CmdExportNym.cpp
+  commands/CmdFindNym.cpp
+  commands/CmdFindServer.cpp
   commands/CmdGetContract.cpp
   commands/CmdGetMarkets.cpp
   commands/CmdGetMyOffers.cpp

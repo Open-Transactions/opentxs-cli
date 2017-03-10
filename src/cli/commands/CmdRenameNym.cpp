@@ -43,7 +43,6 @@
 #include <opentxs/core/Version.hpp>
 #include <opentxs/client/OTAPI_Wrap.hpp>
 #include <opentxs/core/Log.hpp>
-#include <opentxs/core/Proto.hpp>
 
 #include <stdint.h>
 #include <ostream>
@@ -75,7 +74,7 @@ std::int32_t CmdRenameNym::run(std::string mynym, std::string label)
         return -1;
     }
 
-    if (!OTAPI_Wrap::Rename_Nym(mynym, label, proto::CITEMTYPE_INDIVIDUAL)) {
+    if (!OTAPI_Wrap::Rename_Nym(mynym, label, 1)) {
         otOut << "Error: cannot rename nym.\n";
         return -1;
     }

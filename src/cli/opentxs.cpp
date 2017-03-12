@@ -50,16 +50,19 @@
 #include "commands/CmdAcknowledgeNotice.hpp"
 #include "commands/CmdAcknowledgeOutBailment.hpp"
 #include "commands/CmdAddAsset.hpp"
+#include "commands/CmdAddContact.hpp"
 #include "commands/CmdAddServer.hpp"
 #include "commands/CmdAddSignature.hpp"
 #include "commands/CmdArchivePeerReply.hpp"
 #include "commands/CmdBase.hpp"
+#include "commands/CmdCanMessage.hpp"
 #include "commands/CmdCancel.hpp"
 #include "commands/CmdChangePw.hpp"
 #include "commands/CmdCheckNym.hpp"
 #include "commands/CmdClearExpired.hpp"
 #include "commands/CmdClearRecords.hpp"
 #include "commands/CmdConfirm.hpp"
+#include "commands/CmdContactName.hpp"
 #include "commands/CmdConvertPaymentCode.hpp"
 #include "commands/CmdDecode.hpp"
 #include "commands/CmdDecrypt.hpp"
@@ -85,6 +88,7 @@
 #include "commands/CmdGetPeerRequest.hpp"
 #include "commands/CmdGetPeerRequests.hpp"
 #include "commands/CmdGetReceipt.hpp"
+#include "commands/CmdHaveContact.hpp"
 #include "commands/CmdImportCash.hpp"
 #include "commands/CmdImportNym.hpp"
 #include "commands/CmdImportSeed.hpp"
@@ -205,14 +209,15 @@ CmdBase* cmds[] = {
     new CmdAcceptInvoices,           new CmdAcceptMoney,
     new CmdAcceptPayments,           new CmdAcceptReceipts,
     new CmdAcceptTransfers,          new CmdAcknowledgeBailment,
-    new CmdAcknowledgeConnection,
-    new CmdAcknowledgeNotice,        new CmdAcknowledgeOutBailment,
-    new CmdAddAsset,                 new CmdAddServer,
+    new CmdAcknowledgeConnection,    new CmdAcknowledgeNotice,
+    new CmdAcknowledgeOutBailment,   new CmdAddAsset,
+    new CmdAddContact,               new CmdAddServer,
     new CmdAddSignature,             new CmdArchivePeerReply,
-    new CmdCancel,                   new CmdChangePw,
+    new CmdCancel,                   new CmdCanMessage,
+    new CmdChangePw,
     new CmdCheckNym,                 new CmdClearExpired,
     new CmdClearRecords,             new CmdConfirm,
-    new CmdConvertPaymentCode,
+    new CmdContactName,              new CmdConvertPaymentCode,
     new CmdDecode,                   new CmdDecrypt,
     new CmdDeposit,                  new CmdDiscard,
     new CmdEditAccount,              new CmdEditAsset,
@@ -225,6 +230,7 @@ CmdBase* cmds[] = {
     new CmdGetOffers,                new CmdGetPeerRequests,
     new CmdGetPeerRequest,           new CmdGetPeerReplies,
     new CmdGetPeerReply,             new CmdGetReceipt,
+    new CmdHaveContact,
     new CmdImportCash,               new CmdImportNym,
     new CmdImportSeed,               new CmdInbox,
     new CmdInpayments,               new CmdIssueAsset,

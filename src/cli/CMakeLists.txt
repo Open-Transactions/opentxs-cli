@@ -11,6 +11,7 @@ set(cxx-sources
   commands/CmdAcknowledgeNotice.cpp
   commands/CmdAcknowledgeOutBailment.cpp
   commands/CmdAddAsset.cpp
+  commands/CmdAddContact.cpp
   commands/CmdAddServer.cpp
   commands/CmdAddSignature.cpp
   commands/CmdArchivePeerReply.cpp
@@ -19,12 +20,14 @@ set(cxx-sources
   commands/CmdBaseAccept.cpp
   commands/CmdBaseInstrument.cpp
   commands/CmdCancel.cpp
+  commands/CmdCanMessage.cpp
   commands/CmdChangePw.cpp
   commands/CmdPingNotary.cpp
   commands/CmdCheckNym.cpp
   commands/CmdClearExpired.cpp
   commands/CmdClearRecords.cpp
   commands/CmdConfirm.cpp
+  commands/CmdContactName.cpp
   commands/CmdConvertPaymentCode.cpp
   commands/CmdDecode.cpp
   commands/CmdDecrypt.cpp
@@ -39,6 +42,8 @@ set(cxx-sources
   commands/CmdExchangeBasket.cpp
   commands/CmdExportCash.cpp
   commands/CmdExportNym.cpp
+  commands/CmdFindNym.cpp
+  commands/CmdFindServer.cpp
   commands/CmdGetContract.cpp
   commands/CmdGetMarkets.cpp
   commands/CmdGetMyOffers.cpp
@@ -48,6 +53,7 @@ set(cxx-sources
   commands/CmdGetPeerRequest.cpp
   commands/CmdGetPeerRequests.cpp
   commands/CmdGetReceipt.cpp
+  commands/CmdHaveContact.cpp
   commands/CmdImportCash.cpp
   commands/CmdImportNym.cpp
   commands/CmdImportSeed.cpp

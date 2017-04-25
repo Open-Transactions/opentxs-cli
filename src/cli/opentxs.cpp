@@ -50,16 +50,19 @@
 #include "commands/CmdAcknowledgeNotice.hpp"
 #include "commands/CmdAcknowledgeOutBailment.hpp"
 #include "commands/CmdAddAsset.hpp"
+#include "commands/CmdAddContact.hpp"
 #include "commands/CmdAddServer.hpp"
 #include "commands/CmdAddSignature.hpp"
 #include "commands/CmdArchivePeerReply.hpp"
 #include "commands/CmdBase.hpp"
+#include "commands/CmdCanMessage.hpp"
 #include "commands/CmdCancel.hpp"
 #include "commands/CmdChangePw.hpp"
 #include "commands/CmdCheckNym.hpp"
 #include "commands/CmdClearExpired.hpp"
 #include "commands/CmdClearRecords.hpp"
 #include "commands/CmdConfirm.hpp"
+#include "commands/CmdContactName.hpp"
 #include "commands/CmdConvertPaymentCode.hpp"
 #include "commands/CmdDecode.hpp"
 #include "commands/CmdDecrypt.hpp"
@@ -74,6 +77,8 @@
 #include "commands/CmdExchangeBasket.hpp"
 #include "commands/CmdExportCash.hpp"
 #include "commands/CmdExportNym.hpp"
+#include "commands/CmdFindNym.hpp"
+#include "commands/CmdFindServer.hpp"
 #include "commands/CmdGetContract.hpp"
 #include "commands/CmdGetMarkets.hpp"
 #include "commands/CmdGetMyOffers.hpp"
@@ -83,6 +88,7 @@
 #include "commands/CmdGetPeerRequest.hpp"
 #include "commands/CmdGetPeerRequests.hpp"
 #include "commands/CmdGetReceipt.hpp"
+#include "commands/CmdHaveContact.hpp"
 #include "commands/CmdImportCash.hpp"
 #include "commands/CmdImportNym.hpp"
 #include "commands/CmdImportSeed.hpp"
@@ -198,71 +204,75 @@ const char* categoryName[] = {
     "Dealing with other users", "Financial instruments", "Basket currencies",
     "Pseudonyms"};
 
-CmdBase* cmds[] = {new CmdAcceptAll,            new CmdAcceptInbox,
-                   new CmdAcceptInvoices,       new CmdAcceptMoney,
-                   new CmdAcceptPayments,       new CmdAcceptReceipts,
-                   new CmdAcceptTransfers,      new CmdAcknowledgeBailment,
-                   new CmdAcknowledgeConnection,
-                   new CmdAcknowledgeNotice,    new CmdAcknowledgeOutBailment,
-                   new CmdAddAsset,             new CmdAddServer,
-                   new CmdAddSignature,         new CmdArchivePeerReply,
-                   new CmdCancel,               new CmdChangePw,
-                   new CmdCheckNym,             new CmdClearExpired,
-                   new CmdClearRecords,         new CmdConfirm,
-                   new CmdConvertPaymentCode,
-                   new CmdDecode,               new CmdDecrypt,
-                   new CmdDeposit,              new CmdDiscard,
-                   new CmdEditAccount,          new CmdEditAsset,
-                   new CmdEditNym,              new CmdEditServer,
-                   new CmdEncode,               new CmdEncrypt,
-                   new CmdExchangeBasket,       new CmdExportCash,
-                   new CmdExportNym,            new CmdGetInstrumentDefinition,
-                   new CmdGetMarkets,           new CmdGetMyOffers,
-                   new CmdGetOffers,            new CmdGetPeerRequests,
-                   new CmdGetPeerRequest,       new CmdGetPeerReplies,
-                   new CmdGetPeerReply,         new CmdGetReceipt,
-                   new CmdImportCash,           new CmdImportNym,
-                   new CmdImportSeed,           new CmdInbox,
-                   new CmdInpayments,           new CmdIssueAsset,
-                   new CmdKillOffer,            new CmdKillPlan,
-                   new CmdNewAccount,           new CmdNewAsset,
-                   new CmdNewKey,               new CmdNewNymHD,
-                   new CmdNewNymLegacy,
-                   new CmdNewOffer,             new CmdNotifyBailment,
-                   new CmdOutbox,               new CmdNewBasket,
-                   new CmdOutpayment,           new CmdPairNode,
-                   new CmdPasswordDecrypt,      new CmdPasswordEncrypt,
-                   new CmdPayDividend,          new CmdPayInvoice,
-                   new CmdPeerStoreSecret,      new CmdPingNotary,
-                   new CmdProposePlan,          new CmdRefresh,
-                   new CmdRefreshAccount,       new CmdRefreshAll,
-                   new CmdRefreshNym,           new CmdRenameNym,
-                   new CmdRequestAdmin,         new CmdRequestBailment,
-                   new CmdRequestConnection,    new CmdRequestOutBailment,
-                   new CmdRegisterContractNym,  new CmdRegisterContractServer,
-                   new CmdRegisterContractUnit,
-                   new CmdRegisterNym,          new CmdSendCash,
-                   new CmdSendCheque,           new CmdSendInvoice,
-                   new CmdSendMessage,          new CmdSendVoucher,
-                   new CmdServerAddClaim,
-                   new CmdShowAccount,          new CmdShowAccounts,
-                   new CmdShowActive,           new CmdShowAssets,
-                   new CmdShowBalance,          new CmdShowBasket,
-                   new CmdShowCredential,       new CmdShowCredentials,
-                   new CmdShowExpired,          new CmdShowMarkets,
-                   new CmdShowMint,             new CmdShowMyOffers,
-                   new CmdShowNym,              new CmdShowNyms,
-                   new CmdShowOffers,           new CmdShowPayment,
-                   new CmdShowPhrase,
-                   new CmdShowPurse,            new CmdShowRecords,
-                   new CmdShowSeed,             new CmdShowWords,
-                   new CmdShowServers,          new CmdShowWallet,
-                   new CmdSignContract,         new CmdTransfer,
-                   new CmdTriggerClause,        new CmdUsageCredits,
-                   new CmdVerifyReceipt,        new CmdVerifySignature,
-                   new CmdWithdrawCash,         new CmdWithdrawVoucher,
-                   new CmdWriteCheque,          new CmdWriteInvoice,
-                   nullptr};
+CmdBase* cmds[] = {
+    new CmdAcceptAll,                new CmdAcceptInbox,
+    new CmdAcceptInvoices,           new CmdAcceptMoney,
+    new CmdAcceptPayments,           new CmdAcceptReceipts,
+    new CmdAcceptTransfers,          new CmdAcknowledgeBailment,
+    new CmdAcknowledgeConnection,    new CmdAcknowledgeNotice,
+    new CmdAcknowledgeOutBailment,   new CmdAddAsset,
+    new CmdAddContact,               new CmdAddServer,
+    new CmdAddSignature,             new CmdArchivePeerReply,
+    new CmdCancel,                   new CmdCanMessage,
+    new CmdChangePw,
+    new CmdCheckNym,                 new CmdClearExpired,
+    new CmdClearRecords,             new CmdConfirm,
+    new CmdContactName,              new CmdConvertPaymentCode,
+    new CmdDecode,                   new CmdDecrypt,
+    new CmdDeposit,                  new CmdDiscard,
+    new CmdEditAccount,              new CmdEditAsset,
+    new CmdEditNym,                  new CmdEditServer,
+    new CmdEncode,                   new CmdEncrypt,
+    new CmdExchangeBasket,           new CmdExportCash,
+    new CmdExportNym,                new CmdFindNym,
+    new CmdFindServer,               new CmdGetInstrumentDefinition,
+    new CmdGetMarkets,               new CmdGetMyOffers,
+    new CmdGetOffers,                new CmdGetPeerRequests,
+    new CmdGetPeerRequest,           new CmdGetPeerReplies,
+    new CmdGetPeerReply,             new CmdGetReceipt,
+    new CmdHaveContact,
+    new CmdImportCash,               new CmdImportNym,
+    new CmdImportSeed,               new CmdInbox,
+    new CmdInpayments,               new CmdIssueAsset,
+    new CmdKillOffer,                new CmdKillPlan,
+    new CmdNewAccount,               new CmdNewAsset,
+    new CmdNewKey,                   new CmdNewNymHD,
+    new CmdNewNymLegacy,
+    new CmdNewOffer,                 new CmdNotifyBailment,
+    new CmdOutbox,                   new CmdNewBasket,
+    new CmdOutpayment,               new CmdPairNode,
+    new CmdPasswordDecrypt,          new CmdPasswordEncrypt,
+    new CmdPayDividend,              new CmdPayInvoice,
+    new CmdPeerStoreSecret,          new CmdPingNotary,
+    new CmdProposePlan,              new CmdRefresh,
+    new CmdRefreshAccount,           new CmdRefreshAll,
+    new CmdRefreshNym,               new CmdRenameNym,
+    new CmdRequestAdmin,             new CmdRequestBailment,
+    new CmdRequestConnection,        new CmdRequestOutBailment,
+    new CmdRegisterContractNym,      new CmdRegisterContractServer,
+    new CmdRegisterContractUnit,
+    new CmdRegisterNym,              new CmdSendCash,
+    new CmdSendCheque,               new CmdSendInvoice,
+    new CmdSendMessage,              new CmdSendVoucher,
+    new CmdServerAddClaim,
+    new CmdShowAccount,              new CmdShowAccounts,
+    new CmdShowActive,               new CmdShowAssets,
+    new CmdShowBalance,              new CmdShowBasket,
+    new CmdShowCredential,           new CmdShowCredentials,
+    new CmdShowExpired,              new CmdShowMarkets,
+    new CmdShowMint,                 new CmdShowMyOffers,
+    new CmdShowNym,                  new CmdShowNyms,
+    new CmdShowOffers,               new CmdShowPayment,
+    new CmdShowPhrase,
+    new CmdShowPurse,                new CmdShowRecords,
+    new CmdShowSeed,                 new CmdShowWords,
+    new CmdShowServers,              new CmdShowWallet,
+    new CmdSignContract,             new CmdTransfer,
+    new CmdTriggerClause,            new CmdUsageCredits,
+    new CmdVerifyReceipt,            new CmdVerifySignature,
+    new CmdWithdrawCash,             new CmdWithdrawVoucher,
+    new CmdWriteCheque,              new CmdWriteInvoice,
+    nullptr};
 
 Opentxs::Opentxs()
     : newArgc(0)

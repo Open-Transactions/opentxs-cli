@@ -36,29 +36,41 @@
  *
  ************************************************************/
 
-#ifndef OPENTXS_CLIENT_CMDREGISTERNYM_HPP
-#define OPENTXS_CLIENT_CMDREGISTERNYM_HPP
+#include "CmdFindNym.hpp"
 
 #include "CmdBase.hpp"
 
-#include <cstdint>
-#include <string>
+#include <opentxs/core/Version.hpp>
+#include <opentxs/api/Api.hpp>
+#include <opentxs/api/OT.hpp>
+#include <opentxs/client/OTME_too.hpp>
+
 
 namespace opentxs
 {
-
-class CmdRegisterNym : public CmdBase
+CmdFindNym::CmdFindNym()
 {
-public:
-    EXPORT CmdRegisterNym();
-    EXPORT ~CmdRegisterNym() = default;
+    command = "findnym";
+    args[0] = "--hisnym <nym>";
+    category = catOtherUsers;
+    help = "Search all known servers for a nym.";
+}
 
-    EXPORT std::int32_t run(std::string server, std::string mynym);
+std::int32_t CmdFindNym::runWithOptions()
+{
+    return run(getOption("hisnym"));
+}
 
-protected:
-    std::int32_t runWithOptions() override;
-};
+std::int32_t CmdFindNym::run(std::string hisnym)
+{
+    if (!checkNym("hisnym", hisnym, false)) {
+        return -1;
+    }
 
+    const auto response = OT::App().API().OTME_TOO().FindNym(hisnym, "");
+
+    if (String(response).Exists()) { return 1; }
+
+    return -1;
+}
 } // namespace opentxs
-
-#endif // OPENTXS_CLIENT_CMDREGISTERNYM_HPP

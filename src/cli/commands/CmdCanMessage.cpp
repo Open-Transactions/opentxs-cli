@@ -36,29 +36,47 @@
  *
  ************************************************************/
 
-#ifndef OPENTXS_CLIENT_CMDREGISTERNYM_HPP
-#define OPENTXS_CLIENT_CMDREGISTERNYM_HPP
+#include "CmdCanMessage.hpp"
 
-#include "CmdBase.hpp"
-
-#include <cstdint>
-#include <string>
+#include <opentxs/core/Version.hpp>
+#include <opentxs/api/Api.hpp>
+#include <opentxs/api/OT.hpp>
+#include <opentxs/client/OTME_too.hpp>
+#include <opentxs/core/Log.hpp>
 
 namespace opentxs
 {
-
-class CmdRegisterNym : public CmdBase
+CmdCanMessage::CmdCanMessage()
 {
-public:
-    EXPORT CmdRegisterNym();
-    EXPORT ~CmdRegisterNym() = default;
+    command = "canmessage";
+    args[0] = "--sender <nym>";
+    args[1] = "--recipient <nym>";
+    category = catOtherUsers;
+    help = "Determine if prerequisites for messaging are met";
+}
 
-    EXPORT std::int32_t run(std::string server, std::string mynym);
+int32_t CmdCanMessage::runWithOptions()
+{
+    return run(getOption("sender"), getOption("recipient"));
+}
 
-protected:
-    std::int32_t runWithOptions() override;
-};
+int32_t CmdCanMessage::run(
+    const std::string& sender,
+    const std::string& recipient)
+{
+    if (sender.empty()) {
+        return -1;
+    }
 
+    if (recipient.empty()) {
+        return -1;
+    }
+
+    const auto response =
+        OT::App().API().OTME_TOO().CanMessage(sender, recipient);
+
+    otOut << std::to_string(static_cast<std::int8_t>(response)) << std::endl;
+
+    return 0;
+}
 } // namespace opentxs
-
-#endif // OPENTXS_CLIENT_CMDREGISTERNYM_HPP

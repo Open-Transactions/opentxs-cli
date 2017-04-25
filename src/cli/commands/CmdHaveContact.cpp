@@ -36,29 +36,45 @@
  *
  ************************************************************/
 
-#ifndef OPENTXS_CLIENT_CMDREGISTERNYM_HPP
-#define OPENTXS_CLIENT_CMDREGISTERNYM_HPP
+#include "CmdHaveContact.hpp"
 
-#include "CmdBase.hpp"
-
-#include <cstdint>
-#include <string>
+#include <opentxs/core/Version.hpp>
+#include <opentxs/api/Api.hpp>
+#include <opentxs/api/OT.hpp>
+#include <opentxs/client/OTME_too.hpp>
+#include <opentxs/core/Log.hpp>
 
 namespace opentxs
 {
-
-class CmdRegisterNym : public CmdBase
+CmdHaveContact::CmdHaveContact()
 {
-public:
-    EXPORT CmdRegisterNym();
-    EXPORT ~CmdRegisterNym() = default;
+    command = "havecontact";
+    args[0] = "--contact <nym or payment code>";
+    category = catOtherUsers;
+    help = "Determine if a contact exists";
+}
 
-    EXPORT std::int32_t run(std::string server, std::string mynym);
+int32_t CmdHaveContact::runWithOptions()
+{
+    return run(getOption("contact"));
+}
 
-protected:
-    std::int32_t runWithOptions() override;
-};
+int32_t CmdHaveContact::run(
+    const std::string& contact)
+{
+    if (contact.empty()) {
+        return -1;
+    }
 
+    const auto response =
+        OT::App().API().OTME_TOO().HaveContact(contact);
+
+    if (response) {
+        otOut << "true" << std::endl;
+    } else {
+        otOut << "false" << std::endl;
+    }
+
+    return 0;
+}
 } // namespace opentxs
-
-#endif // OPENTXS_CLIENT_CMDREGISTERNYM_HPP

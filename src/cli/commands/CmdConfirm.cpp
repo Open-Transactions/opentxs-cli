@@ -416,7 +416,7 @@ int32_t CmdConfirm::confirmSmartContract(const string& server,
     // (A well-designed wallet will do this automatically.)
 
     string confirmed =
-        OTAPI_Wrap::SmartContract_ConfirmParty(contract, name, mynym);
+        OTAPI_Wrap::SmartContract_ConfirmParty(contract, name, mynym, server);
     if ("" == confirmed) {
         otOut << "Error: cannot confirm smart contract party.\n";
         return harvestTxNumbers(contract, mynym);

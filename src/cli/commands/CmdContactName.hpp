@@ -36,8 +36,8 @@
  *
  ************************************************************/
 
-#ifndef OPENTXS_CLIENT_CMDREGISTERNYM_HPP
-#define OPENTXS_CLIENT_CMDREGISTERNYM_HPP
+#ifndef OPENTXS_CLIENT_CMDCONTACTNAME_HPP
+#define OPENTXS_CLIENT_CMDCONTACTNAME_HPP
 
 #include "CmdBase.hpp"
 
@@ -47,18 +47,19 @@
 namespace opentxs
 {
 
-class CmdRegisterNym : public CmdBase
+class CmdContactName : public CmdBase
 {
-public:
-    EXPORT CmdRegisterNym();
-    EXPORT ~CmdRegisterNym() = default;
-
-    EXPORT std::int32_t run(std::string server, std::string mynym);
-
 protected:
     std::int32_t runWithOptions() override;
+
+public:
+    EXPORT CmdContactName();
+
+    EXPORT std::int32_t run(const std::string& contact);
+
+    EXPORT ~CmdContactName() = default;
 };
 
 } // namespace opentxs
 
-#endif // OPENTXS_CLIENT_CMDREGISTERNYM_HPP
+#endif // OPENTXS_CLIENT_CMDCONTACTNAME_HPP

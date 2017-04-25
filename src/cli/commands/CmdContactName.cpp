@@ -36,29 +36,39 @@
  *
  ************************************************************/
 
-#ifndef OPENTXS_CLIENT_CMDREGISTERNYM_HPP
-#define OPENTXS_CLIENT_CMDREGISTERNYM_HPP
+#include "CmdContactName.hpp"
 
-#include "CmdBase.hpp"
-
-#include <cstdint>
-#include <string>
+#include <opentxs/core/Version.hpp>
+#include <opentxs/api/Api.hpp>
+#include <opentxs/api/OT.hpp>
+#include <opentxs/client/OTME_too.hpp>
+#include <opentxs/core/Log.hpp>
 
 namespace opentxs
 {
-
-class CmdRegisterNym : public CmdBase
+CmdContactName::CmdContactName()
 {
-public:
-    EXPORT CmdRegisterNym();
-    EXPORT ~CmdRegisterNym() = default;
+    command = "contactname";
+    args[0] = "--contact <nym>";
+    category = catOtherUsers;
+    help = "Retrieve the label for a contact";
+}
 
-    EXPORT std::int32_t run(std::string server, std::string mynym);
+std::int32_t CmdContactName::runWithOptions()
+{
+    return run(getOption("contact"));
+}
 
-protected:
-    std::int32_t runWithOptions() override;
-};
+std::int32_t CmdContactName::run(const std::string& contact)
+{
+    if (contact.empty()) {
+        return -1;
+    }
 
+    const auto response = OT::App().API().OTME_TOO().ContactName(contact);
+
+    otOut << response << std::endl;
+
+    return 0;
+}
 } // namespace opentxs
-
-#endif // OPENTXS_CLIENT_CMDREGISTERNYM_HPP

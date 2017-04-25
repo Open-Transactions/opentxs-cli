@@ -36,29 +36,43 @@
  *
  ************************************************************/
 
-#ifndef OPENTXS_CLIENT_CMDREGISTERNYM_HPP
-#define OPENTXS_CLIENT_CMDREGISTERNYM_HPP
+#include "CmdAddContact.hpp"
 
-#include "CmdBase.hpp"
-
-#include <cstdint>
-#include <string>
+#include <opentxs/core/Version.hpp>
+#include <opentxs/api/Api.hpp>
+#include <opentxs/api/OT.hpp>
+#include <opentxs/client/OTME_too.hpp>
 
 namespace opentxs
 {
-
-class CmdRegisterNym : public CmdBase
+CmdAddContact::CmdAddContact()
 {
-public:
-    EXPORT CmdRegisterNym();
-    EXPORT ~CmdRegisterNym() = default;
+    command = "addcontact";
+    args[0] = "--hisnym <nym>";
+    args[1] = "--label [<label>]";
+    category = catOtherUsers;
+    help = "Search for a nym's credentials";
+}
 
-    EXPORT std::int32_t run(std::string server, std::string mynym);
+int32_t CmdAddContact::runWithOptions()
+{
+    return run(getOption("hisnym"), getOption("label"));
+}
 
-protected:
-    std::int32_t runWithOptions() override;
-};
+int32_t CmdAddContact::run(
+    const std::string& hisnym,
+    const std::string& label)
+{
+    if (hisnym.empty()) {
+        return -1;
+    }
 
+    const auto response = OT::App().API().OTME_TOO().AddContact(hisnym, label);
+
+    if (response) {
+        return 0;
+    }
+
+    return -1;
+}
 } // namespace opentxs
-
-#endif // OPENTXS_CLIENT_CMDREGISTERNYM_HPP

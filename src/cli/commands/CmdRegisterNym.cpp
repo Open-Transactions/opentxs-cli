@@ -41,13 +41,12 @@
 #include "CmdBase.hpp"
 
 #include <opentxs/core/Version.hpp>
-#include <opentxs/client/OT_ME.hpp>
+#include <opentxs/api/Api.hpp>
+#include <opentxs/api/OT.hpp>
+#include <opentxs/client/OTME_too.hpp>
 
-#include <stdint.h>
-#include <string>
-
-using namespace opentxs;
-using namespace std;
+namespace opentxs
+{
 
 CmdRegisterNym::CmdRegisterNym()
 {
@@ -58,16 +57,12 @@ CmdRegisterNym::CmdRegisterNym()
     help = "Register mynym onto an OT server.";
 }
 
-CmdRegisterNym::~CmdRegisterNym()
-{
-}
-
-int32_t CmdRegisterNym::runWithOptions()
+std::int32_t CmdRegisterNym::runWithOptions()
 {
     return run(getOption("server"), getOption("mynym"));
 }
 
-int32_t CmdRegisterNym::run(string server, string mynym)
+std::int32_t CmdRegisterNym::run(std::string server, std::string mynym)
 {
     if (!checkServer("server", server)) {
         return -1;
@@ -77,7 +72,15 @@ int32_t CmdRegisterNym::run(string server, string mynym)
         return -1;
     }
 
-     
-    string response = OT_ME::It().register_nym(server, mynym);
-    return processResponse(response, "register nym");
+    const auto response =
+        OT::App().API().OTME_TOO().RegisterNym(mynym, server, true);
+
+    if (response) {
+
+        return 0;
+    } else {
+
+        return -1;
+    }
 }
+} // namespace opentxs

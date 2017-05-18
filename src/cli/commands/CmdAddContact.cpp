@@ -54,12 +54,12 @@ CmdAddContact::CmdAddContact()
     help = "Search for a nym's credentials";
 }
 
-int32_t CmdAddContact::runWithOptions()
+std::int32_t CmdAddContact::runWithOptions()
 {
     return run(getOption("hisnym"), getOption("label"));
 }
 
-int32_t CmdAddContact::run(
+std::int32_t CmdAddContact::run(
     const std::string& hisnym,
     const std::string& label)
 {

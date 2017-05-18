@@ -155,6 +155,8 @@
 #include "commands/CmdShowRecords.hpp"
 #include "commands/CmdShowSeed.hpp"
 #include "commands/CmdShowServers.hpp"
+#include "commands/CmdShowThread.hpp"
+#include "commands/CmdShowThreads.hpp"
 #include "commands/CmdShowWallet.hpp"
 #include "commands/CmdShowWords.hpp"
 #include "commands/CmdSignContract.hpp"
@@ -263,10 +265,11 @@ CmdBase* cmds[] = {
     new CmdShowMint,                 new CmdShowMyOffers,
     new CmdShowNym,                  new CmdShowNyms,
     new CmdShowOffers,               new CmdShowPayment,
-    new CmdShowPhrase,
-    new CmdShowPurse,                new CmdShowRecords,
-    new CmdShowSeed,                 new CmdShowWords,
-    new CmdShowServers,              new CmdShowWallet,
+    new CmdShowPhrase,               new CmdShowRecords,
+    new CmdShowPurse,                new CmdShowSeed,
+    new CmdShowServers,              new CmdShowThread,
+    new CmdShowThreads,
+    new CmdShowWallet,               new CmdShowWords,
     new CmdSignContract,             new CmdTransfer,
     new CmdTriggerClause,            new CmdUsageCredits,
     new CmdVerifyReceipt,            new CmdVerifySignature,

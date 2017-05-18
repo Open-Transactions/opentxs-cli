@@ -44,65 +44,99 @@
 #include <opentxs/api/Api.hpp>
 #include <opentxs/api/OT.hpp>
 #include <opentxs/client/MadeEasy.hpp>
+#include <opentxs/client/OTME_too.hpp>
 #include <opentxs/core/Log.hpp>
 
-#include <stdint.h>
 #include <ostream>
-#include <string>
 
-using namespace opentxs;
-using namespace std;
-
+namespace opentxs
+{
 CmdSendMessage::CmdSendMessage()
 {
     command = "sendmessage";
-    args[0] = "--server <server>";
-    args[1] = "--mynym <nym>";
-    args[2] = "--hisnym <nym>";
+    args[0] = "--mynym <nym>";
+    args[1] = "--hisnym <nym>";
+    args[2] = "--server [<server>]";
     category = catOtherUsers;
     help = "Send a message to hisnym's in-mail.";
 }
 
-CmdSendMessage::~CmdSendMessage()
+std::int32_t CmdSendMessage::contact(
+    const std::string& mynym,
+    const std::string& hisnym,
+    const std::string& message)
 {
+    auto result =
+        OT::App().API().OTME_TOO().MessageContact(mynym, hisnym, message);
+
+    otErr << "Thread " << String(result) << " started." << std::endl;
+
+    return String(result).Exists();
 }
 
-int32_t CmdSendMessage::runWithOptions()
+std::int32_t CmdSendMessage::nym(
+    const std::string& server,
+    const std::string& mynym,
+    const std::string& hisnym,
+    const std::string& message)
 {
-    return run(getOption("server"), getOption("mynym"), getOption("hisnym"));
-}
-
-int32_t CmdSendMessage::run(string server, string mynym, string hisnym)
-{
-    if (!checkServer("server", server)) {
-        return -1;
-    }
-
-    if (!checkNym("mynym", mynym)) {
-        return -1;
-    }
-
-    if (!checkNym("hisnym", hisnym)) {
-        return -1;
-    }
+    auto& me = OT::App().API().ME();
 
     // make sure we can access the public keys before trying to send a message
 
-    if ("" == OT::App().API().ME().load_or_retrieve_encrypt_key(server, mynym, mynym)) {
+    if ("" == me.load_or_retrieve_encrypt_key(server, mynym, mynym)) {
         otOut << "Error: cannot load public key for mynym.\n";
         return -1;
     }
 
-    if ("" == OT::App().API().ME().load_or_retrieve_encrypt_key(server, mynym, hisnym)) {
+    if ("" == me.load_or_retrieve_encrypt_key(server, mynym, hisnym)) {
         otOut << "Error: cannot load public key for hisnym.\n";
+
         return -1;
     }
 
-    string input = inputText("your message");
-    if ("" == input) {
-        return -1;
-    }
+    std::string response = me.send_user_msg(server, mynym, hisnym, message);
 
-    string response = OT::App().API().ME().send_user_msg(server, mynym, hisnym, input);
     return processResponse(response, "send message");
 }
+
+std::int32_t CmdSendMessage::run(
+    std::string mynym,
+    std::string hisnym,
+    std::string server)
+{
+    const bool haveServer = checkServer("server", server);
+
+    if (!checkNym("mynym", mynym)) {
+        otErr << "Bad sender" << std::endl;
+
+        return -1;
+    }
+
+    if (!checkNym("hisnym", hisnym)) {
+        otErr << "Bad recipient" << std::endl;
+
+        return -1;
+    }
+
+    std::string input = inputText("your message");
+
+    if ("" == input) {
+        otErr << "Bad message" << std::endl;
+
+
+        return -1;
+    }
+
+    if (haveServer) {
+        return nym(server, mynym, hisnym, input);
+    } else {
+        return contact(mynym, hisnym, input);
+    }
+}
+
+std::int32_t CmdSendMessage::runWithOptions()
+{
+    return run(getOption("mynym"), getOption("hisnym"), getOption("server"));
+}
+} // namespace opentxs

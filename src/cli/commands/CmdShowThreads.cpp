@@ -36,43 +36,48 @@
  *
  ************************************************************/
 
-#include "CmdShowNym.hpp"
+#include "CmdShowThreads.hpp"
 
 #include <opentxs/core/Version.hpp>
-#include <opentxs/client/OTAPI_Wrap.hpp>
-
-#include <iostream>
+#include <opentxs/api/OT.hpp>
+#include <opentxs/api/Wallet.hpp>
+#include <opentxs/core/Identifier.hpp>
+#include <opentxs/core/Log.hpp>
 
 namespace opentxs
 {
-CmdShowNym::CmdShowNym()
+CmdShowThreads::CmdShowThreads()
 {
-    command = "shownym";
+    command = "showthreads";
     args[0] = "--mynym <nym>";
-    category = catNyms;
-    help = "Show mynym's statistics.";
+    category = catOtherUsers;
+    help = "List activity threads for the specified user.";
 }
 
-std::int32_t CmdShowNym::runWithOptions()
+std::int32_t CmdShowThreads::runWithOptions()
 {
     return run(getOption("mynym"));
 }
 
-std::int32_t CmdShowNym::run(std::string mynym)
+std::int32_t CmdShowThreads::run(std::string mynym)
 {
     if (!checkNym("mynym", mynym)) {
         return -1;
     }
 
-    std::string nymStats = OTAPI_Wrap::GetNym_Stats(mynym);
+    const auto& ot = OT::App();
+    const auto& wallet = ot.Contract();
+    const auto threads = wallet.Threads(Identifier(mynym));
 
-    if ("" == nymStats) {
-        nymStats = "This nym is not located in the local wallet.";
+    otOut << "Activity threads for: " << mynym << "\n";
+
+    for (const auto& thread : threads) {
+        const auto& threadID = thread.first;
+        otOut << "    * " << threadID << "\n";
     }
 
-    std::string claims = OTAPI_Wrap::DumpContactData(mynym);
+    otOut << std::endl;
 
-    std::cout << nymStats << std::endl << claims;
     return 1;
 }
 } // namespace opentxs

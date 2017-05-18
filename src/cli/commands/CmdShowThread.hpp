@@ -36,43 +36,32 @@
  *
  ************************************************************/
 
-#include "CmdShowNym.hpp"
+#ifndef OPENTXS_CLIENT_CMDSHOWTHREAD_HPP
+#define OPENTXS_CLIENT_CMDSHOWTHREAD_HPP
 
-#include <opentxs/core/Version.hpp>
-#include <opentxs/client/OTAPI_Wrap.hpp>
+#include "CmdBase.hpp"
 
-#include <iostream>
+#include <cstdint>
+#include <string>
 
 namespace opentxs
 {
-CmdShowNym::CmdShowNym()
+
+class CmdShowThread : public CmdBase
 {
-    command = "shownym";
-    args[0] = "--mynym <nym>";
-    category = catNyms;
-    help = "Show mynym's statistics.";
-}
+public:
+    CmdShowThread();
 
-std::int32_t CmdShowNym::runWithOptions()
-{
-    return run(getOption("mynym"));
-}
+    std::int32_t run(
+        std::string mynym,
+        const std::string& threadID);
 
-std::int32_t CmdShowNym::run(std::string mynym)
-{
-    if (!checkNym("mynym", mynym)) {
-        return -1;
-    }
+    ~CmdShowThread() = default;
 
-    std::string nymStats = OTAPI_Wrap::GetNym_Stats(mynym);
+private:
+    std::int32_t runWithOptions() override;
+};
 
-    if ("" == nymStats) {
-        nymStats = "This nym is not located in the local wallet.";
-    }
-
-    std::string claims = OTAPI_Wrap::DumpContactData(mynym);
-
-    std::cout << nymStats << std::endl << claims;
-    return 1;
-}
 } // namespace opentxs
+
+#endif // OPENTXS_CLIENT_CMDSHOWTHREAD_HPP

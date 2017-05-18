@@ -119,6 +119,8 @@ set(cxx-sources
   commands/CmdShowRecords.cpp
   commands/CmdShowSeed.cpp
   commands/CmdShowServers.cpp
+  commands/CmdShowThread.cpp
+  commands/CmdShowThreads.cpp
   commands/CmdShowWallet.cpp
   commands/CmdShowWords.cpp
   commands/CmdSignContract.cpp

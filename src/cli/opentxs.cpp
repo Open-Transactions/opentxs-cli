@@ -108,6 +108,7 @@
 #include "commands/CmdOutbox.hpp"
 #include "commands/CmdOutpayment.hpp"
 #include "commands/CmdPairNode.hpp"
+#include "commands/CmdPairStatus.hpp"
 #include "commands/CmdPasswordDecrypt.hpp"
 #include "commands/CmdPasswordEncrypt.hpp"
 #include "commands/CmdPayDividend.hpp"
@@ -243,6 +244,7 @@ CmdBase* cmds[] = {
     new CmdNewOffer,                 new CmdNotifyBailment,
     new CmdOutbox,                   new CmdNewBasket,
     new CmdOutpayment,               new CmdPairNode,
+    new CmdPairStatus,
     new CmdPasswordDecrypt,          new CmdPasswordEncrypt,
     new CmdPayDividend,              new CmdPayInvoice,
     new CmdPeerStoreSecret,          new CmdPingNotary,
@@ -267,8 +269,8 @@ CmdBase* cmds[] = {
     new CmdShowOffers,               new CmdShowPayment,
     new CmdShowPhrase,               new CmdShowRecords,
     new CmdShowPurse,                new CmdShowSeed,
-    new CmdShowServers,              new CmdShowThread,
-    new CmdShowThreads,
+    new CmdShowServers,
+    new CmdShowThread,               new CmdShowThreads,
     new CmdShowWallet,               new CmdShowWords,
     new CmdSignContract,             new CmdTransfer,
     new CmdTriggerClause,            new CmdUsageCredits,

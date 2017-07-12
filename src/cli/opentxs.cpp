@@ -142,6 +142,7 @@
 #include "commands/CmdShowAssets.hpp"
 #include "commands/CmdShowBalance.hpp"
 #include "commands/CmdShowBasket.hpp"
+#include "commands/CmdShowContacts.hpp"
 #include "commands/CmdShowCredential.hpp"
 #include "commands/CmdShowCredentials.hpp"
 #include "commands/CmdShowExpired.hpp"
@@ -264,6 +265,7 @@ CmdBase* cmds[] = {
     new CmdShowAccount,              new CmdShowAccounts,
     new CmdShowActive,               new CmdShowAssets,
     new CmdShowBalance,              new CmdShowBasket,
+    new CmdShowContacts,
     new CmdShowCredential,           new CmdShowCredentials,
     new CmdShowExpired,              new CmdShowMarkets,
     new CmdShowMint,                 new CmdShowMyOffers,

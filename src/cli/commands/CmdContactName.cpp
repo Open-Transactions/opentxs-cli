@@ -39,10 +39,16 @@
 #include "CmdContactName.hpp"
 
 #include <opentxs/core/Version.hpp>
+
 #include <opentxs/api/Api.hpp>
+#include <opentxs/api/ContactManager.hpp>
 #include <opentxs/api/OT.hpp>
 #include <opentxs/client/OTME_too.hpp>
+#include <opentxs/contact/Contact.hpp>
+#include <opentxs/contact/ContactData.hpp>
+#include <opentxs/core/Identifier.hpp>
 #include <opentxs/core/Log.hpp>
+#include <opentxs/core/String.hpp>
 
 namespace opentxs
 {
@@ -59,15 +65,22 @@ std::int32_t CmdContactName::runWithOptions()
     return run(getOption("contact"));
 }
 
-std::int32_t CmdContactName::run(const std::string& contact)
+std::int32_t CmdContactName::run(const std::string& id)
 {
-    if (contact.empty()) {
+    if (id.empty()) {
+
         return -1;
     }
 
-    const auto response = OT::App().API().OTME_TOO().ContactName(contact);
+    const auto contact =
+        OT::App().Contact().Contact(Identifier(String(id.c_str())));
 
-    otOut << response << std::endl;
+    if (false == bool(contact)) {
+
+        return -1;
+    }
+
+    otOut << contact->Label() << std::endl;
 
     return 0;
 }

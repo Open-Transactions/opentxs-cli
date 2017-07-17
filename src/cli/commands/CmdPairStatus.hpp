@@ -36,49 +36,29 @@
  *
  ************************************************************/
 
-#include "CmdPingNotary.hpp"
+#ifndef OPENTXS_CLIENT_CMDPAIRSTATUS_HPP
+#define OPENTXS_CLIENT_CMDPAIRSTATUS_HPP
 
 #include "CmdBase.hpp"
 
-#include <opentxs/core/Version.hpp>
-#include <opentxs/api/Api.hpp>
-#include <opentxs/api/OT.hpp>
-#include <opentxs/client/OT_ME.hpp>
-
-#include <stdint.h>
+#include <cstdint>
 #include <string>
 
-using namespace opentxs;
-using namespace std;
-
-CmdPingNotary::CmdPingNotary()
+namespace opentxs
 {
-    command = "pingnotary";
-    args[0] = "--server <server>";
-    args[1] = "--mynym <nym>";
-    category = catMisc;
-    help = "See if a notary is responsive.";
-}
 
-CmdPingNotary::~CmdPingNotary()
+class CmdPairStatus : public CmdBase
 {
-}
+public:
+    EXPORT CmdPairStatus();
 
-int32_t CmdPingNotary::runWithOptions()
-{
-    return run(getOption("server"), getOption("mynym"));
-}
+    EXPORT std::int32_t run(const std::string& node);
 
-int32_t CmdPingNotary::run(string server, string mynym)
-{
-    if (!checkServer("server", server)) {
-        return -1;
-    }
+    EXPORT ~CmdPairStatus() = default;
 
-    if (!checkNym("mynym", mynym)) {
-        return -1;
-    }
+protected:
+    virtual std::int32_t runWithOptions();
+};
+} // namespace opentxs
 
-    string response = OT::App().API().OTME().ping_notary(server, mynym);
-    return processResponse(response, "ping notary");
-}
+#endif // OPENTXS_CLIENT_CMDPAIRSTATUS_HPP

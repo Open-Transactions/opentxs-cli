@@ -74,6 +74,7 @@ set(cxx-sources
   commands/CmdOutbox.cpp
   commands/CmdOutpayment.cpp
   commands/CmdPairNode.cpp
+  commands/CmdPairStatus.cpp
   commands/CmdPasswordDecrypt.cpp
   commands/CmdPasswordEncrypt.cpp
   commands/CmdPayDividend.cpp

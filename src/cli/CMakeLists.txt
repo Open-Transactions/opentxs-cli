@@ -56,6 +56,7 @@ set(cxx-sources
   commands/CmdHaveContact.cpp
   commands/CmdImportCash.cpp
   commands/CmdImportNym.cpp
+  commands/CmdImportPublicNym.cpp
   commands/CmdImportSeed.cpp
   commands/CmdInbox.cpp
   commands/CmdInpayments.cpp

@@ -91,6 +91,7 @@
 #include "commands/CmdHaveContact.hpp"
 #include "commands/CmdImportCash.hpp"
 #include "commands/CmdImportNym.hpp"
+#include "commands/CmdImportPublicNym.hpp"
 #include "commands/CmdImportSeed.hpp"
 #include "commands/CmdInbox.hpp"
 #include "commands/CmdInpayments.hpp"
@@ -233,8 +234,8 @@ CmdBase* cmds[] = {
     new CmdGetOffers,                new CmdGetPeerRequests,
     new CmdGetPeerRequest,           new CmdGetPeerReplies,
     new CmdGetPeerReply,             new CmdGetReceipt,
-    new CmdHaveContact,
-    new CmdImportCash,               new CmdImportNym,
+    new CmdHaveContact,              new CmdImportCash,
+    new CmdImportNym,                new CmdImportPublicNym,
     new CmdImportSeed,               new CmdInbox,
     new CmdInpayments,               new CmdIssueAsset,
     new CmdKillOffer,                new CmdKillPlan,

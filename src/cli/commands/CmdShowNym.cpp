@@ -39,7 +39,12 @@
 #include "CmdShowNym.hpp"
 
 #include <opentxs/core/Version.hpp>
+
+#include <opentxs/api/OT.hpp>
+#include <opentxs/api/Wallet.hpp>
 #include <opentxs/client/OTAPI_Wrap.hpp>
+#include <opentxs/core/Identifier.hpp>
+#include <opentxs/core/Proto.hpp>
 
 #include <iostream>
 
@@ -71,8 +76,15 @@ std::int32_t CmdShowNym::run(std::string mynym)
     }
 
     std::string claims = OTAPI_Wrap::DumpContactData(mynym);
-
     std::cout << nymStats << std::endl << claims;
+    auto nym = OT::App().Contract().Nym(Identifier(mynym));
+
+    if (nym) {
+        const auto armored =
+            proto::ProtoAsArmored(nym->asPublicNym(), "PUBLIC NYM");
+        std::cout << armored << std::endl;
+    }
+
     return 1;
 }
 } // namespace opentxs

@@ -155,7 +155,12 @@ else()
   add_executable(${MODULE_NAME} ${cxx-sources})
 endif()
 
-target_link_libraries(${MODULE_NAME} ${OPENTXS_LIBRARIES} anyoption)
+target_link_libraries(${MODULE_NAME}
+  ${OPENTXS_LIBRARIES}
+  ${OPENTXS_PROTO_LIBRARIES}
+  ${PROTOBUF_LITE_LIBRARIES}
+  anyoption
+)
 
 install(TARGETS ${MODULE_NAME}
         DESTINATION bin

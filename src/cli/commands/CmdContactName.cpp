@@ -43,6 +43,7 @@
 #include <opentxs/api/Api.hpp>
 #include <opentxs/api/ContactManager.hpp>
 #include <opentxs/api/OT.hpp>
+#include <opentxs/contact/Contact.hpp>
 #include <opentxs/client/OTME_too.hpp>
 #include <opentxs/contact/Contact.hpp>
 #include <opentxs/contact/ContactData.hpp>
@@ -72,16 +73,17 @@ std::int32_t CmdContactName::run(const std::string& id)
         return -1;
     }
 
-    const auto contact =
-        OT::App().Contact().Contact(Identifier(String(id.c_str())));
+    const auto pContact = OT::App().Contact().
+        Contact(opentxs::Identifier{id});
+    
+    if (pContact)
+    {
+        const auto label = pContact->Label();
 
-    if (false == bool(contact)) {
-
-        return -1;
+        otOut << label << std::endl;
+        return 0;
     }
-
-    otOut << contact->Label() << std::endl;
-
-    return 0;
+    
+    return -1;
 }
 } // namespace opentxs

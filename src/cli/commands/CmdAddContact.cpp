@@ -38,6 +38,7 @@
 
 #include "CmdAddContact.hpp"
 
+
 #include <opentxs/core/Version.hpp>
 
 #include <opentxs/api/Api.hpp>
@@ -56,7 +57,7 @@ CmdAddContact::CmdAddContact()
     args[0] = "--hisnym <nym>";
     args[1] = "--label [<label>]";
     category = catOtherUsers;
-    help = "Search for a nym's credentials";
+    help = "Add a new contact based on Nym ID";
 }
 
 std::int32_t CmdAddContact::runWithOptions()

@@ -39,8 +39,8 @@
 #include "CmdShowThreads.hpp"
 
 #include <opentxs/core/Version.hpp>
+#include <opentxs/api/Activity.hpp>
 #include <opentxs/api/OT.hpp>
-#include <opentxs/api/Wallet.hpp>
 #include <opentxs/core/Identifier.hpp>
 #include <opentxs/core/Log.hpp>
 
@@ -66,8 +66,8 @@ std::int32_t CmdShowThreads::run(std::string mynym)
     }
 
     const auto& ot = OT::App();
-    const auto& wallet = ot.Contract();
-    const auto threads = wallet.Threads(Identifier(mynym));
+    const auto& activity = ot.Activity();
+    const auto threads = activity.Threads(Identifier(mynym));
 
     otOut << "Activity threads for: " << mynym << "\n";
 

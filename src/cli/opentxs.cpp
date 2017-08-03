@@ -50,10 +50,13 @@
 #include "commands/CmdAcknowledgeNotice.hpp"
 #include "commands/CmdAcknowledgeOutBailment.hpp"
 #include "commands/CmdAddAsset.hpp"
+#include "commands/CmdAddBitcoinAccount.hpp"
 #include "commands/CmdAddContact.hpp"
 #include "commands/CmdAddServer.hpp"
 #include "commands/CmdAddSignature.hpp"
+#include "commands/CmdAllocateBitcoinAddress.hpp"
 #include "commands/CmdArchivePeerReply.hpp"
+#include "commands/CmdAssignBitcoinAddress.hpp"
 #include "commands/CmdBase.hpp"
 #include "commands/CmdCanMessage.hpp"
 #include "commands/CmdCancel.hpp"
@@ -208,7 +211,7 @@ const char* categoryName[] = {
     "Category Error",           "Advanced utilities",    "The user wallet",
     "Misc",                     "Markets (bid/ask)",     "Asset accounts",
     "Dealing with other users", "Financial instruments", "Basket currencies",
-    "Pseudonyms"};
+    "Pseudonyms",               "Blockchain"};
 
 CmdBase* cmds[] = {
     new CmdAcceptAll,                new CmdAcceptInbox,
@@ -217,10 +220,11 @@ CmdBase* cmds[] = {
     new CmdAcceptTransfers,          new CmdAcknowledgeBailment,
     new CmdAcknowledgeConnection,    new CmdAcknowledgeNotice,
     new CmdAcknowledgeOutBailment,   new CmdAddAsset,
-    new CmdAddContact,               new CmdAddServer,
-    new CmdAddSignature,             new CmdArchivePeerReply,
-    new CmdCancel,                   new CmdCanMessage,
-    new CmdChangePw,
+    new CmdAddBitcoinAccount,        new CmdAddContact,
+    new CmdAddServer,                new CmdAddSignature,
+    new CmdAllocateBitcoinAddress,   new CmdArchivePeerReply,
+    new CmdAssignBitcoinAddress,     new CmdCancel,
+    new CmdCanMessage,               new CmdChangePw,
     new CmdCheckNym,                 new CmdClearExpired,
     new CmdClearRecords,             new CmdConfirm,
     new CmdContactName,              new CmdConvertPaymentCode,

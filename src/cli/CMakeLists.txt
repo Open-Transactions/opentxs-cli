@@ -11,10 +11,13 @@ set(cxx-sources
   commands/CmdAcknowledgeNotice.cpp
   commands/CmdAcknowledgeOutBailment.cpp
   commands/CmdAddAsset.cpp
+  commands/CmdAddBitcoinAccount.cpp
   commands/CmdAddContact.cpp
   commands/CmdAddServer.cpp
   commands/CmdAddSignature.cpp
+  commands/CmdAllocateBitcoinAddress.cpp
   commands/CmdArchivePeerReply.cpp
+  commands/CmdAssignBitcoinAddress.cpp
   commands/CmdUsageCredits.cpp
   commands/CmdBase.cpp
   commands/CmdBaseAccept.cpp

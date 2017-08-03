@@ -160,7 +160,8 @@ typedef enum {
     catInstruments = 7,
     catBaskets = 8,
     catNyms = 9,
-    catLast = 10
+    catBlockchain = 10,
+    catLast = 11
 } Category;
 
 class CmdBase

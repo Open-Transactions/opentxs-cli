@@ -165,6 +165,7 @@
 #include "commands/CmdTransfer.hpp"
 #include "commands/CmdTriggerClause.hpp"
 #include "commands/CmdUsageCredits.hpp"
+#include "commands/CmdVerifyPassword.hpp"
 #include "commands/CmdVerifyReceipt.hpp"
 #include "commands/CmdVerifySignature.hpp"
 #include "commands/CmdWithdrawCash.hpp"
@@ -275,6 +276,7 @@ CmdBase* cmds[] = {
     new CmdShowWallet,               new CmdShowWords,
     new CmdSignContract,             new CmdTransfer,
     new CmdTriggerClause,            new CmdUsageCredits,
+    new CmdVerifyPassword,
     new CmdVerifyReceipt,            new CmdVerifySignature,
     new CmdWithdrawCash,             new CmdWithdrawVoucher,
     new CmdWriteCheque,              new CmdWriteInvoice,

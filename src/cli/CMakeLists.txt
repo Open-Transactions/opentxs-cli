@@ -129,6 +129,7 @@ set(cxx-sources
   commands/CmdShowWallet.cpp
   commands/CmdTransfer.cpp
   commands/CmdTriggerClause.cpp
+  commands/CmdVerifyPassword.cpp
   commands/CmdVerifyReceipt.cpp
   commands/CmdVerifySignature.cpp
   commands/CmdWithdrawCash.cpp

@@ -56,6 +56,7 @@ set(cxx-sources
   commands/CmdHaveContact.cpp
   commands/CmdImportCash.cpp
   commands/CmdImportNym.cpp
+  commands/CmdImportPublicNym.cpp
   commands/CmdImportSeed.cpp
   commands/CmdInbox.cpp
   commands/CmdInpayments.cpp
@@ -105,6 +106,7 @@ set(cxx-sources
   commands/CmdShowAssets.cpp
   commands/CmdShowBalance.cpp
   commands/CmdShowBasket.cpp
+  commands/CmdShowContacts.cpp
   commands/CmdShowCredential.cpp
   commands/CmdShowCredentials.cpp
   commands/CmdShowExpired.cpp
@@ -128,6 +130,7 @@ set(cxx-sources
   commands/CmdShowWallet.cpp
   commands/CmdTransfer.cpp
   commands/CmdTriggerClause.cpp
+  commands/CmdVerifyPassword.cpp
   commands/CmdVerifyReceipt.cpp
   commands/CmdVerifySignature.cpp
   commands/CmdWithdrawCash.cpp
@@ -155,7 +158,12 @@ else()
   add_executable(${MODULE_NAME} ${cxx-sources})
 endif()
 
-target_link_libraries(${MODULE_NAME} ${OPENTXS_LIBRARIES} anyoption)
+target_link_libraries(${MODULE_NAME}
+  ${OPENTXS_LIBRARIES}
+  ${OPENTXS_PROTO_LIBRARIES}
+  ${PROTOBUF_LITE_LIBRARIES}
+  anyoption
+)
 
 install(TARGETS ${MODULE_NAME}
         DESTINATION bin

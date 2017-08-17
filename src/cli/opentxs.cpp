@@ -91,6 +91,7 @@
 #include "commands/CmdHaveContact.hpp"
 #include "commands/CmdImportCash.hpp"
 #include "commands/CmdImportNym.hpp"
+#include "commands/CmdImportPublicNym.hpp"
 #include "commands/CmdImportSeed.hpp"
 #include "commands/CmdInbox.hpp"
 #include "commands/CmdInpayments.hpp"
@@ -141,6 +142,7 @@
 #include "commands/CmdShowAssets.hpp"
 #include "commands/CmdShowBalance.hpp"
 #include "commands/CmdShowBasket.hpp"
+#include "commands/CmdShowContacts.hpp"
 #include "commands/CmdShowCredential.hpp"
 #include "commands/CmdShowCredentials.hpp"
 #include "commands/CmdShowExpired.hpp"
@@ -164,6 +166,7 @@
 #include "commands/CmdTransfer.hpp"
 #include "commands/CmdTriggerClause.hpp"
 #include "commands/CmdUsageCredits.hpp"
+#include "commands/CmdVerifyPassword.hpp"
 #include "commands/CmdVerifyReceipt.hpp"
 #include "commands/CmdVerifySignature.hpp"
 #include "commands/CmdWithdrawCash.hpp"
@@ -233,8 +236,8 @@ CmdBase* cmds[] = {
     new CmdGetOffers,                new CmdGetPeerRequests,
     new CmdGetPeerRequest,           new CmdGetPeerReplies,
     new CmdGetPeerReply,             new CmdGetReceipt,
-    new CmdHaveContact,
-    new CmdImportCash,               new CmdImportNym,
+    new CmdHaveContact,              new CmdImportCash,
+    new CmdImportNym,                new CmdImportPublicNym,
     new CmdImportSeed,               new CmdInbox,
     new CmdInpayments,               new CmdIssueAsset,
     new CmdKillOffer,                new CmdKillPlan,
@@ -262,6 +265,7 @@ CmdBase* cmds[] = {
     new CmdShowAccount,              new CmdShowAccounts,
     new CmdShowActive,               new CmdShowAssets,
     new CmdShowBalance,              new CmdShowBasket,
+    new CmdShowContacts,
     new CmdShowCredential,           new CmdShowCredentials,
     new CmdShowExpired,              new CmdShowMarkets,
     new CmdShowMint,                 new CmdShowMyOffers,
@@ -274,6 +278,7 @@ CmdBase* cmds[] = {
     new CmdShowWallet,               new CmdShowWords,
     new CmdSignContract,             new CmdTransfer,
     new CmdTriggerClause,            new CmdUsageCredits,
+    new CmdVerifyPassword,
     new CmdVerifyReceipt,            new CmdVerifySignature,
     new CmdWithdrawCash,             new CmdWithdrawVoucher,
     new CmdWriteCheque,              new CmdWriteInvoice,

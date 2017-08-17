@@ -36,44 +36,50 @@
  *
  ************************************************************/
 
-#include "CmdShowThreads.hpp"
+#include "CmdShowContacts.hpp"
 
 #include <opentxs/core/Version.hpp>
-#include <opentxs/api/Activity.hpp>
+
+#include <opentxs/api/Api.hpp>
+#include <opentxs/api/ContactManager.hpp>
 #include <opentxs/api/OT.hpp>
+#include <opentxs/contact/Contact.hpp>
+#include <opentxs/contact/ContactData.hpp>
 #include <opentxs/core/Identifier.hpp>
 #include <opentxs/core/Log.hpp>
+#include <opentxs/core/String.hpp>
+#include <opentxs/storage/Storage.hpp>
 
 namespace opentxs
 {
-CmdShowThreads::CmdShowThreads()
+
+CmdShowContacts::CmdShowContacts()
 {
-    command = "showthreads";
-    args[0] = "--mynym <nym>";
+    command = "showcontacts";
     category = catOtherUsers;
-    help = "List activity threads for the specified user.";
+    help = "Show the contacts in the wallet.";
 }
 
-std::int32_t CmdShowThreads::runWithOptions()
+std::int32_t CmdShowContacts::runWithOptions()
 {
-    return run(getOption("mynym"));
+    return run();
 }
 
-std::int32_t CmdShowThreads::run(std::string mynym)
+std::int32_t CmdShowContacts::run()
 {
-    if (!checkNym("mynym", mynym)) {
-        return -1;
-    }
+    auto& ot = OT::App();
+    auto& storage = ot.DB();
+    const auto contactList = storage.ContactList();
+    otOut << "Contacts:\n";
+    dashLine();
 
-    const auto& ot = OT::App();
-    const auto& activity = ot.Activity();
-    const auto threads = activity.Threads(Identifier(mynym));
+    for (const auto& it : contactList) {
+        const auto& contactID = it.first;
+        auto contact = ot.Contact().Contact(Identifier(contactID));
 
-    otOut << "Activity threads for: " << mynym << "\n";
+        OT_ASSERT(contact);
 
-    for (const auto& thread : threads) {
-        const auto& threadID = thread.first;
-        otOut << "    * " << threadID << "\n";
+        otOut << " * " << contactID << " (" << contact->Label() << ")\n";
     }
 
     otOut << std::endl;

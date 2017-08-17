@@ -36,48 +36,29 @@
  *
  ************************************************************/
 
-#include "CmdShowThreads.hpp"
 
-#include <opentxs/core/Version.hpp>
-#include <opentxs/api/Activity.hpp>
-#include <opentxs/api/OT.hpp>
-#include <opentxs/core/Identifier.hpp>
-#include <opentxs/core/Log.hpp>
+#ifndef OPENTXS_CLIENT_CMDVERIFYPASSWORD_HPP
+#define OPENTXS_CLIENT_CMDVERIFYPASSWORD_HPP
+
+#include "CmdBase.hpp"
+
+#include <cstdint>
 
 namespace opentxs
 {
-CmdShowThreads::CmdShowThreads()
+
+class CmdVerifyPassword : public CmdBase
 {
-    command = "showthreads";
-    args[0] = "--mynym <nym>";
-    category = catOtherUsers;
-    help = "List activity threads for the specified user.";
-}
+public:
+    EXPORT CmdVerifyPassword();
 
-std::int32_t CmdShowThreads::runWithOptions()
-{
-    return run(getOption("mynym"));
-}
+    EXPORT int32_t run();
 
-std::int32_t CmdShowThreads::run(std::string mynym)
-{
-    if (!checkNym("mynym", mynym)) {
-        return -1;
-    }
+    EXPORT ~CmdVerifyPassword() = default;
 
-    const auto& ot = OT::App();
-    const auto& activity = ot.Activity();
-    const auto threads = activity.Threads(Identifier(mynym));
-
-    otOut << "Activity threads for: " << mynym << "\n";
-
-    for (const auto& thread : threads) {
-        const auto& threadID = thread.first;
-        otOut << "    * " << threadID << "\n";
-    }
-
-    otOut << std::endl;
-
-    return 1;
-}
+protected:
+    std::int32_t runWithOptions() override;
+};
 } // namespace opentxs
+
+#endif // OPENTXS_CLIENT_CMDVERIFYPASSWORD_HPP

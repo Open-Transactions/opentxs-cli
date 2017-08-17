@@ -39,9 +39,14 @@
 #include "CmdAddContact.hpp"
 
 #include <opentxs/core/Version.hpp>
+
 #include <opentxs/api/Api.hpp>
+#include <opentxs/api/ContactManager.hpp>
 #include <opentxs/api/OT.hpp>
-#include <opentxs/client/OTME_too.hpp>
+#include <opentxs/core/crypto/OTPassword.hpp>
+#include <opentxs/core/crypto/PaymentCode.hpp>
+#include <opentxs/core/Identifier.hpp>
+#include <opentxs/core/String.hpp>
 
 namespace opentxs
 {
@@ -67,7 +72,10 @@ std::int32_t CmdAddContact::run(
         return -1;
     }
 
-    const auto response = OT::App().API().OTME_TOO().AddContact(hisnym, label);
+    Identifier nymID(String(hisnym.c_str()));
+    PaymentCode code(hisnym);
+
+    const auto response = OT::App().Contact().NewContact(label, nymID, code);
 
     if (response) {
         return 0;

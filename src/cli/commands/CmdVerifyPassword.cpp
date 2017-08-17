@@ -36,48 +36,39 @@
  *
  ************************************************************/
 
-#include "CmdShowThreads.hpp"
+#include "CmdVerifyPassword.hpp"
+
+#include "CmdBase.hpp"
 
 #include <opentxs/core/Version.hpp>
-#include <opentxs/api/Activity.hpp>
-#include <opentxs/api/OT.hpp>
-#include <opentxs/core/Identifier.hpp>
+#include <opentxs/client/OTAPI_Wrap.hpp>
 #include <opentxs/core/Log.hpp>
 
 namespace opentxs
 {
-CmdShowThreads::CmdShowThreads()
+
+CmdVerifyPassword::CmdVerifyPassword()
 {
-    command = "showthreads";
-    args[0] = "--mynym <nym>";
-    category = catOtherUsers;
-    help = "List activity threads for the specified user.";
+    command = "verifypassword";
+    category = catWallet;
+    help = "Prompt for wallet passphrase entry.";
 }
 
-std::int32_t CmdShowThreads::runWithOptions()
+std::int32_t CmdVerifyPassword::runWithOptions()
 {
-    return run(getOption("mynym"));
+    return run();
 }
 
-std::int32_t CmdShowThreads::run(std::string mynym)
+std::int32_t CmdVerifyPassword::run()
 {
-    if (!checkNym("mynym", mynym)) {
+    if (false == OTAPI_Wrap::Wallet_CheckPassword()) {
+        otOut << "Error: invalid passphrase." << std::endl;
+
         return -1;
+    } else {
+        otOut << "Password confirmed." << std::endl;
+
+        return 1;
     }
-
-    const auto& ot = OT::App();
-    const auto& activity = ot.Activity();
-    const auto threads = activity.Threads(Identifier(mynym));
-
-    otOut << "Activity threads for: " << mynym << "\n";
-
-    for (const auto& thread : threads) {
-        const auto& threadID = thread.first;
-        otOut << "    * " << threadID << "\n";
-    }
-
-    otOut << std::endl;
-
-    return 1;
 }
-} // namespace opentxs
+}  // namespace opentxs

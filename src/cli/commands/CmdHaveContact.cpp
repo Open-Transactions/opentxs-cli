@@ -39,10 +39,13 @@
 #include "CmdHaveContact.hpp"
 
 #include <opentxs/core/Version.hpp>
+
 #include <opentxs/api/Api.hpp>
+#include <opentxs/api/ContactManager.hpp>
 #include <opentxs/api/OT.hpp>
-#include <opentxs/client/OTME_too.hpp>
+#include <opentxs/core/Identifier.hpp>
 #include <opentxs/core/Log.hpp>
+#include <opentxs/core/String.hpp>
 
 namespace opentxs
 {
@@ -54,22 +57,21 @@ CmdHaveContact::CmdHaveContact()
     help = "Determine if a contact exists";
 }
 
-int32_t CmdHaveContact::runWithOptions()
+std::int32_t CmdHaveContact::runWithOptions()
 {
     return run(getOption("contact"));
 }
 
-int32_t CmdHaveContact::run(
-    const std::string& contact)
+std::int32_t CmdHaveContact::run(const std::string& id)
 {
-    if (contact.empty()) {
+    if (id.empty()) {
         return -1;
     }
 
-    const auto response =
-        OT::App().API().OTME_TOO().HaveContact(contact);
+    const auto contact =
+        OT::App().Contact().Contact(Identifier(String(id.c_str())));
 
-    if (response) {
+    if (contact) {
         otOut << "true" << std::endl;
     } else {
         otOut << "false" << std::endl;

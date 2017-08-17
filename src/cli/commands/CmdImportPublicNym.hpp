@@ -36,48 +36,28 @@
  *
  ************************************************************/
 
-#include "CmdShowThreads.hpp"
+#ifndef OPENTXS_CLIENT_CMDIMPORTPUBLICNYM_HPP
+#define OPENTXS_CLIENT_CMDIMPORTPUBLICNYM_HPP
 
-#include <opentxs/core/Version.hpp>
-#include <opentxs/api/Activity.hpp>
-#include <opentxs/api/OT.hpp>
-#include <opentxs/core/Identifier.hpp>
-#include <opentxs/core/Log.hpp>
+#include "CmdBase.hpp"
+
+#include <cstdint>
 
 namespace opentxs
 {
-CmdShowThreads::CmdShowThreads()
+
+class CmdImportPublicNym : public CmdBase
 {
-    command = "showthreads";
-    args[0] = "--mynym <nym>";
-    category = catOtherUsers;
-    help = "List activity threads for the specified user.";
-}
+public:
+    EXPORT CmdImportPublicNym();
 
-std::int32_t CmdShowThreads::runWithOptions()
-{
-    return run(getOption("mynym"));
-}
+    EXPORT std::int32_t run();
 
-std::int32_t CmdShowThreads::run(std::string mynym)
-{
-    if (!checkNym("mynym", mynym)) {
-        return -1;
-    }
+    EXPORT ~CmdImportPublicNym() = default;
 
-    const auto& ot = OT::App();
-    const auto& activity = ot.Activity();
-    const auto threads = activity.Threads(Identifier(mynym));
-
-    otOut << "Activity threads for: " << mynym << "\n";
-
-    for (const auto& thread : threads) {
-        const auto& threadID = thread.first;
-        otOut << "    * " << threadID << "\n";
-    }
-
-    otOut << std::endl;
-
-    return 1;
-}
+protected:
+    std::int32_t runWithOptions() override;
+};
 } // namespace opentxs
+
+#endif // OPENTXS_CLIENT_CMDIMPORTPUBLICNYM_HPP

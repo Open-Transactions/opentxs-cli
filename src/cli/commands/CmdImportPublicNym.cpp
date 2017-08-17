@@ -36,47 +36,48 @@
  *
  ************************************************************/
 
-#include "CmdShowThreads.hpp"
+#include "CmdImportPublicNym.hpp"
 
 #include <opentxs/core/Version.hpp>
-#include <opentxs/api/Activity.hpp>
-#include <opentxs/api/OT.hpp>
-#include <opentxs/core/Identifier.hpp>
+
+#include <opentxs/client/OTAPI_Wrap.hpp>
 #include <opentxs/core/Log.hpp>
+
+#include <string>
 
 namespace opentxs
 {
-CmdShowThreads::CmdShowThreads()
+
+CmdImportPublicNym::CmdImportPublicNym()
 {
-    command = "showthreads";
-    args[0] = "--mynym <nym>";
-    category = catOtherUsers;
-    help = "List activity threads for the specified user.";
+    command = "importpublicnym";
+    category = catWallet;
+    help = "Import a public nym.";
 }
 
-std::int32_t CmdShowThreads::runWithOptions()
+std::int32_t CmdImportPublicNym::runWithOptions()
 {
-    return run(getOption("mynym"));
+    return run();
 }
 
-std::int32_t CmdShowThreads::run(std::string mynym)
+std::int32_t CmdImportPublicNym::run()
 {
-    if (!checkNym("mynym", mynym)) {
+    const auto input = inputText("An armored public nym");
+
+    if (input.empty()) {
+
         return -1;
     }
 
-    const auto& ot = OT::App();
-    const auto& activity = ot.Activity();
-    const auto threads = activity.Threads(Identifier(mynym));
+    const auto nymID = OTAPI_Wrap::Import_Nym(input);
 
-    otOut << "Activity threads for: " << mynym << "\n";
+    if (nymID.empty()) {
+        otOut << "Error: cannot import Nym.\n";
 
-    for (const auto& thread : threads) {
-        const auto& threadID = thread.first;
-        otOut << "    * " << threadID << "\n";
+        return -1;
     }
 
-    otOut << std::endl;
+    otOut << "Imported nym: " << nymID << ".\n";
 
     return 1;
 }

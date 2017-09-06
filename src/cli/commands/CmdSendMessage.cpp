@@ -77,9 +77,15 @@ std::int32_t CmdSendMessage::contact(
 std::int32_t CmdSendMessage::nym(
     const std::string& server,
     const std::string& mynym,
-    const std::string& hisnym,
+    std::string& hisnym,
     const std::string& message)
 {
+    if (!checkNym("hisnym", hisnym)) {
+        otErr << "Bad recipient" << std::endl;
+
+        return -1;
+    }
+
     auto& me = OT::App().API().ME();
 
     // make sure we can access the public keys before trying to send a message
@@ -109,12 +115,6 @@ std::int32_t CmdSendMessage::run(
 
     if (!checkNym("mynym", mynym)) {
         otErr << "Bad sender" << std::endl;
-
-        return -1;
-    }
-
-    if (!checkNym("hisnym", hisnym)) {
-        otErr << "Bad recipient" << std::endl;
 
         return -1;
     }

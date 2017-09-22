@@ -70,7 +70,7 @@ std::int32_t CmdAddBitcoinAccount::run(std::string mynym)
     }
 
     const auto account = OT::App().Blockchain().NewAccount(
-        Identifier(mynym), proto::CITEMTYPE_BTC);
+        Identifier(mynym), BlockchainAccountType::BIP44, proto::CITEMTYPE_BTC);
     otOut << "BIP-44 account ID: " << String(account) << std::endl;
 
     return 0;

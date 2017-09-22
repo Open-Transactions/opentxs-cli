@@ -75,6 +75,23 @@ std::int32_t CmdAddContact::run(
     Identifier nymID(String(hisnym.c_str()));
     PaymentCode code(hisnym);
 
+    if (nymID.empty()) {
+        otErr << "Provided ID was not a nymID." << std::endl;
+    } else {
+        otErr << "Provided ID was a nymID." << std::endl;
+    }
+
+    if (false == code.VerifyInternally()) {
+        otErr << "Provided ID was not a payment code." << std::endl;
+    } else {
+        otErr << "Provided ID was a payment code." << std::endl;
+    }
+
+    if (nymID.empty() && code.VerifyInternally()) {
+        nymID = code.ID();
+        otErr << "Derived nymID: " << String(nymID) << std::endl;
+    }
+
     const auto response = OT::App().Contact().NewContact(label, nymID, code);
 
     if (response) {

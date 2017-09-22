@@ -65,7 +65,7 @@ private:
     std::int32_t nym(
         const std::string& server,
         const std::string& mynym,
-        const std::string& hisnym,
+        std::string& hisnym,
         const std::string& message);
 
     std::int32_t contact(

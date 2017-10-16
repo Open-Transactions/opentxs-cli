@@ -94,6 +94,7 @@
 #include "commands/CmdHaveContact.hpp"
 #include "commands/CmdImportCash.hpp"
 #include "commands/CmdImportNym.hpp"
+#include "commands/CmdImportOtherNym.hpp"
 #include "commands/CmdImportPublicNym.hpp"
 #include "commands/CmdImportSeed.hpp"
 #include "commands/CmdInbox.hpp"
@@ -247,8 +248,8 @@ CmdBase* cmds[] = {
     new CmdKillOffer,                new CmdKillPlan,
     new CmdNewAccount,               new CmdNewAsset,
     new CmdNewKey,                   new CmdNewNymHD,
-    new CmdNewNymLegacy,
-    new CmdNewOffer,                 new CmdNotifyBailment,
+    new CmdNewNymLegacy,             new CmdNewOffer,
+    new CmdNotifyBailment,           new CmdImportOtherNym,
     new CmdOutbox,                   new CmdNewBasket,
     new CmdOutpayment,               new CmdPairNode,
     new CmdPairStatus,

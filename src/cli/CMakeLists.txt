@@ -67,6 +67,7 @@ set(cxx-sources
   commands/CmdIssueAsset.cpp
   commands/CmdKillOffer.cpp
   commands/CmdKillPlan.cpp
+  commands/CmdModifyNym.cpp
   commands/CmdNewAccount.cpp
   commands/CmdNewAsset.cpp
   commands/CmdNewBasket.cpp

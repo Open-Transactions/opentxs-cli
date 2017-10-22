@@ -102,6 +102,7 @@
 #include "commands/CmdIssueAsset.hpp"
 #include "commands/CmdKillOffer.hpp"
 #include "commands/CmdKillPlan.hpp"
+#include "commands/CmdMergeContact.hpp"
 #include "commands/CmdModifyNym.hpp"
 #include "commands/CmdNewAccount.hpp"
 #include "commands/CmdNewAsset.hpp"
@@ -248,7 +249,7 @@ CmdBase* cmds[] = {
     new CmdImportSeed,               new CmdInbox,
     new CmdInpayments,               new CmdIssueAsset,
     new CmdKillOffer,                new CmdKillPlan,
-    new CmdModifyNym,
+    new CmdMergeContact,             new CmdModifyNym,
     new CmdNewAccount,               new CmdNewAsset,
     new CmdNewKey,                   new CmdNewNymHD,
     new CmdNewNymLegacy,             new CmdNewOffer,

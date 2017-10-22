@@ -67,6 +67,7 @@ set(cxx-sources
   commands/CmdIssueAsset.cpp
   commands/CmdKillOffer.cpp
   commands/CmdKillPlan.cpp
+  commands/CmdMergeContact.cpp
   commands/CmdModifyNym.cpp
   commands/CmdNewAccount.cpp
   commands/CmdNewAsset.cpp
@@ -111,6 +112,7 @@ set(cxx-sources
   commands/CmdShowAssets.cpp
   commands/CmdShowBalance.cpp
   commands/CmdShowBasket.cpp
+  commands/CmdShowContact.cpp
   commands/CmdShowContacts.cpp
   commands/CmdShowCredential.cpp
   commands/CmdShowCredentials.cpp

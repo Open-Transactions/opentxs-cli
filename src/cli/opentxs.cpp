@@ -102,6 +102,7 @@
 #include "commands/CmdIssueAsset.hpp"
 #include "commands/CmdKillOffer.hpp"
 #include "commands/CmdKillPlan.hpp"
+#include "commands/CmdMergeContact.hpp"
 #include "commands/CmdModifyNym.hpp"
 #include "commands/CmdNewAccount.hpp"
 #include "commands/CmdNewAsset.hpp"
@@ -147,6 +148,7 @@
 #include "commands/CmdShowAssets.hpp"
 #include "commands/CmdShowBalance.hpp"
 #include "commands/CmdShowBasket.hpp"
+#include "commands/CmdShowContact.hpp"
 #include "commands/CmdShowContacts.hpp"
 #include "commands/CmdShowCredential.hpp"
 #include "commands/CmdShowCredentials.hpp"
@@ -247,7 +249,7 @@ CmdBase* cmds[] = {
     new CmdImportSeed,               new CmdInbox,
     new CmdInpayments,               new CmdIssueAsset,
     new CmdKillOffer,                new CmdKillPlan,
-    new CmdModifyNym,
+    new CmdMergeContact,             new CmdModifyNym,
     new CmdNewAccount,               new CmdNewAsset,
     new CmdNewKey,                   new CmdNewNymHD,
     new CmdNewNymLegacy,             new CmdNewOffer,
@@ -272,7 +274,7 @@ CmdBase* cmds[] = {
     new CmdShowAccount,              new CmdShowAccounts,
     new CmdShowActive,               new CmdShowAssets,
     new CmdShowBalance,              new CmdShowBasket,
-    new CmdShowContacts,
+    new CmdShowContact,              new CmdShowContacts,
     new CmdShowCredential,           new CmdShowCredentials,
     new CmdShowExpired,              new CmdShowMarkets,
     new CmdShowMint,                 new CmdShowMyOffers,

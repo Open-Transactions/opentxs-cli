@@ -122,6 +122,8 @@
 #include "commands/CmdPayInvoice.hpp"
 #include "commands/CmdPeerStoreSecret.hpp"
 #include "commands/CmdPingNotary.hpp"
+#include "commands/CmdPreloadActivity.hpp"
+#include "commands/CmdPreloadThread.hpp"
 #include "commands/CmdProposePlan.hpp"
 #include "commands/CmdRefresh.hpp"
 #include "commands/CmdRefreshAccount.hpp"
@@ -256,10 +258,11 @@ CmdBase* cmds[] = {
     new CmdNotifyBailment,           new CmdImportOtherNym,
     new CmdOutbox,                   new CmdNewBasket,
     new CmdOutpayment,               new CmdPairNode,
-    new CmdPairStatus,
-    new CmdPasswordDecrypt,          new CmdPasswordEncrypt,
-    new CmdPayDividend,              new CmdPayInvoice,
-    new CmdPeerStoreSecret,          new CmdPingNotary,
+    new CmdPairStatus,               new CmdPasswordDecrypt,
+    new CmdPasswordEncrypt,          new CmdPayDividend,
+    new CmdPayInvoice,               new CmdPeerStoreSecret,
+    new CmdPingNotary,               new CmdPreloadActivity,
+    new CmdPreloadThread,
     new CmdProposePlan,              new CmdRefresh,
     new CmdRefreshAccount,           new CmdRefreshAll,
     new CmdRefreshNym,               new CmdRenameNym,

@@ -87,6 +87,8 @@ set(cxx-sources
   commands/CmdPayDividend.cpp
   commands/CmdPayInvoice.cpp
   commands/CmdPeerStoreSecret.cpp
+  commands/CmdPreloadActivity.cpp
+  commands/CmdPreloadThread.cpp
   commands/CmdProposePlan.cpp
   commands/CmdRefresh.cpp
   commands/CmdRefreshAccount.cpp

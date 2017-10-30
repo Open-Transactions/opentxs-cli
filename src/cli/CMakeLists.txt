@@ -47,6 +47,7 @@ set(cxx-sources
   commands/CmdExportNym.cpp
   commands/CmdFindNym.cpp
   commands/CmdFindServer.cpp
+  commands/CmdGetContact.cpp
   commands/CmdGetContract.cpp
   commands/CmdGetMarkets.cpp
   commands/CmdGetMyOffers.cpp

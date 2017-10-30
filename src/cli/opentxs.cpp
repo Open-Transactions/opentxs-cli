@@ -82,6 +82,7 @@
 #include "commands/CmdExportNym.hpp"
 #include "commands/CmdFindNym.hpp"
 #include "commands/CmdFindServer.hpp"
+#include "commands/CmdGetContact.hpp"
 #include "commands/CmdGetContract.hpp"
 #include "commands/CmdGetMarkets.hpp"
 #include "commands/CmdGetMyOffers.hpp"
@@ -241,7 +242,8 @@ CmdBase* cmds[] = {
     new CmdEncode,                   new CmdEncrypt,
     new CmdExchangeBasket,           new CmdExportCash,
     new CmdExportNym,                new CmdFindNym,
-    new CmdFindServer,               new CmdGetInstrumentDefinition,
+    new CmdFindServer,               new CmdGetContact,
+    new CmdGetInstrumentDefinition,
     new CmdGetMarkets,               new CmdGetMyOffers,
     new CmdGetOffers,                new CmdGetPeerRequests,
     new CmdGetPeerRequest,           new CmdGetPeerReplies,

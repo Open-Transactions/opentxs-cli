@@ -172,6 +172,7 @@
 #include "commands/CmdShowServers.hpp"
 #include "commands/CmdShowThread.hpp"
 #include "commands/CmdShowThreads.hpp"
+#include "commands/CmdShowUnreadThreads.hpp"
 #include "commands/CmdShowWallet.hpp"
 #include "commands/CmdShowWords.hpp"
 #include "commands/CmdSignContract.hpp"
@@ -290,8 +291,8 @@ CmdBase* cmds[] = {
     new CmdShowOffers,               new CmdShowPayment,
     new CmdShowPhrase,               new CmdShowRecords,
     new CmdShowPurse,                new CmdShowSeed,
-    new CmdShowServers,
-    new CmdShowThread,               new CmdShowThreads,
+    new CmdShowServers,              new CmdShowThread,
+    new CmdShowThreads,              new CmdShowUnreadThreads,
     new CmdShowWallet,               new CmdShowWords,
     new CmdSignContract,             new CmdTransfer,
     new CmdTriggerClause,            new CmdUsageCredits,

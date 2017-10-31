@@ -136,6 +136,7 @@ set(cxx-sources
   commands/CmdShowServers.cpp
   commands/CmdShowThread.cpp
   commands/CmdShowThreads.cpp
+  commands/CmdShowUnreadThreads.cpp
   commands/CmdShowWallet.cpp
   commands/CmdShowWords.cpp
   commands/CmdSignContract.cpp

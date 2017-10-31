@@ -36,7 +36,7 @@
  *
  ************************************************************/
 
-#include "CmdShowThreads.hpp"
+#include "CmdShowUnreadThreads.hpp"
 
 #include <opentxs/core/Version.hpp>
 #include <opentxs/api/Activity.hpp>
@@ -46,20 +46,20 @@
 
 namespace opentxs
 {
-CmdShowThreads::CmdShowThreads()
+CmdShowUnreadThreads::CmdShowUnreadThreads()
 {
-    command = "showthreads";
+    command = "showunreadthreads";
     args[0] = "--mynym <nym>";
     category = catOtherUsers;
-    help = "List activity threads for the specified user.";
+    help = "List activity threads containing unread items for the specified user.";
 }
 
-std::int32_t CmdShowThreads::runWithOptions()
+std::int32_t CmdShowUnreadThreads::runWithOptions()
 {
     return run(getOption("mynym"));
 }
 
-std::int32_t CmdShowThreads::run(std::string mynym)
+std::int32_t CmdShowUnreadThreads::run(std::string mynym)
 {
     if (!checkNym("mynym", mynym)) {
         return -1;
@@ -67,7 +67,7 @@ std::int32_t CmdShowThreads::run(std::string mynym)
 
     const auto& ot = OT::App();
     const auto& activity = ot.Activity();
-    const auto threads = activity.Threads(Identifier(mynym), false);
+    const auto threads = activity.Threads(Identifier(mynym), true);
 
     otOut << "Activity threads for: " << mynym << "\n";
 

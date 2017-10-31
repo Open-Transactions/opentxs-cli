@@ -41,8 +41,8 @@
 #include "CmdBase.hpp"
 
 #include <opentxs/core/Version.hpp>
-#include <opentxs/client/OTAPI_Wrap.hpp>
 #include <opentxs/client/OT_ME.hpp>
+#include <opentxs/client/SwigWrap.hpp>
 #include <opentxs/core/Log.hpp>
 
 #include <stdint.h>
@@ -101,7 +101,7 @@ int32_t CmdNewNymLegacy::run(string keybits, string label, string source)
     }
 
 
-    string mynym = OTAPI_Wrap::CreateNymLegacy(bits, source);
+    string mynym = SwigWrap::CreateNymLegacy(bits, source);
     if ("" == mynym) {
         otOut << "Error: cannot create new nym.\n";
         return -1;
@@ -109,7 +109,7 @@ int32_t CmdNewNymLegacy::run(string keybits, string label, string source)
 
     cout << "New nym: " << mynym << "\n";
 
-    if (!OTAPI_Wrap::SetNym_Alias(mynym, mynym, label)) {
+    if (!SwigWrap::SetNym_Alias(mynym, mynym, label)) {
         otOut << "Error: cannot set new nym name.\n";
         return -1;
     }

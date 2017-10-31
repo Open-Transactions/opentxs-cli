@@ -40,7 +40,7 @@
 
 #include "CmdBase.hpp"
 #include <opentxs/core/Version.hpp>
-#include <opentxs/client/OTAPI_Wrap.hpp>
+#include <opentxs/client/SwigWrap.hpp>
 #include <opentxs/core/Log.hpp>
 
 namespace opentxs {
@@ -68,10 +68,10 @@ std::int32_t CmdGetPeerRequests::run(std::string mynym)
         return -1;
     }
 
-    auto sent = OTAPI_Wrap::getSentRequests(mynym);
-    auto incoming = OTAPI_Wrap::getIncomingRequests(mynym);
-    auto finished = OTAPI_Wrap::getFinishedRequests(mynym);
-    auto processed = OTAPI_Wrap::getProcessedRequests(mynym);
+    auto sent = SwigWrap::getSentRequests(mynym);
+    auto incoming = SwigWrap::getIncomingRequests(mynym);
+    auto finished = SwigWrap::getFinishedRequests(mynym);
+    auto processed = SwigWrap::getProcessedRequests(mynym);
 
     otOut << "Peer request box contents:" << std::endl;
     otOut << "Sent box:" << std::endl;

@@ -36,47 +36,48 @@
  *
  ************************************************************/
 
-#include "CmdConvertPaymentCode.hpp"
+#include "CmdMarkUnRead.hpp"
 
 #include <opentxs/core/Version.hpp>
-#include <opentxs/client/SwigWrap.hpp>
-#include <opentxs/core/Log.hpp>
-
-#include <stdint.h>
+#include <opentxs/api/Activity.hpp>
+#include <opentxs/api/OT.hpp>
+#include <opentxs/core/Identifier.hpp>
 
 namespace opentxs
 {
-
-CmdConvertPaymentCode::CmdConvertPaymentCode()
+CmdMarkUnRead::CmdMarkUnRead()
 {
-    command = "convertpaymentcode";
-    args[0] = "--code <payment code>";
-    category = catMisc;
-    help = "Convert a BIP-47 payment code to a nym ID";
+    command = "markunread";
+    args[0] = "--mynym <nym>";
+    args[1] = "--thread <threadID>";
+    args[2] = "--item <itemID>";
+    category = catOtherUsers;
+    help = "Mark a thread item as unread.";
 }
 
-std::int32_t CmdConvertPaymentCode::runWithOptions()
+std::int32_t CmdMarkUnRead::runWithOptions()
 {
-    return run(getOption("code"));
+    return run(getOption("mynym"), getOption("thread"), getOption("item"));
 }
 
-std::int32_t CmdConvertPaymentCode::run(const std::string& code)
+std::int32_t CmdMarkUnRead::run(
+    std::string mynym,
+    const std::string& threadID,
+    const std::string& itemID)
 {
-    if (!checkMandatory("code", code)) {
+    if (!checkNym("mynym", mynym)) {
 
         return -1;
     }
 
-    const std::string id = SwigWrap::NymIDFromPaymentCode(code);
+    const auto output = OT::App().Activity().MarkUnread(
+        Identifier(mynym), Identifier(threadID), Identifier(itemID));
 
-    if ("" == id) {
-        otOut << "Error: invalid payment code." << std::endl;
+    if (output) {
 
-        return -1;
+        return 0;
     }
 
-    otOut << id << std::endl;
-
-    return 1;
+    return -1;
 }
 } // namespace opentxs

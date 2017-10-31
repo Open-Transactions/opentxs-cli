@@ -41,7 +41,7 @@
 #include "CmdBase.hpp"
 
 #include <opentxs/core/Version.hpp>
-#include <opentxs/client/OTAPI_Wrap.hpp>
+#include <opentxs/client/SwigWrap.hpp>
 #include <opentxs/core/Log.hpp>
 
 #include <stdint.h>
@@ -87,13 +87,13 @@ int32_t CmdShowExpired::run(string server, string mynym)
         return -1;
     }
 
-    string expired = OTAPI_Wrap::LoadExpiredBox(server, mynym);
+    string expired = SwigWrap::LoadExpiredBox(server, mynym);
     if ("" == expired) {
         otOut << "Error: cannot load expired record box.\n";
         return -1;
     }
 
-    int32_t items = OTAPI_Wrap::Ledger_GetCount(server, mynym, mynym, expired);
+    int32_t items = SwigWrap::Ledger_GetCount(server, mynym, mynym, expired);
     if (0 > items) {
         otOut << "Error: cannot load expired record box item count.\n";
         return -1;
@@ -109,22 +109,22 @@ int32_t CmdShowExpired::run(string server, string mynym)
     cout << "---------------------------------|(from or to)\n";
 
     for (int32_t i = 0; i < items; i++) {
-        string tx = OTAPI_Wrap::Ledger_GetTransactionByIndex(server, mynym,
+        string tx = SwigWrap::Ledger_GetTransactionByIndex(server, mynym,
                                                              mynym, expired, i);
-        int64_t txNum = OTAPI_Wrap::Ledger_GetTransactionIDByIndex(
+        int64_t txNum = SwigWrap::Ledger_GetTransactionIDByIndex(
             server, mynym, mynym, expired, i);
-        int64_t refNum = OTAPI_Wrap::Transaction_GetDisplayReferenceToNum(
+        int64_t refNum = SwigWrap::Transaction_GetDisplayReferenceToNum(
             server, mynym, mynym, tx);
         int64_t amount =
-            OTAPI_Wrap::Transaction_GetAmount(server, mynym, mynym, tx);
-        string type = OTAPI_Wrap::Transaction_GetType(server, mynym, mynym, tx);
+            SwigWrap::Transaction_GetAmount(server, mynym, mynym, tx);
+        string type = SwigWrap::Transaction_GetType(server, mynym, mynym, tx);
         string senderUser =
-            OTAPI_Wrap::Transaction_GetSenderNymID(server, mynym, mynym, tx);
+            SwigWrap::Transaction_GetSenderNymID(server, mynym, mynym, tx);
         string senderAcct =
-            OTAPI_Wrap::Transaction_GetSenderAcctID(server, mynym, mynym, tx);
+            SwigWrap::Transaction_GetSenderAcctID(server, mynym, mynym, tx);
         string recipientUser =
-            OTAPI_Wrap::Transaction_GetRecipientNymID(server, mynym, mynym, tx);
-        string recipientAcct = OTAPI_Wrap::Transaction_GetRecipientAcctID(
+            SwigWrap::Transaction_GetRecipientNymID(server, mynym, mynym, tx);
+        string recipientAcct = SwigWrap::Transaction_GetRecipientAcctID(
             server, mynym, mynym, tx);
 
         string user = "" != senderUser ? senderUser : recipientUser;

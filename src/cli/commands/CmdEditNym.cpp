@@ -41,7 +41,7 @@
 #include "CmdBase.hpp"
 
 #include <opentxs/core/Version.hpp>
-#include <opentxs/client/OTAPI_Wrap.hpp>
+#include <opentxs/client/SwigWrap.hpp>
 #include <opentxs/core/Log.hpp>
 
 #include <stdint.h>
@@ -79,7 +79,7 @@ int32_t CmdEditNym::run(string mynym, string label)
         return -1;
     }
 
-    if (!OTAPI_Wrap::SetNym_Alias(mynym, mynym, label)) {
+    if (!SwigWrap::SetNym_Alias(mynym, mynym, label)) {
         otOut << "Error: cannot set nym label.\n";
         return -1;
     }

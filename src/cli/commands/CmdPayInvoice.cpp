@@ -43,8 +43,8 @@
 #include "CmdDeposit.hpp"
 
 #include <opentxs/core/Version.hpp>
-#include <opentxs/client/OTAPI_Wrap.hpp>
 #include <opentxs/client/OT_ME.hpp>
+#include <opentxs/client/SwigWrap.hpp>
 #include <opentxs/core/util/Common.hpp>
 #include <opentxs/core/Log.hpp>
 
@@ -181,13 +181,13 @@ int32_t CmdPayInvoice::processPayment(const string& myacct,
         return -1;
     }
 
-    string server = OTAPI_Wrap::GetAccountWallet_NotaryID(myacct);
+    string server = SwigWrap::GetAccountWallet_NotaryID(myacct);
     if ("" == server) {
         otOut << "Error: cannot determine server from myacct.\n";
         return -1;
     }
 
-    string mynym = OTAPI_Wrap::GetAccountWallet_NymID(myacct);
+    string mynym = SwigWrap::GetAccountWallet_NymID(myacct);
     if ("" == mynym) {
         otOut << "Error: cannot determine mynym from myacct.\n";
         return -1;
@@ -201,7 +201,7 @@ int32_t CmdPayInvoice::processPayment(const string& myacct,
         }
     }
     else {
-         
+
         instrument = OT_ME::It().get_payment_instrument(server, mynym, index, inbox);
         if ("" == instrument) {
             otOut << "Error: cannot get payment instrument.\n";
@@ -209,7 +209,7 @@ int32_t CmdPayInvoice::processPayment(const string& myacct,
         }
     }
 
-    string type = OTAPI_Wrap::Instrmnt_GetType(instrument);
+    string type = SwigWrap::Instrmnt_GetType(instrument);
     if ("" == type) {
         otOut << "Error: cannot determine instrument type.\n";
         return -1;
@@ -264,8 +264,8 @@ int32_t CmdPayInvoice::processPayment(const string& myacct,
     // one.) Because if it IS endorsed to a Nym, and mynym is NOT that nym,
     // then the transaction will fail. So let's check, before we bother
     // sending it...
-    string sender    = OTAPI_Wrap::Instrmnt_GetSenderNymID(instrument);
-    string recipient = OTAPI_Wrap::Instrmnt_GetRecipientNymID(instrument);
+    string sender    = SwigWrap::Instrmnt_GetSenderNymID(instrument);
+    string recipient = SwigWrap::Instrmnt_GetRecipientNymID(instrument);
 
     string endorsee = bIsPaymentPlan ? sender : recipient;
 
@@ -287,7 +287,7 @@ int32_t CmdPayInvoice::processPayment(const string& myacct,
     // P.S. recipient might be empty, but mynym is guaranteed to be good.
 
     string assetType =
-        OTAPI_Wrap::Instrmnt_GetInstrumentDefinitionID(instrument);
+        SwigWrap::Instrmnt_GetInstrumentDefinitionID(instrument);
     string accountAssetType = getAccountAssetType(myacct);
 
     if ("" != assetType && accountAssetType != assetType) {
@@ -321,9 +321,9 @@ int32_t CmdPayInvoice::processPayment(const string& myacct,
         // confirmInstrument already does that.
     }
     // ---------------------------------------------
-    time64_t from  = OTAPI_Wrap::Instrmnt_GetValidFrom(instrument);
-    time64_t until = OTAPI_Wrap::Instrmnt_GetValidTo(instrument);
-    time64_t now   = OTAPI_Wrap::GetTime();
+    time64_t from  = SwigWrap::Instrmnt_GetValidFrom(instrument);
+    time64_t until = SwigWrap::Instrmnt_GetValidTo(instrument);
+    time64_t now   = SwigWrap::GetTime();
 
     if (now < from) {
         otOut << "The instrument at index " << index
@@ -338,7 +338,7 @@ int32_t CmdPayInvoice::processPayment(const string& myacct,
         // Since this instrument is expired, remove it from the payments inbox,
         // and move to record box.
         if (0 <= index &&
-            OTAPI_Wrap::RecordPayment(server, mynym, true, index, true)) {
+            SwigWrap::RecordPayment(server, mynym, true, index, true)) {
             return 0;
         }
 
@@ -366,7 +366,7 @@ int32_t CmdPayInvoice::processPayment(const string& myacct,
         // if index != -1, go ahead and call RecordPayment on the purse at that
         // index, to remove it from payments inbox and move it to the recordbox.
         if (index != -1 && 1 == success) {
-            OTAPI_Wrap::RecordPayment(server, mynym, true, index, true);
+            SwigWrap::RecordPayment(server, mynym, true, index, true);
         }
 
         return success;

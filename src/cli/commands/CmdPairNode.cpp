@@ -39,7 +39,7 @@
 #include "CmdPairNode.hpp"
 
 #include <opentxs/core/Version.hpp>
-#include <opentxs/client/OTAPI_Wrap.hpp>
+#include <opentxs/client/SwigWrap.hpp>
 
 namespace opentxs {
 
@@ -70,7 +70,7 @@ std::int32_t CmdPairNode::run(
         return -1;
     }
 
-    auto result = OTAPI_Wrap::Pair_Node(mynym, hisnym, password);
+    auto result = SwigWrap::Pair_Node(mynym, hisnym, password);
 
     if (result) {
         return 1;

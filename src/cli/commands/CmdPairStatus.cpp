@@ -39,7 +39,7 @@
 #include "CmdPairStatus.hpp"
 
 #include <opentxs/core/Version.hpp>
-#include <opentxs/client/OTAPI_Wrap.hpp>
+#include <opentxs/client/SwigWrap.hpp>
 
 namespace opentxs {
 
@@ -58,7 +58,7 @@ std::int32_t CmdPairStatus::runWithOptions()
 
 std::int32_t CmdPairStatus::run(const std::string& node)
 {
-    std::cout << OTAPI_Wrap::Pair_Status(node);
+    std::cout << SwigWrap::Pair_Status(node);
 
     return 1;
 }

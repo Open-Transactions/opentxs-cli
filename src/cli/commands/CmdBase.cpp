@@ -41,19 +41,19 @@
 #include <opentxs/core/Version.hpp>
 #include <opentxs/api/OT.hpp>
 #include <opentxs/api/Wallet.hpp>
-#include <opentxs/client/OTAPI_Wrap.hpp>
-#include <opentxs/client/OTWallet.hpp>
 #include <opentxs/client/OT_API.hpp>
+#include <opentxs/client/OTWallet.hpp>
+#include <opentxs/client/SwigWrap.hpp>
 #include <opentxs/client/Utility.hpp>
+#include <opentxs/core/contract/ServerContract.hpp>
+#include <opentxs/core/contract/UnitDefinition.hpp>
+#include <opentxs/core/util/Assert.hpp>
+#include <opentxs/core/util/Common.hpp>
 #include <opentxs/core/Account.hpp>
 #include <opentxs/core/Identifier.hpp>
 #include <opentxs/core/Log.hpp>
 #include <opentxs/core/Nym.hpp>
 #include <opentxs/core/String.hpp>
-#include <opentxs/core/contract/ServerContract.hpp>
-#include <opentxs/core/contract/UnitDefinition.hpp>
-#include <opentxs/core/util/Assert.hpp>
-#include <opentxs/core/util/Common.hpp>
 #include <opentxs/ext/Helpers.hpp>
 
 #include <ctype.h>
@@ -128,7 +128,7 @@ int64_t CmdBase::checkAmount(
         return OT_ERROR_AMOUNT;
     }
 
-    int64_t value = OTAPI_Wrap::StringToAmount(assetType, amount);
+    int64_t value = SwigWrap::StringToAmount(assetType, amount);
     if (OT_ERROR_AMOUNT == value) {
         otOut << "Error: " << name << ": invalid amount: " << amount << "\n";
         return OT_ERROR_AMOUNT;
@@ -234,10 +234,10 @@ bool CmdBase::checkNym(const char* name, string& nym, bool checkExistance) const
     const Nym* pNym = nullptr;
     const Identifier nymID(nym);
 
-    if (!nymID.empty()) pNym = OTAPI_Wrap::OTAPI()->GetOrLoadNym(nymID);
+    if (!nymID.empty()) pNym = SwigWrap::OTAPI()->GetOrLoadNym(nymID);
 
     if (nullptr == pNym)
-        pNym = OTAPI_Wrap::OTAPI()->GetNymByIDPartialMatch(nym);
+        pNym = SwigWrap::OTAPI()->GetNymByIDPartialMatch(nym);
 
     if (nullptr != pNym) {
         String tmp;
@@ -439,7 +439,7 @@ string CmdBase::formatAmount(const string& assetType, int64_t amount) const
         return to_string(amount);
     }
 
-    return OTAPI_Wrap::FormatAmount(assetType, amount);
+    return SwigWrap::FormatAmount(assetType, amount);
 }
 
 Category CmdBase::getCategory() const { return category; }
@@ -451,7 +451,7 @@ const char* CmdBase::getHelp() const { return help; }
 string CmdBase::getAccountAssetType(const string& myacct) const
 {
     string assetType =
-        OTAPI_Wrap::GetAccountWallet_InstrumentDefinitionID(myacct);
+        SwigWrap::GetAccountWallet_InstrumentDefinitionID(myacct);
     if ("" == assetType) {
         otOut << "Error: cannot load instrument definition from myacct.\n";
     }
@@ -489,14 +489,14 @@ string CmdBase::getUsage() const
 
 OTWallet* CmdBase::getWallet() const
 {
-    OTWallet* wallet = OTAPI_Wrap::OTAPI()->GetWallet();
+    OTWallet* wallet = SwigWrap::OTAPI()->GetWallet();
     OT_ASSERT_MSG(wallet != nullptr, "Cannot load wallet->\n");
     return wallet;
 }
 
 int32_t CmdBase::harvestTxNumbers(const string& contract, const string& mynym)
 {
-    OTAPI_Wrap::Msg_HarvestTransactionNumbers(
+    SwigWrap::Msg_HarvestTransactionNumbers(
         contract, mynym, false, false, false, false, false);
     return -1;
 }

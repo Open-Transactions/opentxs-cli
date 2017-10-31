@@ -41,7 +41,7 @@
 #include "CmdBase.hpp"
 
 #include <opentxs/core/Version.hpp>
-#include <opentxs/client/OTAPI_Wrap.hpp>
+#include <opentxs/client/SwigWrap.hpp>
 #include <opentxs/core/Log.hpp>
 
 #include <stdint.h>
@@ -79,7 +79,7 @@ int32_t CmdDecrypt::run(string mynym)
         return -1;
     }
 
-    string output = OTAPI_Wrap::Decrypt(mynym, input);
+    string output = SwigWrap::Decrypt(mynym, input);
     if ("" == output) {
         otOut << "Error: cannot decrypt input.\n";
         return -1;

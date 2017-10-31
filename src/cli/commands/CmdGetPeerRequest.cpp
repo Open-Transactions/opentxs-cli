@@ -40,7 +40,7 @@
 
 #include "CmdBase.hpp"
 #include <opentxs/core/Version.hpp>
-#include <opentxs/client/OTAPI_Wrap.hpp>
+#include <opentxs/client/SwigWrap.hpp>
 #include <opentxs/core/Log.hpp>
 
 namespace opentxs {
@@ -69,7 +69,7 @@ std::int32_t CmdGetPeerRequest::run(std::string mynym, std::string request)
         return -1;
     }
 
-    const auto text = OTAPI_Wrap::getRequest_Base64(mynym, request);
+    const auto text = SwigWrap::getRequest_Base64(mynym, request);
 
     otOut << "Peer request ID: " << request << std::endl;
     otOut << text << std::endl;

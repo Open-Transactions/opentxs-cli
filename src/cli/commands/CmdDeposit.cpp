@@ -43,9 +43,9 @@
 #include <opentxs/core/Version.hpp>
 #include <opentxs/api/OT.hpp>
 #include <opentxs/api/Api.hpp>
-#include <opentxs/client/OTAPI_Wrap.hpp>
-#include <opentxs/client/OT_ME.hpp>
 #include <opentxs/client/MadeEasy.hpp>
+#include <opentxs/client/OT_ME.hpp>
+#include <opentxs/client/SwigWrap.hpp>
 #include <opentxs/core/Log.hpp>
 
 #include <stdint.h>
@@ -103,13 +103,13 @@ int32_t CmdDeposit::run(string mynym, string myacct, string indices)
         return -1;
     }
 
-    string server = OTAPI_Wrap::GetAccountWallet_NotaryID(myacct);
+    string server = SwigWrap::GetAccountWallet_NotaryID(myacct);
     if ("" == server) {
         otOut << "Error: cannot determine server from myacct.\n";
         return -1;
     }
 
-    string toNym = OTAPI_Wrap::GetAccountWallet_NymID(myacct);
+    string toNym = SwigWrap::GetAccountWallet_NymID(myacct);
     if ("" == toNym) {
         otOut << "Error: cannot determine toNym from myacct.\n";
         return -1;
@@ -141,7 +141,7 @@ int32_t CmdDeposit::run(string mynym, string myacct, string indices)
         return -1;
     }
 
-    string type = OTAPI_Wrap::Instrmnt_GetType(instrument);
+    string type = SwigWrap::Instrmnt_GetType(instrument);
     if ("PURSE" == type) {
         return depositPurse(server, myacct, toNym, instrument, "");
     }
@@ -176,7 +176,7 @@ int32_t CmdDeposit::depositCheque(const string& server, const string& myacct,
     }
 
     if (assetType !=
-        OTAPI_Wrap::Instrmnt_GetInstrumentDefinitionID(instrument)) {
+        SwigWrap::Instrmnt_GetInstrumentDefinitionID(instrument)) {
         otOut << "Error: instrument definitions of instrument and myacct do "
                  "not match.\n";
         return -1;
@@ -217,7 +217,7 @@ int32_t CmdDeposit::depositPurse(const string& server, const string& myacct,
     }
 
     // we have to load the purse ourselves
-    instrument = OTAPI_Wrap::LoadPurse(server, assetType, mynym);
+    instrument = SwigWrap::LoadPurse(server, assetType, mynym);
     if ("" == instrument) {
         otOut << "Error: cannot load purse.\n";
         return -1;

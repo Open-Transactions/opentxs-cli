@@ -41,7 +41,7 @@
 #include "CmdBase.hpp"
 
 #include <opentxs/core/Version.hpp>
-#include <opentxs/client/OTAPI_Wrap.hpp>
+#include <opentxs/client/SwigWrap.hpp>
 #include <opentxs/core/Log.hpp>
 #include <opentxs/core/util/Common.hpp>
 
@@ -80,13 +80,13 @@ int32_t CmdShowBalance::run(string myacct)
         return -1;
     }
 
-    int64_t balance = OTAPI_Wrap::GetAccountWallet_Balance(myacct);
+    int64_t balance = SwigWrap::GetAccountWallet_Balance(myacct);
     if (OT_ERROR_AMOUNT == balance) {
         otOut << "Error: cannot get account balance.\n";
         return -1;
     }
 
-    string name = OTAPI_Wrap::GetAccountWallet_Name(myacct);
+    string name = SwigWrap::GetAccountWallet_Name(myacct);
     if ("" == name) {
         otOut << "Error: cannot get account name.\n";
         return -1;

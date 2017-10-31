@@ -41,7 +41,7 @@
 #include "CmdBase.hpp"
 
 #include <opentxs/core/Version.hpp>
-#include <opentxs/client/OTAPI_Wrap.hpp>
+#include <opentxs/client/SwigWrap.hpp>
 #include <opentxs/core/Log.hpp>
 
 #include <stdint.h>
@@ -79,13 +79,13 @@ int32_t CmdShowCredential::run(string mynym, string id)
         return -1;
     }
 
-    string credential = OTAPI_Wrap::GetNym_MasterCredentialContents(mynym, id);
+    string credential = SwigWrap::GetNym_MasterCredentialContents(mynym, id);
     if ("" != credential) {
         cout << "Master Credential contents:\n" << credential << "\n";
         return 1;
     }
 
-    credential = OTAPI_Wrap::GetNym_RevokedCredContents(mynym, id);
+    credential = SwigWrap::GetNym_RevokedCredContents(mynym, id);
     if ("" != credential) {
         cout << "Revoked Credential contents:\n" << credential << "\n";
         return 1;
@@ -96,7 +96,7 @@ int32_t CmdShowCredential::run(string mynym, string id)
     string master = findMaster(mynym, id);
     if ("" != master) {
         credential =
-            OTAPI_Wrap::GetNym_ChildCredentialContents(mynym, master, id);
+            SwigWrap::GetNym_ChildCredentialContents(mynym, master, id);
         if ("" == credential) {
             otOut << "Error: cannot load sub-credential.\n";
             return -1;
@@ -112,7 +112,7 @@ int32_t CmdShowCredential::run(string mynym, string id)
         return -1;
     }
 
-    credential = OTAPI_Wrap::GetNym_ChildCredentialContents(mynym, master, id);
+    credential = SwigWrap::GetNym_ChildCredentialContents(mynym, master, id);
     if ("" == credential) {
         otOut << "Error: cannot load sub-credential.\n";
         return -1;
@@ -124,16 +124,16 @@ int32_t CmdShowCredential::run(string mynym, string id)
 
 string CmdShowCredential::findMaster(const string& mynym, const string& subID)
 {
-    int32_t items = OTAPI_Wrap::GetNym_MasterCredentialCount(mynym);
+    int32_t items = SwigWrap::GetNym_MasterCredentialCount(mynym);
     if (0 >= items) {
         return "";
     }
 
     for (int32_t i = 0; i < items; i++) {
-        string id = OTAPI_Wrap::GetNym_MasterCredentialID(mynym, i);
-        int32_t subItems = OTAPI_Wrap::GetNym_ChildCredentialCount(mynym, id);
+        string id = SwigWrap::GetNym_MasterCredentialID(mynym, i);
+        int32_t subItems = SwigWrap::GetNym_ChildCredentialCount(mynym, id);
         for (int32_t j = 0; j < subItems; j++) {
-            if (subID == OTAPI_Wrap::GetNym_ChildCredentialID(mynym, id, j)) {
+            if (subID == SwigWrap::GetNym_ChildCredentialID(mynym, id, j)) {
                 return id;
             }
         }
@@ -144,16 +144,16 @@ string CmdShowCredential::findMaster(const string& mynym, const string& subID)
 
 string CmdShowCredential::findRevoked(const string& mynym, const string& subID)
 {
-    int32_t items = OTAPI_Wrap::GetNym_RevokedCredCount(mynym);
+    int32_t items = SwigWrap::GetNym_RevokedCredCount(mynym);
     if (0 >= items) {
         return "";
     }
 
     for (int32_t i = 0; i < items; i++) {
-        string id = OTAPI_Wrap::GetNym_RevokedCredID(mynym, i);
-        int32_t subItems = OTAPI_Wrap::GetNym_ChildCredentialCount(mynym, id);
+        string id = SwigWrap::GetNym_RevokedCredID(mynym, i);
+        int32_t subItems = SwigWrap::GetNym_ChildCredentialCount(mynym, id);
         for (int32_t j = 0; j < subItems; j++) {
-            if (subID == OTAPI_Wrap::GetNym_ChildCredentialID(mynym, id, j)) {
+            if (subID == SwigWrap::GetNym_ChildCredentialID(mynym, id, j)) {
                 return id;
             }
         }

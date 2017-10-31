@@ -41,7 +41,7 @@
 #include "CmdBase.hpp"
 
 #include <opentxs/core/Version.hpp>
-#include <opentxs/client/OTAPI_Wrap.hpp>
+#include <opentxs/client/SwigWrap.hpp>
 #include <opentxs/core/Log.hpp>
 
 #include <stdint.h>
@@ -69,7 +69,7 @@ int32_t CmdNewKey::runWithOptions()
 
 int32_t CmdNewKey::run()
 {
-    string key = OTAPI_Wrap::CreateSymmetricKey();
+    string key = SwigWrap::CreateSymmetricKey();
     if ("" == key) {
         otOut << "Error: cannot create new key.\n";
         return -1;

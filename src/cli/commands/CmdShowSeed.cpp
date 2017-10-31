@@ -41,7 +41,7 @@
 #include "CmdBase.hpp"
 
 #include <opentxs/core/Version.hpp>
-#include <opentxs/client/OTAPI_Wrap.hpp>
+#include <opentxs/client/SwigWrap.hpp>
 
 
 #include <stdint.h>
@@ -68,7 +68,7 @@ int32_t CmdShowSeed::runWithOptions()
 
 int32_t CmdShowSeed::run()
 {
-    const std::string seed = OTAPI_Wrap::Wallet_GetSeed();
+    const std::string seed = SwigWrap::Wallet_GetSeed();
     const bool empty = 1 > seed.size();
     std::cout << seed << std::endl;
 

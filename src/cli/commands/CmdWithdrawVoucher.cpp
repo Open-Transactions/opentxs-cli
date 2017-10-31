@@ -43,9 +43,9 @@
 #include <opentxs/core/Version.hpp>
 #include <opentxs/api/Api.hpp>
 #include <opentxs/api/OT.hpp>
-#include <opentxs/client/OTAPI_Wrap.hpp>
-#include <opentxs/client/OT_ME.hpp>
 #include <opentxs/client/MadeEasy.hpp>
+#include <opentxs/client/OT_ME.hpp>
+#include <opentxs/client/SwigWrap.hpp>
 #include <opentxs/core/util/Common.hpp>
 #include <opentxs/core/Log.hpp>
 
@@ -107,13 +107,13 @@ int32_t CmdWithdrawVoucher::run(string myacct, string hisnym, string amount,
         return -1;
     }
 
-    string server = OTAPI_Wrap::GetAccountWallet_NotaryID(myacct);
+    string server = SwigWrap::GetAccountWallet_NotaryID(myacct);
     if ("" == server) {
         otOut << "Error: cannot determine server from myacct.\n";
         return -1;
     }
 
-    string mynym = OTAPI_Wrap::GetAccountWallet_NymID(myacct);
+    string mynym = SwigWrap::GetAccountWallet_NymID(myacct);
     if ("" == mynym) {
         otOut << "Error: cannot determine mynym from myacct.\n";
         return -1;
@@ -134,20 +134,20 @@ int32_t CmdWithdrawVoucher::run(string myacct, string hisnym, string amount,
         return reply;
     }
 
-    string ledger = OTAPI_Wrap::Message_GetLedger(response);
+    string ledger = SwigWrap::Message_GetLedger(response);
     if ("" == ledger) {
         otOut << "Error: cannot load ledger.\n";
         return -1;
     }
 
-    string tx = OTAPI_Wrap::Ledger_GetTransactionByIndex(server, mynym, myacct,
+    string tx = SwigWrap::Ledger_GetTransactionByIndex(server, mynym, myacct,
                                                          ledger, 0);
     if ("" == tx) {
         otOut << "Error: cannot retrieve transaction.\n";
         return -1;
     }
 
-    voucher = OTAPI_Wrap::Transaction_GetVoucher(server, mynym, myacct, tx);
+    voucher = SwigWrap::Transaction_GetVoucher(server, mynym, myacct, tx);
     if ("" == voucher) {
         otOut << "Error: cannot load voucher.\n";
         return -1;

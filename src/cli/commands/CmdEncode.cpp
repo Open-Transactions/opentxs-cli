@@ -41,7 +41,7 @@
 #include "CmdBase.hpp"
 
 #include <opentxs/core/Version.hpp>
-#include <opentxs/client/OTAPI_Wrap.hpp>
+#include <opentxs/client/SwigWrap.hpp>
 #include <opentxs/core/Log.hpp>
 
 #include <stdint.h>
@@ -74,7 +74,7 @@ int32_t CmdEncode::run()
         return -1;
     }
 
-    string output = OTAPI_Wrap::Encode(input, true);
+    string output = SwigWrap::Encode(input, true);
     if ("" == output) {
         otOut << "Error: cannot encode input.\n";
         return -1;

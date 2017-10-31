@@ -41,7 +41,7 @@
 #include "CmdBase.hpp"
 
 #include <opentxs/core/Version.hpp>
-#include <opentxs/client/OTAPI_Wrap.hpp>
+#include <opentxs/client/SwigWrap.hpp>
 #include <opentxs/core/Log.hpp>
 
 #include <stdint.h>
@@ -74,7 +74,7 @@ std::int32_t CmdRenameNym::run(std::string mynym, std::string label)
         return -1;
     }
 
-    if (!OTAPI_Wrap::Rename_Nym(mynym, label, 1)) {
+    if (!SwigWrap::Rename_Nym(mynym, label, 1)) {
         otOut << "Error: cannot rename nym.\n";
         return -1;
     }

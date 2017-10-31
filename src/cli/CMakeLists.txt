@@ -68,6 +68,8 @@ set(cxx-sources
   commands/CmdIssueAsset.cpp
   commands/CmdKillOffer.cpp
   commands/CmdKillPlan.cpp
+  commands/CmdMarkRead.cpp
+  commands/CmdMarkUnRead.cpp
   commands/CmdMergeContact.cpp
   commands/CmdModifyNym.cpp
   commands/CmdNewAccount.cpp
@@ -134,6 +136,7 @@ set(cxx-sources
   commands/CmdShowServers.cpp
   commands/CmdShowThread.cpp
   commands/CmdShowThreads.cpp
+  commands/CmdShowUnreadThreads.cpp
   commands/CmdShowWallet.cpp
   commands/CmdShowWords.cpp
   commands/CmdSignContract.cpp

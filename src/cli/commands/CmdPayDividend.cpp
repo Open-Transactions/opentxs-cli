@@ -41,7 +41,7 @@
 #include "CmdBase.hpp"
 
 #include <opentxs/core/Version.hpp>
-#include <opentxs/client/OTAPI_Wrap.hpp>
+#include <opentxs/client/SwigWrap.hpp>
 
 
 #include <opentxs/core/Version.hpp>
@@ -101,13 +101,13 @@ int32_t CmdPayDividend::run(string myacct, string hispurse, string amount,
         return -1;
     }
 
-    string server = OTAPI_Wrap::GetAccountWallet_NotaryID(myacct);
+    string server = SwigWrap::GetAccountWallet_NotaryID(myacct);
     if ("" == server) {
         otOut << "Error: cannot determine server from myacct.\n";
         return -1;
     }
 
-    string mynym = OTAPI_Wrap::GetAccountWallet_NymID(myacct);
+    string mynym = SwigWrap::GetAccountWallet_NymID(myacct);
     if ("" == mynym) {
         otOut << "Error: cannot determine mynym from myacct.\n";
         return -1;

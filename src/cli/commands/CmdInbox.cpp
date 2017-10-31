@@ -41,7 +41,7 @@
 #include "CmdBase.hpp"
 
 #include <opentxs/core/Version.hpp>
-#include <opentxs/client/OTAPI_Wrap.hpp>
+#include <opentxs/client/SwigWrap.hpp>
 #include <opentxs/core/Log.hpp>
 
 #include <stdint.h>
@@ -74,25 +74,25 @@ int32_t CmdInbox::run(string myacct)
         return -1;
     }
 
-    string server = OTAPI_Wrap::GetAccountWallet_NotaryID(myacct);
+    string server = SwigWrap::GetAccountWallet_NotaryID(myacct);
     if ("" == server) {
         otOut << "Error: cannot determine server from myacct.\n";
         return -1;
     }
 
-    string mynym = OTAPI_Wrap::GetAccountWallet_NymID(myacct);
+    string mynym = SwigWrap::GetAccountWallet_NymID(myacct);
     if ("" == mynym) {
         otOut << "Error: cannot determine mynym from myacct.\n";
         return -1;
     }
 
-    string inbox = OTAPI_Wrap::LoadInbox(server, mynym, myacct);
+    string inbox = SwigWrap::LoadInbox(server, mynym, myacct);
     if ("" == inbox) {
         otOut << "Error: cannot load inbox.\n";
         return -1;
     }
 
-    int32_t items = OTAPI_Wrap::Ledger_GetCount(server, mynym, myacct, inbox);
+    int32_t items = SwigWrap::Ledger_GetCount(server, mynym, myacct, inbox);
     if (0 > items) {
         otOut << "Error: cannot load inbox item count.\n";
         return -1;
@@ -108,23 +108,23 @@ int32_t CmdInbox::run(string myacct)
          << "---------------------------------|(from or to)\n";
 
     for (int32_t i = 0; i < items; i++) {
-        string tx = OTAPI_Wrap::Ledger_GetTransactionByIndex(server, mynym,
+        string tx = SwigWrap::Ledger_GetTransactionByIndex(server, mynym,
                                                              myacct, inbox, i);
-        int64_t txNum = OTAPI_Wrap::Ledger_GetTransactionIDByIndex(
+        int64_t txNum = SwigWrap::Ledger_GetTransactionIDByIndex(
             server, mynym, myacct, inbox, i);
-        int64_t refNum = OTAPI_Wrap::Transaction_GetDisplayReferenceToNum(
+        int64_t refNum = SwigWrap::Transaction_GetDisplayReferenceToNum(
             server, mynym, myacct, tx);
         int64_t amount =
-            OTAPI_Wrap::Transaction_GetAmount(server, mynym, myacct, tx);
+            SwigWrap::Transaction_GetAmount(server, mynym, myacct, tx);
         string type =
-            OTAPI_Wrap::Transaction_GetType(server, mynym, myacct, tx);
+            SwigWrap::Transaction_GetType(server, mynym, myacct, tx);
         string senderUser =
-            OTAPI_Wrap::Transaction_GetSenderNymID(server, mynym, myacct, tx);
+            SwigWrap::Transaction_GetSenderNymID(server, mynym, myacct, tx);
         string senderAcct =
-            OTAPI_Wrap::Transaction_GetSenderAcctID(server, mynym, myacct, tx);
-        string recipientUser = OTAPI_Wrap::Transaction_GetRecipientNymID(
+            SwigWrap::Transaction_GetSenderAcctID(server, mynym, myacct, tx);
+        string recipientUser = SwigWrap::Transaction_GetRecipientNymID(
             server, mynym, myacct, tx);
-        string recipientAcct = OTAPI_Wrap::Transaction_GetRecipientAcctID(
+        string recipientAcct = SwigWrap::Transaction_GetRecipientAcctID(
             server, mynym, myacct, tx);
 
         string user = "" != senderUser ? senderUser : recipientUser;

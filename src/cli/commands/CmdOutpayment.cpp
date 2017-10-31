@@ -41,7 +41,7 @@
 #include "CmdBase.hpp"
 
 #include <opentxs/core/Version.hpp>
-#include <opentxs/client/OTAPI_Wrap.hpp>
+#include <opentxs/client/SwigWrap.hpp>
 #include <opentxs/core/Log.hpp>
 #include <opentxs/core/util/Common.hpp>
 
@@ -77,7 +77,7 @@ int32_t CmdOutpayment::run(string mynym, string index)
         return -1;
     }
 
-    int32_t items = OTAPI_Wrap::GetNym_OutpaymentsCount(mynym);
+    int32_t items = SwigWrap::GetNym_OutpaymentsCount(mynym);
     if (0 > items) {
         otOut << "Error: cannot load payment outbox item count.\n";
         return -1;
@@ -120,7 +120,7 @@ bool CmdOutpayment::showOutpayment(const string& mynym, int32_t index,
                                    bool showMessage)
 {
     string payment =
-        OTAPI_Wrap::GetNym_OutpaymentsContentsByIndex(mynym, index);
+        SwigWrap::GetNym_OutpaymentsContentsByIndex(mynym, index);
     if ("" == payment) {
         otOut << "Error: cannot load payment " << index << ".\n";
         return false;
@@ -128,20 +128,20 @@ bool CmdOutpayment::showOutpayment(const string& mynym, int32_t index,
 
     dashLine();
 
-    if (!OTAPI_Wrap::Nym_VerifyOutpaymentsByIndex(mynym, index)) {
+    if (!SwigWrap::Nym_VerifyOutpaymentsByIndex(mynym, index)) {
         cout << "UNVERIFIED outpayment message " << index << ".\n";
     }
     else {
         cout << "Verified outpayment message " << index << "\n";
     }
 
-    string server = OTAPI_Wrap::GetNym_OutpaymentsNotaryIDByIndex(mynym, index);
+    string server = SwigWrap::GetNym_OutpaymentsNotaryIDByIndex(mynym, index);
     string recipient =
-        OTAPI_Wrap::GetNym_OutpaymentsRecipientIDByIndex(mynym, index);
-    int64_t amount = OTAPI_Wrap::Instrmnt_GetAmount(payment);
+        SwigWrap::GetNym_OutpaymentsRecipientIDByIndex(mynym, index);
+    int64_t amount = SwigWrap::Instrmnt_GetAmount(payment);
     string instrumentDefinitionID =
-        OTAPI_Wrap::Instrmnt_GetInstrumentDefinitionID(payment);
-    string type = OTAPI_Wrap::Instrmnt_GetType(payment);
+        SwigWrap::Instrmnt_GetInstrumentDefinitionID(payment);
+    string type = SwigWrap::Instrmnt_GetType(payment);
 
     cout << "         Amount: ";
     if (OT_ERROR_AMOUNT == amount) {
@@ -153,26 +153,26 @@ bool CmdOutpayment::showOutpayment(const string& mynym, int32_t index,
             type = "UNKNOWN_PAYMENT_TYPE";
         }
         cout << "  (" << type << ": "
-             << OTAPI_Wrap::FormatAmount(instrumentDefinitionID, amount) << ")";
+             << SwigWrap::FormatAmount(instrumentDefinitionID, amount) << ")";
         cout << "\n";
     }
 
     cout << "  Of instrument definition: " << instrumentDefinitionID;
     if ("" != instrumentDefinitionID) {
-        cout << " \"" << OTAPI_Wrap::GetAssetType_Name(instrumentDefinitionID)
+        cout << " \"" << SwigWrap::GetAssetType_Name(instrumentDefinitionID)
              << "\"";
     }
     cout << "\n";
 
     if ("" != recipient) {
         cout << "Payment sent to: " << recipient;
-        cout << " \"" << OTAPI_Wrap::GetNym_Name(recipient) << "\" ";
+        cout << " \"" << SwigWrap::GetNym_Name(recipient) << "\" ";
     }
     cout << "\n";
 
     if ("" != server) {
         cout << "   At server ID: " << server;
-        cout << " \"" << OTAPI_Wrap::GetServer_Name(server) << "\" ";
+        cout << " \"" << SwigWrap::GetServer_Name(server) << "\" ";
     }
     cout << "\n";
 

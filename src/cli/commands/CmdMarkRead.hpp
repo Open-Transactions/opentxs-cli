@@ -36,47 +36,32 @@
  *
  ************************************************************/
 
-#include "CmdConvertPaymentCode.hpp"
+#ifndef OPENTXS_CLIENT_CMDMARKREAD_HPP
+#define OPENTXS_CLIENT_CMDMARKREAD_HPP
 
-#include <opentxs/core/Version.hpp>
-#include <opentxs/client/SwigWrap.hpp>
-#include <opentxs/core/Log.hpp>
+#include "CmdBase.hpp"
 
-#include <stdint.h>
+#include <cstdint>
+#include <string>
 
 namespace opentxs
 {
 
-CmdConvertPaymentCode::CmdConvertPaymentCode()
+class CmdMarkRead : public CmdBase
 {
-    command = "convertpaymentcode";
-    args[0] = "--code <payment code>";
-    category = catMisc;
-    help = "Convert a BIP-47 payment code to a nym ID";
-}
+public:
+    CmdMarkRead();
 
-std::int32_t CmdConvertPaymentCode::runWithOptions()
-{
-    return run(getOption("code"));
-}
+    std::int32_t run(
+        std::string mynym,
+        const std::string& threadID,
+        const std::string& itemID);
 
-std::int32_t CmdConvertPaymentCode::run(const std::string& code)
-{
-    if (!checkMandatory("code", code)) {
+    ~CmdMarkRead() = default;
 
-        return -1;
-    }
-
-    const std::string id = SwigWrap::NymIDFromPaymentCode(code);
-
-    if ("" == id) {
-        otOut << "Error: invalid payment code." << std::endl;
-
-        return -1;
-    }
-
-    otOut << id << std::endl;
-
-    return 1;
-}
+private:
+    std::int32_t runWithOptions() override;
+};
 } // namespace opentxs
+
+#endif // OPENTXS_CLIENT_CMDMARKREAD_HPP

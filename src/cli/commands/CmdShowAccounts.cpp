@@ -44,7 +44,7 @@
 #include <opentxs/api/Api.hpp>
 #include <opentxs/api/OT.hpp>
 #include <opentxs/client/MadeEasy.hpp>
-#include <opentxs/client/OTAPI_Wrap.hpp>
+#include <opentxs/client/SwigWrap.hpp>
 #include <opentxs/core/Log.hpp>
 
 #include <stdint.h>
@@ -72,7 +72,7 @@ int32_t CmdShowAccounts::runWithOptions()
 
 int32_t CmdShowAccounts::run()
 {
-    int32_t items = OTAPI_Wrap::GetAccountCount();
+    int32_t items = SwigWrap::GetAccountCount();
     if (0 > items) {
         otOut << "Error: cannot load account list count.\n";
         return -1;
@@ -87,7 +87,7 @@ int32_t CmdShowAccounts::run()
     dashLine();
 
     for (int32_t i = 0; i < items; i++) {
-        string myacct = OTAPI_Wrap::GetAccountWallet_ID(i);
+        string myacct = SwigWrap::GetAccountWallet_ID(i);
         if ("" == myacct) {
             otOut << "Error: cannot load account.\n";
             return -1;

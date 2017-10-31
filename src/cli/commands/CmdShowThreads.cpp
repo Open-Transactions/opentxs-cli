@@ -67,7 +67,7 @@ std::int32_t CmdShowThreads::run(std::string mynym)
 
     const auto& ot = OT::App();
     const auto& activity = ot.Activity();
-    const auto threads = activity.Threads(Identifier(mynym));
+    const auto threads = activity.Threads(Identifier(mynym), false);
 
     otOut << "Activity threads for: " << mynym << "\n";
 

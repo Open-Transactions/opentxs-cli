@@ -41,7 +41,7 @@
 #include "CmdBase.hpp"
 
 #include <opentxs/core/Version.hpp>
-#include <opentxs/client/OTAPI_Wrap.hpp>
+#include <opentxs/client/SwigWrap.hpp>
 #include <opentxs/core/Log.hpp>
 
 #include <stdint.h>
@@ -79,7 +79,7 @@ int32_t CmdEditServer::run(string server, string label)
         return -1;
     }
 
-    if (!OTAPI_Wrap::SetServer_Name(server, label)) {
+    if (!SwigWrap::SetServer_Name(server, label)) {
         otOut << "Error: cannot set server label.\n";
         return -1;
     }

@@ -36,46 +36,47 @@
  *
  ************************************************************/
 
-#include "CmdConvertPaymentCode.hpp"
+#include "CmdShowUnreadThreads.hpp"
 
 #include <opentxs/core/Version.hpp>
-#include <opentxs/client/SwigWrap.hpp>
+#include <opentxs/api/Activity.hpp>
+#include <opentxs/api/OT.hpp>
+#include <opentxs/core/Identifier.hpp>
 #include <opentxs/core/Log.hpp>
-
-#include <stdint.h>
 
 namespace opentxs
 {
-
-CmdConvertPaymentCode::CmdConvertPaymentCode()
+CmdShowUnreadThreads::CmdShowUnreadThreads()
 {
-    command = "convertpaymentcode";
-    args[0] = "--code <payment code>";
-    category = catMisc;
-    help = "Convert a BIP-47 payment code to a nym ID";
+    command = "showunreadthreads";
+    args[0] = "--mynym <nym>";
+    category = catOtherUsers;
+    help = "List activity threads containing unread items for the specified user.";
 }
 
-std::int32_t CmdConvertPaymentCode::runWithOptions()
+std::int32_t CmdShowUnreadThreads::runWithOptions()
 {
-    return run(getOption("code"));
+    return run(getOption("mynym"));
 }
 
-std::int32_t CmdConvertPaymentCode::run(const std::string& code)
+std::int32_t CmdShowUnreadThreads::run(std::string mynym)
 {
-    if (!checkMandatory("code", code)) {
-
+    if (!checkNym("mynym", mynym)) {
         return -1;
     }
 
-    const std::string id = SwigWrap::NymIDFromPaymentCode(code);
+    const auto& ot = OT::App();
+    const auto& activity = ot.Activity();
+    const auto threads = activity.Threads(Identifier(mynym), true);
 
-    if ("" == id) {
-        otOut << "Error: invalid payment code." << std::endl;
+    otOut << "Activity threads for: " << mynym << "\n";
 
-        return -1;
+    for (const auto& thread : threads) {
+        const auto& threadID = thread.first;
+        otOut << "    * " << threadID << "\n";
     }
 
-    otOut << id << std::endl;
+    otOut << std::endl;
 
     return 1;
 }

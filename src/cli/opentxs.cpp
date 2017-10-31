@@ -103,6 +103,8 @@
 #include "commands/CmdIssueAsset.hpp"
 #include "commands/CmdKillOffer.hpp"
 #include "commands/CmdKillPlan.hpp"
+#include "commands/CmdMarkRead.hpp"
+#include "commands/CmdMarkUnRead.hpp"
 #include "commands/CmdMergeContact.hpp"
 #include "commands/CmdModifyNym.hpp"
 #include "commands/CmdNewAccount.hpp"
@@ -170,6 +172,7 @@
 #include "commands/CmdShowServers.hpp"
 #include "commands/CmdShowThread.hpp"
 #include "commands/CmdShowThreads.hpp"
+#include "commands/CmdShowUnreadThreads.hpp"
 #include "commands/CmdShowWallet.hpp"
 #include "commands/CmdShowWords.hpp"
 #include "commands/CmdSignContract.hpp"
@@ -186,18 +189,18 @@
 
 #include <anyoption/anyoption.hpp>
 #include <opentxs/core/Version.hpp>
-#include <opentxs/client/OTAPI_Wrap.hpp>
 #include <opentxs/client/OT_API.hpp>
-#include <opentxs/core/Identifier.hpp>
-#include <opentxs/core/Log.hpp>
-#include <opentxs/core/String.hpp>
-#include <opentxs/core/Version.hpp>
+#include <opentxs/client/SwigWrap.hpp>
 #include <opentxs/core/crypto/OTAsymmetricKey.hpp>
 #include <opentxs/core/crypto/OTCallback.hpp>
 #include <opentxs/core/crypto/OTCaller.hpp>
 #include <opentxs/core/crypto/OTPassword.hpp>
 #include <opentxs/core/util/Assert.hpp>
 #include <opentxs/core/util/OTPaths.hpp>
+#include <opentxs/core/Identifier.hpp>
+#include <opentxs/core/Log.hpp>
+#include <opentxs/core/String.hpp>
+#include <opentxs/core/Version.hpp>
 
 #include <stddef.h>
 #include <stdint.h>
@@ -253,6 +256,7 @@ CmdBase* cmds[] = {
     new CmdImportSeed,               new CmdInbox,
     new CmdInpayments,               new CmdIssueAsset,
     new CmdKillOffer,                new CmdKillPlan,
+    new CmdMarkRead,                 new CmdMarkUnRead,
     new CmdMergeContact,             new CmdModifyNym,
     new CmdNewAccount,               new CmdNewAsset,
     new CmdNewKey,                   new CmdNewNymHD,
@@ -287,8 +291,8 @@ CmdBase* cmds[] = {
     new CmdShowOffers,               new CmdShowPayment,
     new CmdShowPhrase,               new CmdShowRecords,
     new CmdShowPurse,                new CmdShowSeed,
-    new CmdShowServers,
-    new CmdShowThread,               new CmdShowThreads,
+    new CmdShowServers,              new CmdShowThread,
+    new CmdShowThreads,              new CmdShowUnreadThreads,
     new CmdShowWallet,               new CmdShowWords,
     new CmdSignContract,             new CmdTransfer,
     new CmdTriggerClause,            new CmdUsageCredits,
@@ -303,12 +307,12 @@ Opentxs::Opentxs()
     , newArgv(nullptr)
     , expectFailure(false)
 {
-    OTAPI_Wrap::AppInit();
+    SwigWrap::AppInit();
 }
 
 Opentxs::~Opentxs()
 {
-    OTAPI_Wrap::AppCleanup();
+    SwigWrap::AppCleanup();
 }
 
 string& Opentxs::ltrim(string& s)
@@ -490,9 +494,9 @@ int Opentxs::processCommand(AnyOption& opt)
 
 int Opentxs::run(int argc, char* argv[])
 {
-    if (OTAPI_Wrap::OTAPI() == nullptr) return -1;
+    if (SwigWrap::OTAPI() == nullptr) return -1;
 
-    OTAPI_Wrap::OTAPI()->LoadWallet();
+    SwigWrap::OTAPI()->LoadWallet();
 
     map<string, string> macros;
     vector<int> errorLineNumbers;

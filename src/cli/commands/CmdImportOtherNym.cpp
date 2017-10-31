@@ -41,7 +41,7 @@
 #include "CmdBase.hpp"
 
 #include <opentxs/core/Version.hpp>
-#include <opentxs/client/OTAPI_Wrap.hpp>
+#include <opentxs/client/SwigWrap.hpp>
 #include <opentxs/core/Log.hpp>
 
 #include <iostream>
@@ -70,7 +70,7 @@ std::int32_t CmdImportOtherNym::run()
         return -1;
     }
 
-    std::string outNym = OTAPI_Wrap::Import_Nym(input);
+    std::string outNym = SwigWrap::Import_Nym(input);
 
     if ("" == outNym) {
         otOut << "Error: cannot import Nym.\n";

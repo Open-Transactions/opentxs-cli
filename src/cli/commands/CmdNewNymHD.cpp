@@ -41,7 +41,7 @@
 #include "CmdBase.hpp"
 
 #include <opentxs/core/Version.hpp>
-#include <opentxs/client/OTAPI_Wrap.hpp>
+#include <opentxs/client/SwigWrap.hpp>
 #include <opentxs/core/Log.hpp>
 #include <opentxs/core/Types.hpp>
 
@@ -91,7 +91,7 @@ int32_t CmdNewNymHD::run(string label, string source, string path)
     }
 
 
-    std::string mynym = OTAPI_Wrap::CreateIndividualNym(label, source, nym);
+    std::string mynym = SwigWrap::CreateIndividualNym(label, source, nym);
 
     if ("" == mynym) {
         otOut << "Error: cannot create new nym.\n";

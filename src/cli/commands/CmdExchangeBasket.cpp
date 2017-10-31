@@ -43,9 +43,9 @@
 #include <opentxs/core/Version.hpp>
 #include <opentxs/api/OT.hpp>
 #include <opentxs/api/Api.hpp>
-#include <opentxs/client/OTAPI_Wrap.hpp>
-#include <opentxs/client/OT_ME.hpp>
 #include <opentxs/client/MadeEasy.hpp>
+#include <opentxs/client/OT_ME.hpp>
+#include <opentxs/client/SwigWrap.hpp>
 #include <opentxs/core/util/Common.hpp>
 #include <opentxs/core/Log.hpp>
 
@@ -97,13 +97,13 @@ int32_t CmdExchangeBasket::run(string myacct, string direction, string multiple)
         return -1;
     }
 
-    string server = OTAPI_Wrap::GetAccountWallet_NotaryID(myacct);
+    string server = SwigWrap::GetAccountWallet_NotaryID(myacct);
     if ("" == server) {
         otOut << "Error: cannot determine server from myacct.\n";
         return -1;
     }
 
-    string mynym = OTAPI_Wrap::GetAccountWallet_NymID(myacct);
+    string mynym = SwigWrap::GetAccountWallet_NymID(myacct);
     if ("" == mynym) {
         otOut << "Error: cannot determine mynym from myacct.\n";
         return -1;
@@ -114,24 +114,24 @@ int32_t CmdExchangeBasket::run(string myacct, string direction, string multiple)
         return -1;
     }
 
-    if (!OTAPI_Wrap::IsBasketCurrency(assetType)) {
+    if (!SwigWrap::IsBasketCurrency(assetType)) {
         otOut << "Error: account is not a basket currency.\n";
         return -1;
     }
 
-    int32_t members = OTAPI_Wrap::Basket_GetMemberCount(assetType);
+    int32_t members = SwigWrap::Basket_GetMemberCount(assetType);
     if (2 > members) {
         otOut << "Error: cannot load basket member count.\n";
         return -1;
     }
 
-    int64_t minAmount = OTAPI_Wrap::Basket_GetMinimumTransferAmount(assetType);
+    int64_t minAmount = SwigWrap::Basket_GetMinimumTransferAmount(assetType);
     if (0 > minAmount) {
         otOut << "Error: cannot load minimum transfer amount for basket.\n";
         return -1;
     }
 
-    int64_t balance = OTAPI_Wrap::GetAccountWallet_Balance(myacct);
+    int64_t balance = SwigWrap::GetAccountWallet_Balance(myacct);
     if (OT_ERROR_AMOUNT == balance) {
         otOut << "Error: cannot retrieve balance for basket account.\n";
         return -1;
@@ -161,7 +161,7 @@ int32_t CmdExchangeBasket::run(string myacct, string direction, string multiple)
         return -1;
     }
 
-    string basket = OTAPI_Wrap::GenerateBasketExchange(server, mynym, assetType,
+    string basket = SwigWrap::GenerateBasketExchange(server, mynym, assetType,
                                                        myacct, multiplier);
     if ("" == basket) {
         otOut << "Error: cannot generate basket exchange.\n";
@@ -170,14 +170,14 @@ int32_t CmdExchangeBasket::run(string myacct, string direction, string multiple)
 
     // Sub-currencies!
     for (int32_t member = 0; member < members; member++) {
-        string memberType = OTAPI_Wrap::Basket_GetMemberType(assetType, member);
+        string memberType = SwigWrap::Basket_GetMemberType(assetType, member);
         if ("" == memberType) {
             otOut << "Error: cannot load basket member type.\n";
             return harvestTxNumbers(basket, mynym);
         }
 
         int64_t memberAmount =
-            OTAPI_Wrap::Basket_GetMemberMinimumTransferAmount(assetType,
+            SwigWrap::Basket_GetMemberMinimumTransferAmount(assetType,
                                                               member);
         if (0 > memberAmount) {
             otOut << "Error: cannot load basket member minimum transfer "
@@ -191,7 +191,7 @@ int32_t CmdExchangeBasket::run(string myacct, string direction, string multiple)
             return harvestTxNumbers(basket, mynym);
         }
 
-        string memberTypeName = OTAPI_Wrap::GetAssetType_Name(memberType);
+        string memberTypeName = SwigWrap::GetAssetType_Name(memberType);
         otOut << "\nThere are " << (members - member)
               << " accounts remaining to be selected.\n\n";
         otOut << "Currently we need to select an account with the instrument "
@@ -216,7 +216,7 @@ int32_t CmdExchangeBasket::run(string myacct, string direction, string multiple)
         }
 
         string subAssetType =
-            OTAPI_Wrap::GetAccountWallet_InstrumentDefinitionID(account);
+            SwigWrap::GetAccountWallet_InstrumentDefinitionID(account);
         if ("" == subAssetType) {
             otOut << "Error: cannot load account instrument definition.\n";
             return harvestTxNumbers(basket, mynym);
@@ -227,7 +227,7 @@ int32_t CmdExchangeBasket::run(string myacct, string direction, string multiple)
             return harvestTxNumbers(basket, mynym);
         }
 
-        balance = OTAPI_Wrap::GetAccountWallet_Balance(account);
+        balance = SwigWrap::GetAccountWallet_Balance(account);
         if (OT_ERROR_AMOUNT == balance) {
             otOut << "Error: cannot load account balance.\n";
             return harvestTxNumbers(basket, mynym);
@@ -240,7 +240,7 @@ int32_t CmdExchangeBasket::run(string myacct, string direction, string multiple)
             return harvestTxNumbers(basket, mynym);
         }
 
-        string newBasket = OTAPI_Wrap::AddBasketExchangeItem(
+        string newBasket = SwigWrap::AddBasketExchangeItem(
             server, mynym, basket, subAssetType, account);
         if ("" == newBasket) {
             otOut << "Error: cannot add basket exchange item.\n";
@@ -283,7 +283,7 @@ int32_t CmdExchangeBasket::showBasketAccounts(const string& server,
                                               const string& assetType,
                                               bool bFilter)
 {
-    int32_t items = OTAPI_Wrap::GetAccountCount();
+    int32_t items = SwigWrap::GetAccountCount();
     if (0 > items) {
         otOut << "Error: cannot load account count.\n";
         return -1;
@@ -293,20 +293,20 @@ int32_t CmdExchangeBasket::showBasketAccounts(const string& server,
     cout << " ** ACCOUNTS:\n\n";
 
     for (int32_t i = 0; i < items; i++) {
-        string acct = OTAPI_Wrap::GetAccountWallet_ID(i);
+        string acct = SwigWrap::GetAccountWallet_ID(i);
         if ("" == acct) {
             otOut << "Error: cannot load account ID.\n";
             return -1;
         }
 
-        string accountServer = OTAPI_Wrap::GetAccountWallet_NotaryID(acct);
+        string accountServer = SwigWrap::GetAccountWallet_NotaryID(acct);
         if ("" == accountServer) {
             otOut << "Error: cannot determine server from myacct.\n";
             return -1;
         }
 
         if ("" == server || server == accountServer) {
-            string accountNym = OTAPI_Wrap::GetAccountWallet_NymID(acct);
+            string accountNym = SwigWrap::GetAccountWallet_NymID(acct);
             if ("" == accountNym) {
                 otOut << "Error: cannot determine accountNym from acct.\n";
                 return -1;
@@ -318,7 +318,7 @@ int32_t CmdExchangeBasket::showBasketAccounts(const string& server,
                     return -1;
                 }
 
-                if (("" == assetType && OTAPI_Wrap::IsBasketCurrency(asset)) ||
+                if (("" == assetType && SwigWrap::IsBasketCurrency(asset)) ||
                     ("" != assetType && bFilter && assetType == asset) ||
                     ("" != assetType && !bFilter && assetType != asset)) {
                     string statAccount = OT::App().API().ME().stat_asset_account(acct);

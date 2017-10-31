@@ -41,8 +41,8 @@
 #include "CmdBase.hpp"
 
 #include <opentxs/core/Version.hpp>
-#include <opentxs/client/OTAPI_Wrap.hpp>
 #include <opentxs/client/OT_ME.hpp>
+#include <opentxs/client/SwigWrap.hpp>
 #include <opentxs/core/Log.hpp>
 
 #include <stdint.h>
@@ -94,13 +94,13 @@ int32_t CmdUsageCredits::run(string server, string mynym, string hisnym,
         return -1;
     }
 
-     
+
     string response = OT_ME::It().adjust_usage_credits(server, mynym, hisnym, adjust);
     if (1 != processResponse(response, "adjust usage credits")) {
         return -1;
     }
 
-    int64_t balance = OTAPI_Wrap::Message_GetUsageCredits(response);
+    int64_t balance = SwigWrap::Message_GetUsageCredits(response);
     if (-1 > balance) {
         otOut << "Error: failed to retrieve usage credits.\n";
         return -1;

@@ -42,7 +42,7 @@
 #include "CmdWithdrawVoucher.hpp"
 
 #include <opentxs/core/Version.hpp>
-#include <opentxs/client/OTAPI_Wrap.hpp>
+#include <opentxs/client/SwigWrap.hpp>
 #include <opentxs/core/util/Common.hpp>
 #include <opentxs/core/Log.hpp>
 
@@ -99,7 +99,7 @@ int32_t CmdSendVoucher::run(string myacct, string hisnym, string amount,
 
     cout << voucher << "\n";
 
-    string sender = OTAPI_Wrap::GetAccountWallet_NymID(myacct);
+    string sender = SwigWrap::GetAccountWallet_NymID(myacct);
     if ("" == sender) {
         otOut << "Error: cannot get sender from myacct.\n";
         return -1;

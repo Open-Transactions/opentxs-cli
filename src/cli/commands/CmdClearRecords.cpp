@@ -41,7 +41,7 @@
 #include "CmdBase.hpp"
 
 #include <opentxs/core/Version.hpp>
-#include <opentxs/client/OTAPI_Wrap.hpp>
+#include <opentxs/client/SwigWrap.hpp>
 #include <opentxs/core/Log.hpp>
 
 #include <stdint.h>
@@ -74,13 +74,13 @@ int32_t CmdClearRecords::run(string myacct)
         return -1;
     }
 
-    string server = OTAPI_Wrap::GetAccountWallet_NotaryID(myacct);
+    string server = SwigWrap::GetAccountWallet_NotaryID(myacct);
     if ("" == server) {
         otOut << "Error: cannot determine server from myacct.\n";
         return -1;
     }
 
-    string mynym = OTAPI_Wrap::GetAccountWallet_NymID(myacct);
+    string mynym = SwigWrap::GetAccountWallet_NymID(myacct);
     if ("" == mynym) {
         otOut << "Error: cannot determine mynym from myacct.\n";
         return -1;
@@ -88,13 +88,13 @@ int32_t CmdClearRecords::run(string myacct)
 
     // Recordbox for mynym contains the old payments (in and out.)
     otOut << "Clearing archived Nym-related records...\n";
-    bool success = OTAPI_Wrap::ClearRecord(server, mynym, mynym, 0, true);
+    bool success = SwigWrap::ClearRecord(server, mynym, mynym, 0, true);
 
     dashLine();
 
     // Recordbox for myacct contains the old inbox receipts.
     otOut << "\nClearing archived Account-related records...\n";
-    success |= OTAPI_Wrap::ClearRecord(server, mynym, myacct, 0, true);
+    success |= SwigWrap::ClearRecord(server, mynym, myacct, 0, true);
 
     return success ? 1 : -1;
 }

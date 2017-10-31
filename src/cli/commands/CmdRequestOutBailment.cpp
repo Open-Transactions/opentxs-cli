@@ -39,8 +39,8 @@
 #include "CmdRequestOutBailment.hpp"
 
 #include <opentxs/core/Version.hpp>
-#include <opentxs/client/OTAPI_Wrap.hpp>
 #include <opentxs/client/OT_ME.hpp>
+#include <opentxs/client/SwigWrap.hpp>
 
 namespace opentxs {
 
@@ -99,12 +99,12 @@ std::int32_t CmdRequestOutBailment::run(
     }
 
 
-    std::int64_t outbailmentAmount = OTAPI_Wrap::StringToAmount(mypurse, amount);
+    std::int64_t outbailmentAmount = SwigWrap::StringToAmount(mypurse, amount);
     if (OT_ERROR_AMOUNT == outbailmentAmount) {
         return -1;
     }
 
-     
+
     std::string response = OT_ME::It().initiate_outbailment(
         server, mynym, hisnym, mypurse, outbailmentAmount, terms);
     return processResponse(response, "request outbailment");

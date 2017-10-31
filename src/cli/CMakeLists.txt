@@ -68,6 +68,8 @@ set(cxx-sources
   commands/CmdIssueAsset.cpp
   commands/CmdKillOffer.cpp
   commands/CmdKillPlan.cpp
+  commands/CmdMarkRead.cpp
+  commands/CmdMarkUnRead.cpp
   commands/CmdMergeContact.cpp
   commands/CmdModifyNym.cpp
   commands/CmdNewAccount.cpp

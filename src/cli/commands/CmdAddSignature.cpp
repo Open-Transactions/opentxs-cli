@@ -41,7 +41,7 @@
 #include "CmdBase.hpp"
 
 #include <opentxs/core/Version.hpp>
-#include <opentxs/client/OTAPI_Wrap.hpp>
+#include <opentxs/client/SwigWrap.hpp>
 #include <opentxs/core/Log.hpp>
 
 #include <stdint.h>
@@ -81,7 +81,7 @@ int32_t CmdAddSignature::run(string mynym)
         return -1;
     }
 
-    string output = OTAPI_Wrap::AddSignature(mynym, contract);
+    string output = SwigWrap::AddSignature(mynym, contract);
     if ("" == output) {
         otOut << "Error: cannot add signature.\n";
         return -1;

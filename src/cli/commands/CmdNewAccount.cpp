@@ -44,8 +44,8 @@
 #include <opentxs/core/Version.hpp>
 #include <opentxs/api/Api.hpp>
 #include <opentxs/api/OT.hpp>
-#include <opentxs/client/OTAPI_Wrap.hpp>
 #include <opentxs/client/MadeEasy.hpp>
+#include <opentxs/client/SwigWrap.hpp>
 
 #include <stdint.h>
 #include <string>
@@ -86,7 +86,7 @@ int32_t CmdNewAccount::run(string server, string mynym, string mypurse)
         return -1;
     }
 
-    if (!OTAPI_Wrap::IsNym_RegisteredAtServer(mynym, server)) {
+    if (!SwigWrap::IsNym_RegisteredAtServer(mynym, server)) {
         CmdRegisterNym registerNym;
         registerNym.run(server, mynym);
     }

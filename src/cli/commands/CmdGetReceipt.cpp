@@ -41,8 +41,8 @@
 #include "CmdBase.hpp"
 
 #include <opentxs/core/Version.hpp>
-#include <opentxs/client/OTAPI_Wrap.hpp>
 #include <opentxs/client/OT_ME.hpp>
+#include <opentxs/client/SwigWrap.hpp>
 #include <opentxs/core/Log.hpp>
 
 #include <inttypes.h>
@@ -106,20 +106,20 @@ int32_t CmdGetReceipt::run(string server, string mynym, string myacct,
             return -1;
         }
 
-        server = OTAPI_Wrap::GetAccountWallet_NotaryID(myacct);
+        server = SwigWrap::GetAccountWallet_NotaryID(myacct);
         if ("" == server) {
             otOut << "Error: cannot determine server from myacct.\n";
             return -1;
         }
 
-        mynym = OTAPI_Wrap::GetAccountWallet_NymID(myacct);
+        mynym = SwigWrap::GetAccountWallet_NymID(myacct);
         if ("" == mynym) {
             otOut << "Error: cannot determine mynym from myacct.\n";
             return -1;
         }
     }
 
-     
+
     int64_t i;
     sscanf(id.c_str(), "%" SCNd64, &i);
     string response = OT_ME::It().get_box_receipt(server, mynym, myacct, type, i);

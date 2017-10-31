@@ -41,7 +41,7 @@
 #include "CmdBase.hpp"
 
 #include <opentxs/core/Version.hpp>
-#include <opentxs/client/OTAPI_Wrap.hpp>
+#include <opentxs/client/SwigWrap.hpp>
 
 
 #include <stdint.h>
@@ -72,7 +72,7 @@ int32_t CmdImportSeed::run(const std::string& words, const std::string& phrase)
     }
 
     const std::string fingerprint =
-        OTAPI_Wrap::Wallet_ImportSeed(words, phrase);
+        SwigWrap::Wallet_ImportSeed(words, phrase);
     const bool empty = fingerprint.empty();
 
     if (!empty) {

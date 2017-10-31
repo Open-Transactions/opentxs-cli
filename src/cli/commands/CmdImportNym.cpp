@@ -41,7 +41,7 @@
 #include "CmdBase.hpp"
 
 #include <opentxs/core/Version.hpp>
-#include <opentxs/client/OTAPI_Wrap.hpp>
+#include <opentxs/client/SwigWrap.hpp>
 #include <opentxs/core/Log.hpp>
 
 #include <stdint.h>
@@ -74,7 +74,7 @@ int32_t CmdImportNym::run()
         return -1;
     }
 
-    string outNym = OTAPI_Wrap::Wallet_ImportNym(input);
+    string outNym = SwigWrap::Wallet_ImportNym(input);
     if ("" == outNym) {
         otOut << "Error: cannot import Nym.\n";
         return -1;

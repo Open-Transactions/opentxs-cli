@@ -41,7 +41,7 @@
 #include "CmdBase.hpp"
 
 #include <opentxs/core/Version.hpp>
-#include <opentxs/client/OTAPI_Wrap.hpp>
+#include <opentxs/client/SwigWrap.hpp>
 #include <opentxs/core/Log.hpp>
 
 #include <stdint.h>
@@ -69,7 +69,7 @@ int32_t CmdShowAssets::runWithOptions()
 
 int32_t CmdShowAssets::run()
 {
-    int32_t items = OTAPI_Wrap::GetAssetTypeCount();
+    int32_t items = SwigWrap::GetAssetTypeCount();
     if (0 > items) {
         otOut << "Error: cannot load instrument definition list count.\n";
         return -1;
@@ -84,8 +84,8 @@ int32_t CmdShowAssets::run()
     dashLine();
 
     for (int32_t i = 0; i < items; i++) {
-        string assetType = OTAPI_Wrap::GetAssetType_ID(i);
-        string name = OTAPI_Wrap::GetAssetType_Name(assetType);
+        string assetType = SwigWrap::GetAssetType_ID(i);
+        string name = SwigWrap::GetAssetType_Name(assetType);
         cout << i << ": " << assetType << "  -  " << name << "\n";
     }
 

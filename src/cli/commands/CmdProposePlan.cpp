@@ -41,8 +41,8 @@
 #include "CmdBase.hpp"
 
 #include <opentxs/core/Version.hpp>
-#include <opentxs/client/OTAPI_Wrap.hpp>
 #include <opentxs/client/OT_ME.hpp>
+#include <opentxs/client/SwigWrap.hpp>
 #include <opentxs/core/Log.hpp>
 
 #include <stdint.h>
@@ -132,19 +132,19 @@ int32_t CmdProposePlan::run(string server, string mynym, string hisnym,
     otOut << "payment_plan (amount,delay,period): " << paymentplan << "\n";
     otOut << "plan_expiry (length,number): " << planexpiry << "\n";
 
-     
+
     if (!OT_ME::It().make_sure_enough_trans_nums(2, server, mynym)) {
         otOut << "Error: cannot reserve transaction numbers.\n";
         return -1;
     }
 
-    // OTAPI_Wrap::EasyProposePlan is a version of ProposePaymentPlan that
+    // SwigWrap::EasyProposePlan is a version of ProposePaymentPlan that
     // compresses it into a fewer number of arguments. (Then it expands them
     // and calls ProposePaymentPlan.)
     // Basically this version has ALL the same parameters, but it stuffs two or
     // three at a time into a single parameter, as a comma-separated list in
     // string form. See details for each parameter, in the comment below.
-    string plan = OTAPI_Wrap::EasyProposePlan(
+    string plan = SwigWrap::EasyProposePlan(
         server, daterange, hisacct, hisnym, memo, myacct, mynym, initialpayment,
         paymentplan, planexpiry);
     if ("" == plan) {

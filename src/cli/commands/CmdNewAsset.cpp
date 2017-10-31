@@ -41,7 +41,7 @@
 #include "CmdBase.hpp"
 
 #include <opentxs/core/Version.hpp>
-#include <opentxs/client/OTAPI_Wrap.hpp>
+#include <opentxs/client/SwigWrap.hpp>
 #include <opentxs/core/Log.hpp>
 
 #include <stdint.h>
@@ -99,7 +99,7 @@ int32_t CmdNewAsset::run(
         return -1;
     }
 
-    string unitDefinitionID = OTAPI_Wrap::CreateCurrencyContract(
+    string unitDefinitionID = SwigWrap::CreateCurrencyContract(
         mynym,
         shortname,
         input,
@@ -116,7 +116,7 @@ int32_t CmdNewAsset::run(
 
     cout << "New instrument definition ID : " << unitDefinitionID << std::endl;
 
-    string contract = OTAPI_Wrap::GetAssetType_Contract(unitDefinitionID);
+    string contract = SwigWrap::GetAssetType_Contract(unitDefinitionID);
     if ("" == contract) {
         otOut << "Error: cannot load unit definition.\n";
         return -1;

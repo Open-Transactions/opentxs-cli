@@ -41,7 +41,7 @@
 #include "CmdBase.hpp"
 
 #include <opentxs/core/Version.hpp>
-#include <opentxs/client/OTAPI_Wrap.hpp>
+#include <opentxs/client/SwigWrap.hpp>
 #include <opentxs/core/Log.hpp>
 
 #include <stdint.h>
@@ -69,7 +69,7 @@ int32_t CmdShowNyms::runWithOptions()
 
 int32_t CmdShowNyms::run()
 {
-    int32_t items = OTAPI_Wrap::GetNymCount();
+    int32_t items = SwigWrap::GetNymCount();
     if (0 > items) {
         otOut << "Error: cannot load nym list item count.\n";
         return -1;
@@ -84,8 +84,8 @@ int32_t CmdShowNyms::run()
     dashLine();
 
     for (int32_t i = 0; i < items; i++) {
-        string mynym = OTAPI_Wrap::GetNym_ID(i);
-        string name = OTAPI_Wrap::GetNym_Name(mynym);
+        string mynym = SwigWrap::GetNym_ID(i);
+        string name = SwigWrap::GetNym_Name(mynym);
         cout << i << ": " << mynym << " -  " << name << "\n";
     }
 

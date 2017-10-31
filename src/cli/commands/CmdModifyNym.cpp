@@ -41,7 +41,7 @@
 #include "CmdBase.hpp"
 
 #include <opentxs/core/Version.hpp>
-#include <opentxs/client/OTAPI_Wrap.hpp>
+#include <opentxs/client/SwigWrap.hpp>
 #include <opentxs/core/Log.hpp>
 
 namespace opentxs
@@ -90,7 +90,7 @@ std::int32_t CmdModifyNym::run(
         return -1;
     }
 
-    auto data = OTAPI_Wrap::Wallet_GetNym(mynym);
+    auto data = SwigWrap::Wallet_GetNym(mynym);
 
     if (false == data.Valid()) {
         otErr << "Invalid nym " << mynym << std::endl;
@@ -126,7 +126,7 @@ std::int32_t CmdModifyNym::run(
         data.AddPaymentCode(testCash, proto::CITEMTYPE_TNBCH, true, true);
     }
 
-    otErr << OTAPI_Wrap::DumpContactData(mynym) << std::endl;
+    otErr << SwigWrap::DumpContactData(mynym) << std::endl;
 
     return 1;
 }

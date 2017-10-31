@@ -41,7 +41,7 @@
 #include "CmdBase.hpp"
 
 #include <opentxs/core/Version.hpp>
-#include <opentxs/client/OTAPI_Wrap.hpp>
+#include <opentxs/client/SwigWrap.hpp>
 #include <opentxs/core/Log.hpp>
 
 #include <stdint.h>
@@ -74,13 +74,13 @@ int32_t CmdShowCredentials::run(string mynym)
         return -1;
     }
 
-    int32_t items = OTAPI_Wrap::GetNym_MasterCredentialCount(mynym);
+    int32_t items = SwigWrap::GetNym_MasterCredentialCount(mynym);
     if (0 > items) {
         otOut << "Error: cannot load credential list item count.\n";
         return -1;
     }
 
-    int32_t revokedItems = OTAPI_Wrap::GetNym_RevokedCredCount(mynym);
+    int32_t revokedItems = SwigWrap::GetNym_RevokedCredCount(mynym);
     if (0 > revokedItems) {
         otOut << "Error: cannot load revoked credential list item count.\n";
         return -1;
@@ -94,18 +94,18 @@ int32_t CmdShowCredentials::run(string mynym)
                  "---------------------------\n";
 
         for (int32_t i = 0; i < items; i++) {
-            string credential = OTAPI_Wrap::GetNym_MasterCredentialID(mynym, i);
+            string credential = SwigWrap::GetNym_MasterCredentialID(mynym, i);
             cout << i << ":      " << credential << "\n";
 
             int32_t subItems =
-                OTAPI_Wrap::GetNym_ChildCredentialCount(mynym, credential);
+                SwigWrap::GetNym_ChildCredentialCount(mynym, credential);
             if (1 <= subItems) {
                 otOut << "        ---------------------------\n"
                          "        Idx     Credential ID\n"
                          "        ---------------------------\n";
 
                 for (int32_t j = 0; j < subItems; j++) {
-                    string childCred = OTAPI_Wrap::GetNym_ChildCredentialID(
+                    string childCred = SwigWrap::GetNym_ChildCredentialID(
                         mynym, credential, j);
                     cout << "        " << j << ":      " << childCred << "\n";
                 }
@@ -121,18 +121,18 @@ int32_t CmdShowCredentials::run(string mynym)
                  "---------------------------\n";
 
         for (int32_t i = 0; i < revokedItems; i++) {
-            string credential = OTAPI_Wrap::GetNym_RevokedCredID(mynym, i);
+            string credential = SwigWrap::GetNym_RevokedCredID(mynym, i);
             cout << i << ":      " << credential << "\n";
 
             int32_t subItems =
-                OTAPI_Wrap::GetNym_ChildCredentialCount(mynym, credential);
+                SwigWrap::GetNym_ChildCredentialCount(mynym, credential);
             if (1 <= subItems) {
                 otOut << "        ---------------------------\n"
                          "        Idx     Revoked Credential ID\n"
                          "        ---------------------------\n";
 
                 for (int32_t j = 0; j < subItems; j++) {
-                    string childCred = OTAPI_Wrap::GetNym_ChildCredentialID(
+                    string childCred = SwigWrap::GetNym_ChildCredentialID(
                         mynym, credential, j);
                     cout << "        " << j << ":      " << childCred << "\n";
                 }

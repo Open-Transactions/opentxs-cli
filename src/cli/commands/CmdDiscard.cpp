@@ -41,7 +41,7 @@
 #include "CmdBase.hpp"
 
 #include <opentxs/core/Version.hpp>
-#include <opentxs/client/OTAPI_Wrap.hpp>
+#include <opentxs/client/SwigWrap.hpp>
 #include <opentxs/core/Log.hpp>
 
 #include <stdint.h>
@@ -100,13 +100,13 @@ int32_t CmdDiscard::run(string server, string mynym, string indices)
         return -1;
     }
 
-    string inbox = OTAPI_Wrap::LoadPaymentInbox(server, mynym);
+    string inbox = SwigWrap::LoadPaymentInbox(server, mynym);
     if ("" == inbox) {
         otOut << "Error: cannot load payment inbox.\n";
         return -1;
     }
 
-    int32_t items = OTAPI_Wrap::Ledger_GetCount(server, mynym, mynym, inbox);
+    int32_t items = SwigWrap::Ledger_GetCount(server, mynym, mynym, inbox);
     if (0 > items) {
         otOut << "Error: cannot load payment inbox item count.\n";
         return -1;
@@ -122,11 +122,11 @@ int32_t CmdDiscard::run(string server, string mynym, string indices)
     // Loop from back to front, in case any are removed.
     int32_t retVal = 1;
     for (int32_t i = items - 1; 0 <= i; i--) {
-        if (!all && !OTAPI_Wrap::NumList_VerifyQuery(indices, to_string(i))) {
+        if (!all && !SwigWrap::NumList_VerifyQuery(indices, to_string(i))) {
             continue;
         }
 
-        if (!OTAPI_Wrap::RecordPayment(server, mynym, true, i, false)) {
+        if (!SwigWrap::RecordPayment(server, mynym, true, i, false)) {
             otOut << "Error: cannot discard payment.\n";
             retVal = -1;
             continue;

@@ -39,7 +39,7 @@
 #include "CmdArchivePeerReply.hpp"
 
 #include <opentxs/core/Version.hpp>
-#include <opentxs/client/OTAPI_Wrap.hpp>
+#include <opentxs/client/SwigWrap.hpp>
 
 namespace opentxs {
 
@@ -63,6 +63,6 @@ std::int32_t CmdArchivePeerReply::run(std::string mynym, std::string mypurse)
         return -1;
     }
 
-    return OTAPI_Wrap::completePeerRequest(mynym, mypurse);
+    return SwigWrap::completePeerRequest(mynym, mypurse);
 }
 } // namespace opentxs

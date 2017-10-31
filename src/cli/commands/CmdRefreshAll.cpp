@@ -39,7 +39,7 @@
 #include "CmdRefreshAll.hpp"
 
 #include <opentxs/core/Version.hpp>
-#include <opentxs/client/OTAPI_Wrap.hpp>
+#include <opentxs/client/SwigWrap.hpp>
 
 namespace opentxs {
 
@@ -57,7 +57,7 @@ int32_t CmdRefreshAll::runWithOptions()
 
 int32_t CmdRefreshAll::run()
 {
-    OTAPI_Wrap::Trigger_Refresh("");
+    SwigWrap::Trigger_Refresh("");
 
     return 1;
 }

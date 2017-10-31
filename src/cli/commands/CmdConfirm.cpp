@@ -44,9 +44,9 @@
 #include <opentxs/core/Version.hpp>
 #include <opentxs/api/OT.hpp>
 #include <opentxs/api/Api.hpp>
-#include <opentxs/client/OTAPI_Wrap.hpp>
-#include <opentxs/client/OT_ME.hpp>
 #include <opentxs/client/MadeEasy.hpp>
+#include <opentxs/client/OT_ME.hpp>
+#include <opentxs/client/SwigWrap.hpp>
 #include <opentxs/core/util/Common.hpp>
 #include <opentxs/core/Log.hpp>
 
@@ -105,13 +105,13 @@ int32_t CmdConfirm::run(string server, string mynym, string myacct,
         return confirmInstrument(server, mynym, myacct, hisnym, instrument, -1);
     }
 
-    string inbox = OTAPI_Wrap::LoadPaymentInbox(server, mynym);
+    string inbox = SwigWrap::LoadPaymentInbox(server, mynym);
     if ("" == inbox) {
         otOut << "Error: cannot load payment inbox.\n";
         return -1;
     }
 
-    int32_t items = OTAPI_Wrap::Ledger_GetCount(server, mynym, mynym, inbox);
+    int32_t items = SwigWrap::Ledger_GetCount(server, mynym, mynym, inbox);
     if (0 > items) {
         otOut << "Error: cannot load payment inbox item count.\n";
         return -1;
@@ -146,26 +146,26 @@ int32_t CmdConfirm::confirmInstrument(const string& server, const string& mynym,
                                       const string& instrument, int32_t index,
                                       std::string * pOptionalOutput/*=nullptr*/)
 {
-    string instrumentType = OTAPI_Wrap::Instrmnt_GetType(instrument);
+    string instrumentType = SwigWrap::Instrmnt_GetType(instrument);
     if ("" == instrumentType) {
         otOut << "Error: cannot determine instrument type.\n";
         return -1;
     }
 
-    time64_t now = OTAPI_Wrap::GetTime();
+    time64_t now = SwigWrap::GetTime();
 
-    time64_t from = OTAPI_Wrap::Instrmnt_GetValidFrom(instrument);
+    time64_t from = SwigWrap::Instrmnt_GetValidFrom(instrument);
     if (now < from) {
         otOut << "The instrument is not yet valid.\n";
         return 0;
     }
 
-    time64_t until = OTAPI_Wrap::Instrmnt_GetValidTo(instrument);
+    time64_t until = SwigWrap::Instrmnt_GetValidTo(instrument);
     if (until > OT_TIME_ZERO && now > until) {
         otOut << "The instrument has expired.\n";
 
         if (-1 == index) {
-            if (!OTAPI_Wrap::Msg_HarvestTransactionNumbers(
+            if (!SwigWrap::Msg_HarvestTransactionNumbers(
                     instrument, mynym, false, false, false, false, false)) {
                 return -1;
             }
@@ -174,7 +174,7 @@ int32_t CmdConfirm::confirmInstrument(const string& server, const string& mynym,
 
         // Since this instrument is expired, remove it from the payments inbox,
         // and move it to record box.
-        if (!OTAPI_Wrap::RecordPayment(server, mynym, true, index, true)) {
+        if (!SwigWrap::RecordPayment(server, mynym, true, index, true)) {
             return -1;
         }
         return 0;
@@ -199,7 +199,7 @@ int32_t CmdConfirm::confirmPaymentPlan(const string& mynym,
                                        const string& plan,
                                        string * pOptionalOutput/*=nullptr*/)
 {
-    string server = OTAPI_Wrap::Instrmnt_GetNotaryID(plan);
+    string server = SwigWrap::Instrmnt_GetNotaryID(plan);
     if ("" == server) {
         otOut << "Error: cannot get server from instrument.\n";
         return -1;
@@ -208,7 +208,7 @@ int32_t CmdConfirm::confirmPaymentPlan(const string& mynym,
     string senderUser = mynym;
 
     if ("" == senderUser)
-        senderUser = OTAPI_Wrap::Instrmnt_GetSenderNymID(plan);
+        senderUser = SwigWrap::Instrmnt_GetSenderNymID(plan);
 
     if ("" == senderUser) {
         otOut << "Error: cannot get sender user from instrument.\n";
@@ -218,20 +218,20 @@ int32_t CmdConfirm::confirmPaymentPlan(const string& mynym,
     string senderAcct = myacct;
 
     if ("" == senderAcct)
-        senderAcct = OTAPI_Wrap::Instrmnt_GetSenderAcctID(plan);
+        senderAcct = SwigWrap::Instrmnt_GetSenderAcctID(plan);
 
     if ("" == senderAcct) {
         otOut << "Error: cannot get sender account from instrument.\n";
         return -1;
     }
 
-    string recipientUser = OTAPI_Wrap::Instrmnt_GetRecipientNymID(plan);
+    string recipientUser = SwigWrap::Instrmnt_GetRecipientNymID(plan);
     if ("" == recipientUser) {
         otOut << "Error: cannot get recipient user from instrument.\n";
         return -1;
     }
 
-    string recipientAcct = OTAPI_Wrap::Instrmnt_GetRecipientAcctID(plan);
+    string recipientAcct = SwigWrap::Instrmnt_GetRecipientAcctID(plan);
     if ("" == recipientAcct) {
         otOut << "Error: cannot get recipient account from instrument.\n";
         return -1;
@@ -243,7 +243,7 @@ int32_t CmdConfirm::confirmPaymentPlan(const string& mynym,
         return -1;
     }
 
-    string confirmed = OTAPI_Wrap::ConfirmPaymentPlan(
+    string confirmed = SwigWrap::ConfirmPaymentPlan(
         server, senderUser, senderAcct, recipientUser, plan);
     if ("" == confirmed) {
         otOut << "Error: cannot confirm payment plan.\n";
@@ -321,7 +321,7 @@ int32_t CmdConfirm::confirmSmartContract(const string& server,
                                          const string& contract, int32_t index,
                                          string * pOptionalOutput/*=nullptr*/)
 {
-    int32_t parties = OTAPI_Wrap::Smart_GetPartyCount(contract);
+    int32_t parties = SwigWrap::Smart_GetPartyCount(contract);
     if (0 > parties) {
         otOut << "Error: cannot get contract party count.\n";
         return -1;
@@ -332,20 +332,20 @@ int32_t CmdConfirm::confirmSmartContract(const string& server,
         return -1;
     }
 
-    if (OTAPI_Wrap::Smart_AreAllPartiesConfirmed(contract)) {
+    if (SwigWrap::Smart_AreAllPartiesConfirmed(contract)) {
         otOut << "Error: all contract parties are already confirmed.\n";
         return -1;
     }
 
     int32_t unconfirmed = 0;
     for (int32_t i = 0; i < parties; i++) {
-        string name = OTAPI_Wrap::Smart_GetPartyByIndex(contract, i);
+        string name = SwigWrap::Smart_GetPartyByIndex(contract, i);
         if ("" == name) {
             otOut << "Error: cannot retrieve contract party name.\n";
             return -1;
         }
 
-        if (!OTAPI_Wrap::Smart_IsPartyConfirmed(contract, name)) {
+        if (!SwigWrap::Smart_IsPartyConfirmed(contract, name)) {
             otOut << i << ": Unconfirmed party: " << name << "\n";
             unconfirmed++;
         }
@@ -362,19 +362,19 @@ int32_t CmdConfirm::confirmSmartContract(const string& server,
         return -1;
     }
 
-    string name = OTAPI_Wrap::Smart_GetPartyByIndex(contract, party);
+    string name = SwigWrap::Smart_GetPartyByIndex(contract, party);
     if ("" == name) {
         otOut << "Error: cannot retrieve contract party name.\n";
         return -1;
     }
 
-    if (OTAPI_Wrap::Smart_IsPartyConfirmed(contract, name)) {
+    if (SwigWrap::Smart_IsPartyConfirmed(contract, name)) {
         otOut << "Error: contract party was already confirmed.\n";
         return -1;
     }
 
     // So how many accounts does the party have? We must confirm those, too.
-    int32_t accounts = OTAPI_Wrap::Party_GetAcctCount(contract, name);
+    int32_t accounts = SwigWrap::Party_GetAcctCount(contract, name);
     if (0 > accounts) {
         otOut << "Error: cannot load party account item count.\n";
         return -1;
@@ -416,7 +416,7 @@ int32_t CmdConfirm::confirmSmartContract(const string& server,
     // (A well-designed wallet will do this automatically.)
 
     string confirmed =
-        OTAPI_Wrap::SmartContract_ConfirmParty(contract, name, mynym, server);
+        SwigWrap::SmartContract_ConfirmParty(contract, name, mynym, server);
     if ("" == confirmed) {
         otOut << "Error: cannot confirm smart contract party.\n";
         return harvestTxNumbers(contract, mynym);
@@ -425,7 +425,7 @@ int32_t CmdConfirm::confirmSmartContract(const string& server,
     if (nullptr != pOptionalOutput)
         *pOptionalOutput = confirmed;
 
-    if (OTAPI_Wrap::Smart_AreAllPartiesConfirmed(confirmed)) {
+    if (SwigWrap::Smart_AreAllPartiesConfirmed(confirmed)) {
         // If you are the last party to sign, then ACTIVATE THE SMART CONTRACT.
         return activateContract(server, mynym, confirmed, name, accounts);
     }
@@ -445,7 +445,7 @@ int32_t CmdConfirm::confirmSmartContract(const string& server,
 
     if (-1 != index) {
         // not a pasted contract
-        OTAPI_Wrap::RecordPayment(server, mynym, true, index, false);
+        SwigWrap::RecordPayment(server, mynym, true, index, false);
     }
 
     return 1;
@@ -482,20 +482,20 @@ int32_t CmdConfirm::activateContract(const string& server, const string& mynym,
         }
 
         string acctName =
-            OTAPI_Wrap::Party_GetAcctNameByIndex(contract, name, acctIndex);
+            SwigWrap::Party_GetAcctNameByIndex(contract, name, acctIndex);
         if ("" == acctName) {
             otOut << "Error: cannot retrieve account.\n";
             return harvestTxNumbers(contract, mynym);
         }
 
-        myAcctID = OTAPI_Wrap::Party_GetAcctID(contract, name, acctName);
+        myAcctID = SwigWrap::Party_GetAcctID(contract, name, acctName);
         if ("" == myAcctID) {
             otOut << "Error: account is not yet confirmed.\n";
             return harvestTxNumbers(contract, mynym);
         }
 
         myAcctAgentName =
-            OTAPI_Wrap::Party_GetAcctAgentName(contract, name, acctName);
+            SwigWrap::Party_GetAcctAgentName(contract, name, acctName);
         if ("" == myAcctAgentName) {
             otOut << "Error: account agent is not yet confirmed.\n";
             return harvestTxNumbers(contract, mynym);
@@ -556,7 +556,7 @@ int32_t CmdConfirm::sendToNextParty(const string& server, const string& mynym,
         // IF we are able to resolve the HisNymId from a partial, then we
         // replace the partial with the full version. (Otherwise we assume
         // it's already a full ID and we don't mess with it.)
-        hisNymID = OTAPI_Wrap::Wallet_GetNymIDFromPartial(recipientNymID);
+        hisNymID = SwigWrap::Wallet_GetNymIDFromPartial(recipientNymID);
         if ("" == hisNymID) {
             hisNymID = recipientNymID;
         }
@@ -637,7 +637,7 @@ int32_t CmdConfirm::confirmAccounts(string server, string mynym, string myacct,
         }
 
         string acctName =
-            OTAPI_Wrap::Party_GetAcctNameByIndex(contract, name, acctIndex);
+            SwigWrap::Party_GetAcctNameByIndex(contract, name, acctIndex);
         if ("" == acctName) {
             otOut << "Error: cannot retrieve unconfirmed account.\n";
             return -1;
@@ -651,7 +651,7 @@ int32_t CmdConfirm::confirmAccounts(string server, string mynym, string myacct,
             }
         }
 
-        string acctID = OTAPI_Wrap::Party_GetAcctID(contract, name, acctName);
+        string acctID = SwigWrap::Party_GetAcctID(contract, name, acctName);
         if (alreadyThere || "" != acctID) {
             otOut << "The account at index " << acctIndex
                   << " is already confirmed with account ID: " << acctID
@@ -662,13 +662,13 @@ int32_t CmdConfirm::confirmAccounts(string server, string mynym, string myacct,
         // The account is NOT already confirmed (so we can confirm it,
         // once we select the Acct ID to use.)
 
-        string serverFromContract = OTAPI_Wrap::Instrmnt_GetNotaryID(contract);
+        string serverFromContract = SwigWrap::Instrmnt_GetNotaryID(contract);
         if ("" != serverFromContract && server != serverFromContract) {
             otOut << "Error: mismatching server in contract.\n";
             return -1;
         }
 
-        if (!OTAPI_Wrap::IsNym_RegisteredAtServer(mynym, server)) {
+        if (!SwigWrap::IsNym_RegisteredAtServer(mynym, server)) {
             otOut << "Error: mynym is not registered on server.\n";
             return -1;
         }
@@ -684,28 +684,28 @@ int32_t CmdConfirm::confirmAccounts(string server, string mynym, string myacct,
         // from the smart contract template have had actual acct IDs selected
         // for each.
         string templateInstrumentDefinitionID =
-            OTAPI_Wrap::Party_GetAcctInstrumentDefinitionID(contract, name,
+            SwigWrap::Party_GetAcctInstrumentDefinitionID(contract, name,
                                                             acctName);
         bool foundTemplateInstrumentDefinitionID =
             "" != templateInstrumentDefinitionID;
 
         bool foundAccounts = false;
-        int32_t accountCount = OTAPI_Wrap::GetAccountCount();
+        int32_t accountCount = SwigWrap::GetAccountCount();
 
         otOut << "\nAccounts by index (filtered by notaryID and nymID):\n\n";
 
         for (int32_t i = 0; i < accountCount; i++) {
-            string acct = OTAPI_Wrap::GetAccountWallet_ID(i);
+            string acct = SwigWrap::GetAccountWallet_ID(i);
             if ("" == acct) {
                 otOut << "Error reading account ID based on index: " << i
                       << "\n";
                 return -1;
             }
 
-            string acctNotaryID = OTAPI_Wrap::GetAccountWallet_NotaryID(acct);
-            string acctNymID = OTAPI_Wrap::GetAccountWallet_NymID(acct);
+            string acctNotaryID = SwigWrap::GetAccountWallet_NotaryID(acct);
+            string acctNymID = SwigWrap::GetAccountWallet_NymID(acct);
             string acctInstrumentDefinitionID =
-                OTAPI_Wrap::GetAccountWallet_InstrumentDefinitionID(acct);
+                SwigWrap::GetAccountWallet_InstrumentDefinitionID(acct);
 
             bool bAlreadyOnTheMap = false;
             for (auto x = mapIDs.begin(); x != mapIDs.end(); x++) {
@@ -729,7 +729,7 @@ int32_t CmdConfirm::confirmAccounts(string server, string mynym, string myacct,
                     if (!bAlreadyOnTheMap) {
                         foundAccounts = true;
                         otOut << i << " : " << acct << " ("
-                              << OTAPI_Wrap::GetAccountWallet_Name(acct)
+                              << SwigWrap::GetAccountWallet_Name(acct)
                               << ")\n";
                     }
                 }
@@ -757,17 +757,17 @@ int32_t CmdConfirm::confirmAccounts(string server, string mynym, string myacct,
             return -1;
         }
 
-        string acct = OTAPI_Wrap::GetAccountWallet_ID(selectedIndex);
+        string acct = SwigWrap::GetAccountWallet_ID(selectedIndex);
         if ("" == acct) {
             otOut << "Error reading account ID based on index: "
                   << selectedIndex << "\n";
             return -1;
         }
 
-        string acctNotaryID = OTAPI_Wrap::GetAccountWallet_NotaryID(acct);
-        string acctNymID = OTAPI_Wrap::GetAccountWallet_NymID(acct);
+        string acctNotaryID = SwigWrap::GetAccountWallet_NotaryID(acct);
+        string acctNymID = SwigWrap::GetAccountWallet_NymID(acct);
         string acctInstrumentDefinitionID =
-            OTAPI_Wrap::GetAccountWallet_InstrumentDefinitionID(acct);
+            SwigWrap::GetAccountWallet_InstrumentDefinitionID(acct);
 
         if (server == acctNotaryID && mynym == acctNymID) {
             // If the smart contract doesn't specify the instrument definition
@@ -794,7 +794,7 @@ int32_t CmdConfirm::confirmAccounts(string server, string mynym, string myacct,
                     // Add these to a map or whatever, to save them until
                     // this loop is complete.
 
-                    string agentName = OTAPI_Wrap::Party_GetAcctAgentName(
+                    string agentName = SwigWrap::Party_GetAcctAgentName(
                         contract, name, acctName);
 
                     if ("" == agentName) {
@@ -818,7 +818,7 @@ int32_t CmdConfirm::confirmAccounts(string server, string mynym, string myacct,
                                 return -1;
                             }
 
-                            agentName = OTAPI_Wrap::Party_GetAgentNameByIndex(
+                            agentName = SwigWrap::Party_GetAgentNameByIndex(
                                 contract, name, nAgentIndex);
                             if ("" == agentName) {
                                 otOut << "Error: Unable to retrieve agent name "
@@ -848,7 +848,7 @@ int32_t CmdConfirm::confirmAccounts(string server, string mynym, string myacct,
     }
 
     for (auto x = mapIDs.begin(); x != mapIDs.end(); x++) {
-        int32_t needed = OTAPI_Wrap::SmartContract_CountNumsNeeded(
+        int32_t needed = SwigWrap::SmartContract_CountNumsNeeded(
             contract, mapAgents[x->first]);
 
 
@@ -881,7 +881,7 @@ int32_t CmdConfirm::confirmAccounts(string server, string mynym, string myacct,
         }
 
         // confirm a theoretical acct by giving it a real acct id.
-        string confirmed = OTAPI_Wrap::SmartContract_ConfirmAccount(
+        string confirmed = SwigWrap::SmartContract_ConfirmAccount(
             contract, mynym, name, x->first, mapAgents[x->first], x->second);
         if ("" == confirmed) {
             otOut << "Failure while calling "
@@ -900,7 +900,7 @@ int32_t CmdConfirm::confirmAccounts(string server, string mynym, string myacct,
 bool CmdConfirm::showPartyAccounts(const string& contract, const string& name,
                                    int32_t depth)
 {
-    int32_t accounts = OTAPI_Wrap::Party_GetAcctCount(contract, name);
+    int32_t accounts = SwigWrap::Party_GetAcctCount(contract, name);
 
     if (0 > accounts) {
         otOut << "Error: Party '" << name
@@ -917,7 +917,7 @@ bool CmdConfirm::showPartyAccounts(const string& contract, const string& name,
 
     for (int32_t i = 0; i < accounts; i++) {
         string acctName =
-            OTAPI_Wrap::Party_GetAcctNameByIndex(contract, name, i);
+            SwigWrap::Party_GetAcctNameByIndex(contract, name, i);
         if ("" == acctName) {
             otOut << "Error: Failed retrieving Asset Account Name from party '"
                   << name << "' at account index: " << i << "\n";
@@ -925,26 +925,26 @@ bool CmdConfirm::showPartyAccounts(const string& contract, const string& name,
         }
 
         string acctInstrumentDefinitionID =
-            OTAPI_Wrap::Party_GetAcctInstrumentDefinitionID(contract, name,
+            SwigWrap::Party_GetAcctInstrumentDefinitionID(contract, name,
                                                             acctName);
         if ("" != acctInstrumentDefinitionID) {
             cout << "-------------------\nAccount '" << acctName << "' (index "
                  << i << " on Party '" << name
                  << "') has instrument definition: "
                  << acctInstrumentDefinitionID << " ("
-                 << OTAPI_Wrap::GetAssetType_Name(acctInstrumentDefinitionID)
+                 << SwigWrap::GetAssetType_Name(acctInstrumentDefinitionID)
                  << ")\n";
         }
 
-        string acctID = OTAPI_Wrap::Party_GetAcctID(contract, name, acctName);
+        string acctID = SwigWrap::Party_GetAcctID(contract, name, acctName);
         if ("" != acctID) {
             cout << "Account '" << acctName << "' (party '" << name
                  << "') is confirmed as Account ID: " << acctID << " ("
-                 << OTAPI_Wrap::GetAccountWallet_Name(acctID) << ")\n";
+                 << SwigWrap::GetAccountWallet_Name(acctID) << ")\n";
         }
 
         string strAcctAgentName =
-            OTAPI_Wrap::Party_GetAcctAgentName(contract, name, acctName);
+            SwigWrap::Party_GetAcctAgentName(contract, name, acctName);
         if ("" != strAcctAgentName) {
             cout << "Account '" << acctName << "' (party '" << name
                  << "') is managed by agent: " << strAcctAgentName << "\n";
@@ -957,7 +957,7 @@ bool CmdConfirm::showPartyAccounts(const string& contract, const string& name,
 bool CmdConfirm::showPartyAgents(const string& contract, const string& name,
                                  int32_t depth)
 {
-    int32_t agentCount = OTAPI_Wrap::Party_GetAgentCount(contract, name);
+    int32_t agentCount = SwigWrap::Party_GetAgentCount(contract, name);
     if (0 > agentCount) {
         otOut << "Error: Party '" << name
               << "' has bad value for number of authorized agents.\n";
@@ -971,18 +971,18 @@ bool CmdConfirm::showPartyAgents(const string& contract, const string& name,
     }
 
     for (int32_t i = 0; i < agentCount; i++) {
-        string agent = OTAPI_Wrap::Party_GetAgentNameByIndex(contract, name, i);
+        string agent = SwigWrap::Party_GetAgentNameByIndex(contract, name, i);
         if ("" == agent) {
             otOut << "Error: Failed retrieving Agent Name from party '" << name
                   << "' at agent index: " << i << "\n";
             return false;
         }
 
-        string agentID = OTAPI_Wrap::Party_GetAgentID(contract, name, agent);
+        string agentID = SwigWrap::Party_GetAgentID(contract, name, agent);
         if ("" != agentID) {
             cout << "--------------------\n " << i << " : Agent '" << agent
                  << "' (party '" << name << "') has NymID: " << agentID << " ('"
-                 << OTAPI_Wrap::GetNym_Name(agentID) << "')\n";
+                 << SwigWrap::GetNym_Name(agentID) << "')\n";
         }
         else {
             cout << " " << i << " : Agent '" << agent << "' (party '" << name

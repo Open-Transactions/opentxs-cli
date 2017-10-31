@@ -41,7 +41,7 @@
 #include "CmdBase.hpp"
 
 #include <opentxs/core/Version.hpp>
-#include <opentxs/client/OTAPI_Wrap.hpp>
+#include <opentxs/client/SwigWrap.hpp>
 #include <opentxs/core/Log.hpp>
 
 #include <stddef.h>
@@ -87,9 +87,9 @@ int32_t CmdShowActive::run(string server, string mynym, string id)
         }
 
         // FIX: what about error reporting here?
-        string item = OTAPI_Wrap::GetActiveCronItem(server, transNum);
+        string item = SwigWrap::GetActiveCronItem(server, transNum);
         if ("" != item) {
-            string type = OTAPI_Wrap::Instrmnt_GetType(item);
+            string type = SwigWrap::Instrmnt_GetType(item);
             if ("" == type) {
                 type = "UNKNOWN";
             }
@@ -105,7 +105,7 @@ int32_t CmdShowActive::run(string server, string mynym, string id)
         return -1;
     }
 
-    string ids = OTAPI_Wrap::GetNym_ActiveCronItemIDs(mynym, server);
+    string ids = SwigWrap::GetNym_ActiveCronItemIDs(mynym, server);
     if ("" == ids) {
         otOut << "Found no active transactions. "
                  "Perhaps try 'opentxs refresh' first?\n";
@@ -119,9 +119,9 @@ int32_t CmdShowActive::run(string server, string mynym, string id)
         int64_t transNum = checkTransNum("id", id);
         if (0 < transNum) {
             // FIX: what about error reporting here?
-            string item = OTAPI_Wrap::GetActiveCronItem(server, transNum);
+            string item = SwigWrap::GetActiveCronItem(server, transNum);
             if ("" != item) {
-                string type = OTAPI_Wrap::Instrmnt_GetType(item);
+                string type = SwigWrap::Instrmnt_GetType(item);
                 if ("" == type) {
                     type = "UNKNOWN";
                 }

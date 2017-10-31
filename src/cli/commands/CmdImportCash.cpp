@@ -41,7 +41,7 @@
 #include "CmdBase.hpp"
 
 #include <opentxs/core/Version.hpp>
-#include <opentxs/client/OTAPI_Wrap.hpp>
+#include <opentxs/client/SwigWrap.hpp>
 #include <opentxs/core/Log.hpp>
 
 #include <stdint.h>
@@ -80,13 +80,13 @@ int32_t CmdImportCash::run(string mynym)
         return -1;
     }
 
-    string type = OTAPI_Wrap::Instrmnt_GetType(instrument);
+    string type = SwigWrap::Instrmnt_GetType(instrument);
     if ("" == type) {
         otOut << "Error: cannot determine instrument type.\n";
         return -1;
     }
 
-    string server = OTAPI_Wrap::Instrmnt_GetNotaryID(instrument);
+    string server = SwigWrap::Instrmnt_GetNotaryID(instrument);
     if ("" == server) {
         otOut << "Error: cannot determine instrument server.\n";
         return -1;
@@ -120,8 +120,8 @@ int32_t CmdImportCash::run(string mynym)
     }
 
     string purseOwner = "";
-    if (!OTAPI_Wrap::Purse_HasPassword(server, instrument)) {
-        purseOwner = OTAPI_Wrap::Instrmnt_GetRecipientNymID(instrument);
+    if (!SwigWrap::Purse_HasPassword(server, instrument)) {
+        purseOwner = SwigWrap::Instrmnt_GetRecipientNymID(instrument);
     }
 
     // Whether the purse was password-protected (and thus had no Nym ID) or
@@ -134,7 +134,7 @@ int32_t CmdImportCash::run(string mynym)
     //
     // But even in the case where there's no Nym at all (password protected)
     // we STILL need to pass a Signer Nym ID into
-    // OTAPI_Wrap::Wallet_ImportPurse.
+    // SwigWrap::Wallet_ImportPurse.
     // So if it's still empty here, then we use --mynym to make the call.
     // And also, even in the case where there IS a Nym but it's not listed,
     // we must assume the USER knows the appropriate NymID, even if it's not
@@ -153,13 +153,13 @@ int32_t CmdImportCash::run(string mynym)
     }
 
     string instrumentDefinitionID =
-        OTAPI_Wrap::Instrmnt_GetInstrumentDefinitionID(instrument);
+        SwigWrap::Instrmnt_GetInstrumentDefinitionID(instrument);
     if ("" == instrumentDefinitionID) {
         otOut << "Error: cannot determine instrument definition ID.\n";
         return -1;
     }
 
-    if (!OTAPI_Wrap::Wallet_ImportPurse(server, instrumentDefinitionID,
+    if (!SwigWrap::Wallet_ImportPurse(server, instrumentDefinitionID,
                                         purseOwner, instrument)) {
         otOut << "Error: cannot import purse.\n";
         return -1;

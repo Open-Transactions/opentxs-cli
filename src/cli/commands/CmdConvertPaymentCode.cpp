@@ -39,7 +39,7 @@
 #include "CmdConvertPaymentCode.hpp"
 
 #include <opentxs/core/Version.hpp>
-#include <opentxs/client/OTAPI_Wrap.hpp>
+#include <opentxs/client/SwigWrap.hpp>
 #include <opentxs/core/Log.hpp>
 
 #include <stdint.h>
@@ -67,7 +67,7 @@ std::int32_t CmdConvertPaymentCode::run(const std::string& code)
         return -1;
     }
 
-    const std::string id = OTAPI_Wrap::NymIDFromPaymentCode(code);
+    const std::string id = SwigWrap::NymIDFromPaymentCode(code);
 
     if ("" == id) {
         otOut << "Error: invalid payment code." << std::endl;

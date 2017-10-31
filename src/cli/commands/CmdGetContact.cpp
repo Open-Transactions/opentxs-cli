@@ -41,7 +41,7 @@
 #include "CmdBase.hpp"
 
 #include <opentxs/core/Version.hpp>
-#include <opentxs/client/OTAPI_Wrap.hpp>
+#include <opentxs/client/SwigWrap.hpp>
 #include <opentxs/core/Log.hpp>
 
 namespace opentxs
@@ -61,7 +61,7 @@ std::int32_t CmdGetContact::runWithOptions()
 
 std::int32_t CmdGetContact::run(const std::string& hisnym)
 {
-    const auto contact = OTAPI_Wrap::Nym_to_Contact(hisnym);
+    const auto contact = SwigWrap::Nym_to_Contact(hisnym);
 
     if (contact.empty()) {
         otErr << "Nym " << hisnym << " is not associated with a contact."

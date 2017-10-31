@@ -45,9 +45,9 @@
 #include <opentxs/core/Version.hpp>
 #include <opentxs/api/Api.hpp>
 #include <opentxs/api/OT.hpp>
-#include <opentxs/client/OTAPI_Wrap.hpp>
-#include <opentxs/client/OT_ME.hpp>
 #include <opentxs/client/MadeEasy.hpp>
+#include <opentxs/client/OT_ME.hpp>
+#include <opentxs/client/SwigWrap.hpp>
 #include <opentxs/core/util/Common.hpp>
 #include <opentxs/core/Log.hpp>
 
@@ -96,13 +96,13 @@ int32_t CmdSendCash::run(string server, string mynym, string myacct,
         }
 
         // myacct specified: server and mynym are implied
-        server = OTAPI_Wrap::GetAccountWallet_NotaryID(myacct);
+        server = SwigWrap::GetAccountWallet_NotaryID(myacct);
         if ("" == server) {
             otOut << "Error: cannot determine server from myacct.\n";
             return -1;
         }
 
-        mynym = OTAPI_Wrap::GetAccountWallet_NymID(myacct);
+        mynym = SwigWrap::GetAccountWallet_NymID(myacct);
         if ("" == mynym) {
             otOut << "Error: cannot determine mynym from myacct.\n";
             return -1;
@@ -226,7 +226,7 @@ int32_t CmdSendCash::sendCash(string& response, const string& server,
         OT_ME::It().send_user_cash(server, mynym, hisnym, exportedCash, retainedCopy);
     if (1 != responseStatus(response)) {
         // cannot send cash so try to re-import into sender's purse
-        if (!OTAPI_Wrap::Wallet_ImportPurse(server, assetType, mynym,
+        if (!SwigWrap::Wallet_ImportPurse(server, assetType, mynym,
                                             retainedCopy)) {
             otOut << "Error: cannot send cash AND failed re-importing purse."
                   << "\nServer: " << server << "\nAsset Type: " << assetType
@@ -263,13 +263,13 @@ bool CmdSendCash::getPurseIndicesOrAmount(const string& server,
         return false;
     }
 
-    string purse = OTAPI_Wrap::LoadPurse(server, assetType, mynym);
+    string purse = SwigWrap::LoadPurse(server, assetType, mynym);
     if ("" == purse) {
         otOut << "Error: cannot load purse.\n";
         return false;
     }
 
-    int32_t items = OTAPI_Wrap::Purse_Count(server, assetType, purse);
+    int32_t items = SwigWrap::Purse_Count(server, assetType, purse);
     if (0 > items) {
         otOut << "Error: cannot load purse item count.\n\n";
         return false;
@@ -281,33 +281,33 @@ bool CmdSendCash::getPurseIndicesOrAmount(const string& server,
     }
 
     for (int32_t i = 0; i < items; i++) {
-        string token = OTAPI_Wrap::Purse_Peek(server, assetType, mynym, purse);
+        string token = SwigWrap::Purse_Peek(server, assetType, mynym, purse);
         if ("" == token) {
             otOut << "Error:cannot load token from purse.\n";
             return false;
         }
 
-        purse = OTAPI_Wrap::Purse_Pop(server, assetType, mynym, purse);
+        purse = SwigWrap::Purse_Pop(server, assetType, mynym, purse);
         if ("" == purse) {
             otOut << "Error: cannot load updated purse.\n";
             return false;
         }
 
         int64_t denomination =
-            OTAPI_Wrap::Token_GetDenomination(server, assetType, token);
+            SwigWrap::Token_GetDenomination(server, assetType, token);
         if (0 >= denomination) {
             otOut << "Error: cannot get token denomination.\n";
             return false;
         }
 
         time64_t validTo =
-            OTAPI_Wrap::Token_GetValidTo(server, assetType, token);
+            SwigWrap::Token_GetValidTo(server, assetType, token);
         if (OT_TIME_ZERO > validTo) {
             otOut << "Error: cannot get token validTo.\n";
             return false;
         }
 
-        time64_t time = OTAPI_Wrap::GetTime();
+        time64_t time = SwigWrap::GetTime();
         if (OT_TIME_ZERO > time) {
             otOut << "Error: cannot get token time.\n";
             return false;
@@ -320,7 +320,7 @@ bool CmdSendCash::getPurseIndicesOrAmount(const string& server,
 
         if (findAmountFromIndices) {
             if ("all" == indices ||
-                OTAPI_Wrap::NumList_VerifyQuery(indices, to_string(i))) {
+                SwigWrap::NumList_VerifyQuery(indices, to_string(i))) {
                 remain += denomination;
             }
             continue;
@@ -334,7 +334,7 @@ bool CmdSendCash::getPurseIndicesOrAmount(const string& server,
         // though the three 2's would satisfy the 6...
 
         if (denomination <= remain) {
-            indices = OTAPI_Wrap::NumList_Add(indices, to_string(i));
+            indices = SwigWrap::NumList_Add(indices, to_string(i));
             remain -= denomination;
             if (0 == remain) {
                 return true;

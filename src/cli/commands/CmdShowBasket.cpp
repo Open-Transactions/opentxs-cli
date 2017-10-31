@@ -41,7 +41,7 @@
 #include "CmdBase.hpp"
 
 #include <opentxs/core/Version.hpp>
-#include <opentxs/client/OTAPI_Wrap.hpp>
+#include <opentxs/client/SwigWrap.hpp>
 #include <opentxs/core/Log.hpp>
 
 #include <stdint.h>
@@ -71,7 +71,7 @@ int32_t CmdShowBasket::runWithOptions()
 
 int32_t CmdShowBasket::run(string index)
 {
-    int32_t items = OTAPI_Wrap::GetAssetTypeCount();
+    int32_t items = SwigWrap::GetAssetTypeCount();
     if (0 > items) {
         otOut << "Error: cannot load assetType type list item count.\n";
         return -1;
@@ -88,10 +88,10 @@ int32_t CmdShowBasket::run(string index)
         dashLine();
 
         for (int32_t i = 0; i < items; i++) {
-            string assetType = OTAPI_Wrap::GetAssetType_ID(i);
-            if ("" != assetType && OTAPI_Wrap::IsBasketCurrency(assetType)) {
+            string assetType = SwigWrap::GetAssetType_ID(i);
+            if ("" != assetType && SwigWrap::IsBasketCurrency(assetType)) {
                 cout << i << ": " << assetType;
-                string assetName = OTAPI_Wrap::GetAssetType_Name(assetType);
+                string assetName = SwigWrap::GetAssetType_Name(assetType);
                 if ("" != assetName) {
                     cout << " : " + assetName;
                 }
@@ -107,27 +107,27 @@ int32_t CmdShowBasket::run(string index)
         return -1;
     }
 
-    string assetType = OTAPI_Wrap::GetAssetType_ID(messageNr);
+    string assetType = SwigWrap::GetAssetType_ID(messageNr);
     if ("" == assetType) {
         otOut << "Error: cannot load instrument definition " << messageNr
               << ".\n";
         return -1;
     }
 
-    string assetName = OTAPI_Wrap::GetAssetType_Name(assetType);
-    if (!OTAPI_Wrap::IsBasketCurrency(assetType)) {
+    string assetName = SwigWrap::GetAssetType_Name(assetType);
+    if (!SwigWrap::IsBasketCurrency(assetType)) {
         otOut << "Error: not a basket currency: " << assetType << " : "
               << assetName << ".\n";
         return -1;
     }
 
-    int32_t currencies = OTAPI_Wrap::Basket_GetMemberCount(assetType);
+    int32_t currencies = SwigWrap::Basket_GetMemberCount(assetType);
     if (0 >= currencies) {
         otOut << "Error: cannot load basket currency count.\n";
         return -1;
     }
 
-    int64_t minAmount = OTAPI_Wrap::Basket_GetMinimumTransferAmount(assetType);
+    int64_t minAmount = SwigWrap::Basket_GetMinimumTransferAmount(assetType);
     if (0 > minAmount) {
         otOut << "Error: cannot load minimum transfer amount.\n";
         return -1;
@@ -142,10 +142,10 @@ int32_t CmdShowBasket::run(string index)
     dashLine();
 
     for (int32_t i = 0; i < currencies; i++) {
-        string type = OTAPI_Wrap::Basket_GetMemberType(assetType, i);
-        string name = "" != type ? OTAPI_Wrap::GetAssetType_Name(type) : "";
+        string type = SwigWrap::Basket_GetMemberType(assetType, i);
+        string name = "" != type ? SwigWrap::GetAssetType_Name(type) : "";
         int64_t min =
-            OTAPI_Wrap::Basket_GetMemberMinimumTransferAmount(assetType, i);
+            SwigWrap::Basket_GetMemberMinimumTransferAmount(assetType, i);
 
         cout << "    " << i << "      : " << min << " : " << type << " : "
              << name << "\n";

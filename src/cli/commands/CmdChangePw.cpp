@@ -41,7 +41,7 @@
 #include "CmdBase.hpp"
 
 #include <opentxs/core/Version.hpp>
-#include <opentxs/client/OTAPI_Wrap.hpp>
+#include <opentxs/client/SwigWrap.hpp>
 #include <opentxs/core/Log.hpp>
 
 #include <stdint.h>
@@ -68,7 +68,7 @@ int32_t CmdChangePw::runWithOptions()
 
 int32_t CmdChangePw::run()
 {
-    if (!OTAPI_Wrap::Wallet_ChangePassphrase()) {
+    if (!SwigWrap::Wallet_ChangePassphrase()) {
         otOut << "Error: cannot change passphrase.\n";
         return -1;
     }

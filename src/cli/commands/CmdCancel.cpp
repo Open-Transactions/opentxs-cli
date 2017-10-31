@@ -42,8 +42,8 @@
 #include "CmdDeposit.hpp"
 
 #include <opentxs/core/Version.hpp>
-#include <opentxs/client/OTAPI_Wrap.hpp>
 #include <opentxs/client/OT_ME.hpp>
+#include <opentxs/client/SwigWrap.hpp>
 #include <opentxs/core/Log.hpp>
 
 #include <stdint.h>
@@ -111,7 +111,7 @@ int32_t CmdCancel::run(string mynym, string myacct, string indices)
         return -1;
     }
 
-    int32_t items = OTAPI_Wrap::GetNym_OutpaymentsCount(mynym);
+    int32_t items = SwigWrap::GetNym_OutpaymentsCount(mynym);
     if (0 > items) {
         otOut << "Error: cannot load payment outbox item count.\n";
         return -1;
@@ -127,19 +127,19 @@ int32_t CmdCancel::run(string mynym, string myacct, string indices)
     // Loop from back to front, in case any are removed.
     int32_t retVal = 1;
     for (int32_t i = items - 1; 0 <= i; i--) {
-        if (!all && !OTAPI_Wrap::NumList_VerifyQuery(indices, to_string(i))) {
+        if (!all && !SwigWrap::NumList_VerifyQuery(indices, to_string(i))) {
             continue;
         }
 
         string payment =
-            OTAPI_Wrap::GetNym_OutpaymentsContentsByIndex(mynym, i);
+            SwigWrap::GetNym_OutpaymentsContentsByIndex(mynym, i);
         if ("" == payment) {
             otOut << "Error: cannot load payment " << i << ".\n";
             retVal = -1;
             continue;
         }
 
-        string server = OTAPI_Wrap::GetNym_OutpaymentsNotaryIDByIndex(mynym, i);
+        string server = SwigWrap::GetNym_OutpaymentsNotaryIDByIndex(mynym, i);
         if ("" == server) {
             otOut << "Error: cannot load server for payment " << i << ".\n";
             retVal = -1;
@@ -179,7 +179,7 @@ int32_t CmdCancel::run(string mynym, string myacct, string indices)
         // drawn on, that will be interpreted by the server as a request to
         // CANCEL the cheque.
 
-        string type = OTAPI_Wrap::Instrmnt_GetType(payment);
+        string type = SwigWrap::Instrmnt_GetType(payment);
 
         if ("SMARTCONTRACT" == type) {
             // Just take the smart contract from the outpayment box, and try to
@@ -198,7 +198,7 @@ int32_t CmdCancel::run(string mynym, string myacct, string indices)
             // So while we expect this 'activation' to fail, it should have the
             // desired effect of cancelling the smart contract and sending
             // failure notices to all the parties.
-             
+
             string response = OT_ME::It().activate_smart_contract(
                 server, mynym, myacct, "acct_agent_name", payment);
             if ("" == response) {
@@ -209,7 +209,7 @@ int32_t CmdCancel::run(string mynym, string myacct, string indices)
 
             otOut << "Server reply: \n" << response << "\n";
 
-            if (1 != OTAPI_Wrap::Message_IsTransactionCanceled(
+            if (1 != SwigWrap::Message_IsTransactionCanceled(
                          server, mynym, myacct, response)) {
                 otOut << "Error: cancel smart contract failed.\n";
                 retVal = -1;
@@ -226,7 +226,7 @@ int32_t CmdCancel::run(string mynym, string myacct, string indices)
             // propagated to the other party to the contract. (Which will result
             // in its automatic removal from the outpayment box.)
 
-             
+
             string response = OT_ME::It().cancel_payment_plan(server, mynym, payment);
             if ("" == response) {
                 otOut << "Error: cannot cancel payment plan.\n";
@@ -236,7 +236,7 @@ int32_t CmdCancel::run(string mynym, string myacct, string indices)
 
             otOut << "Server reply: \n" << response << "\n";
 
-            if (1 != OTAPI_Wrap::Message_IsTransactionCanceled(
+            if (1 != SwigWrap::Message_IsTransactionCanceled(
                          server, mynym, myacct, response)) {
                 otOut << "Error: cancel payment plan failed.\n";
                 retVal = -1;
@@ -262,7 +262,7 @@ int32_t CmdCancel::run(string mynym, string myacct, string indices)
             // consequences of that choice.
 
             // removes payment instrument (from payments in or out box)
-            if (!OTAPI_Wrap::RecordPayment(server, mynym, false, i, false)) {
+            if (!SwigWrap::RecordPayment(server, mynym, false, i, false)) {
                 otOut << "Error: cannot cancel cash purse.\n";
                 retVal = -1;
                 continue;
@@ -278,8 +278,8 @@ int32_t CmdCancel::run(string mynym, string myacct, string indices)
 
         // Get the nym and account IDs from the cheque itself.
         string acctID = isVoucher
-                            ? OTAPI_Wrap::Instrmnt_GetRemitterAcctID(payment)
-                            : OTAPI_Wrap::Instrmnt_GetSenderAcctID(payment);
+                            ? SwigWrap::Instrmnt_GetRemitterAcctID(payment)
+                            : SwigWrap::Instrmnt_GetSenderAcctID(payment);
         if ("" == acctID) {
             otOut << "Error: cannot retrieve asset account ID.\n";
             retVal = -1;
@@ -287,8 +287,8 @@ int32_t CmdCancel::run(string mynym, string myacct, string indices)
         }
 
         string nymID = isVoucher
-                           ? OTAPI_Wrap::Instrmnt_GetRemitterNymID(payment)
-                           : OTAPI_Wrap::Instrmnt_GetSenderNymID(payment);
+                           ? SwigWrap::Instrmnt_GetRemitterNymID(payment)
+                           : SwigWrap::Instrmnt_GetSenderNymID(payment);
         if ("" == nymID) {
             otOut << "Error: cannot retrieve sender nym.\n";
             retVal = -1;

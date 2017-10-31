@@ -40,7 +40,7 @@
 
 #include <opentxs/core/Version.hpp>
 
-#include <opentxs/client/OTAPI_Wrap.hpp>
+#include <opentxs/client/SwigWrap.hpp>
 #include <opentxs/core/Log.hpp>
 
 #include <string>
@@ -69,7 +69,7 @@ std::int32_t CmdImportPublicNym::run()
         return -1;
     }
 
-    const auto nymID = OTAPI_Wrap::Import_Nym(input);
+    const auto nymID = SwigWrap::Import_Nym(input);
 
     if (nymID.empty()) {
         otOut << "Error: cannot import Nym.\n";

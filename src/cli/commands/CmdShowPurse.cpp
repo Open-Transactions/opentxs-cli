@@ -41,7 +41,7 @@
 #include "CmdBase.hpp"
 
 #include <opentxs/core/Version.hpp>
-#include <opentxs/client/OTAPI_Wrap.hpp>
+#include <opentxs/client/SwigWrap.hpp>
 #include <opentxs/core/Log.hpp>
 #include <opentxs/core/util/Common.hpp>
 
@@ -85,17 +85,17 @@ int32_t CmdShowPurse::run(string server, string mynym, string mypurse)
         return -1;
     }
 
-    string purse = OTAPI_Wrap::LoadPurse(server, mypurse, mynym);
+    string purse = SwigWrap::LoadPurse(server, mypurse, mynym);
     if ("" == purse) {
         otOut << "Error: cannt load purse.\n";
         return -1;
     }
 
-    int64_t amount = OTAPI_Wrap::Purse_GetTotalValue(server, mypurse, purse);
-    cout << "Total value: " << OTAPI_Wrap::FormatAmount(mypurse, amount)
+    int64_t amount = SwigWrap::Purse_GetTotalValue(server, mypurse, purse);
+    cout << "Total value: " << SwigWrap::FormatAmount(mypurse, amount)
          << "\n";
 
-    int32_t items = OTAPI_Wrap::Purse_Count(server, mypurse, purse);
+    int32_t items = SwigWrap::Purse_Count(server, mypurse, purse);
     if (0 > items) {
         otOut << "Error: cannot load purse item count.\n";
         return -1;
@@ -106,7 +106,7 @@ int32_t CmdShowPurse::run(string server, string mynym, string mypurse)
         return 0;
     }
 
-    time64_t now = OTAPI_Wrap::GetTime();
+    time64_t now = SwigWrap::GetTime();
     if (OT_TIME_ZERO > now) {
         otOut << "Error: cannot get current time.\n";
         return -1;
@@ -116,38 +116,38 @@ int32_t CmdShowPurse::run(string server, string mynym, string mypurse)
     cout << "Index\tValue\tSeries\tValidFrom\tValidTo\t\tStatus\n";
 
     for (int32_t i = 0; i < items; i++) {
-        string token = OTAPI_Wrap::Purse_Peek(server, mypurse, mynym, purse);
+        string token = SwigWrap::Purse_Peek(server, mypurse, mynym, purse);
         if ("" == token) {
             otOut << "Error: cannot load token " << i << ".\n";
             return -1;
         }
 
-        purse = OTAPI_Wrap::Purse_Pop(server, mypurse, mynym, purse);
+        purse = SwigWrap::Purse_Pop(server, mypurse, mynym, purse);
         if ("" == purse) {
             otOut << "Error: cannot load updated purse.\n";
             return -1;
         }
 
         int64_t denomination =
-            OTAPI_Wrap::Token_GetDenomination(server, mypurse, token);
+            SwigWrap::Token_GetDenomination(server, mypurse, token);
         if (0 > denomination) {
             otOut << "Error: cannot load denomination.\n";
             return -1;
         }
 
-        int32_t series = OTAPI_Wrap::Token_GetSeries(server, mypurse, token);
+        int32_t series = SwigWrap::Token_GetSeries(server, mypurse, token);
         if (0 > series) {
             otOut << "Error: cannot load series.\n";
             return -1;
         }
 
-        time64_t from = OTAPI_Wrap::Token_GetValidFrom(server, mypurse, token);
+        time64_t from = SwigWrap::Token_GetValidFrom(server, mypurse, token);
         if (OT_TIME_ZERO > from) {
             otOut << "Error: cannot load validFrom.\n";
             return -1;
         }
 
-        time64_t until = OTAPI_Wrap::Token_GetValidTo(server, mypurse, token);
+        time64_t until = SwigWrap::Token_GetValidTo(server, mypurse, token);
         if (OT_TIME_ZERO > until) {
             otOut << "Error: cannot load validTo.\n";
             return -1;

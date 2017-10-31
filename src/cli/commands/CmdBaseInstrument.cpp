@@ -41,9 +41,9 @@
 #include <opentxs/core/Version.hpp>
 #include <opentxs/api/Api.hpp>
 #include <opentxs/api/OT.hpp>
-#include <opentxs/client/OTAPI_Wrap.hpp>
-#include <opentxs/client/OT_ME.hpp>
 #include <opentxs/client/MadeEasy.hpp>
+#include <opentxs/client/OT_ME.hpp>
+#include <opentxs/client/SwigWrap.hpp>
 #include <opentxs/core/util/Common.hpp>
 #include <opentxs/core/Log.hpp>
 
@@ -73,7 +73,7 @@ int32_t CmdBaseInstrument::getTokens(vector<string>& tokens,
         return 1;
     }
 
-    int32_t items = OTAPI_Wrap::Purse_Count(server, assetType, purse);
+    int32_t items = SwigWrap::Purse_Count(server, assetType, purse);
     if (0 > items) {
         otOut << "Error: cannot load purse item count.\n";
         return -1;
@@ -86,25 +86,25 @@ int32_t CmdBaseInstrument::getTokens(vector<string>& tokens,
 
     bool all = "all" == indices;
     for (int32_t i = 0; i < items; i++) {
-        string token = OTAPI_Wrap::Purse_Peek(server, assetType, mynym, purse);
+        string token = SwigWrap::Purse_Peek(server, assetType, mynym, purse);
         if ("" == token) {
             otOut << "Error:cannot load token from purse.\n";
             return -1;
         }
 
-        purse = OTAPI_Wrap::Purse_Pop(server, assetType, mynym, purse);
+        purse = SwigWrap::Purse_Pop(server, assetType, mynym, purse);
         if ("" == purse) {
             otOut << "Error: cannot load updated purse.\n";
             return -1;
         }
 
-        string tokenID = OTAPI_Wrap::Token_GetID(server, assetType, token);
+        string tokenID = SwigWrap::Token_GetID(server, assetType, token);
         if ("" == tokenID) {
             otOut << "Error: cannot get token ID.\n";
             return -1;
         }
 
-        if (!all && OTAPI_Wrap::NumList_VerifyQuery(indices, to_string(i))) {
+        if (!all && SwigWrap::NumList_VerifyQuery(indices, to_string(i))) {
             tokens.push_back(tokenID);
         }
     }
@@ -115,21 +115,21 @@ int32_t CmdBaseInstrument::getTokens(vector<string>& tokens,
 int32_t CmdBaseInstrument::sendPayment(const string& cheque, string sender,
                                        const char* what) const
 {
-    string server = OTAPI_Wrap::Instrmnt_GetNotaryID(cheque);
+    string server = SwigWrap::Instrmnt_GetNotaryID(cheque);
     if ("" == server) {
         otOut << "Error: cannot get server.\n";
         return -1;
     }
 
     if ("" == sender) {
-        sender = OTAPI_Wrap::Instrmnt_GetSenderNymID(cheque);
+        sender = SwigWrap::Instrmnt_GetSenderNymID(cheque);
         if ("" == sender) {
             otOut << "Error: cannot get sender.\n";
             return -1;
         }
     }
 
-    string recipient = OTAPI_Wrap::Instrmnt_GetRecipientNymID(cheque);
+    string recipient = SwigWrap::Instrmnt_GetRecipientNymID(cheque);
     if ("" == recipient) {
         otOut << "Error: cannot get recipient.\n";
         return -1;
@@ -162,13 +162,13 @@ string CmdBaseInstrument::writeCheque(string myacct, string hisnym,
         return "";
     }
 
-    string server = OTAPI_Wrap::GetAccountWallet_NotaryID(myacct);
+    string server = SwigWrap::GetAccountWallet_NotaryID(myacct);
     if ("" == server) {
         otOut << "Error: cannot determine server from myacct.\n";
         return "";
     }
 
-    string mynym = OTAPI_Wrap::GetAccountWallet_NymID(myacct);
+    string mynym = SwigWrap::GetAccountWallet_NymID(myacct);
     if ("" == mynym) {
         otOut << "Error: cannot determine mynym from myacct.\n";
         return "";
@@ -191,11 +191,11 @@ string CmdBaseInstrument::writeCheque(string myacct, string hisnym,
 
     int64_t oneMonth = OTTimeGetSecondsFromTime(OT_TIME_MONTH_IN_SECONDS);
     int64_t timeSpan = "" != validfor ? stoll(validfor) : oneMonth;
-    time64_t from = OTAPI_Wrap::GetTime();
+    time64_t from = SwigWrap::GetTime();
     time64_t until = OTTimeAddTimeInterval(from, timeSpan);
 
     string cheque =
-        OTAPI_Wrap::WriteCheque(server, isInvoice ? -value : value, from, until,
+        SwigWrap::WriteCheque(server, isInvoice ? -value : value, from, until,
                                 myacct, mynym, memo, hisnym);
     if ("" == cheque) {
         otOut << "Error: cannot write cheque.\n";
@@ -203,7 +203,7 @@ string CmdBaseInstrument::writeCheque(string myacct, string hisnym,
     }
 
     // Record it in the records?
-    // Update: We wouldn't record that here. Instead, OTAPI_Wrap::WriteCheque
+    // Update: We wouldn't record that here. Instead, SwigWrap::WriteCheque
     // should drop a notice into the payments outbox, the same as it does when
     // you "sendcheque" (after all, the same resolution would be expected once
     // it is cashed.)

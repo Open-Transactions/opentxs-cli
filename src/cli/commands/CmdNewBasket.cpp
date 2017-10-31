@@ -44,8 +44,8 @@
 #include <opentxs/core/Version.hpp>
 #include <opentxs/api/Api.hpp>
 #include <opentxs/api/OT.hpp>
-#include <opentxs/client/OTAPI_Wrap.hpp>
 #include <opentxs/client/MadeEasy.hpp>
+#include <opentxs/client/SwigWrap.hpp>
 #include <opentxs/core/Log.hpp>
 
 #include <stdint.h>
@@ -129,7 +129,7 @@ int32_t CmdNewBasket::run(
         return -1;
     }
 
-    string basket = OTAPI_Wrap::GenerateBasketCreation(
+    string basket = SwigWrap::GenerateBasketCreation(
         server,
         shortname,
         name,
@@ -160,7 +160,7 @@ int32_t CmdNewBasket::run(
             return -1;
         }
 
-        string assetContract = OTAPI_Wrap::GetAssetType_Contract(assetType);
+        string assetContract = SwigWrap::GetAssetType_Contract(assetType);
         if ("" == assetContract) {
             otOut << "Error: invalid instrument definition." << std::endl;
             i--;
@@ -172,7 +172,7 @@ int32_t CmdNewBasket::run(
         minTransfer = 100;
         string minAmount = inputLine();
         if ("" != minAmount) {
-            minTransfer = OTAPI_Wrap::StringToAmount(assetType, minAmount);
+            minTransfer = SwigWrap::StringToAmount(assetType, minAmount);
             if (1 > minTransfer) {
                 otOut << "Error: invalid minimum transfer amount." << std::endl;
                 i--;
@@ -181,7 +181,7 @@ int32_t CmdNewBasket::run(
         }
 
         basket =
-            OTAPI_Wrap::AddBasketCreationItem(basket, assetType, minTransfer);
+            SwigWrap::AddBasketCreationItem(basket, assetType, minTransfer);
 
         if ("" == basket) {
             otOut << "Error: cannot create basket item.\n";
@@ -199,7 +199,7 @@ int32_t CmdNewBasket::run(
         cout << response << "\n";
 
         string strNewID =
-            OTAPI_Wrap::Message_GetNewInstrumentDefinitionID(response);
+            SwigWrap::Message_GetNewInstrumentDefinitionID(response);
         bool bGotNewID = "" != strNewID;
         bool bRetrieved = false;
         string strEnding = ".";

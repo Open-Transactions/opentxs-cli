@@ -41,7 +41,7 @@
 #include "CmdBase.hpp"
 
 #include <opentxs/core/Version.hpp>
-#include <opentxs/client/OTAPI_Wrap.hpp>
+#include <opentxs/client/SwigWrap.hpp>
 #include <opentxs/core/Log.hpp>
 
 #include <stdint.h>
@@ -69,7 +69,7 @@ int32_t CmdShowServers::runWithOptions()
 
 int32_t CmdShowServers::run()
 {
-    int32_t items = OTAPI_Wrap::GetServerCount();
+    int32_t items = SwigWrap::GetServerCount();
     if (0 > items) {
         otOut << "Error: cannot load server list item count.\n";
         return -1;
@@ -84,8 +84,8 @@ int32_t CmdShowServers::run()
     dashLine();
 
     for (int32_t i = 0; i < items; i++) {
-        string server = OTAPI_Wrap::GetServer_ID(i);
-        string name = OTAPI_Wrap::GetServer_Name(server);
+        string server = SwigWrap::GetServer_ID(i);
+        string name = SwigWrap::GetServer_Name(server);
         cout << i << ": " << server << "  -  " << name << "\n";
     }
 

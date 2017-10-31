@@ -41,7 +41,7 @@
 #include "CmdBase.hpp"
 
 #include <opentxs/core/Version.hpp>
-#include <opentxs/client/OTAPI_Wrap.hpp>
+#include <opentxs/client/SwigWrap.hpp>
 
 
 #include <stdint.h>
@@ -68,7 +68,7 @@ int32_t CmdShowPhrase::runWithOptions()
 
 int32_t CmdShowPhrase::run()
 {
-    const std::string words = OTAPI_Wrap::Wallet_GetPassphrase();
+    const std::string words = SwigWrap::Wallet_GetPassphrase();
     const bool empty = 1 > words.size();
     std::cout << words << std::endl;
 

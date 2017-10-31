@@ -41,7 +41,7 @@
 #include "CmdBase.hpp"
 
 #include <opentxs/core/Version.hpp>
-#include <opentxs/client/OTAPI_Wrap.hpp>
+#include <opentxs/client/SwigWrap.hpp>
 #include <opentxs/core/Log.hpp>
 
 #include <stdint.h>
@@ -83,13 +83,13 @@ int32_t CmdSignContract::run(string mynym, string type)
         return -1;
     }
 
-    string output = OTAPI_Wrap::SignContract(mynym, contract);
+    string output = SwigWrap::SignContract(mynym, contract);
     if ("" == output) {
         if (!checkMandatory("type", type)) {
             return -1;
         }
 
-        output = OTAPI_Wrap::FlatSign(mynym, contract, type);
+        output = SwigWrap::FlatSign(mynym, contract, type);
         if ("" == output) {
             otOut << "Error: cannot sign contract.\n";
             return -1;

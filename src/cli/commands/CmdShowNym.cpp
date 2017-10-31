@@ -42,7 +42,7 @@
 
 #include <opentxs/api/OT.hpp>
 #include <opentxs/api/Wallet.hpp>
-#include <opentxs/client/OTAPI_Wrap.hpp>
+#include <opentxs/client/SwigWrap.hpp>
 #include <opentxs/core/Identifier.hpp>
 #include <opentxs/core/Proto.hpp>
 
@@ -69,13 +69,13 @@ std::int32_t CmdShowNym::run(std::string mynym)
         return -1;
     }
 
-    std::string nymStats = OTAPI_Wrap::GetNym_Stats(mynym);
+    std::string nymStats = SwigWrap::GetNym_Stats(mynym);
 
     if ("" == nymStats) {
         nymStats = "This nym is not located in the local wallet.";
     }
 
-    std::string claims = OTAPI_Wrap::DumpContactData(mynym);
+    std::string claims = SwigWrap::DumpContactData(mynym);
     std::cout << nymStats << std::endl << claims;
     auto nym = OT::App().Contract().Nym(Identifier(mynym));
 

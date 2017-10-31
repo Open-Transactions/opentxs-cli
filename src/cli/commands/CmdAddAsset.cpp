@@ -41,7 +41,7 @@
 #include "CmdBase.hpp"
 
 #include <opentxs/core/Version.hpp>
-#include <opentxs/client/OTAPI_Wrap.hpp>
+#include <opentxs/client/SwigWrap.hpp>
 #include <opentxs/core/Log.hpp>
 
 #include <stdint.h>
@@ -74,7 +74,7 @@ int32_t CmdAddAsset::run()
         return -1;
     }
 
-    if (OTAPI_Wrap::AddUnitDefinition(contract).empty()) {
+    if (SwigWrap::AddUnitDefinition(contract).empty()) {
         otOut << "Error: cannot add asset contract.\n";
         return -1;
     }

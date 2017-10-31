@@ -41,7 +41,7 @@
 #include "CmdBase.hpp"
 
 #include <opentxs/core/Version.hpp>
-#include <opentxs/client/OTAPI_Wrap.hpp>
+#include <opentxs/client/SwigWrap.hpp>
 #include <opentxs/core/Log.hpp>
 
 #include <stdint.h>
@@ -79,7 +79,7 @@ int32_t CmdPasswordEncrypt::run()
         return -1;
     }
 
-    string encrypted = OTAPI_Wrap::SymmetricEncrypt(key, input);
+    string encrypted = SwigWrap::SymmetricEncrypt(key, input);
     if ("" == encrypted) {
         otOut << "Error: cannot encrypt plaintext.\n";
         return -1;

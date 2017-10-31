@@ -41,7 +41,7 @@
 #include "CmdBase.hpp"
 
 #include <opentxs/core/Version.hpp>
-#include <opentxs/client/OTAPI_Wrap.hpp>
+#include <opentxs/client/SwigWrap.hpp>
 #include <opentxs/core/Log.hpp>
 
 #include <stdint.h>
@@ -79,7 +79,7 @@ int32_t CmdClearExpired::run(string server, string mynym)
         return -1;
     }
 
-    if (!OTAPI_Wrap::ClearExpired(server, mynym, 0, true)) {
+    if (!SwigWrap::ClearExpired(server, mynym, 0, true)) {
         otOut << "Error: cannot clear expired records.\n";
         return -1;
     }

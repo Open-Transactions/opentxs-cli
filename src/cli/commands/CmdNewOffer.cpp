@@ -41,7 +41,7 @@
 #include "CmdBase.hpp"
 
 #include <opentxs/core/Version.hpp>
-#include <opentxs/client/OTAPI_Wrap.hpp>
+#include <opentxs/client/SwigWrap.hpp>
 
 
 #include <opentxs/core/Version.hpp>
@@ -121,25 +121,25 @@ int32_t CmdNewOffer::run(string myacct, string hisacct, string type,
         return -1;
     }
 
-    string server = OTAPI_Wrap::GetAccountWallet_NotaryID(myacct);
+    string server = SwigWrap::GetAccountWallet_NotaryID(myacct);
     if ("" == server) {
         otOut << "Error: cannot determine server from myacct.\n";
         return -1;
     }
 
-    string mynym = OTAPI_Wrap::GetAccountWallet_NymID(myacct);
+    string mynym = SwigWrap::GetAccountWallet_NymID(myacct);
     if ("" == mynym) {
         otOut << "Error: cannot determine mynym from myacct.\n";
         return -1;
     }
 
-    string hisserver = OTAPI_Wrap::GetAccountWallet_NotaryID(hisacct);
+    string hisserver = SwigWrap::GetAccountWallet_NotaryID(hisacct);
     if ("" == hisserver) {
         otOut << "Error: cannot determine server from myacct.\n";
         return -1;
     }
 
-    string hisnym = OTAPI_Wrap::GetAccountWallet_NymID(hisacct);
+    string hisnym = SwigWrap::GetAccountWallet_NymID(hisacct);
     if ("" == hisnym) {
         otOut << "Error: cannot determine hisnym from hisacct.\n";
         return -1;

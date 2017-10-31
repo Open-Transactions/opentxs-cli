@@ -43,9 +43,9 @@
 #include <opentxs/core/Version.hpp>
 #include <opentxs/api/Api.hpp>
 #include <opentxs/api/OT.hpp>
-#include <opentxs/client/OTAPI_Wrap.hpp>
-#include <opentxs/client/OT_ME.hpp>
 #include <opentxs/client/MadeEasy.hpp>
+#include <opentxs/client/OT_ME.hpp>
+#include <opentxs/client/SwigWrap.hpp>
 #include <opentxs/core/util/Common.hpp>
 #include <opentxs/core/Log.hpp>
 
@@ -91,13 +91,13 @@ int32_t CmdWithdrawCash::run(string myacct, string amount)
 int32_t CmdWithdrawCash::withdrawCash(const string& myacct,
                                       int64_t amount) const
 {
-    string server = OTAPI_Wrap::GetAccountWallet_NotaryID(myacct);
+    string server = SwigWrap::GetAccountWallet_NotaryID(myacct);
     if ("" == server) {
         otOut << "Error: cannot determine server from myacct.\n";
         return -1;
     }
 
-    string mynym = OTAPI_Wrap::GetAccountWallet_NymID(myacct);
+    string mynym = SwigWrap::GetAccountWallet_NymID(myacct);
     if ("" == mynym) {
         otOut << "Error: cannot determine mynym from myacct.\n";
         return -1;
@@ -108,7 +108,7 @@ int32_t CmdWithdrawCash::withdrawCash(const string& myacct,
         return -1;
     }
 
-    string assetContract = OTAPI_Wrap::GetAssetType_Contract(assetType);
+    string assetContract = SwigWrap::GetAssetType_Contract(assetType);
     if ("" == assetContract) {
         string response = OT::App().API().ME().retrieve_contract(server, mynym, assetType);
         if (1 != responseStatus(response)) {
@@ -116,7 +116,7 @@ int32_t CmdWithdrawCash::withdrawCash(const string& myacct,
             return -1;
         }
 
-        assetContract = OTAPI_Wrap::GetAssetType_Contract(assetType);
+        assetContract = SwigWrap::GetAssetType_Contract(assetType);
         if ("" == assetContract) {
             otOut << "Error: cannot load asset contract.\n";
             return -1;

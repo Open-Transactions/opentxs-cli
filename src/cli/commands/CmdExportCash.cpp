@@ -44,7 +44,7 @@
 #include <opentxs/api/Api.hpp>
 #include <opentxs/api/OT.hpp>
 #include <opentxs/client/MadeEasy.hpp>
-#include <opentxs/client/OTAPI_Wrap.hpp>
+#include <opentxs/client/SwigWrap.hpp>
 #include <opentxs/core/Log.hpp>
 
 #include <stdint.h>
@@ -174,7 +174,7 @@ string CmdExportCash::exportCash(const string& server, const string& mynym,
         return "";
     }
 
-    string instrument = OTAPI_Wrap::LoadPurse(server, assetType, mynym);
+    string instrument = SwigWrap::LoadPurse(server, assetType, mynym);
     if ("" == instrument) {
         otOut << "Error: cannot load purse.\n";
         return "";

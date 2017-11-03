@@ -189,6 +189,8 @@
 
 #include <anyoption/anyoption.hpp>
 #include <opentxs/core/Version.hpp>
+#include <opentxs/api/Api.hpp>
+#include <opentxs/api/OT.hpp>
 #include <opentxs/client/OT_API.hpp>
 #include <opentxs/client/SwigWrap.hpp>
 #include <opentxs/core/crypto/OTAsymmetricKey.hpp>
@@ -494,9 +496,7 @@ int Opentxs::processCommand(AnyOption& opt)
 
 int Opentxs::run(int argc, char* argv[])
 {
-    if (SwigWrap::OTAPI() == nullptr) return -1;
-
-    SwigWrap::OTAPI()->LoadWallet();
+    OT::App().API().OTAPI().LoadWallet();
 
     map<string, string> macros;
     vector<int> errorLineNumbers;

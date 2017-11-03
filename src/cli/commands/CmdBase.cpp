@@ -39,6 +39,7 @@
 #include "CmdBase.hpp"
 
 #include <opentxs/core/Version.hpp>
+#include <opentxs/api/Api.hpp>
 #include <opentxs/api/OT.hpp>
 #include <opentxs/api/Wallet.hpp>
 #include <opentxs/client/OT_API.hpp>
@@ -234,10 +235,10 @@ bool CmdBase::checkNym(const char* name, string& nym, bool checkExistance) const
     const Nym* pNym = nullptr;
     const Identifier nymID(nym);
 
-    if (!nymID.empty()) pNym = SwigWrap::OTAPI()->GetOrLoadNym(nymID);
+    if (!nymID.empty()) pNym = OT::App().API().OTAPI().GetOrLoadNym(nymID);
 
     if (nullptr == pNym)
-        pNym = SwigWrap::OTAPI()->GetNymByIDPartialMatch(nym);
+        pNym = OT::App().API().OTAPI().GetNymByIDPartialMatch(nym);
 
     if (nullptr != pNym) {
         String tmp;
@@ -489,7 +490,7 @@ string CmdBase::getUsage() const
 
 OTWallet* CmdBase::getWallet() const
 {
-    OTWallet* wallet = SwigWrap::OTAPI()->GetWallet();
+    OTWallet* wallet = OT::App().API().OTAPI().GetWallet();
     OT_ASSERT_MSG(wallet != nullptr, "Cannot load wallet->\n");
     return wallet;
 }

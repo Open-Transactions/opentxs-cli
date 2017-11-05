@@ -41,7 +41,6 @@
 #include "CmdBase.hpp"
 #include "CmdWithdrawVoucher.hpp"
 
-#include <opentxs/core/Version.hpp>
 #include <opentxs/client/SwigWrap.hpp>
 #include <opentxs/core/util/Common.hpp>
 #include <opentxs/core/Log.hpp>

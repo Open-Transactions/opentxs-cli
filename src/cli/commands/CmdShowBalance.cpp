@@ -40,7 +40,6 @@
 
 #include "CmdBase.hpp"
 
-#include <opentxs/core/Version.hpp>
 #include <opentxs/client/SwigWrap.hpp>
 #include <opentxs/core/Log.hpp>
 #include <opentxs/core/util/Common.hpp>

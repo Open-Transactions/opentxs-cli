@@ -38,13 +38,12 @@
 
 #include "CmdShowNym.hpp"
 
-#include <opentxs/core/Version.hpp>
 
 #include <opentxs/api/OT.hpp>
 #include <opentxs/api/Wallet.hpp>
 #include <opentxs/client/SwigWrap.hpp>
 #include <opentxs/core/Identifier.hpp>
-#include <opentxs/core/Proto.hpp>
+#include <opentxs/Proto.hpp>
 
 #include <iostream>
 

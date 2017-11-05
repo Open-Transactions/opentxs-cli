@@ -38,7 +38,6 @@
 
 #include "CmdRefreshAll.hpp"
 
-#include <opentxs/core/Version.hpp>
 #include <opentxs/client/SwigWrap.hpp>
 
 namespace opentxs {

@@ -38,7 +38,6 @@
 
 #include "CmdShowContact.hpp"
 
-#include <opentxs/core/Version.hpp>
 
 #include <opentxs/api/ContactManager.hpp>
 #include <opentxs/api/OT.hpp>

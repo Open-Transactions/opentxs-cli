@@ -76,7 +76,7 @@ std::int32_t CmdShowThread::run(
 
     auto& ot = OT::App();
     auto& storage = ot.DB();
-    auto& wallet = ot.Contract();
+    auto& wallet = ot.Wallet();
     std::shared_ptr<proto::StorageThread> thread;
     storage.Load(mynym, threadID, thread);
 

@@ -77,7 +77,7 @@ std::int32_t CmdShowNym::run(std::string mynym)
 
     std::string claims = SwigWrap::DumpContactData(mynym);
     std::cout << nymStats << std::endl << claims;
-    auto nym = OT::App().Contract().Nym(Identifier(mynym));
+    auto nym = OT::App().Wallet().Nym(Identifier(mynym));
 
     if (nym) {
         const auto armored =

@@ -38,14 +38,13 @@
 
 #include "CmdAllocateBitcoinAddress.hpp"
 
-#include <opentxs/core/Version.hpp>
 
 #include <opentxs/api/Blockchain.hpp>
 #include <opentxs/api/OT.hpp>
 #include <opentxs/core/Identifier.hpp>
 #include <opentxs/core/Log.hpp>
-#include <opentxs/core/Proto.hpp>
 #include <opentxs/core/String.hpp>
+#include <opentxs/Proto.hpp>
 
 #define OT_METHOD "opentxs::CmdAllocateBitcoinAddress::"
 

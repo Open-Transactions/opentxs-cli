@@ -38,7 +38,6 @@
 
 #include "CmdPreloadActivity.hpp"
 
-#include <opentxs/core/Version.hpp>
 #include <opentxs/api/Activity.hpp>
 #include <opentxs/api/OT.hpp>
 #include <opentxs/core/Identifier.hpp>

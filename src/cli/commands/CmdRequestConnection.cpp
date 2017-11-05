@@ -38,7 +38,6 @@
 
 #include "CmdRequestConnection.hpp"
 
-#include <opentxs/core/Version.hpp>
 #include <opentxs/client/OT_ME.hpp>
 
 #include <stdexcept>

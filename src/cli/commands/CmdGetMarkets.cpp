@@ -41,7 +41,6 @@
 #include "CmdBase.hpp"
 #include "CmdShowMarkets.hpp"
 
-#include <opentxs/core/Version.hpp>
 #include <opentxs/client/OT_ME.hpp>
 #include <opentxs/core/Log.hpp>
 

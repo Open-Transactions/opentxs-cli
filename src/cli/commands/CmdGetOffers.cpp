@@ -41,7 +41,6 @@
 #include "CmdBase.hpp"
 #include "CmdShowOffers.hpp"
 
-#include <opentxs/core/Version.hpp>
 #include <opentxs/client/OT_ME.hpp>
 
 #include <stdint.h>

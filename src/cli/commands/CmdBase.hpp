@@ -133,7 +133,6 @@
 #ifndef OPENTXS_CLIENT_CMDBASE_HPP
 #define OPENTXS_CLIENT_CMDBASE_HPP
 
-#include <opentxs/core/Version.hpp>
 #ifdef ANDROID
 #include <opentxs/core/util/android_string.hpp>
 #endif // ANDROID

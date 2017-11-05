@@ -38,7 +38,6 @@
 
 #include "CmdAcknowledgeBailment.hpp"
 
-#include <opentxs/core/Version.hpp>
 #include <opentxs/client/OT_ME.hpp>
 
 namespace opentxs {

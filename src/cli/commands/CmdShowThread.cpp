@@ -38,7 +38,6 @@
 
 #include "CmdShowThread.hpp"
 
-#include <opentxs/core/Version.hpp>
 #include <opentxs/client/OT_API.hpp>
 #include <opentxs/api/Api.hpp>
 #include <opentxs/api/OT.hpp>
@@ -47,8 +46,8 @@
 #include <opentxs/core/Log.hpp>
 #include <opentxs/core/Message.hpp>
 #include <opentxs/core/String.hpp>
-#include <opentxs/core/Types.hpp>
 #include <opentxs/storage/Storage.hpp>
+#include <opentxs/Types.hpp>
 
 namespace opentxs
 {
@@ -76,7 +75,7 @@ std::int32_t CmdShowThread::run(
 
     auto& ot = OT::App();
     auto& storage = ot.DB();
-    auto& wallet = ot.Contract();
+    auto& wallet = ot.Wallet();
     std::shared_ptr<proto::StorageThread> thread;
     storage.Load(mynym, threadID, thread);
 

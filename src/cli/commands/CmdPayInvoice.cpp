@@ -42,7 +42,6 @@
 #include "CmdConfirm.hpp"
 #include "CmdDeposit.hpp"
 
-#include <opentxs/core/Version.hpp>
 #include <opentxs/client/OT_ME.hpp>
 #include <opentxs/client/SwigWrap.hpp>
 #include <opentxs/core/util/Common.hpp>

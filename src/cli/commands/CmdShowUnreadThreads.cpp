@@ -39,6 +39,7 @@
 #include "CmdShowUnreadThreads.hpp"
 
 #include <opentxs/api/Activity.hpp>
+#include <opentxs/api/Native.hpp>
 #include <opentxs/api/OT.hpp>
 #include <opentxs/core/Identifier.hpp>
 #include <opentxs/core/Log.hpp>

@@ -41,6 +41,7 @@
 #include "CmdBase.hpp"
 #include "CmdShowNyms.hpp"
 
+#include <opentxs/api/Native.hpp>
 #include <opentxs/api/OT.hpp>
 #include <opentxs/api/Api.hpp>
 #include <opentxs/client/MadeEasy.hpp>

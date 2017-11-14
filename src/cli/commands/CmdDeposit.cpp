@@ -40,6 +40,7 @@
 
 #include "CmdBase.hpp"
 
+#include <opentxs/api/Native.hpp>
 #include <opentxs/api/OT.hpp>
 #include <opentxs/api/Api.hpp>
 #include <opentxs/client/MadeEasy.hpp>
@@ -182,7 +183,7 @@ int32_t CmdDeposit::depositCheque(const string& server, const string& myacct,
     }
 
 
-    string response = OT_ME::It().deposit_cheque(server, mynym, myacct, instrument);
+    string response = OT::App().API().OTME().deposit_cheque(server, mynym, myacct, instrument);
     int32_t reply =
         responseReply(response, server, mynym, myacct, "deposit_cheque");
     if (1 != reply) {

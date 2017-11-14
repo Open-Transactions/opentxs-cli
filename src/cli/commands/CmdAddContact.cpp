@@ -42,6 +42,7 @@
 
 #include <opentxs/api/Api.hpp>
 #include <opentxs/api/ContactManager.hpp>
+#include <opentxs/api/Native.hpp>
 #include <opentxs/api/OT.hpp>
 #include <opentxs/core/crypto/OTPassword.hpp>
 #include <opentxs/core/crypto/PaymentCode.hpp>

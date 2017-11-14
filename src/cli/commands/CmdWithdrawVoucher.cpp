@@ -41,6 +41,7 @@
 #include "CmdBase.hpp"
 
 #include <opentxs/api/Api.hpp>
+#include <opentxs/api/Native.hpp>
 #include <opentxs/api/OT.hpp>
 #include <opentxs/client/MadeEasy.hpp>
 #include <opentxs/client/OT_ME.hpp>
@@ -126,7 +127,7 @@ int32_t CmdWithdrawVoucher::run(string myacct, string hisnym, string amount,
 
 
     string response =
-        OT_ME::It().withdraw_voucher(server, mynym, myacct, hisnym, memo, value);
+        OT::App().API().OTME().withdraw_voucher(server, mynym, myacct, hisnym, memo, value);
     int32_t reply =
         responseReply(response, server, mynym, myacct, "withdraw_voucher");
     if (1 != reply) {
@@ -160,7 +161,7 @@ int32_t CmdWithdrawVoucher::run(string myacct, string hisnym, string amount,
     // Notice how I can send an instrument to myself. This doesn't actually
     // send anything -- it just puts a copy into my outpayments box for
     // safe-keeping.
-    OT_ME::It().send_user_payment(server, mynym, mynym, voucher);
+    OT::App().API().OTME().send_user_payment(server, mynym, mynym, voucher);
 
     if (!OT::App().API().ME().retrieve_account(server, mynym, myacct, true)) {
         otOut << "Error retrieving intermediary files for account.\n";

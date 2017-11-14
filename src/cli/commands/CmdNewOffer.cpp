@@ -43,6 +43,9 @@
 #include <opentxs/client/SwigWrap.hpp>
 
 
+#include <opentxs/api/Api.hpp>
+#include <opentxs/api/Native.hpp>
+#include <opentxs/api/OT.hpp>
 #include <opentxs/client/OT_ME.hpp>
 #include <opentxs/client/OTAPI_Func.hpp>
 #include <opentxs/core/Log.hpp>
@@ -153,12 +156,12 @@ int32_t CmdNewOffer::run(string myacct, string hisacct, string type,
         return -1;
     }
 
-     
+
 
     // NOTE: Removing this for now. It was a special feature for
     // knotwork and currently it's causing me some problems.
     //
-//    OT_ME::It().get_nym_market_offers(server, mynym);
+//    OT::App().API().OTME().get_nym_market_offers(server, mynym);
 //
 //    if (0 > cleanMarketOfferList(server, mynym, myacct, hisacct, type, scale,
 //                                 price)) {
@@ -173,7 +176,7 @@ int32_t CmdNewOffer::run(string myacct, string hisacct, string type,
     sscanf(quantity.c_str(), "%" SCNd64, &q);
     sscanf(price.c_str(), "%" SCNd64, &p);
     sscanf(lifespan.c_str(), "%" SCNd64, &l);
-    string response = OT_ME::It().create_market_offer(myacct, hisacct, s, m, q, p,
+    string response = OT::App().API().OTME().create_market_offer(myacct, hisacct, s, m, q, p,
                                                 type == "ask", l, "", 0);
     return responseReply(response, server, mynym, myacct,
                          "create_market_offer");
@@ -275,10 +278,10 @@ int32_t CmdNewOffer::cleanMarketOfferList(
         otOut << "Canceling market offer with transaction number: " << id
               << ".\n";
 
-         
+
         int64_t j;
         sscanf(id.c_str(), "%" SCNd64, &j);
-        string response = OT_ME::It().kill_market_offer(server, mynym, myacct, j);
+        string response = OT::App().API().OTME().kill_market_offer(server, mynym, myacct, j);
         if (0 > processTxResponse(server, mynym, myacct, response,
                                   "kill market offer")) {
             return -1;

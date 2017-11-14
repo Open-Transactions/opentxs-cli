@@ -42,6 +42,7 @@
 #include "CmdPayInvoice.hpp"
 
 #include <opentxs/api/Api.hpp>
+#include <opentxs/api/Native.hpp>
 #include <opentxs/api/OT.hpp>
 #include <opentxs/client/OT_API.hpp>
 #include <opentxs/client/OT_ME.hpp>
@@ -156,7 +157,7 @@ int32_t CmdBaseAccept::acceptFromInbox(
     // needed, and that call is made before the server transaction request is
     // actually sent.
     //
-    if (!OT_ME::It().make_sure_enough_trans_nums(10, server, mynym)) {
+    if (!OT::App().API().OTME().make_sure_enough_trans_nums(10, server, mynym)) {
         otOut << "Error: cannot reserve transaction numbers.\n";
         return -1;
     }
@@ -400,7 +401,7 @@ int32_t CmdBaseAccept::acceptFromPaymentbox(const string& myacct,
             if (bIsDefinitelyPaymentPlan)
             {
 
-                string instrument = OT_ME::It().get_payment_instrument(server, mynym, i, inbox);
+                string instrument = OT::App().API().OTME().get_payment_instrument(server, mynym, i, inbox);
                 if ("" == instrument) {
                     otOut << "CmdBaseAccept::acceptFromPaymentbox: "
                         "Error: cannot get payment instrument from inpayments box.\n";

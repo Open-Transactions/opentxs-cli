@@ -40,6 +40,9 @@
 
 #include "CmdBase.hpp"
 
+#include <opentxs/api/Api.hpp>
+#include <opentxs/api/Native.hpp>
+#include <opentxs/api/OT.hpp>
 #include <opentxs/client/OT_ME.hpp>
 #include <opentxs/client/SwigWrap.hpp>
 #include <opentxs/core/Log.hpp>
@@ -121,6 +124,6 @@ int32_t CmdGetReceipt::run(string server, string mynym, string myacct,
 
     int64_t i;
     sscanf(id.c_str(), "%" SCNd64, &i);
-    string response = OT_ME::It().get_box_receipt(server, mynym, myacct, type, i);
+    string response = OT::App().API().OTME().get_box_receipt(server, mynym, myacct, type, i);
     return processResponse(response, "get box receipt");
 }

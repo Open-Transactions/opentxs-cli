@@ -40,6 +40,9 @@
 
 #include "CmdBase.hpp"
 
+#include <opentxs/api/Api.hpp>
+#include <opentxs/api/Native.hpp>
+#include <opentxs/api/OT.hpp>
 #include <opentxs/client/OT_ME.hpp>
 #include <opentxs/client/SwigWrap.hpp>
 #include <opentxs/core/Log.hpp>
@@ -132,7 +135,7 @@ int32_t CmdProposePlan::run(string server, string mynym, string hisnym,
     otOut << "plan_expiry (length,number): " << planexpiry << "\n";
 
 
-    if (!OT_ME::It().make_sure_enough_trans_nums(2, server, mynym)) {
+    if (!OT::App().API().OTME().make_sure_enough_trans_nums(2, server, mynym)) {
         otOut << "Error: cannot reserve transaction numbers.\n";
         return -1;
     }
@@ -157,7 +160,7 @@ int32_t CmdProposePlan::run(string server, string mynym, string hisnym,
     // before sending it -- he already has done that by this point, just as part
     // of the proposal itself.)
 
-    string response = OT_ME::It().send_user_payment(server, mynym, hisnym, plan);
+    string response = OT::App().API().OTME().send_user_payment(server, mynym, hisnym, plan);
     if (1 != responseStatus(response)) {
         otOut << "Error: cannot send payment plan.\n";
         return harvestTxNumbers(plan, mynym);

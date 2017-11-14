@@ -40,6 +40,9 @@
 
 #include "CmdBase.hpp"
 
+#include <opentxs/api/Api.hpp>
+#include <opentxs/api/Native.hpp>
+#include <opentxs/api/OT.hpp>
 #include <opentxs/client/OT_ME.hpp>
 
 #include <stdint.h>
@@ -102,8 +105,8 @@ int32_t CmdTriggerClause::run(string server, string mynym, string id,
         }
     }
 
-     
+
     string response =
-        OT_ME::It().trigger_clause(server, mynym, std::stoi(id), clause, param);
+        OT::App().API().OTME().trigger_clause(server, mynym, std::stoi(id), clause, param);
     return processResponse(response, "trigger clause");
 }

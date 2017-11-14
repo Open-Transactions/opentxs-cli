@@ -40,6 +40,9 @@
 
 #include "CmdBase.hpp"
 
+#include <opentxs/api/Api.hpp>
+#include <opentxs/api/Native.hpp>
+#include <opentxs/api/OT.hpp>
 #include <opentxs/client/OT_ME.hpp>
 
 #include <stdint.h>
@@ -85,10 +88,10 @@ int32_t CmdKillPlan::run(string server, string mynym, string myacct, string id)
         return -1;
     }
 
-     
+
     int64_t i;
     sscanf(id.c_str(), "%" SCNd64, &i);
-    string response = OT_ME::It().kill_payment_plan(server, mynym, myacct, i);
+    string response = OT::App().API().OTME().kill_payment_plan(server, mynym, myacct, i);
     return processTxResponse(server, mynym, myacct, response,
                              "kill payment plan");
 }

@@ -38,6 +38,9 @@
 
 #include "CmdRequestOutBailment.hpp"
 
+#include <opentxs/api/Api.hpp>
+#include <opentxs/api/Native.hpp>
+#include <opentxs/api/OT.hpp>
 #include <opentxs/client/OT_ME.hpp>
 #include <opentxs/client/SwigWrap.hpp>
 
@@ -104,7 +107,7 @@ std::int32_t CmdRequestOutBailment::run(
     }
 
 
-    std::string response = OT_ME::It().initiate_outbailment(
+    std::string response = OT::App().API().OTME().initiate_outbailment(
         server, mynym, hisnym, mypurse, outbailmentAmount, terms);
     return processResponse(response, "request outbailment");
 }

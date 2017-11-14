@@ -38,6 +38,9 @@
 
 #include "CmdRequestBailment.hpp"
 
+#include <opentxs/api/Api.hpp>
+#include <opentxs/api/Native.hpp>
+#include <opentxs/api/OT.hpp>
 #include <opentxs/client/OT_ME.hpp>
 
 namespace opentxs {
@@ -88,8 +91,8 @@ std::int32_t CmdRequestBailment::run(
         return -1;
     }
 
-     
-    std::string response = OT_ME::It().initiate_bailment(
+
+    std::string response = OT::App().API().OTME().initiate_bailment(
         server, mynym, hisnym, mypurse);
     return processResponse(response, "request bailment");
 }

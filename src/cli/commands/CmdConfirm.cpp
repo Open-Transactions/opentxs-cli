@@ -41,6 +41,7 @@
 #include "CmdBase.hpp"
 #include "CmdShowNyms.hpp"
 
+#include <opentxs/api/Native.hpp>
 #include <opentxs/api/OT.hpp>
 #include <opentxs/api/Api.hpp>
 #include <opentxs/client/MadeEasy.hpp>
@@ -129,7 +130,7 @@ int32_t CmdConfirm::run(string server, string mynym, string myacct,
     // use specified payment instrument from inpayments
 
     string instrument =
-        OT_ME::It().get_payment_instrument(server, mynym, messageNr, "");
+        OT::App().API().OTME().get_payment_instrument(server, mynym, messageNr, "");
     if ("" == instrument) {
         otOut << "Error: cannot load payment instrument.\n";
         return -1;
@@ -237,7 +238,7 @@ int32_t CmdConfirm::confirmPaymentPlan(const string& mynym,
     }
 
 
-    if (!OT_ME::It().make_sure_enough_trans_nums(2, server, senderUser)) {
+    if (!OT::App().API().OTME().make_sure_enough_trans_nums(2, server, senderUser)) {
         otOut << "Error: cannot reserve transaction numbers.\n";
         return -1;
     }
@@ -502,7 +503,7 @@ int32_t CmdConfirm::activateContract(const string& server, const string& mynym,
     }
 
 
-    string response = OT_ME::It().activate_smart_contract(server, mynym, myAcctID,
+    string response = OT::App().API().OTME().activate_smart_contract(server, mynym, myAcctID,
                                                     myAcctAgentName, contract);
     if (1 != responseStatus(response)) {
         otOut << "Error: cannot activate smart contract.\n";
@@ -570,7 +571,7 @@ int32_t CmdConfirm::sendToNextParty(const string& server, const string& mynym,
 
 
     string response =
-        OT_ME::It().send_user_payment(server, mynym, hisNymID, contract);
+        OT::App().API().OTME().send_user_payment(server, mynym, hisNymID, contract);
     if (1 != responseStatus(response)) {
         otOut << "\nFor whatever reason, our attempt to send the instrument on "
                  "to the next user has failed.\n";
@@ -851,7 +852,7 @@ int32_t CmdConfirm::confirmAccounts(string server, string mynym, string myacct,
             contract, mapAgents[x->first]);
 
 
-        if (!OT_ME::It().make_sure_enough_trans_nums(needed + 1, server, mynym)) {
+        if (!OT::App().API().OTME().make_sure_enough_trans_nums(needed + 1, server, mynym)) {
             otOut << "Error: cannot reserve transaction numbers.\n";
             return -1;
         }

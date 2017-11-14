@@ -41,6 +41,9 @@
 #include "CmdBase.hpp"
 #include "CmdShowMarkets.hpp"
 
+#include <opentxs/api/Api.hpp>
+#include <opentxs/api/Native.hpp>
+#include <opentxs/api/OT.hpp>
 #include <opentxs/client/OT_ME.hpp>
 #include <opentxs/core/Log.hpp>
 
@@ -79,8 +82,8 @@ int32_t CmdGetMarkets::run(string server, string mynym)
         return -1;
     }
 
-     
-    string response = OT_ME::It().get_market_list(server, mynym);
+
+    string response = OT::App().API().OTME().get_market_list(server, mynym);
     if (1 != responseStatus(response)) {
         otOut << "Error: cannot get market list.\n";
         return -1;

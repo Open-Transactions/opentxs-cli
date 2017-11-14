@@ -40,6 +40,7 @@
 
 
 #include <opentxs/api/ContactManager.hpp>
+#include <opentxs/api/Native.hpp>
 #include <opentxs/api/OT.hpp>
 #include <opentxs/contact/Contact.hpp>
 #include <opentxs/contact/ContactData.hpp>

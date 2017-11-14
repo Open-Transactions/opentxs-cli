@@ -40,6 +40,9 @@
 
 #include "CmdBase.hpp"
 
+#include <opentxs/api/Api.hpp>
+#include <opentxs/api/Native.hpp>
+#include <opentxs/api/OT.hpp>
 #include <opentxs/client/OT_ME.hpp>
 #include <opentxs/client/SwigWrap.hpp>
 #include <opentxs/core/Log.hpp>
@@ -94,7 +97,7 @@ int32_t CmdUsageCredits::run(string server, string mynym, string hisnym,
     }
 
 
-    string response = OT_ME::It().adjust_usage_credits(server, mynym, hisnym, adjust);
+    string response = OT::App().API().OTME().adjust_usage_credits(server, mynym, hisnym, adjust);
     if (1 != processResponse(response, "adjust usage credits")) {
         return -1;
     }

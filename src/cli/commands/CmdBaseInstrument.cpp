@@ -39,6 +39,7 @@
 #include "CmdBaseInstrument.hpp"
 
 #include <opentxs/api/Api.hpp>
+#include <opentxs/api/Native.hpp>
 #include <opentxs/api/OT.hpp>
 #include <opentxs/client/MadeEasy.hpp>
 #include <opentxs/client/OT_ME.hpp>
@@ -136,7 +137,7 @@ int32_t CmdBaseInstrument::sendPayment(const string& cheque, string sender,
 
 
     string response =
-        OT_ME::It().send_user_payment(server, sender, recipient, cheque);
+        OT::App().API().OTME().send_user_payment(server, sender, recipient, cheque);
     return processResponse(response, what);
 }
 
@@ -183,7 +184,7 @@ string CmdBaseInstrument::writeCheque(string myacct, string hisnym,
     }
 
 
-    if (!OT_ME::It().make_sure_enough_trans_nums(10, server, mynym)) {
+    if (!OT::App().API().OTME().make_sure_enough_trans_nums(10, server, mynym)) {
         otOut << "Error: cannot reserve transaction numbers.\n";
         return "";
     }

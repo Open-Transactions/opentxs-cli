@@ -38,6 +38,9 @@
 
 #include "CmdRequestConnection.hpp"
 
+#include <opentxs/api/Api.hpp>
+#include <opentxs/api/Native.hpp>
+#include <opentxs/api/OT.hpp>
 #include <opentxs/client/OT_ME.hpp>
 
 #include <stdexcept>
@@ -100,8 +103,8 @@ std::int32_t CmdRequestConnection::run(
         return -1;
     }
 
-     
-    std::string response = OT_ME::It().request_connection(
+
+    std::string response = OT::App().API().OTME().request_connection(
         server, mynym, hisnym, type);
 
     return processResponse(response, "request connection");

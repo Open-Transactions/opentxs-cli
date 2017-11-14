@@ -156,7 +156,7 @@ int32_t CmdExchangeBasket::run(string myacct, string direction, string multiple)
     }
 
 
-    if (!OT_ME::It().make_sure_enough_trans_nums(20, server, mynym)) {
+    if (!OT::App().API().OTME().make_sure_enough_trans_nums(20, server, mynym)) {
         otOut << "Error: cannot reserve transaction numbers.\n";
         return -1;
     }

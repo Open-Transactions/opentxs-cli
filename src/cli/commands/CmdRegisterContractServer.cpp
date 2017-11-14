@@ -40,6 +40,9 @@
 
 #include "CmdBase.hpp"
 
+#include <opentxs/api/Api.hpp>
+#include <opentxs/api/Native.hpp>
+#include <opentxs/api/OT.hpp>
 #include <opentxs/client/OT_ME.hpp>
 
 #include <stdint.h>
@@ -80,8 +83,8 @@ int32_t CmdRegisterContractServer::run(
         return -1;
     }
 
-     
-    std::string response = OT_ME::It().register_contract_server(server, mynym, hispurse);
+
+    std::string response = OT::App().API().OTME().register_contract_server(server, mynym, hispurse);
 
     return processResponse(response, "register contract");
 }

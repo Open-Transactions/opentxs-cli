@@ -114,7 +114,7 @@ int32_t CmdPayDividend::run(string myacct, string hispurse, string amount,
 
 
     string response =
-        OT_ME::It().pay_dividend(server, mynym, myacct, hispurse, memo, value);
+        OT::App().API().OTME().pay_dividend(server, mynym, myacct, hispurse, memo, value);
     int32_t reply =
         responseReply(response, server, mynym, myacct, "pay_dividend");
     if (1 == reply) {

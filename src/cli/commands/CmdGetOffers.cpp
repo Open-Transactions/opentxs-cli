@@ -41,6 +41,9 @@
 #include "CmdBase.hpp"
 #include "CmdShowOffers.hpp"
 
+#include <opentxs/api/Api.hpp>
+#include <opentxs/api/Native.hpp>
+#include <opentxs/api/OT.hpp>
 #include <opentxs/client/OT_ME.hpp>
 
 #include <stdint.h>
@@ -90,9 +93,9 @@ int32_t CmdGetOffers::run(string server, string mynym, string market,
         depth = "50";
     }
 
-     
+
     string response =
-        OT_ME::It().get_market_offers(server, mynym, market, stoll(depth));
+        OT::App().API().OTME().get_market_offers(server, mynym, market, stoll(depth));
     if (1 != processResponse(response, "get market offers")) {
         return -1;
     }

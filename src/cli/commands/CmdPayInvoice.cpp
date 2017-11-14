@@ -42,6 +42,9 @@
 #include "CmdConfirm.hpp"
 #include "CmdDeposit.hpp"
 
+#include <opentxs/api/Api.hpp>
+#include <opentxs/api/Native.hpp>
+#include <opentxs/api/OT.hpp>
 #include <opentxs/client/OT_ME.hpp>
 #include <opentxs/client/SwigWrap.hpp>
 #include <opentxs/core/util/Common.hpp>
@@ -201,7 +204,7 @@ int32_t CmdPayInvoice::processPayment(const string& myacct,
     }
     else {
 
-        instrument = OT_ME::It().get_payment_instrument(server, mynym, index, inbox);
+        instrument = OT::App().API().OTME().get_payment_instrument(server, mynym, index, inbox);
         if ("" == instrument) {
             otOut << "Error: cannot get payment instrument.\n";
             return -1;

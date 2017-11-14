@@ -38,6 +38,9 @@
 
 #include "CmdAcknowledgeBailment.hpp"
 
+#include <opentxs/api/Api.hpp>
+#include <opentxs/api/Native.hpp>
+#include <opentxs/api/OT.hpp>
 #include <opentxs/client/OT_ME.hpp>
 
 namespace opentxs {
@@ -90,7 +93,7 @@ std::int32_t CmdAcknowledgeBailment::run(
     }
 
 
-    std::string response = OT_ME::It().acknowledge_bailment(
+    std::string response = OT::App().API().OTME().acknowledge_bailment(
         server, mynym, hisnym, mypurse, terms);
     return processResponse(response, "acknowledge bailment");
 }

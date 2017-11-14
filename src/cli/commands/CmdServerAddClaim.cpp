@@ -38,6 +38,9 @@
 
 #include "CmdServerAddClaim.hpp"
 
+#include <opentxs/api/Api.hpp>
+#include <opentxs/api/Native.hpp>
+#include <opentxs/api/OT.hpp>
 #include <opentxs/client/OT_ME.hpp>
 
 namespace opentxs {
@@ -103,9 +106,9 @@ std::int32_t CmdServerAddClaim::run(
         primary = false;
     }
 
-     
+
     const std::string response =
-        OT_ME::It().server_add_claim(server, mynym, section, type, value, primary);
+        OT::App().API().OTME().server_add_claim(server, mynym, section, type, value, primary);
 
     return processResponse(response, "server add claim");
 }

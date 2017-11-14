@@ -183,7 +183,7 @@ int32_t CmdDeposit::depositCheque(const string& server, const string& myacct,
     }
 
 
-    string response = OT_ME::It().deposit_cheque(server, mynym, myacct, instrument);
+    string response = OT::App().API().OTME().deposit_cheque(server, mynym, myacct, instrument);
     int32_t reply =
         responseReply(response, server, mynym, myacct, "deposit_cheque");
     if (1 != reply) {

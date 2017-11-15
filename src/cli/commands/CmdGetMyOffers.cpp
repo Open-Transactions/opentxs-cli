@@ -43,7 +43,7 @@
 
 #include <opentxs/api/Api.hpp>
 #include <opentxs/api/Native.hpp>
-#include <opentxs/api/OT.hpp>
+#include <opentxs/OT.hpp>
 #include <opentxs/client/OT_ME.hpp>
 
 #include <stdint.h>

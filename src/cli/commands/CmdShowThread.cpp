@@ -38,16 +38,16 @@
 
 #include "CmdShowThread.hpp"
 
-#include <opentxs/client/OT_API.hpp>
+#include <opentxs/api/storage/Storage.hpp>
 #include <opentxs/api/Api.hpp>
 #include <opentxs/api/Native.hpp>
-#include <opentxs/api/OT.hpp>
 #include <opentxs/api/Wallet.hpp>
+#include <opentxs/client/OT_API.hpp>
 #include <opentxs/core/Identifier.hpp>
 #include <opentxs/core/Log.hpp>
 #include <opentxs/core/Message.hpp>
 #include <opentxs/core/String.hpp>
-#include <opentxs/storage/Storage.hpp>
+#include <opentxs/OT.hpp>
 #include <opentxs/Types.hpp>
 
 namespace opentxs

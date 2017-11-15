@@ -40,7 +40,7 @@
 
 #include <opentxs/api/Activity.hpp>
 #include <opentxs/api/Native.hpp>
-#include <opentxs/api/OT.hpp>
+#include <opentxs/OT.hpp>
 #include <opentxs/core/Identifier.hpp>
 
 namespace opentxs

@@ -40,7 +40,6 @@
 
 #include <opentxs/api/Api.hpp>
 #include <opentxs/api/Native.hpp>
-#include <opentxs/api/OT.hpp>
 #include <opentxs/api/Wallet.hpp>
 #include <opentxs/client/OT_API.hpp>
 #include <opentxs/client/OTWallet.hpp>
@@ -56,6 +55,7 @@
 #include <opentxs/core/Nym.hpp>
 #include <opentxs/core/String.hpp>
 #include <opentxs/ext/Helpers.hpp>
+#include <opentxs/OT.hpp>
 
 #include <ctype.h>
 #include <stdint.h>

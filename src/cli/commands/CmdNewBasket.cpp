@@ -43,7 +43,7 @@
 
 #include <opentxs/api/Api.hpp>
 #include <opentxs/api/Native.hpp>
-#include <opentxs/api/OT.hpp>
+#include <opentxs/OT.hpp>
 #include <opentxs/client/MadeEasy.hpp>
 #include <opentxs/client/SwigWrap.hpp>
 #include <opentxs/core/Log.hpp>

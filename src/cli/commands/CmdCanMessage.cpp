@@ -40,9 +40,9 @@
 
 #include <opentxs/api/Api.hpp>
 #include <opentxs/api/Native.hpp>
-#include <opentxs/api/OT.hpp>
 #include <opentxs/client/OTME_too.hpp>
 #include <opentxs/core/Log.hpp>
+#include <opentxs/OT.hpp>
 
 namespace opentxs
 {

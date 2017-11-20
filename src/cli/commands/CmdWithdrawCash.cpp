@@ -91,6 +91,7 @@ int32_t CmdWithdrawCash::run(string myacct, string amount)
 int32_t CmdWithdrawCash::withdrawCash(const string& myacct,
                                       int64_t amount) const
 {
+#if OT_CASH
     string server = SwigWrap::GetAccountWallet_NotaryID(myacct);
     if ("" == server) {
         otOut << "Error: cannot determine server from myacct.\n";
@@ -143,4 +144,7 @@ int32_t CmdWithdrawCash::withdrawCash(const string& myacct,
     }
 
     return 1;
+#else
+    return -1;
+#endif  // OT_CASH
 }

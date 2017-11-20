@@ -75,6 +75,7 @@ int32_t CmdShowMint::runWithOptions()
 
 int32_t CmdShowMint::run(string server, string mynym, string mypurse)
 {
+#if OT_CASH
     if (!checkServer("server", server)) {
         return -1;
     }
@@ -96,4 +97,7 @@ int32_t CmdShowMint::run(string server, string mynym, string mypurse)
     cout << mint << "\n";
 
     return 1;
+#else
+    return -1;
+#endif  // OT_CASH
 }

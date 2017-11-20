@@ -180,6 +180,7 @@ int32_t CmdSendCash::sendCash(string& response, const string& server,
                               const string& amount, string& indices,
                               bool hasPassword) const
 {
+#if OT_CASH
     int64_t startAmount = "" == amount ? 0 : stoll(amount);
 
     // What we want to do from here is, see if we can send the cash purely using
@@ -242,6 +243,9 @@ int32_t CmdSendCash::sendCash(string& response, const string& server,
     }
 
     return 1;
+#else
+    return -1;
+#endif  // OT_CASH
 }
 
 // If you pass the indices, this function returns true if those exact indices
@@ -256,6 +260,7 @@ bool CmdSendCash::getPurseIndicesOrAmount(const string& server,
                                           int64_t& remain,
                                           string& indices) const
 {
+#if OT_CASH
     bool findAmountFromIndices = "" != indices && 0 == remain;
     bool findIndicesFromAmount = "" == indices && 0 != remain;
     if (!findAmountFromIndices && !findIndicesFromAmount) {
@@ -343,4 +348,7 @@ bool CmdSendCash::getPurseIndicesOrAmount(const string& server,
     }
 
     return findAmountFromIndices ? true : false;
+#else
+    return false;
+#endif  // OT_CASH
 }

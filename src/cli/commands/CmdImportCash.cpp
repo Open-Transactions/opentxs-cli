@@ -70,6 +70,7 @@ int32_t CmdImportCash::runWithOptions()
 
 int32_t CmdImportCash::run(string mynym)
 {
+#if OT_CASH
     if ("" != mynym && !checkNym("mynym", mynym)) {
         return -1;
     }
@@ -165,4 +166,7 @@ int32_t CmdImportCash::run(string mynym)
     }
 
     return 1;
+#else
+    return -1;
+#endif  // OT_CASH
 }

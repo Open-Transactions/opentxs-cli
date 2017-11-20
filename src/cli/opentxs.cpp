@@ -435,7 +435,7 @@ int Opentxs::processCommand(AnyOption& opt)
         OTCaller* caller = new OTCaller;
         DummyPassphraseCallback* callback = new DummyPassphraseCallback("test");
         caller->setCallback(callback);
-        OTAsymmetricKey::SetPasswordCaller(*caller);
+        SwigWrap::SetPasswordCaller(*caller);
     }
 
     if ("version" == command) {

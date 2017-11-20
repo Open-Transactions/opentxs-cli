@@ -167,6 +167,7 @@ string CmdExportCash::exportCash(const string& server, const string& mynym,
                                  const string& indices, bool hasPassword,
                                  string& retainedCopy) const
 {
+#if OT_CASH
     string contract =
         OT::App().API().ME().load_or_retrieve_contract(server, mynym, assetType);
     if ("" == contract) {
@@ -187,4 +188,7 @@ string CmdExportCash::exportCash(const string& server, const string& mynym,
 
     return OT::App().API().ME().exportCashPurse(server, assetType, mynym, instrument,
                                      tokens, hisnym, hasPassword, retainedCopy);
+#else
+    return {};
+#endif  // OT_CASH
 }

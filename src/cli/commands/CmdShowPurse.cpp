@@ -72,6 +72,7 @@ int32_t CmdShowPurse::runWithOptions()
 
 int32_t CmdShowPurse::run(string server, string mynym, string mypurse)
 {
+#if OT_CASH
     if (!checkServer("server", server)) {
         return -1;
     }
@@ -159,4 +160,7 @@ int32_t CmdShowPurse::run(string server, string mynym, string mypurse)
     }
 
     return 1;
+#else
+    return -1;
+#endif  // OT_CASH
 }

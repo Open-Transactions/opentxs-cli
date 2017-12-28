@@ -115,8 +115,9 @@ int32_t CmdTransfer::run(string myacct, string hisacct, string amount,
         otOut << "Assuming hisaccount is o5n the same server as myacct.\n";
     }
 
+    opentxs::TransactionNumber notUsed{0};
     string response =
-        OT::App().API().ME().send_transfer(server, mynym, myacct, hisacct, value, memo);
+        OT::App().API().ME().send_transfer(server, mynym, myacct, hisacct, value, memo, notUsed);
     int32_t reply =
         responseReply(response, server, mynym, myacct, "send_transfer");
     if (1 != reply) {

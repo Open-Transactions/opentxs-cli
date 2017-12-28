@@ -38,7 +38,10 @@
 
 #include "CmdArchivePeerReply.hpp"
 
-#include <opentxs/client/SwigWrap.hpp>
+#include <opentxs/api/Api.hpp>
+#include <opentxs/api/Native.hpp>
+#include <opentxs/client/OTAPI_Exec.hpp>
+#include <opentxs/OT.hpp>
 
 namespace opentxs {
 
@@ -62,6 +65,6 @@ std::int32_t CmdArchivePeerReply::run(std::string mynym, std::string mypurse)
         return -1;
     }
 
-    return SwigWrap::completePeerRequest(mynym, mypurse);
+    return OT::App().API().Exec().completePeerRequest(mynym, mypurse);
 }
 } // namespace opentxs

@@ -39,9 +39,9 @@
 #include "CmdShowNym.hpp"
 
 
+#include <opentxs/api/client/Wallet.hpp>
 #include <opentxs/api/Native.hpp>
 #include <opentxs/OT.hpp>
-#include <opentxs/api/Wallet.hpp>
 #include <opentxs/client/SwigWrap.hpp>
 #include <opentxs/core/Identifier.hpp>
 #include <opentxs/Proto.hpp>

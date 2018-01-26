@@ -56,20 +56,6 @@ public:
 
     int run(int argc, char* argv[]);
 
-    typedef enum {
-        catError = 0,
-        catAdmin = 1,
-        catWallet = 2,
-        catMisc = 3,
-        catMarkets = 4,
-        catAccounts = 5,
-        catOtherUsers = 6,
-        catInstruments = 7,
-        catBaskets = 8,
-        catNyms = 9,
-        catLast = 10
-    } Category;
-
 private:
     void loadOptions(AnyOption& opt);
     const char* getOption(AnyOption& opt, const char* optionName,

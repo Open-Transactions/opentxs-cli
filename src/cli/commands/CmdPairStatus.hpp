@@ -52,7 +52,9 @@ class CmdPairStatus : public CmdBase
 public:
     EXPORT CmdPairStatus();
 
-    EXPORT std::int32_t run(const std::string& node);
+    EXPORT std::int32_t run(
+        std::string localNym,
+        const std::string& issuerNym);
 
     EXPORT ~CmdPairStatus() = default;
 

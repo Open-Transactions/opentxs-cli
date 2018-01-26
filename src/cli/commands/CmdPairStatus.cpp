@@ -45,19 +45,27 @@ namespace opentxs {
 CmdPairStatus::CmdPairStatus()
 {
     command = "pairstatus";
-    args[0] = "--node <bridge nym>";
+    args[0] = "--mynym <nym ID>";
+    args[1] = "--issuer <issuer nym ID>";
     category = catMisc;
     help = "Pairing status";
 }
 
 std::int32_t CmdPairStatus::runWithOptions()
 {
-    return run(getOption("node"));
+    return run(getOption("mynym"), getOption("issuer"));
 }
 
-std::int32_t CmdPairStatus::run(const std::string& node)
+std::int32_t CmdPairStatus::run(
+    std::string localNym,
+    const std::string& issuerNym)
 {
-    std::cout << SwigWrap::Pair_Status(node);
+    if (!checkNym("mynym", localNym)) {
+
+        return -1;
+    }
+
+    std::cout << SwigWrap::Pair_Status(localNym, issuerNym);
 
     return 1;
 }

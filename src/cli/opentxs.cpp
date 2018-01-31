@@ -52,6 +52,7 @@
 #include "commands/CmdAddAsset.hpp"
 #include "commands/CmdAddBitcoinAccount.hpp"
 #include "commands/CmdAddContact.hpp"
+#include "commands/CmdAddContract.hpp"
 #include "commands/CmdAddServer.hpp"
 #include "commands/CmdAddSignature.hpp"
 #include "commands/CmdAllocateBitcoinAddress.hpp"
@@ -232,6 +233,7 @@ CmdBase* cmds[] = {
     new CmdAcknowledgeConnection,    new CmdAcknowledgeNotice,
     new CmdAcknowledgeOutBailment,   new CmdAddAsset,
     new CmdAddBitcoinAccount,        new CmdAddContact,
+    new CmdAddContract,
     new CmdAddServer,                new CmdAddSignature,
     new CmdAllocateBitcoinAddress,   new CmdArchivePeerReply,
     new CmdAssignBitcoinAddress,     new CmdCancel,

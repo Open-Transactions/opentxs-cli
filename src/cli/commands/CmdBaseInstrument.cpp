@@ -40,7 +40,6 @@
 
 #include <opentxs/api/Api.hpp>
 #include <opentxs/api/Native.hpp>
-#include <opentxs/client/MadeEasy.hpp>
 #include <opentxs/client/OT_ME.hpp>
 #include <opentxs/client/SwigWrap.hpp>
 #include <opentxs/core/util/Common.hpp>
@@ -55,18 +54,17 @@
 using namespace opentxs;
 using namespace std;
 
-CmdBaseInstrument::CmdBaseInstrument()
-{
-}
+CmdBaseInstrument::CmdBaseInstrument() {}
 
-CmdBaseInstrument::~CmdBaseInstrument()
-{
-}
+CmdBaseInstrument::~CmdBaseInstrument() {}
 
-int32_t CmdBaseInstrument::getTokens(vector<string>& tokens,
-                                     const string& server, const string& mynym,
-                                     const string& assetType, string purse,
-                                     const string& indices) const
+int32_t CmdBaseInstrument::getTokens(
+    vector<string>& tokens,
+    const string& server,
+    const string& mynym,
+    const string& assetType,
+    string purse,
+    const string& indices) const
 {
 #if OT_CASH
     if ("" == indices) {
@@ -115,8 +113,10 @@ int32_t CmdBaseInstrument::getTokens(vector<string>& tokens,
 #endif  // OT_CASH
 }
 
-int32_t CmdBaseInstrument::sendPayment(const string& cheque, string sender,
-                                       const char* what) const
+int32_t CmdBaseInstrument::sendPayment(
+    const string& cheque,
+    string sender,
+    const char* what) const
 {
     string server = SwigWrap::Instrmnt_GetNotaryID(cheque);
     if ("" == server) {
@@ -138,15 +138,18 @@ int32_t CmdBaseInstrument::sendPayment(const string& cheque, string sender,
         return -1;
     }
 
-
-    string response =
-        OT::App().API().OTME().send_user_payment(server, sender, recipient, cheque);
+    string response = OT::App().API().OTME().send_user_payment(
+        server, sender, recipient, cheque);
     return processResponse(response, what);
 }
 
-string CmdBaseInstrument::writeCheque(string myacct, string hisnym,
-                                      string amount, string memo,
-                                      string validfor, bool isInvoice) const
+string CmdBaseInstrument::writeCheque(
+    string myacct,
+    string hisnym,
+    string amount,
+    string memo,
+    string validfor,
+    bool isInvoice) const
 {
     if (!checkAccount("myacct", myacct)) {
         return "";
@@ -177,17 +180,8 @@ string CmdBaseInstrument::writeCheque(string myacct, string hisnym,
         return "";
     }
 
-    // make sure we can access the public key before trying to write a cheque
-    if ("" != hisnym) {
-        if (OT::App().API().ME().load_or_retrieve_encrypt_key(server, mynym, hisnym) ==
-            "") {
-            otOut << "Error: cannot load public key for hisnym.\n";
-            return "";
-        }
-    }
-
-
-    if (!OT::App().API().OTME().make_sure_enough_trans_nums(10, server, mynym)) {
+    if (!OT::App().API().OTME().make_sure_enough_trans_nums(
+            10, server, mynym)) {
         otOut << "Error: cannot reserve transaction numbers.\n";
         return "";
     }
@@ -197,9 +191,15 @@ string CmdBaseInstrument::writeCheque(string myacct, string hisnym,
     time64_t from = SwigWrap::GetTime();
     time64_t until = OTTimeAddTimeInterval(from, timeSpan);
 
-    string cheque =
-        SwigWrap::WriteCheque(server, isInvoice ? -value : value, from, until,
-                                myacct, mynym, memo, hisnym);
+    string cheque = SwigWrap::WriteCheque(
+        server,
+        isInvoice ? -value : value,
+        from,
+        until,
+        myacct,
+        mynym,
+        memo,
+        hisnym);
     if ("" == cheque) {
         otOut << "Error: cannot write cheque.\n";
         return "";

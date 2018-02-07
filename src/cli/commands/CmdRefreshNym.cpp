@@ -42,9 +42,9 @@
 
 #include <opentxs/api/Api.hpp>
 #include <opentxs/api/Native.hpp>
-#include <opentxs/OT.hpp>
-#include <opentxs/client/MadeEasy.hpp>
+#include <opentxs/client/OT_ME.hpp>
 #include <opentxs/core/Log.hpp>
+#include <opentxs/OT.hpp>
 
 #include <stdint.h>
 #include <ostream>
@@ -62,9 +62,7 @@ CmdRefreshNym::CmdRefreshNym()
     help = "Download mynym's latest intermediary files.";
 }
 
-CmdRefreshNym::~CmdRefreshNym()
-{
-}
+CmdRefreshNym::~CmdRefreshNym() {}
 
 int32_t CmdRefreshNym::runWithOptions()
 {
@@ -82,22 +80,23 @@ int32_t CmdRefreshNym::run(string server, string mynym)
     }
 
     bool msgWasSent = false;
-    switch (OT::App().API().ME().retrieve_nym(server, mynym, msgWasSent, true)) {
-    case 1:
-        break;
+    switch (
+        OT::App().API().OTME().retrieve_nym(server, mynym, msgWasSent, true)) {
+        case 1:
+            break;
 
-    case 0:
-        if (msgWasSent) {
+        case 0:
+            if (msgWasSent) {
+                otOut << "Error: cannot refresh nym.\n";
+                return -1;
+            }
+
+            otOut << "Nymbox is empty.\n";
+            break;
+
+        default:
             otOut << "Error: cannot refresh nym.\n";
             return -1;
-        }
-
-        otOut << "Nymbox is empty.\n";
-        break;
-
-    default:
-        otOut << "Error: cannot refresh nym.\n";
-        return -1;
     }
 
     return 1;

@@ -42,8 +42,8 @@
 
 #include <opentxs/api/Api.hpp>
 #include <opentxs/api/Native.hpp>
+#include <opentxs/client/OT_ME.hpp>
 #include <opentxs/OT.hpp>
-#include <opentxs/client/MadeEasy.hpp>
 
 #include <stdint.h>
 #include <iostream>
@@ -60,14 +60,9 @@ CmdShowAccount::CmdShowAccount()
     help = "Show myacct's stats.";
 }
 
-CmdShowAccount::~CmdShowAccount()
-{
-}
+CmdShowAccount::~CmdShowAccount() {}
 
-int32_t CmdShowAccount::runWithOptions()
-{
-    return run(getOption("myacct"));
-}
+int32_t CmdShowAccount::runWithOptions() { return run(getOption("myacct")); }
 
 int32_t CmdShowAccount::run(string myacct)
 {
@@ -75,7 +70,7 @@ int32_t CmdShowAccount::run(string myacct)
         return -1;
     }
 
-    string accountData = OT::App().API().ME().stat_asset_account(myacct);
+    string accountData = OT::App().API().OTME().stat_asset_account(myacct);
     if ("" == accountData) {
         cout << "Error trying to stat asset account: " << myacct << "\n";
         return -1;

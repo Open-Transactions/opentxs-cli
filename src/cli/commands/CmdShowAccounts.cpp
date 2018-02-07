@@ -42,10 +42,10 @@
 
 #include <opentxs/api/Api.hpp>
 #include <opentxs/api/Native.hpp>
-#include <opentxs/OT.hpp>
-#include <opentxs/client/MadeEasy.hpp>
+#include <opentxs/client/OT_ME.hpp>
 #include <opentxs/client/SwigWrap.hpp>
 #include <opentxs/core/Log.hpp>
+#include <opentxs/OT.hpp>
 
 #include <stdint.h>
 #include <iostream>
@@ -61,14 +61,9 @@ CmdShowAccounts::CmdShowAccounts()
     help = "Show the asset accounts in the wallet.";
 }
 
-CmdShowAccounts::~CmdShowAccounts()
-{
-}
+CmdShowAccounts::~CmdShowAccounts() {}
 
-int32_t CmdShowAccounts::runWithOptions()
-{
-    return run();
-}
+int32_t CmdShowAccounts::runWithOptions() { return run(); }
 
 int32_t CmdShowAccounts::run()
 {
@@ -93,7 +88,7 @@ int32_t CmdShowAccounts::run()
             return -1;
         }
 
-        string accountData = OT::App().API().ME().stat_asset_account(myacct);
+        string accountData = OT::App().API().OTME().stat_asset_account(myacct);
         if ("" == accountData) {
             cout << "Error : cannot load account data.\n";
             return -1;

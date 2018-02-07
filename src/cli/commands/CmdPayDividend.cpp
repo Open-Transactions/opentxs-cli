@@ -42,12 +42,10 @@
 
 #include <opentxs/client/SwigWrap.hpp>
 
-
 #include <opentxs/api/Api.hpp>
 #include <opentxs/api/Native.hpp>
 #include <opentxs/OT.hpp>
 #include <opentxs/client/OT_ME.hpp>
-#include <opentxs/client/MadeEasy.hpp>
 #include <opentxs/core/util/Common.hpp>
 #include <opentxs/core/Log.hpp>
 
@@ -69,14 +67,15 @@ CmdPayDividend::CmdPayDividend()
     help = "Send dividend payout to all shareholders (in voucher form).";
 }
 
-CmdPayDividend::~CmdPayDividend()
-{
-}
+CmdPayDividend::~CmdPayDividend() {}
 
 int32_t CmdPayDividend::runWithOptions()
 {
-    return run(getOption("myacct"), getOption("hispurse"), getOption("amount"),
-               getOption("memo"));
+    return run(
+        getOption("myacct"),
+        getOption("hispurse"),
+        getOption("amount"),
+        getOption("memo"));
 }
 
 // Just like withdraw voucher...except instead of withdrawing a single voucher
@@ -84,8 +83,11 @@ int32_t CmdPayDividend::runWithOptions()
 // divides it up amongst the shareholders, sending them EACH a voucher cheque in
 // the amount of amount * number of shares owned.
 
-int32_t CmdPayDividend::run(string myacct, string hispurse, string amount,
-                            string memo)
+int32_t CmdPayDividend::run(
+    string myacct,
+    string hispurse,
+    string amount,
+    string memo)
 {
     if (!checkAccount("myacct", myacct)) {
         return -1;
@@ -112,16 +114,15 @@ int32_t CmdPayDividend::run(string myacct, string hispurse, string amount,
         return -1;
     }
 
-
-    string response =
-        OT::App().API().OTME().pay_dividend(server, mynym, myacct, hispurse, memo, value);
+    string response = OT::App().API().OTME().pay_dividend(
+        server, mynym, myacct, hispurse, memo, value);
     int32_t reply =
         responseReply(response, server, mynym, myacct, "pay_dividend");
     if (1 == reply) {
         return reply;
     }
 
-    if (!OT::App().API().ME().retrieve_account(server, mynym, myacct, true)) {
+    if (!OT::App().API().OTME().retrieve_account(server, mynym, myacct, true)) {
         otOut << "Error retrieving intermediary files for account.\n";
         return -1;
     }

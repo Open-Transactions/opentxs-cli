@@ -44,7 +44,7 @@
 #include <opentxs/api/Api.hpp>
 #include <opentxs/api/Native.hpp>
 #include <opentxs/OT.hpp>
-#include <opentxs/client/MadeEasy.hpp>
+#include <opentxs/client/OT_ME.hpp>
 #include <opentxs/client/SwigWrap.hpp>
 
 #include <stdint.h>
@@ -63,9 +63,7 @@ CmdNewAccount::CmdNewAccount()
     help = "Create a new asset account.";
 }
 
-CmdNewAccount::~CmdNewAccount()
-{
-}
+CmdNewAccount::~CmdNewAccount() {}
 
 int32_t CmdNewAccount::runWithOptions()
 {
@@ -91,6 +89,7 @@ int32_t CmdNewAccount::run(string server, string mynym, string mypurse)
         registerNym.run(server, mynym);
     }
 
-    string response = OT::App().API().ME().create_asset_acct(server, mynym, mypurse);
+    string response =
+        OT::App().API().OTME().create_asset_acct(server, mynym, mypurse);
     return processResponse(response, "create asset account");
 }

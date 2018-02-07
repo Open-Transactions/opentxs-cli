@@ -42,12 +42,10 @@
 
 #include <opentxs/client/SwigWrap.hpp>
 
-
 #include <opentxs/api/Api.hpp>
 #include <opentxs/api/Native.hpp>
 #include <opentxs/OT.hpp>
 #include <opentxs/client/OT_ME.hpp>
-#include <opentxs/client/OTAPI_Func.hpp>
 #include <opentxs/core/Log.hpp>
 #include <opentxs/core/OTStorage.hpp>
 
@@ -78,20 +76,30 @@ CmdNewOffer::CmdNewOffer()
     usage = "A price of 0 means a market order at any price.";
 }
 
-CmdNewOffer::~CmdNewOffer()
-{
-}
+CmdNewOffer::~CmdNewOffer() {}
 
 int32_t CmdNewOffer::runWithOptions()
 {
-    return run(getOption("myacct"), getOption("hisacct"), getOption("type"),
-               getOption("scale"), getOption("mininc"), getOption("quantity"),
-               getOption("price"), getOption("lifespan"));
+    return run(
+        getOption("myacct"),
+        getOption("hisacct"),
+        getOption("type"),
+        getOption("scale"),
+        getOption("mininc"),
+        getOption("quantity"),
+        getOption("price"),
+        getOption("lifespan"));
 }
 
-int32_t CmdNewOffer::run(string myacct, string hisacct, string type,
-                         string scale, string mininc, string quantity,
-                         string price, string lifespan)
+int32_t CmdNewOffer::run(
+    string myacct,
+    string hisacct,
+    string type,
+    string scale,
+    string mininc,
+    string quantity,
+    string price,
+    string lifespan)
 {
     if (!checkAccount("myacct", myacct)) {
         return -1;
@@ -156,17 +164,16 @@ int32_t CmdNewOffer::run(string myacct, string hisacct, string type,
         return -1;
     }
 
-
-
     // NOTE: Removing this for now. It was a special feature for
     // knotwork and currently it's causing me some problems.
     //
-//    OT::App().API().OTME().get_nym_market_offers(server, mynym);
-//
-//    if (0 > cleanMarketOfferList(server, mynym, myacct, hisacct, type, scale,
-//                                 price)) {
-//        return -1;
-//    }
+    //    OT::App().API().OTME().get_nym_market_offers(server, mynym);
+    //
+    //    if (0 > cleanMarketOfferList(server, mynym, myacct, hisacct, type,
+    //    scale,
+    //                                 price)) {
+    //        return -1;
+    //    }
 
     // OKAY! Now that we've cleaned out any undesirable offers, let's place the
     // the offer itself!
@@ -176,10 +183,10 @@ int32_t CmdNewOffer::run(string myacct, string hisacct, string type,
     sscanf(quantity.c_str(), "%" SCNd64, &q);
     sscanf(price.c_str(), "%" SCNd64, &p);
     sscanf(lifespan.c_str(), "%" SCNd64, &l);
-    string response = OT::App().API().OTME().create_market_offer(myacct, hisacct, s, m, q, p,
-                                                type == "ask", l, "", 0);
-    return responseReply(response, server, mynym, myacct,
-                         "create_market_offer");
+    string response = OT::App().API().OTME().create_market_offer(
+        myacct, hisacct, s, m, q, p, type == "ask", l, "", 0);
+    return responseReply(
+        response, server, mynym, myacct, "create_market_offer");
 }
 
 // NOTE: This function has nothing to do with placing a new offer. Instead,
@@ -215,8 +222,12 @@ int32_t CmdNewOffer::run(string myacct, string hisacct, string type,
 // around and BUY those same shares again for $1000! That would be a $200 loss.)
 
 int32_t CmdNewOffer::cleanMarketOfferList(
-    const string& server, const string& mynym, const string& myacct,
-    const string& hisacct, const string& type, const string& scale,
+    const string& server,
+    const string& mynym,
+    const string& myacct,
+    const string& hisacct,
+    const string& type,
+    const string& scale,
     const string& price)
 {
     OTDB::OfferListNym* offerList = loadNymOffers(server, mynym);
@@ -251,7 +262,6 @@ int32_t CmdNewOffer::cleanMarketOfferList(
     // let this go was because the program ends anyway after the command
     // fires. Still, needs cleanup.
 
-
     // find_strange_offers is called for each offer, for this nym, as it
     // iterates through the maps. When it's done, extra.the_vector
     // will contain a vector of all the transaction numbers for offers that
@@ -278,12 +288,12 @@ int32_t CmdNewOffer::cleanMarketOfferList(
         otOut << "Canceling market offer with transaction number: " << id
               << ".\n";
 
-
         int64_t j;
         sscanf(id.c_str(), "%" SCNd64, &j);
-        string response = OT::App().API().OTME().kill_market_offer(server, mynym, myacct, j);
-        if (0 > processTxResponse(server, mynym, myacct, response,
-                                  "kill market offer")) {
+        string response =
+            OT::App().API().OTME().kill_market_offer(server, mynym, myacct, j);
+        if (0 > processTxResponse(
+                    server, mynym, myacct, response, "kill market offer")) {
             return -1;
         }
     }

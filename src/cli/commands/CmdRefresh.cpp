@@ -43,10 +43,10 @@
 
 #include <opentxs/api/Api.hpp>
 #include <opentxs/api/Native.hpp>
-#include <opentxs/OT.hpp>
-#include <opentxs/client/MadeEasy.hpp>
+#include <opentxs/client/OT_ME.hpp>
 #include <opentxs/client/SwigWrap.hpp>
 #include <opentxs/core/Log.hpp>
+#include <opentxs/OT.hpp>
 
 #include <stdint.h>
 #include <ostream>
@@ -63,14 +63,9 @@ CmdRefresh::CmdRefresh()
     help = "Performs both refreshnym and refreshaccount.";
 }
 
-CmdRefresh::~CmdRefresh()
-{
-}
+CmdRefresh::~CmdRefresh() {}
 
-int32_t CmdRefresh::runWithOptions()
-{
-    return run(getOption("myacct"));
-}
+int32_t CmdRefresh::runWithOptions() { return run(getOption("myacct")); }
 
 int32_t CmdRefresh::run(string myacct)
 {
@@ -95,7 +90,7 @@ int32_t CmdRefresh::run(string myacct)
         return -1;
     }
 
-    if (!OT::App().API().ME().retrieve_account(server, mynym, myacct, true)) {
+    if (!OT::App().API().OTME().retrieve_account(server, mynym, myacct, true)) {
         otOut << "Error retrieving intermediary files for myacct.\n";
         return -1;
     }

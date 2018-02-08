@@ -42,7 +42,6 @@
 
 #include <opentxs/api/Native.hpp>
 #include <opentxs/api/Api.hpp>
-#include <opentxs/client/MadeEasy.hpp>
 #include <opentxs/client/OT_ME.hpp>
 #include <opentxs/client/SwigWrap.hpp>
 #include <opentxs/core/Log.hpp>
@@ -68,9 +67,7 @@ CmdDeposit::CmdDeposit()
         "Any supplied indices must correspond to tokens in your cash purse.";
 }
 
-CmdDeposit::~CmdDeposit()
-{
-}
+CmdDeposit::~CmdDeposit() {}
 
 int32_t CmdDeposit::runWithOptions()
 {
@@ -165,35 +162,35 @@ int32_t CmdDeposit::run(string mynym, string myacct, string indices)
 // SMART CONTRACTS, and PURSEs into these functions, and they should be able
 // to handle any of those types.
 
-int32_t CmdDeposit::depositCheque(const string& server, const string& myacct,
-                                  const string& mynym,
-                                  const string& instrument,
-                                  string * pOptionalOutput/*=nullptr*/) const
+int32_t CmdDeposit::depositCheque(
+    const string& server,
+    const string& myacct,
+    const string& mynym,
+    const string& instrument,
+    string* pOptionalOutput /*=nullptr*/) const
 {
     string assetType = getAccountAssetType(myacct);
     if ("" == assetType) {
         return -1;
     }
 
-    if (assetType !=
-        SwigWrap::Instrmnt_GetInstrumentDefinitionID(instrument)) {
+    if (assetType != SwigWrap::Instrmnt_GetInstrumentDefinitionID(instrument)) {
         otOut << "Error: instrument definitions of instrument and myacct do "
                  "not match.\n";
         return -1;
     }
 
-
-    string response = OT::App().API().OTME().deposit_cheque(server, mynym, myacct, instrument);
+    string response = OT::App().API().OTME().deposit_cheque(
+        server, mynym, myacct, instrument);
     int32_t reply =
         responseReply(response, server, mynym, myacct, "deposit_cheque");
     if (1 != reply) {
         return reply;
     }
 
-    if (nullptr != pOptionalOutput)
-        *pOptionalOutput = response;
+    if (nullptr != pOptionalOutput) *pOptionalOutput = response;
 
-    if (!OT::App().API().ME().retrieve_account(server, mynym, myacct, true)) {
+    if (!OT::App().API().OTME().retrieve_account(server, mynym, myacct, true)) {
         otOut << "Error retrieving intermediary files for account.\n";
         return -1;
     }
@@ -201,9 +198,13 @@ int32_t CmdDeposit::depositCheque(const string& server, const string& myacct,
     return 1;
 }
 
-int32_t CmdDeposit::depositPurse(const string& server, const string& myacct,
-                                 const string& mynym, string instrument,
-                                 const string& indices, string * pOptionalOutput/*=nullptr*/) const
+int32_t CmdDeposit::depositPurse(
+    const string& server,
+    const string& myacct,
+    const string& mynym,
+    string instrument,
+    const string& indices,
+    string* pOptionalOutput /*=nullptr*/) const
 {
 #if OT_CASH
     string assetType = getAccountAssetType(myacct);
@@ -213,8 +214,15 @@ int32_t CmdDeposit::depositPurse(const string& server, const string& myacct,
 
     if ("" != instrument) {
         vector<string> tokens;
-        return OT::App().API().ME().depositCashPurse(server, assetType, mynym, instrument,
-                                          tokens, myacct, false, pOptionalOutput);
+        return OT::App().API().OTME().depositCashPurse(
+            server,
+            assetType,
+            mynym,
+            instrument,
+            tokens,
+            myacct,
+            false,
+            pOptionalOutput);
     }
 
     // we have to load the purse ourselves
@@ -229,8 +237,15 @@ int32_t CmdDeposit::depositPurse(const string& server, const string& myacct,
         return -1;
     }
 
-    return OT::App().API().ME().depositCashPurse(server, assetType, mynym, instrument,
-                                      tokens, myacct, true, pOptionalOutput);
+    return OT::App().API().OTME().depositCashPurse(
+        server,
+        assetType,
+        mynym,
+        instrument,
+        tokens,
+        myacct,
+        true,
+        pOptionalOutput);
 #else
     return -1;
 #endif  // OT_CASH

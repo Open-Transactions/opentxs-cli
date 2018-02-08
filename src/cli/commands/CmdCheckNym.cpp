@@ -42,7 +42,7 @@
 
 #include <opentxs/api/Api.hpp>
 #include <opentxs/api/Native.hpp>
-#include <opentxs/client/MadeEasy.hpp>
+#include <opentxs/client/OT_ME.hpp>
 #include <opentxs/OT.hpp>
 
 #include <stdint.h>
@@ -61,9 +61,7 @@ CmdCheckNym::CmdCheckNym()
     help = "Download hisnym's public key.";
 }
 
-CmdCheckNym::~CmdCheckNym()
-{
-}
+CmdCheckNym::~CmdCheckNym() {}
 
 int32_t CmdCheckNym::runWithOptions()
 {
@@ -103,15 +101,18 @@ int32_t CmdCheckNym::run(string server, string mynym, string hisnym)
      ==> BUT! what if the NymID you are checking REALLY ISN'T ON THAT SERVER?
 
      ===> In that case, it will return "success=false". But it's NOT telling you
-     that some sort of error occurred, or that you are out of synch. Rather, it's
-     (correctly) informing you that you are trying to download a pubkey for a Nym
+     that some sort of error occurred, or that you are out of synch. Rather,
+     it's
+     (correctly) informing you that you are trying to download a pubkey for a
+     Nym
      you really actually wasn't found on that server!
 
-     ===> I don't see a fix for this, except to change the checkNym message so that
+     ===> I don't see a fix for this, except to change the checkNym message so
+     that
      the success=true and some new variable foundNym=false. (TODO.)
 
      */
 
-    string response = OT::App().API().ME().check_nym(server, mynym, hisnym);
+    string response = OT::App().API().OTME().check_nym(server, mynym, hisnym);
     return processResponse(response, "check nym");
 }

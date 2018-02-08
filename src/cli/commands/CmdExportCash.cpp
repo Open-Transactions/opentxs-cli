@@ -42,7 +42,7 @@
 
 #include <opentxs/api/Api.hpp>
 #include <opentxs/api/Native.hpp>
-#include <opentxs/client/MadeEasy.hpp>
+#include <opentxs/client/OT_ME.hpp>
 #include <opentxs/client/SwigWrap.hpp>
 #include <opentxs/core/Log.hpp>
 #include <opentxs/OT.hpp>
@@ -70,19 +70,26 @@ CmdExportCash::CmdExportCash()
             "Otherwise cash is exported to hisnym instead of mynym.";
 }
 
-CmdExportCash::~CmdExportCash()
-{
-}
+CmdExportCash::~CmdExportCash() {}
 
 int32_t CmdExportCash::runWithOptions()
 {
-    return run(getOption("server"), getOption("mynym"), getOption("mypurse"),
-               getOption("hisnym"), getOption("indices"),
-               getOption("password"));
+    return run(
+        getOption("server"),
+        getOption("mynym"),
+        getOption("mypurse"),
+        getOption("hisnym"),
+        getOption("indices"),
+        getOption("password"));
 }
 
-int32_t CmdExportCash::run(string server, string mynym, string mypurse,
-                           string hisnym, string indices, string password)
+int32_t CmdExportCash::run(
+    string server,
+    string mynym,
+    string mypurse,
+    string hisnym,
+    string indices,
+    string password)
 {
     if (!checkServer("server", server)) {
         return -1;
@@ -114,8 +121,14 @@ int32_t CmdExportCash::run(string server, string mynym, string mypurse,
     }
 
     string retainedCopy = "";
-    string purse = exportCash(server, mynym, mypurse, hisnym, indices,
-                              password == "true", retainedCopy);
+    string purse = exportCash(
+        server,
+        mynym,
+        mypurse,
+        hisnym,
+        indices,
+        password == "true",
+        retainedCopy);
     if ("" == purse) {
         return -1;
     }
@@ -162,14 +175,18 @@ int32_t CmdExportCash::run(string server, string mynym, string mypurse,
 // if hasPassword is false, then hisnym needs to contain the recipient Nym.
 // This will contain MyNym by default, if HisNym wasn't provided.
 
-string CmdExportCash::exportCash(const string& server, const string& mynym,
-                                 const string& assetType, string& hisnym,
-                                 const string& indices, bool hasPassword,
-                                 string& retainedCopy) const
+string CmdExportCash::exportCash(
+    const string& server,
+    const string& mynym,
+    const string& assetType,
+    string& hisnym,
+    const string& indices,
+    bool hasPassword,
+    string& retainedCopy) const
 {
 #if OT_CASH
-    string contract =
-        OT::App().API().ME().load_or_retrieve_contract(server, mynym, assetType);
+    string contract = OT::App().API().OTME().load_or_retrieve_contract(
+        server, mynym, assetType);
     if ("" == contract) {
         otOut << "Error: cannot load asset contract.\n";
         return "";
@@ -186,8 +203,15 @@ string CmdExportCash::exportCash(const string& server, const string& mynym,
         return "";
     }
 
-    return OT::App().API().ME().exportCashPurse(server, assetType, mynym, instrument,
-                                     tokens, hisnym, hasPassword, retainedCopy);
+    return OT::App().API().OTME().exportCashPurse(
+        server,
+        assetType,
+        mynym,
+        instrument,
+        tokens,
+        hisnym,
+        hasPassword,
+        retainedCopy);
 #else
     return {};
 #endif  // OT_CASH

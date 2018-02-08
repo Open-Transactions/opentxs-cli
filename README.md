@@ -22,6 +22,19 @@ All development goes in develop branch - please don't submit pull requests to ma
 
 Please do *NOT* use an editor that automatically reformats.
 
+#### CppCheck and clang-format Git hooks
+
+For convenience please enable the git hooks which will trigger cppcheck and
+clang-format each time you push or commit. To do so type in the repo directory:
+
+    cd .git/hooks
+    ln -s ../../scripts/git_hooks/pre-push
+    ln -s ../../scripts/git_hooks/pre-commit
+
+To check your code without pushing the following command can be used:
+
+    git push -n
+
 ### Dependencies
 
 [Open Transactions library](https://github.com/Open-Transactions/opentxs)

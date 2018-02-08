@@ -39,7 +39,8 @@
 #include "CmdShowMyOffers.hpp"
 
 #include "CmdBase.hpp"
-#include <opentxs/client/OTAPI_Func.hpp>
+
+#include <opentxs/client/OT_ME.hpp>
 #include <opentxs/core/Log.hpp>
 #include <opentxs/core/OTStorage.hpp>
 
@@ -59,9 +60,7 @@ CmdShowMyOffers::CmdShowMyOffers()
     help = "Show mynym's offers on a particular server.";
 }
 
-CmdShowMyOffers::~CmdShowMyOffers()
-{
-}
+CmdShowMyOffers::~CmdShowMyOffers() {}
 
 int32_t CmdShowMyOffers::runWithOptions()
 {
@@ -110,7 +109,6 @@ int32_t CmdShowMyOffers::run(string server, string mynym)
     // contents. unique_ptr is not enough.) I think the only reason Eric
     // let this go was because the program ends anyway after the command
     // fires. Still, needs cleanup.
-
 
     // output_nymoffer_data is called for each offer, for this nym, as it
     // iterates through the maps.

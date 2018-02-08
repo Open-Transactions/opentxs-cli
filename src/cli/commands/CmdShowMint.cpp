@@ -42,9 +42,9 @@
 
 #include <opentxs/api/Api.hpp>
 #include <opentxs/api/Native.hpp>
-#include <opentxs/OT.hpp>
-#include <opentxs/client/MadeEasy.hpp>
+#include <opentxs/client/OT_ME.hpp>
 #include <opentxs/core/Log.hpp>
+#include <opentxs/OT.hpp>
 
 #include <stdint.h>
 #include <iostream>
@@ -64,9 +64,7 @@ CmdShowMint::CmdShowMint()
            "necessary.";
 }
 
-CmdShowMint::~CmdShowMint()
-{
-}
+CmdShowMint::~CmdShowMint() {}
 
 int32_t CmdShowMint::runWithOptions()
 {
@@ -88,7 +86,8 @@ int32_t CmdShowMint::run(string server, string mynym, string mypurse)
         return -1;
     }
 
-    string mint = OT::App().API().ME().load_or_retrieve_mint(server, mynym, mypurse);
+    string mint =
+        OT::App().API().OTME().load_or_retrieve_mint(server, mynym, mypurse);
     if ("" == mint) {
         otOut << "Error: cannot load mint.\n";
         return -1;

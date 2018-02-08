@@ -42,7 +42,6 @@
 
 #include <opentxs/api/Native.hpp>
 #include <opentxs/api/Api.hpp>
-#include <opentxs/client/MadeEasy.hpp>
 #include <opentxs/client/OT_ME.hpp>
 #include <opentxs/client/SwigWrap.hpp>
 #include <opentxs/core/util/Common.hpp>
@@ -66,14 +65,12 @@ CmdExchangeBasket::CmdExchangeBasket()
     help = "Exchange in or out of a basket currency.";
 }
 
-CmdExchangeBasket::~CmdExchangeBasket()
-{
-}
+CmdExchangeBasket::~CmdExchangeBasket() {}
 
 int32_t CmdExchangeBasket::runWithOptions()
 {
-    return run(getOption("myacct"), getOption("direction"),
-               getOption("multiple"));
+    return run(
+        getOption("myacct"), getOption("direction"), getOption("multiple"));
 }
 
 int32_t CmdExchangeBasket::run(string myacct, string direction, string multiple)
@@ -155,14 +152,14 @@ int32_t CmdExchangeBasket::run(string myacct, string direction, string multiple)
         }
     }
 
-
-    if (!OT::App().API().OTME().make_sure_enough_trans_nums(20, server, mynym)) {
+    if (!OT::App().API().OTME().make_sure_enough_trans_nums(
+            20, server, mynym)) {
         otOut << "Error: cannot reserve transaction numbers.\n";
         return -1;
     }
 
-    string basket = SwigWrap::GenerateBasketExchange(server, mynym, assetType,
-                                                       myacct, multiplier);
+    string basket = SwigWrap::GenerateBasketExchange(
+        server, mynym, assetType, myacct, multiplier);
     if ("" == basket) {
         otOut << "Error: cannot generate basket exchange.\n";
         return -1;
@@ -177,8 +174,7 @@ int32_t CmdExchangeBasket::run(string myacct, string direction, string multiple)
         }
 
         int64_t memberAmount =
-            SwigWrap::Basket_GetMemberMinimumTransferAmount(assetType,
-                                                              member);
+            SwigWrap::Basket_GetMemberMinimumTransferAmount(assetType, member);
         if (0 > memberAmount) {
             otOut << "Error: cannot load basket member minimum transfer "
                      "amount.\n";
@@ -195,8 +191,8 @@ int32_t CmdExchangeBasket::run(string myacct, string direction, string multiple)
         otOut << "\nThere are " << (members - member)
               << " accounts remaining to be selected.\n\n";
         otOut << "Currently we need to select an account with the instrument "
-                 "definition:\n" << memberType << " (" << memberTypeName
-              << ")\n";
+                 "definition:\n"
+              << memberType << " (" << memberTypeName << ")\n";
         otOut << "Above are all the accounts in the wallet, for the relevant "
                  "server and nym, of that instrument definition.\n";
 
@@ -205,7 +201,8 @@ int32_t CmdExchangeBasket::run(string myacct, string direction, string multiple)
                   << multiplier << " and a minimum transfer amount of "
                   << memberAmount
                   << "\n(for this sub-currency), you must therefore select an "
-                     "account with a minimum\nbalance of: " << amount << "\n";
+                     "account with a minimum\nbalance of: "
+                  << amount << "\n";
         }
 
         otOut << "\nPlease PASTE an account ID from the above list: ";
@@ -250,7 +247,7 @@ int32_t CmdExchangeBasket::run(string myacct, string direction, string multiple)
         basket = newBasket;
     }
 
-    string response = OT::App().API().ME().exchange_basket_currency(
+    string response = OT::App().API().OTME().exchange_basket_currency(
         server, mynym, assetType, basket, myacct, bExchangingIn);
     int32_t reply =
         responseReply(response, server, mynym, myacct, "exchange_basket");
@@ -258,7 +255,7 @@ int32_t CmdExchangeBasket::run(string myacct, string direction, string multiple)
         return reply;
     }
 
-    if (!OT::App().API().ME().retrieve_account(server, mynym, myacct, true)) {
+    if (!OT::App().API().OTME().retrieve_account(server, mynym, myacct, true)) {
         otOut << "Error retrieving intermediary files for account.\n";
         return -1;
     }
@@ -278,10 +275,11 @@ int32_t CmdExchangeBasket::run(string myacct, string direction, string multiple)
 // Also: if server exists, the accounts are filtered by that server.
 // Also: if mynym exists, the accounts are filtered by that Nym.
 //
-int32_t CmdExchangeBasket::showBasketAccounts(const string& server,
-                                              const string& mynym,
-                                              const string& assetType,
-                                              bool bFilter)
+int32_t CmdExchangeBasket::showBasketAccounts(
+    const string& server,
+    const string& mynym,
+    const string& assetType,
+    bool bFilter)
 {
     int32_t items = SwigWrap::GetAccountCount();
     if (0 > items) {
@@ -321,7 +319,8 @@ int32_t CmdExchangeBasket::showBasketAccounts(const string& server,
                 if (("" == assetType && SwigWrap::IsBasketCurrency(asset)) ||
                     ("" != assetType && bFilter && assetType == asset) ||
                     ("" != assetType && !bFilter && assetType != asset)) {
-                    string statAccount = OT::App().API().ME().stat_asset_account(acct);
+                    string statAccount =
+                        OT::App().API().OTME().stat_asset_account(acct);
                     if ("" == statAccount) {
                         otOut << "Error: cannot stat account.\n";
                         return -1;

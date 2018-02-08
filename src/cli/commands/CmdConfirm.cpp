@@ -43,7 +43,6 @@
 
 #include <opentxs/api/Native.hpp>
 #include <opentxs/api/Api.hpp>
-#include <opentxs/client/MadeEasy.hpp>
 #include <opentxs/client/OT_ME.hpp>
 #include <opentxs/client/SwigWrap.hpp>
 #include <opentxs/core/util/Common.hpp>
@@ -71,18 +70,24 @@ CmdConfirm::CmdConfirm()
     help = "Confirm your agreement to a smart contract or payment plan.";
 }
 
-CmdConfirm::~CmdConfirm()
-{
-}
+CmdConfirm::~CmdConfirm() {}
 
 int32_t CmdConfirm::runWithOptions()
 {
-    return run(getOption("server"), getOption("mynym"), getOption("myacct"),
-               getOption("hisnym"), getOption("index"));
+    return run(
+        getOption("server"),
+        getOption("mynym"),
+        getOption("myacct"),
+        getOption("hisnym"),
+        getOption("index"));
 }
 
-int32_t CmdConfirm::run(string server, string mynym, string myacct,
-                        string hisnym, string index)
+int32_t CmdConfirm::run(
+    string server,
+    string mynym,
+    string myacct,
+    string hisnym,
+    string index)
 {
     if (!checkServer("server", server)) {
         return -1;
@@ -129,22 +134,25 @@ int32_t CmdConfirm::run(string server, string mynym, string myacct,
 
     // use specified payment instrument from inpayments
 
-    string instrument =
-        OT::App().API().OTME().get_payment_instrument(server, mynym, messageNr, "");
+    string instrument = OT::App().API().OTME().get_payment_instrument(
+        server, mynym, messageNr, "");
     if ("" == instrument) {
         otOut << "Error: cannot load payment instrument.\n";
         return -1;
     }
 
-    return confirmInstrument(server, mynym, myacct, hisnym, instrument,
-                             messageNr);
+    return confirmInstrument(
+        server, mynym, myacct, hisnym, instrument, messageNr);
 }
 
-int32_t CmdConfirm::confirmInstrument(const string& server, const string& mynym,
-                                      const string& myacct,
-                                      const string& hisnym,
-                                      const string& instrument, int32_t index,
-                                      std::string * pOptionalOutput/*=nullptr*/)
+int32_t CmdConfirm::confirmInstrument(
+    const string& server,
+    const string& mynym,
+    const string& myacct,
+    const string& hisnym,
+    const string& instrument,
+    int32_t index,
+    std::string* pOptionalOutput /*=nullptr*/)
 {
     string instrumentType = SwigWrap::Instrmnt_GetType(instrument);
     if ("" == instrumentType) {
@@ -185,8 +193,8 @@ int32_t CmdConfirm::confirmInstrument(const string& server, const string& mynym,
     }
 
     if ("SMARTCONTRACT" == instrumentType) {
-        return confirmSmartContract(server, mynym, myacct, hisnym, instrument,
-                                    index, pOptionalOutput);
+        return confirmSmartContract(
+            server, mynym, myacct, hisnym, instrument, index, pOptionalOutput);
     }
 
     // CHEQUE VOUCHER INVOICE PURSE
@@ -194,10 +202,11 @@ int32_t CmdConfirm::confirmInstrument(const string& server, const string& mynym,
     return -1;
 }
 
-int32_t CmdConfirm::confirmPaymentPlan(const string& mynym,
-                                       const string& myacct,
-                                       const string& plan,
-                                       string * pOptionalOutput/*=nullptr*/)
+int32_t CmdConfirm::confirmPaymentPlan(
+    const string& mynym,
+    const string& myacct,
+    const string& plan,
+    string* pOptionalOutput /*=nullptr*/)
 {
     string server = SwigWrap::Instrmnt_GetNotaryID(plan);
     if ("" == server) {
@@ -207,8 +216,7 @@ int32_t CmdConfirm::confirmPaymentPlan(const string& mynym,
 
     string senderUser = mynym;
 
-    if ("" == senderUser)
-        senderUser = SwigWrap::Instrmnt_GetSenderNymID(plan);
+    if ("" == senderUser) senderUser = SwigWrap::Instrmnt_GetSenderNymID(plan);
 
     if ("" == senderUser) {
         otOut << "Error: cannot get sender user from instrument.\n";
@@ -217,8 +225,7 @@ int32_t CmdConfirm::confirmPaymentPlan(const string& mynym,
 
     string senderAcct = myacct;
 
-    if ("" == senderAcct)
-        senderAcct = SwigWrap::Instrmnt_GetSenderAcctID(plan);
+    if ("" == senderAcct) senderAcct = SwigWrap::Instrmnt_GetSenderAcctID(plan);
 
     if ("" == senderAcct) {
         otOut << "Error: cannot get sender account from instrument.\n";
@@ -237,8 +244,8 @@ int32_t CmdConfirm::confirmPaymentPlan(const string& mynym,
         return -1;
     }
 
-
-    if (!OT::App().API().OTME().make_sure_enough_trans_nums(2, server, senderUser)) {
+    if (!OT::App().API().OTME().make_sure_enough_trans_nums(
+            2, server, senderUser)) {
         otOut << "Error: cannot reserve transaction numbers.\n";
         return -1;
     }
@@ -252,8 +259,8 @@ int32_t CmdConfirm::confirmPaymentPlan(const string& mynym,
 
     // If we fail, then we need to harvest the transaction numbers back from
     // the payment plan that we confirmed
-    string response =
-        OT::App().API().ME().deposit_payment_plan(server, senderUser, confirmed);
+    string response = OT::App().API().OTME().deposit_payment_plan(
+        server, senderUser, confirmed);
 
     int32_t success = responseStatus(response);
     if (1 != success) {
@@ -262,16 +269,16 @@ int32_t CmdConfirm::confirmPaymentPlan(const string& mynym,
         return success;
     }
 
-    int32_t reply = responseReply(response, server, senderUser, senderAcct,
-                                  "deposit_payment_plan");
+    int32_t reply = responseReply(
+        response, server, senderUser, senderAcct, "deposit_payment_plan");
     if (1 != reply) {
         return reply;
     }
 
-    if (nullptr != pOptionalOutput)
-        *pOptionalOutput = response;
+    if (nullptr != pOptionalOutput) *pOptionalOutput = response;
 
-    if (!OT::App().API().ME().retrieve_account(server, senderUser, senderAcct, true)) {
+    if (!OT::App().API().OTME().retrieve_account(
+            server, senderUser, senderAcct, true)) {
         otOut << "Error retrieving intermediary files for account.\n";
         return -1;
     }
@@ -281,10 +288,12 @@ int32_t CmdConfirm::confirmPaymentPlan(const string& mynym,
     // smart contract, yet here we do not?
     //
     // Because with a smart contract, it has been sent on to the next party. So
-    // it's now got a copy in the outpayments. There was no transaction performed
+    // it's now got a copy in the outpayments. There was no transaction
+    // performed
     // at that time; perhaps it will go to 3 more parties before it's actually
     // activated onto a server. Only THEN is a transaction performed. Therefore,
-    // confirmSmartContract is finished with the incoming instrument, in every respect,
+    // confirmSmartContract is finished with the incoming instrument, in every
+    // respect,
     // and can directly RecordPayment it to remove it from the payments inbox.
     //
     // Whereas with a payment plan, a transaction HAS just been performed.
@@ -292,7 +301,8 @@ int32_t CmdConfirm::confirmPaymentPlan(const string& mynym,
     // already received the server reply at a lower level, and OT already should
     // be smart enough to RecordPayment at THAT time.
     //
-    // And that's why we don't need to do it here and now: Because it has already
+    // And that's why we don't need to do it here and now: Because it has
+    // already
     // been done.
 
     return 1;
@@ -314,12 +324,14 @@ int32_t CmdConfirm::confirmPaymentPlan(const string& mynym,
 // at the command line, then the two must match, since the ID cannot be changed
 // after that point.
 
-int32_t CmdConfirm::confirmSmartContract(const string& server,
-                                         const string& mynym,
-                                         const string& myacct,
-                                         const string& hisnym,
-                                         const string& contract, int32_t index,
-                                         string * pOptionalOutput/*=nullptr*/)
+int32_t CmdConfirm::confirmSmartContract(
+    const string& server,
+    const string& mynym,
+    const string& myacct,
+    const string& hisnym,
+    const string& contract,
+    int32_t index,
+    string* pOptionalOutput /*=nullptr*/)
 {
     int32_t parties = SwigWrap::Smart_GetPartyCount(contract);
     if (0 > parties) {
@@ -422,8 +434,7 @@ int32_t CmdConfirm::confirmSmartContract(const string& server,
         return harvestTxNumbers(contract, mynym);
     }
 
-    if (nullptr != pOptionalOutput)
-        *pOptionalOutput = confirmed;
+    if (nullptr != pOptionalOutput) *pOptionalOutput = confirmed;
 
     if (SwigWrap::Smart_AreAllPartiesConfirmed(confirmed)) {
         // If you are the last party to sign, then ACTIVATE THE SMART CONTRACT.
@@ -451,9 +462,12 @@ int32_t CmdConfirm::confirmSmartContract(const string& server,
     return 1;
 }
 
-int32_t CmdConfirm::activateContract(const string& server, const string& mynym,
-                                     const string& contract, const string& name,
-                                     int32_t accounts)
+int32_t CmdConfirm::activateContract(
+    const string& server,
+    const string& mynym,
+    const string& contract,
+    const string& name,
+    int32_t accounts)
 {
     // We don't need MyAcct except when actually ACTIVATING the smart contract
     // on the server. This variable might get set later to MyAcct, if it matches
@@ -502,9 +516,8 @@ int32_t CmdConfirm::activateContract(const string& server, const string& mynym,
         }
     }
 
-
-    string response = OT::App().API().OTME().activate_smart_contract(server, mynym, myAcctID,
-                                                    myAcctAgentName, contract);
+    string response = OT::App().API().OTME().activate_smart_contract(
+        server, mynym, myAcctID, myAcctAgentName, contract);
     if (1 != responseStatus(response)) {
         otOut << "Error: cannot activate smart contract.\n";
         harvestTxNumbers(contract, mynym);
@@ -512,22 +525,25 @@ int32_t CmdConfirm::activateContract(const string& server, const string& mynym,
     }
 
     // BELOW THIS POINT, the transaction has definitely processed.
-    int32_t reply = responseReply(response, server, mynym, myAcctID,
-                                  "activate_smart_contract");
+    int32_t reply = responseReply(
+        response, server, mynym, myAcctID, "activate_smart_contract");
     if (1 != reply) {
         return reply;
     }
 
-    if (!OT::App().API().ME().retrieve_account(server, mynym, myAcctID, true)) {
+    if (!OT::App().API().OTME().retrieve_account(
+            server, mynym, myAcctID, true)) {
         otOut << "Error retrieving intermediary files for account.\n";
     }
 
     return 1;
 }
 
-int32_t CmdConfirm::sendToNextParty(const string& server, const string& mynym,
-                                    const string& hisnym,
-                                    const string& contract)
+int32_t CmdConfirm::sendToNextParty(
+    const string& server,
+    const string& mynym,
+    const string& hisnym,
+    const string& contract)
 {
     // But if all the parties are NOT confirmed, then we need to send it to
     // the next guy. In that case:
@@ -569,9 +585,8 @@ int32_t CmdConfirm::sendToNextParty(const string& server, const string& mynym,
         }
     }
 
-
-    string response =
-        OT::App().API().OTME().send_user_payment(server, mynym, hisNymID, contract);
+    string response = OT::App().API().OTME().send_user_payment(
+        server, mynym, hisNymID, contract);
     if (1 != responseStatus(response)) {
         otOut << "\nFor whatever reason, our attempt to send the instrument on "
                  "to the next user has failed.\n";
@@ -611,9 +626,13 @@ int32_t CmdConfirm::sendToNextParty(const string& server, const string& mynym,
     return 1;
 }
 
-int32_t CmdConfirm::confirmAccounts(string server, string mynym, string myacct,
-                                    string contract, const string& name,
-                                    int32_t accounts)
+int32_t CmdConfirm::confirmAccounts(
+    string server,
+    string mynym,
+    string myacct,
+    string contract,
+    const string& name,
+    int32_t accounts)
 {
     map<string, string> mapIDs;
     map<string, string> mapAgents;
@@ -684,8 +703,8 @@ int32_t CmdConfirm::confirmAccounts(string server, string mynym, string myacct,
         // from the smart contract template have had actual acct IDs selected
         // for each.
         string templateInstrumentDefinitionID =
-            SwigWrap::Party_GetAcctInstrumentDefinitionID(contract, name,
-                                                            acctName);
+            SwigWrap::Party_GetAcctInstrumentDefinitionID(
+                contract, name, acctName);
         bool foundTemplateInstrumentDefinitionID =
             "" != templateInstrumentDefinitionID;
 
@@ -729,8 +748,7 @@ int32_t CmdConfirm::confirmAccounts(string server, string mynym, string myacct,
                     if (!bAlreadyOnTheMap) {
                         foundAccounts = true;
                         otOut << i << " : " << acct << " ("
-                              << SwigWrap::GetAccountWallet_Name(acct)
-                              << ")\n";
+                              << SwigWrap::GetAccountWallet_Name(acct) << ")\n";
                     }
                 }
             }
@@ -788,8 +806,7 @@ int32_t CmdConfirm::confirmAccounts(string server, string mynym, string myacct,
                 if (bAlreadyOnIt) {
                     otOut << "Sorry, you already selected this account. Choose "
                              "another.\n";
-                }
-                else {
+                } else {
                     // acct has been selected for name's account, acctName.
                     // Add these to a map or whatever, to save them until
                     // this loop is complete.
@@ -822,13 +839,13 @@ int32_t CmdConfirm::confirmAccounts(string server, string mynym, string myacct,
                                 contract, name, nAgentIndex);
                             if ("" == agentName) {
                                 otOut << "Error: Unable to retrieve agent name "
-                                         "at index " << strAgentIndex
-                                      << " for Party: " << name << "\n";
+                                         "at index "
+                                      << strAgentIndex << " for Party: " << name
+                                      << "\n";
                                 return -1;
                             }
 
-                        }
-                        else {
+                        } else {
                             otOut
                                 << "Failed finding the agent's name for party: "
                                 << name << " Account: " << acctName
@@ -851,8 +868,8 @@ int32_t CmdConfirm::confirmAccounts(string server, string mynym, string myacct,
         int32_t needed = SwigWrap::SmartContract_CountNumsNeeded(
             contract, mapAgents[x->first]);
 
-
-        if (!OT::App().API().OTME().make_sure_enough_trans_nums(needed + 1, server, mynym)) {
+        if (!OT::App().API().OTME().make_sure_enough_trans_nums(
+                needed + 1, server, mynym)) {
             otOut << "Error: cannot reserve transaction numbers.\n";
             return -1;
         }
@@ -897,8 +914,10 @@ int32_t CmdConfirm::confirmAccounts(string server, string mynym, string myacct,
     return 1;
 }
 
-bool CmdConfirm::showPartyAccounts(const string& contract, const string& name,
-                                   int32_t depth)
+bool CmdConfirm::showPartyAccounts(
+    const string& contract,
+    const string& name,
+    int32_t depth)
 {
     int32_t accounts = SwigWrap::Party_GetAcctCount(contract, name);
 
@@ -916,8 +935,7 @@ bool CmdConfirm::showPartyAccounts(const string& contract, const string& name,
     }
 
     for (int32_t i = 0; i < accounts; i++) {
-        string acctName =
-            SwigWrap::Party_GetAcctNameByIndex(contract, name, i);
+        string acctName = SwigWrap::Party_GetAcctNameByIndex(contract, name, i);
         if ("" == acctName) {
             otOut << "Error: Failed retrieving Asset Account Name from party '"
                   << name << "' at account index: " << i << "\n";
@@ -925,8 +943,8 @@ bool CmdConfirm::showPartyAccounts(const string& contract, const string& name,
         }
 
         string acctInstrumentDefinitionID =
-            SwigWrap::Party_GetAcctInstrumentDefinitionID(contract, name,
-                                                            acctName);
+            SwigWrap::Party_GetAcctInstrumentDefinitionID(
+                contract, name, acctName);
         if ("" != acctInstrumentDefinitionID) {
             cout << "-------------------\nAccount '" << acctName << "' (index "
                  << i << " on Party '" << name
@@ -954,8 +972,10 @@ bool CmdConfirm::showPartyAccounts(const string& contract, const string& name,
     return true;
 }
 
-bool CmdConfirm::showPartyAgents(const string& contract, const string& name,
-                                 int32_t depth)
+bool CmdConfirm::showPartyAgents(
+    const string& contract,
+    const string& name,
+    int32_t depth)
 {
     int32_t agentCount = SwigWrap::Party_GetAgentCount(contract, name);
     if (0 > agentCount) {
@@ -983,8 +1003,7 @@ bool CmdConfirm::showPartyAgents(const string& contract, const string& name,
             cout << "--------------------\n " << i << " : Agent '" << agent
                  << "' (party '" << name << "') has NymID: " << agentID << " ('"
                  << SwigWrap::GetNym_Name(agentID) << "')\n";
-        }
-        else {
+        } else {
             cout << " " << i << " : Agent '" << agent << "' (party '" << name
                  << "') has no NymID assigned (yet.)\n";
         }

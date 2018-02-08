@@ -42,11 +42,11 @@
 
 #include <opentxs/api/Api.hpp>
 #include <opentxs/api/Native.hpp>
-#include <opentxs/OT.hpp>
-#include <opentxs/client/MadeEasy.hpp>
+#include <opentxs/client/OT_ME.hpp>
 #include <opentxs/client/SwigWrap.hpp>
 #include <opentxs/core/util/Common.hpp>
 #include <opentxs/core/Log.hpp>
+#include <opentxs/OT.hpp>
 
 #include <stdint.h>
 #include <ostream>
@@ -66,18 +66,22 @@ CmdTransfer::CmdTransfer()
     help = "Send a transfer from myacct to hisacct.";
 }
 
-CmdTransfer::~CmdTransfer()
-{
-}
+CmdTransfer::~CmdTransfer() {}
 
 int32_t CmdTransfer::runWithOptions()
 {
-    return run(getOption("myacct"), getOption("hisacct"), getOption("amount"),
-               getOption("memo"));
+    return run(
+        getOption("myacct"),
+        getOption("hisacct"),
+        getOption("amount"),
+        getOption("memo"));
 }
 
-int32_t CmdTransfer::run(string myacct, string hisacct, string amount,
-                         string memo)
+int32_t CmdTransfer::run(
+    string myacct,
+    string hisacct,
+    string amount,
+    string memo)
 {
 
     if (!checkAccount("myacct", myacct)) {
@@ -116,15 +120,15 @@ int32_t CmdTransfer::run(string myacct, string hisacct, string amount,
     }
 
     opentxs::TransactionNumber notUsed{0};
-    string response =
-        OT::App().API().ME().send_transfer(server, mynym, myacct, hisacct, value, memo, notUsed);
+    string response = OT::App().API().OTME().send_transfer(
+        server, mynym, myacct, hisacct, value, memo);
     int32_t reply =
         responseReply(response, server, mynym, myacct, "send_transfer");
     if (1 != reply) {
         return reply;
     }
 
-    if (!OT::App().API().ME().retrieve_account(server, mynym, myacct, true)) {
+    if (!OT::App().API().OTME().retrieve_account(server, mynym, myacct, true)) {
         otOut << "Error retrieving intermediary files for account.\n";
         return -1;
     }

@@ -70,6 +70,12 @@
 #include "commands/CmdDecode.hpp"
 #include "commands/CmdDecrypt.hpp"
 #include "commands/CmdDeposit.hpp"
+#include "commands/CmdDhtQueryNym.hpp"
+#include "commands/CmdDhtQueryServerContract.hpp"
+#include "commands/CmdDhtQueryUnitDefinition.hpp"
+#include "commands/CmdDhtStoreNym.hpp"
+#include "commands/CmdDhtStoreServerContract.hpp"
+#include "commands/CmdDhtStoreUnitDefinition.hpp"
 #include "commands/CmdDiscard.hpp"
 #include "commands/CmdEditAccount.hpp"
 #include "commands/CmdEditAsset.hpp"
@@ -241,6 +247,9 @@ CmdBase* cmds[] = {
     new CmdContactName,              new CmdConvertPaymentCode,
     new CmdDecode,                   new CmdDecrypt,
     new CmdDeposit,                  new CmdDiscard,
+    new CmdDhtQueryNym,              new CmdDhtStoreNym,
+    new CmdDhtQueryServerContract,   new CmdDhtStoreServerContract,
+    new CmdDhtQueryUnitDefinition,   new CmdDhtStoreUnitDefinition,
     new CmdEditAccount,              new CmdEditAsset,
     new CmdEditNym,                  new CmdEditServer,
     new CmdEncode,                   new CmdEncrypt,

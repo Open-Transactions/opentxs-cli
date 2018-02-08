@@ -35,6 +35,12 @@ set(cxx-sources
   commands/CmdDecode.cpp
   commands/CmdDecrypt.cpp
   commands/CmdDeposit.cpp
+  commands/CmdDhtQueryNym.cpp
+  commands/CmdDhtQueryServerContract.cpp
+  commands/CmdDhtQueryUnitDefinition.cpp
+  commands/CmdDhtStoreNym.cpp
+  commands/CmdDhtStoreServerContract.cpp
+  commands/CmdDhtStoreUnitDefinition.cpp
   commands/CmdDiscard.cpp
   commands/CmdEditAccount.cpp
   commands/CmdEditAsset.cpp

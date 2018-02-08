@@ -42,7 +42,7 @@
 
 #include <opentxs/api/Api.hpp>
 #include <opentxs/api/Native.hpp>
-#include <opentxs/client/MadeEasy.hpp>
+#include <opentxs/client/OT_ME.hpp>
 #include <opentxs/OT.hpp>
 
 #include <stdint.h>
@@ -61,17 +61,17 @@ CmdGetInstrumentDefinition::CmdGetInstrumentDefinition()
     help = "Download an asset or server contract by its ID.";
 }
 
-CmdGetInstrumentDefinition::~CmdGetInstrumentDefinition()
-{
-}
+CmdGetInstrumentDefinition::~CmdGetInstrumentDefinition() {}
 
 int32_t CmdGetInstrumentDefinition::runWithOptions()
 {
     return run(getOption("server"), getOption("mynym"), getOption("contract"));
 }
 
-int32_t CmdGetInstrumentDefinition::run(string server, string mynym,
-                                        string contract)
+int32_t CmdGetInstrumentDefinition::run(
+    string server,
+    string mynym,
+    string contract)
 {
     if (!checkServer("server", server)) {
         return -1;
@@ -85,6 +85,7 @@ int32_t CmdGetInstrumentDefinition::run(string server, string mynym,
         return -1;
     }
 
-    string response = OT::App().API().ME().retrieve_contract(server, mynym, contract);
+    string response =
+        OT::App().API().OTME().retrieve_contract(server, mynym, contract);
     return processResponse(response, "retrieve contract");
 }

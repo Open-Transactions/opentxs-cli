@@ -36,58 +36,80 @@
  *
  ************************************************************/
 
-#include "CmdRefreshAccount.hpp"
+#include "CmdAddContract.hpp"
 
 #include "CmdBase.hpp"
 
-#include <opentxs/api/Api.hpp>
-#include <opentxs/api/Native.hpp>
-#include <opentxs/client/OT_ME.hpp>
 #include <opentxs/client/SwigWrap.hpp>
 #include <opentxs/core/Log.hpp>
-#include <opentxs/OT.hpp>
 
-#include <stdint.h>
-#include <ostream>
-#include <string>
-
-using namespace opentxs;
-using namespace std;
-
-CmdRefreshAccount::CmdRefreshAccount()
+namespace opentxs
 {
-    command = "refreshaccount";
-    args[0] = "--myacct <account>";
-    category = catAccounts;
-    help = "Download myacct's latest intermediary files.";
+CmdAddContract::CmdAddContract()
+{
+    command = "addcontract";
+    args[0] = "--mynym <nym>";
+    args[1] = "--type <currency>";
+    args[2] = "--value <instrument definition id>";
+    category = catWallet;
+    help = "Edit a nym's contact credential data.";
 }
 
-CmdRefreshAccount::~CmdRefreshAccount() {}
-
-int32_t CmdRefreshAccount::runWithOptions() { return run(getOption("myacct")); }
-
-int32_t CmdRefreshAccount::run(string myacct)
+std::int32_t CmdAddContract::runWithOptions()
 {
-    if (!checkAccount("myacct", myacct)) {
+    return run(
+        getOption("mynym"),
+        getOption("type"),
+        getOption("value"));
+}
+
+std::int32_t CmdAddContract::run(
+    std::string mynym,
+    const std::string& type,
+    const std::string& value)
+{
+    if (false == checkNym("mynym", mynym)) {
+        otErr << "Unknown nym " << mynym << std::endl;
+
         return -1;
     }
 
-    string server = SwigWrap::GetAccountWallet_NotaryID(myacct);
-    if ("" == server) {
-        otOut << "Error: cannot determine server from myacct.\n";
+    if (type.empty()) {
+        otErr << "Invalid type" << std::endl;
+
         return -1;
     }
 
-    string mynym = SwigWrap::GetAccountWallet_NymID(myacct);
-    if ("" == mynym) {
-        otOut << "Error: cannot determine mynym from myacct.\n";
+    if (value.empty()) {
+        otErr << "Invalid value" << std::endl;
+
         return -1;
     }
 
-    if (!OT::App().API().OTME().retrieve_account(server, mynym, myacct, true)) {
-        otOut << "Error retrieving intermediary files for myacct.\n";
+    const auto currency = static_cast<proto::ContactItemType>(
+        std::stoi(type));
+    auto data = SwigWrap::Wallet_GetNym(mynym);
+
+    if (false == data.Valid()) {
+        otErr << "Invalid nym " << mynym << std::endl;
+
         return -1;
     }
+
+    const auto set = data.AddContract(
+        value,
+        currency,
+        true,
+        true);
+
+    if (false == set) {
+        otErr << "Failed to set claim" << std::endl;
+
+        return -1;
+    }
+
+    otErr << SwigWrap::DumpContactData(mynym) << std::endl;
 
     return 1;
 }
+} // namespace opentxs

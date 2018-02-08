@@ -42,12 +42,11 @@
 
 #include <opentxs/api/Api.hpp>
 #include <opentxs/api/Native.hpp>
-#include <opentxs/OT.hpp>
-#include <opentxs/client/MadeEasy.hpp>
 #include <opentxs/client/OT_ME.hpp>
 #include <opentxs/client/SwigWrap.hpp>
 #include <opentxs/core/util/Common.hpp>
 #include <opentxs/core/Log.hpp>
+#include <opentxs/OT.hpp>
 
 #include <stdint.h>
 #include <iostream>
@@ -68,18 +67,22 @@ CmdWithdrawVoucher::CmdWithdrawVoucher()
     usage = "Use sendvoucher if you want to send it immediately.";
 }
 
-CmdWithdrawVoucher::~CmdWithdrawVoucher()
-{
-}
+CmdWithdrawVoucher::~CmdWithdrawVoucher() {}
 
 int32_t CmdWithdrawVoucher::runWithOptions()
 {
-    return run(getOption("myacct"), getOption("hisnym"), getOption("amount"),
-               getOption("memo"));
+    return run(
+        getOption("myacct"),
+        getOption("hisnym"),
+        getOption("amount"),
+        getOption("memo"));
 }
 
-int32_t CmdWithdrawVoucher::run(string myacct, string hisnym, string amount,
-                                string memo)
+int32_t CmdWithdrawVoucher::run(
+    string myacct,
+    string hisnym,
+    string amount,
+    string memo)
 {
     string voucher;
     if (1 > run(myacct, hisnym, amount, memo, voucher)) {
@@ -91,8 +94,12 @@ int32_t CmdWithdrawVoucher::run(string myacct, string hisnym, string amount,
     return 1;
 }
 
-int32_t CmdWithdrawVoucher::run(string myacct, string hisnym, string amount,
-                                string memo, string& voucher)
+int32_t CmdWithdrawVoucher::run(
+    string myacct,
+    string hisnym,
+    string amount,
+    string memo,
+    string& voucher)
 {
     if (!checkAccount("myacct", myacct)) {
         return -1;
@@ -119,15 +126,8 @@ int32_t CmdWithdrawVoucher::run(string myacct, string hisnym, string amount,
         return -1;
     }
 
-    // make sure we can access the public key before trying to write a voucher
-    if ("" == OT::App().API().ME().load_or_retrieve_encrypt_key(server, mynym, hisnym)) {
-        otOut << "Error: cannot load public key for hisnym.\n";
-        return -1;
-    }
-
-
-    string response =
-        OT::App().API().OTME().withdraw_voucher(server, mynym, myacct, hisnym, memo, value);
+    string response = OT::App().API().OTME().withdraw_voucher(
+        server, mynym, myacct, hisnym, memo, value);
     int32_t reply =
         responseReply(response, server, mynym, myacct, "withdraw_voucher");
     if (1 != reply) {
@@ -140,8 +140,8 @@ int32_t CmdWithdrawVoucher::run(string myacct, string hisnym, string amount,
         return -1;
     }
 
-    string tx = SwigWrap::Ledger_GetTransactionByIndex(server, mynym, myacct,
-                                                         ledger, 0);
+    string tx = SwigWrap::Ledger_GetTransactionByIndex(
+        server, mynym, myacct, ledger, 0);
     if ("" == tx) {
         otOut << "Error: cannot retrieve transaction.\n";
         return -1;
@@ -163,7 +163,7 @@ int32_t CmdWithdrawVoucher::run(string myacct, string hisnym, string amount,
     // safe-keeping.
     OT::App().API().OTME().send_user_payment(server, mynym, mynym, voucher);
 
-    if (!OT::App().API().ME().retrieve_account(server, mynym, myacct, true)) {
+    if (!OT::App().API().OTME().retrieve_account(server, mynym, myacct, true)) {
         otOut << "Error retrieving intermediary files for account.\n";
         return -1;
     }

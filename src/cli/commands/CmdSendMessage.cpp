@@ -42,10 +42,10 @@
 
 #include <opentxs/api/Api.hpp>
 #include <opentxs/api/Native.hpp>
-#include <opentxs/OT.hpp>
-#include <opentxs/client/MadeEasy.hpp>
+#include <opentxs/client/OT_ME.hpp>
 #include <opentxs/client/OTME_too.hpp>
 #include <opentxs/core/Log.hpp>
+#include <opentxs/OT.hpp>
 
 #include <ostream>
 
@@ -86,21 +86,7 @@ std::int32_t CmdSendMessage::nym(
         return -1;
     }
 
-    auto& me = OT::App().API().ME();
-
-    // make sure we can access the public keys before trying to send a message
-
-    if ("" == me.load_or_retrieve_encrypt_key(server, mynym, mynym)) {
-        otOut << "Error: cannot load public key for mynym.\n";
-        return -1;
-    }
-
-    if ("" == me.load_or_retrieve_encrypt_key(server, mynym, hisnym)) {
-        otOut << "Error: cannot load public key for hisnym.\n";
-
-        return -1;
-    }
-
+    auto& me = OT::App().API().OTME();
     std::string response = me.send_user_msg(server, mynym, hisnym, message);
 
     return processResponse(response, "send message");
@@ -124,7 +110,6 @@ std::int32_t CmdSendMessage::run(
     if ("" == input) {
         otErr << "Bad message" << std::endl;
 
-
         return -1;
     }
 
@@ -139,4 +124,4 @@ std::int32_t CmdSendMessage::runWithOptions()
 {
     return run(getOption("mynym"), getOption("hisnym"), getOption("server"));
 }
-} // namespace opentxs
+}  // namespace opentxs

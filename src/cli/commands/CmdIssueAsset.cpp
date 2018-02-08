@@ -44,7 +44,7 @@
 #include <opentxs/api/Api.hpp>
 #include <opentxs/api/Native.hpp>
 #include <opentxs/OT.hpp>
-#include <opentxs/client/MadeEasy.hpp>
+#include <opentxs/client/OT_ME.hpp>
 #include <opentxs/client/SwigWrap.hpp>
 
 #include <stdint.h>
@@ -63,9 +63,7 @@ CmdIssueAsset::CmdIssueAsset()
     usage = "Mynym must already be the contract key on the new contract.";
 }
 
-CmdIssueAsset::~CmdIssueAsset()
-{
-}
+CmdIssueAsset::~CmdIssueAsset() {}
 
 int32_t CmdIssueAsset::runWithOptions()
 {
@@ -92,6 +90,7 @@ int32_t CmdIssueAsset::run(string server, string mynym)
         registerNym.run(server, mynym);
     }
 
-    string response = OT::App().API().ME().issue_asset_type(server, mynym, contract);
+    string response =
+        OT::App().API().OTME().issue_asset_type(server, mynym, contract);
     return processResponse(response, "issue asset contract");
 }

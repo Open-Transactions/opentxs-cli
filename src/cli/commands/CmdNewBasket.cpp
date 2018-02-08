@@ -44,7 +44,7 @@
 #include <opentxs/api/Api.hpp>
 #include <opentxs/api/Native.hpp>
 #include <opentxs/OT.hpp>
-#include <opentxs/client/MadeEasy.hpp>
+#include <opentxs/client/OT_ME.hpp>
 #include <opentxs/client/SwigWrap.hpp>
 #include <opentxs/core/Log.hpp>
 
@@ -69,9 +69,7 @@ CmdNewBasket::CmdNewBasket()
     help = "Create a new basket currency.";
 }
 
-CmdNewBasket::~CmdNewBasket()
-{
-}
+CmdNewBasket::~CmdNewBasket() {}
 
 int32_t CmdNewBasket::runWithOptions()
 {
@@ -123,36 +121,32 @@ int32_t CmdNewBasket::run(
         return -1;
     }
     uint64_t intWeight = minTransfer;
-    string str_terms = "basket"; // No terms are allowed for basket currencies.
+    string str_terms = "basket";  // No terms are allowed for basket currencies.
 
     if ("" == str_terms) {
         return -1;
     }
 
     string basket = SwigWrap::GenerateBasketCreation(
-        server,
-        shortname,
-        name,
-        symbol,
-        str_terms,
-        intWeight);
+        server, shortname, name, symbol, str_terms, intWeight);
 
     if ("" == basket) {
         otOut << "Error: cannot create basket.\n";
         return -1;
     }
 
-    for (int32_t i = 0; i < assetCount; i++)
-    {
+    for (int32_t i = 0; i < assetCount; i++) {
         CmdShowAssets showAssets;
         showAssets.run();
 
-        otOut << std::endl << "This basket currency has " << assetCount
-              << " subcurrencies." << std::endl;
+        otOut << std::endl
+              << "This basket currency has " << assetCount << " subcurrencies."
+              << std::endl;
         otOut << "So far you have defined " << i << " of them." << std::endl;
         otOut << "Please PASTE the instrument definition ID for a subcurrency "
                  "of this "
-                 "basket: " << std::endl;
+                 "basket: "
+              << std::endl;
 
         string assetType = inputLine();
         if ("" == assetType) {
@@ -168,7 +162,8 @@ int32_t CmdNewBasket::run(
         }
 
         otOut << "Enter minimum transfer amount for that instrument definition "
-                 "[100]: " << std::endl;
+                 "[100]: "
+              << std::endl;
         minTransfer = 100;
         string minAmount = inputLine();
         if ("" != minAmount) {
@@ -191,48 +186,52 @@ int32_t CmdNewBasket::run(
 
     otOut << "Here's the basket we're issuing:\n\n" << basket << std::endl;
 
-    string response =OT::App().API().ME().issue_basket_currency(server, mynym, basket);
+    string response =
+        OT::App().API().OTME().issue_basket_currency(server, mynym, basket);
     int32_t status = responseStatus(response);
     switch (status) {
-    case 1: {
-        otOut << "\n\n SUCCESS in issue_basket_currency! Server response:\n\n";
-        cout << response << "\n";
-
-        string strNewID =
-            SwigWrap::Message_GetNewInstrumentDefinitionID(response);
-        bool bGotNewID = "" != strNewID;
-        bool bRetrieved = false;
-        string strEnding = ".";
-
-        if (bGotNewID) {
-            response =OT::App().API().ME().retrieve_contract(server, mynym, strNewID);
-            strEnding = ": " + strNewID;
-
-            if (1 == responseStatus(response)) {
-                bRetrieved = true;
-            }
-        }
-        otOut << "Server response: SUCCESS in issue_basket_currency!\n";
-        otOut << (bRetrieved ? "Success" : "Failed")
-              << " retrieving new basket contract" << strEnding << "\n";
-        break;
-    }
-    case 0:
-        otOut << "\n\n FAILURE in issue_basket_currency! Server response:\n\n";
-        cout << response << "\n";
-        otOut << " FAILURE in issue_basket_currency!\n";
-        break;
-    default:
-        otOut << "\n\nError in issue_basket_currency! status is: " << status
-              << "\n";
-
-        if ("" != response) {
-            otOut << "Server response:\n\n";
+        case 1: {
+            otOut << "\n\n SUCCESS in issue_basket_currency! Server "
+                     "response:\n\n";
             cout << response << "\n";
-            otOut << "\nError in issue_basket_currency! status is: " << status
-                  << "\n";
+
+            string strNewID =
+                SwigWrap::Message_GetNewInstrumentDefinitionID(response);
+            bool bGotNewID = "" != strNewID;
+            bool bRetrieved = false;
+            string strEnding = ".";
+
+            if (bGotNewID) {
+                response = OT::App().API().OTME().retrieve_contract(
+                    server, mynym, strNewID);
+                strEnding = ": " + strNewID;
+
+                if (1 == responseStatus(response)) {
+                    bRetrieved = true;
+                }
+            }
+            otOut << "Server response: SUCCESS in issue_basket_currency!\n";
+            otOut << (bRetrieved ? "Success" : "Failed")
+                  << " retrieving new basket contract" << strEnding << "\n";
+            break;
         }
-        break;
+        case 0:
+            otOut << "\n\n FAILURE in issue_basket_currency! Server "
+                     "response:\n\n";
+            cout << response << "\n";
+            otOut << " FAILURE in issue_basket_currency!\n";
+            break;
+        default:
+            otOut << "\n\nError in issue_basket_currency! status is: " << status
+                  << "\n";
+
+            if ("" != response) {
+                otOut << "Server response:\n\n";
+                cout << response << "\n";
+                otOut << "\nError in issue_basket_currency! status is: "
+                      << status << "\n";
+            }
+            break;
     }
     otOut << "\n";
 

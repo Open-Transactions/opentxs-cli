@@ -36,58 +36,31 @@
  *
  ************************************************************/
 
-#include "CmdRefreshAccount.hpp"
+#ifndef OPENTXS_CLIENT_CMDADDCONTRACT_HPP
+#define OPENTXS_CLIENT_CMDADDCONTRACT_HPP
 
 #include "CmdBase.hpp"
 
-#include <opentxs/api/Api.hpp>
-#include <opentxs/api/Native.hpp>
-#include <opentxs/client/OT_ME.hpp>
-#include <opentxs/client/SwigWrap.hpp>
-#include <opentxs/core/Log.hpp>
-#include <opentxs/OT.hpp>
-
-#include <stdint.h>
-#include <ostream>
+#include <cstdint>
 #include <string>
 
-using namespace opentxs;
-using namespace std;
-
-CmdRefreshAccount::CmdRefreshAccount()
+namespace opentxs
 {
-    command = "refreshaccount";
-    args[0] = "--myacct <account>";
-    category = catAccounts;
-    help = "Download myacct's latest intermediary files.";
-}
-
-CmdRefreshAccount::~CmdRefreshAccount() {}
-
-int32_t CmdRefreshAccount::runWithOptions() { return run(getOption("myacct")); }
-
-int32_t CmdRefreshAccount::run(string myacct)
+class CmdAddContract : public CmdBase
 {
-    if (!checkAccount("myacct", myacct)) {
-        return -1;
-    }
+public:
+    EXPORT CmdAddContract();
 
-    string server = SwigWrap::GetAccountWallet_NotaryID(myacct);
-    if ("" == server) {
-        otOut << "Error: cannot determine server from myacct.\n";
-        return -1;
-    }
+    EXPORT std::int32_t run(
+        std::string mynym,
+        const std::string& type,
+        const std::string& value);
 
-    string mynym = SwigWrap::GetAccountWallet_NymID(myacct);
-    if ("" == mynym) {
-        otOut << "Error: cannot determine mynym from myacct.\n";
-        return -1;
-    }
+    EXPORT ~CmdAddContract() = default;
 
-    if (!OT::App().API().OTME().retrieve_account(server, mynym, myacct, true)) {
-        otOut << "Error retrieving intermediary files for myacct.\n";
-        return -1;
-    }
+private:
+    std::int32_t runWithOptions() override;
+};
+} // namespace opentxs
 
-    return 1;
-}
+#endif // OPENTXS_CLIENT_CMDADDCONTRACT_HPP

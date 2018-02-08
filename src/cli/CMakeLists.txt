@@ -13,6 +13,7 @@ set(cxx-sources
   commands/CmdAddAsset.cpp
   commands/CmdAddBitcoinAccount.cpp
   commands/CmdAddContact.cpp
+  commands/CmdAddContract.cpp
   commands/CmdAddServer.cpp
   commands/CmdAddSignature.cpp
   commands/CmdAllocateBitcoinAddress.cpp

@@ -44,12 +44,11 @@
 
 #include <opentxs/api/Api.hpp>
 #include <opentxs/api/Native.hpp>
-#include <opentxs/OT.hpp>
-#include <opentxs/client/MadeEasy.hpp>
 #include <opentxs/client/OT_ME.hpp>
 #include <opentxs/client/SwigWrap.hpp>
 #include <opentxs/core/util/Common.hpp>
 #include <opentxs/core/Log.hpp>
+#include <opentxs/OT.hpp>
 
 #include <stdint.h>
 #include <iostream>
@@ -75,20 +74,30 @@ CmdSendCash::CmdSendCash()
             "When mypurse is specified server and mynym are mandatory.";
 }
 
-CmdSendCash::~CmdSendCash()
-{
-}
+CmdSendCash::~CmdSendCash() {}
 
 int32_t CmdSendCash::runWithOptions()
 {
-    return run(getOption("server"), getOption("mynym"), getOption("myacct"),
-               getOption("mypurse"), getOption("hisnym"), getOption("amount"),
-               getOption("indices"), getOption("password"));
+    return run(
+        getOption("server"),
+        getOption("mynym"),
+        getOption("myacct"),
+        getOption("mypurse"),
+        getOption("hisnym"),
+        getOption("amount"),
+        getOption("indices"),
+        getOption("password"));
 }
 
-int32_t CmdSendCash::run(string server, string mynym, string myacct,
-                         string mypurse, string hisnym, string amount,
-                         string indices, string password)
+int32_t CmdSendCash::run(
+    string server,
+    string mynym,
+    string myacct,
+    string mypurse,
+    string hisnym,
+    string amount,
+    string indices,
+    string password)
 {
     if ("" != myacct) {
         if (!checkAccount("myacct", myacct)) {
@@ -120,8 +129,7 @@ int32_t CmdSendCash::run(string server, string mynym, string myacct,
         }
 
         mypurse = assetType;
-    }
-    else {
+    } else {
         // we want either ONE OF myacct OR mypurse to be specified
         if (!checkMandatory("myacct or mypurse", mypurse)) {
             return -1;
@@ -157,15 +165,17 @@ int32_t CmdSendCash::run(string server, string mynym, string myacct,
     // Below this point we can just try to pay it from the purse, and if unable
     // to, try to get the remaining funds from the account, IF that's available.
 
-    // make sure we can access the public key before trying to send cash
-    if ("" == OT::App().API().ME().load_or_retrieve_encrypt_key(server, mynym, hisnym)) {
-        otOut << "Error: cannot load public key for hisnym.\n";
-        return -1;
-    }
-
     string response = "";
-    if (1 != sendCash(response, server, mynym, mypurse, myacct, hisnym, amount,
-                      indices, password == "true")) {
+    if (1 != sendCash(
+                 response,
+                 server,
+                 mynym,
+                 mypurse,
+                 myacct,
+                 hisnym,
+                 amount,
+                 indices,
+                 password == "true")) {
         return -1;
     }
 
@@ -174,11 +184,16 @@ int32_t CmdSendCash::run(string server, string mynym, string myacct,
     return 1;
 }
 
-int32_t CmdSendCash::sendCash(string& response, const string& server,
-                              const string& mynym, const string& assetType,
-                              const string& myacct, string& hisnym,
-                              const string& amount, string& indices,
-                              bool hasPassword) const
+int32_t CmdSendCash::sendCash(
+    string& response,
+    const string& server,
+    const string& mynym,
+    const string& assetType,
+    const string& myacct,
+    string& hisnym,
+    const string& amount,
+    string& indices,
+    bool hasPassword) const
 {
 #if OT_CASH
     int64_t startAmount = "" == amount ? 0 : stoll(amount);
@@ -206,8 +221,8 @@ int32_t CmdSendCash::sendCash(string& response, const string& server,
         }
 
         remain = startAmount;
-        if (!getPurseIndicesOrAmount(server, mynym, assetType, remain,
-                                     indices)) {
+        if (!getPurseIndicesOrAmount(
+                server, mynym, assetType, remain, indices)) {
             otOut << "Error: cannot retrieve purse indices.\n";
             return -1;
         }
@@ -215,25 +230,24 @@ int32_t CmdSendCash::sendCash(string& response, const string& server,
 
     CmdExportCash cmd;
     string retainedCopy = "";
-    string exportedCash = cmd.exportCash(server, mynym, assetType, hisnym,
-                                         indices, hasPassword, retainedCopy);
+    string exportedCash = cmd.exportCash(
+        server, mynym, assetType, hisnym, indices, hasPassword, retainedCopy);
     if ("" == exportedCash) {
         otOut << "Error: cannot export cash.\n";
         return -1;
     }
 
-
-    response =
-        OT::App().API().OTME().send_user_cash(server, mynym, hisnym, exportedCash, retainedCopy);
+    response = OT::App().API().OTME().send_user_cash(
+        server, mynym, hisnym, exportedCash, retainedCopy);
     if (1 != responseStatus(response)) {
         // cannot send cash so try to re-import into sender's purse
-        if (!SwigWrap::Wallet_ImportPurse(server, assetType, mynym,
-                                            retainedCopy)) {
+        if (!SwigWrap::Wallet_ImportPurse(
+                server, assetType, mynym, retainedCopy)) {
             otOut << "Error: cannot send cash AND failed re-importing purse."
                   << "\nServer: " << server << "\nAsset Type: " << assetType
                   << "\nNym: " << mynym
-                  << "\n\nPurse (SAVE THIS SOMEWHERE!):\n\n" << retainedCopy
-                  << "\n";
+                  << "\n\nPurse (SAVE THIS SOMEWHERE!):\n\n"
+                  << retainedCopy << "\n";
             return -1;
         }
 
@@ -254,11 +268,12 @@ int32_t CmdSendCash::sendCash(string& response, const string& server,
 // If, instead, you pass remain and a blank indices, this function will try to
 // determine the indices that would create remain, if they were selected.
 
-bool CmdSendCash::getPurseIndicesOrAmount(const string& server,
-                                          const string& mynym,
-                                          const string& assetType,
-                                          int64_t& remain,
-                                          string& indices) const
+bool CmdSendCash::getPurseIndicesOrAmount(
+    const string& server,
+    const string& mynym,
+    const string& assetType,
+    int64_t& remain,
+    string& indices) const
 {
 #if OT_CASH
     bool findAmountFromIndices = "" != indices && 0 == remain;
@@ -305,8 +320,7 @@ bool CmdSendCash::getPurseIndicesOrAmount(const string& server,
             return false;
         }
 
-        time64_t validTo =
-            SwigWrap::Token_GetValidTo(server, assetType, token);
+        time64_t validTo = SwigWrap::Token_GetValidTo(server, assetType, token);
         if (OT_TIME_ZERO > validTo) {
             otOut << "Error: cannot get token validTo.\n";
             return false;

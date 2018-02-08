@@ -42,12 +42,11 @@
 
 #include <opentxs/api/Api.hpp>
 #include <opentxs/api/Native.hpp>
-#include <opentxs/OT.hpp>
-#include <opentxs/client/MadeEasy.hpp>
 #include <opentxs/client/OT_ME.hpp>
 #include <opentxs/client/SwigWrap.hpp>
 #include <opentxs/core/util/Common.hpp>
 #include <opentxs/core/Log.hpp>
+#include <opentxs/OT.hpp>
 
 #include <stdint.h>
 #include <ostream>
@@ -65,9 +64,7 @@ CmdWithdrawCash::CmdWithdrawCash()
     help = "Withdraw from myacct as cash into local purse.";
 }
 
-CmdWithdrawCash::~CmdWithdrawCash()
-{
-}
+CmdWithdrawCash::~CmdWithdrawCash() {}
 
 int32_t CmdWithdrawCash::runWithOptions()
 {
@@ -88,8 +85,8 @@ int32_t CmdWithdrawCash::run(string myacct, string amount)
     return withdrawCash(myacct, value);
 }
 
-int32_t CmdWithdrawCash::withdrawCash(const string& myacct,
-                                      int64_t amount) const
+int32_t CmdWithdrawCash::withdrawCash(const string& myacct, int64_t amount)
+    const
 {
 #if OT_CASH
     string server = SwigWrap::GetAccountWallet_NotaryID(myacct);
@@ -111,7 +108,8 @@ int32_t CmdWithdrawCash::withdrawCash(const string& myacct,
 
     string assetContract = SwigWrap::GetAssetType_Contract(assetType);
     if ("" == assetContract) {
-        string response = OT::App().API().ME().retrieve_contract(server, mynym, assetType);
+        string response =
+            OT::App().API().OTME().retrieve_contract(server, mynym, assetType);
         if (1 != responseStatus(response)) {
             otOut << "Error: cannot retrieve asset contract.\n";
             return -1;
@@ -124,21 +122,22 @@ int32_t CmdWithdrawCash::withdrawCash(const string& myacct,
         }
     }
 
-    string mint = OT::App().API().ME().load_or_retrieve_mint(server, mynym, assetType);
+    string mint =
+        OT::App().API().OTME().load_or_retrieve_mint(server, mynym, assetType);
     if ("" == mint) {
         otOut << "Error: cannot load asset mint.\n";
         return -1;
     }
 
-
-    string response = OT::App().API().OTME().withdraw_cash(server, mynym, myacct, amount);
+    string response =
+        OT::App().API().OTME().withdraw_cash(server, mynym, myacct, amount);
     int32_t reply =
         responseReply(response, server, mynym, myacct, "withdraw_cash");
     if (1 != reply) {
         return reply;
     }
 
-    if (!OT::App().API().ME().retrieve_account(server, mynym, myacct, true)) {
+    if (!OT::App().API().OTME().retrieve_account(server, mynym, myacct, true)) {
         otOut << "Error retrieving intermediary files for account.\n";
         return -1;
     }

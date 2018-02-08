@@ -45,7 +45,6 @@
 #include <opentxs/api/Native.hpp>
 #include <opentxs/client/OT_API.hpp>
 #include <opentxs/client/OT_ME.hpp>
-#include <opentxs/client/MadeEasy.hpp>
 #include <opentxs/client/SwigWrap.hpp>
 #include <opentxs/core/Ledger.hpp>
 #include <opentxs/core/Log.hpp>
@@ -144,10 +143,11 @@ int32_t CmdBaseAccept::acceptFromInbox(
     // have it fail and re-try, and at least be trying the actual intended
     // indices, and cut our account retrievals in half while we're at it!
     //
-//    if (!OT::App().API().ME().retrieve_account(server, mynym, myacct, true)) {
-//        otOut << "Error retrieving intermediary files for account.\n";
-//        return -1;
-//    }
+    //    if (!OT::App().API().OTME().retrieve_account(server, mynym, myacct,
+    //    true)) {
+    //        otOut << "Error retrieving intermediary files for account.\n";
+    //        return -1;
+    //    }
     // -----------------------------------------------------------
     // NOTE: Normally we don't have to do this, because the high-level API is
     // smart enough, when sending server transaction requests, to grab new
@@ -157,17 +157,16 @@ int32_t CmdBaseAccept::acceptFromInbox(
     // needed, and that call is made before the server transaction request is
     // actually sent.
     //
-    if (!OT::App().API().OTME().make_sure_enough_trans_nums(10, server, mynym)) {
+    if (!OT::App().API().OTME().make_sure_enough_trans_nums(
+            10, server, mynym)) {
         otOut << "Error: cannot reserve transaction numbers.\n";
         return -1;
     }
     // -----------------------------------------------------------
-    const Identifier theNotaryID{server}, theNymID{mynym},
-        theAcctID{myacct};
+    const Identifier theNotaryID{server}, theNymID{mynym}, theAcctID{myacct};
 
     std::unique_ptr<Ledger> pInbox(
-        OT::App().API().OTAPI().LoadInbox(
-            theNotaryID, theNymID, theAcctID));
+        OT::App().API().OTAPI().LoadInbox(theNotaryID, theNymID, theAcctID));
     if (false == bool(pInbox)) {
         otOut << "Error: cannot load inbox.\n";
         return -1;
@@ -188,16 +187,14 @@ int32_t CmdBaseAccept::acceptFromInbox(
     }
     bool all = "" == indices || "all" == indices;
     // -----------------------------------------------------------
-    std::set<int32_t> * pOnlyForIndices{nullptr};
-    std::set<int32_t>   setForIndices;
-    if (!all)
-    {
+    std::set<int32_t>* pOnlyForIndices{nullptr};
+    std::set<int32_t> setForIndices;
+    if (!all) {
         NumList numlistForIndices{indices};
         std::set<int64_t> setForIndices64;
-        if (numlistForIndices.Output(setForIndices64))
-        {
+        if (numlistForIndices.Output(setForIndices64)) {
             pOnlyForIndices = &setForIndices;
-            for (const int64_t & lIndex : setForIndices64) {
+            for (const int64_t& lIndex : setForIndices64) {
                 setForIndices.insert(static_cast<int32_t>(lIndex));
             }
         }
@@ -216,9 +213,8 @@ int32_t CmdBaseAccept::acceptFromInbox(
     // an actual set of receipt IDs, each being the trans num on a transaction
     // inside the inbox.
     // -------------------------------------------------------
-    OT_API::ProcessInbox response{
-        OT::App().API().OTAPI()
-        .Ledger_CreateResponse(theNotaryID, theNymID, theAcctID)};
+    OT_API::ProcessInbox response{OT::App().API().OTAPI().Ledger_CreateResponse(
+        theNotaryID, theNymID, theAcctID)};
     // -------------------------------------------------------
     auto& processInbox = std::get<0>(response);
     auto& inbox = std::get<1>(response);
@@ -228,29 +224,29 @@ int32_t CmdBaseAccept::acceptFromInbox(
         return -1;
     }
     // -------------------------------------------------------
-    for (const int64_t & lReceiptId : receiptIds)
-    {
-        OTTransaction * pReceipt =
-            OT::App().API().OTAPI()
-                .Ledger_GetTransactionByID(*inbox, lReceiptId);
+    for (const int64_t& lReceiptId : receiptIds) {
+        OTTransaction* pReceipt =
+            OT::App().API().OTAPI().Ledger_GetTransactionByID(
+                *inbox, lReceiptId);
 
         if (nullptr == pReceipt) {
             otErr << __FUNCTION__
-                  << "Unexpectedly got a nullptr for ReceiptId: "
-                  << lReceiptId;
+                  << "Unexpectedly got a nullptr for ReceiptId: " << lReceiptId;
             return -1;
-        } // Below this point, pReceipt is a good pointer. It's
+        }  // Below this point, pReceipt is a good pointer. It's
         //   owned by inbox, so no need to delete.
         // ------------------------
-        // itemTypeFilter == 0 for all, 1 for transfers only, 2 for receipts only.
+        // itemTypeFilter == 0 for all, 1 for transfers only, 2 for receipts
+        // only.
         if (0 != itemTypeFilter) {
-            const OTTransaction::transactionType receipt_type{pReceipt->GetType()};
+            const OTTransaction::transactionType receipt_type{
+                pReceipt->GetType()};
             const bool transfer = (OTTransaction::pending == receipt_type);
-            if ( (1 == itemTypeFilter) && !transfer) {
+            if ((1 == itemTypeFilter) && !transfer) {
                 // not a pending transfer.
                 continue;
             }
-            if ( (2 == itemTypeFilter) && transfer) {
+            if ((2 == itemTypeFilter) && transfer) {
                 // not a receipt.
                 continue;
             }
@@ -258,38 +254,39 @@ int32_t CmdBaseAccept::acceptFromInbox(
         // ------------------------
         const bool bReceiptResponseCreated =
             OT::App().API().OTAPI().Transaction_CreateResponse(
-                theNotaryID, theNymID, theAcctID,
-                *processInbox, *pReceipt, true);
+                theNotaryID,
+                theNymID,
+                theAcctID,
+                *processInbox,
+                *pReceipt,
+                true);
 
         if (!bReceiptResponseCreated) {
             otErr << __FUNCTION__
                   << "Error: cannot create transaction response.\n";
             return -1;
         }
-    } // for
+    }  // for
     // -------------------------------------------------------
     if (processInbox->GetTransactionCount() <= 0) {
         // did not process anything
-        otErr << __FUNCTION__
-               << "Should never happen. Might want to follow up "
-                  "if you see this log.\n";
+        otErr << __FUNCTION__ << "Should never happen. Might want to follow up "
+                                 "if you see this log.\n";
         return 0;
     }
     // ----------------------------------------------
-    const bool bFinalized = OT::App().API().OTAPI()
-        .Ledger_FinalizeResponse(theNotaryID, theNymID, theAcctID,
-                                 *processInbox);
+    const bool bFinalized = OT::App().API().OTAPI().Ledger_FinalizeResponse(
+        theNotaryID, theNymID, theAcctID, *processInbox);
     if (!bFinalized) {
-        otErr << __FUNCTION__
-              << "Error: cannot finalize response.\n";
+        otErr << __FUNCTION__ << "Error: cannot finalize response.\n";
         return -1;
     }
     // ----------------------------------------------
     const opentxs::String strFinalized{*processInbox};
     const std::string str_finalized{strFinalized.Get()};
     // ----------------------------------------------
-    const std::string notary_response =
-        OT::App().API().ME().process_inbox(server, mynym, myacct, str_finalized);
+    const std::string notary_response = OT::App().API().OTME().process_inbox(
+        server, mynym, myacct, str_finalized);
     int32_t reply =
         responseReply(notary_response, server, mynym, myacct, "process_inbox");
 
@@ -300,20 +297,22 @@ int32_t CmdBaseAccept::acceptFromInbox(
     // We KNOW they all just changed, since we just processed
     // the inbox. Might as well refresh our copy with the new changes.
     //
-    if (!OT::App().API().ME().retrieve_account(server, mynym, myacct, true)) {
-        otOut << __FUNCTION__
-              << "Success processing inbox, but then failed "
-                 "retrieving intermediary files for account.\n";
-//      return -1; // By this point we DID successfully process the inbox.
-                   // (We just then subsequently failed to download the updated acct files.)
+    if (!OT::App().API().OTME().retrieve_account(server, mynym, myacct, true)) {
+        otOut << __FUNCTION__ << "Success processing inbox, but then failed "
+                                 "retrieving intermediary files for account.\n";
+        //      return -1; // By this point we DID successfully process the
+        //      inbox.
+        // (We just then subsequently failed to download the updated acct
+        // files.)
     }
     return 1;
 }
 
-int32_t CmdBaseAccept::acceptFromPaymentbox(const string& myacct,
-                                            const string& indices,
-                                            const string& paymentType,
-                                            string * pOptionalOutput/*=nullptr*/) const
+int32_t CmdBaseAccept::acceptFromPaymentbox(
+    const string& myacct,
+    const string& indices,
+    const string& paymentType,
+    string* pOptionalOutput /*=nullptr*/) const
 {
     if ("" == myacct) {
         otOut << "Error: myacct is empty.\n";
@@ -367,17 +366,21 @@ int32_t CmdBaseAccept::acceptFromPaymentbox(const string& myacct,
     // confirm your agreement to it, before it can get activated. That's what
     // I'm enforcing here.
     //
-    const bool bIsDefinitelyPaymentPlan   = ("PAYMENT PLAN"  == paymentType);
+    const bool bIsDefinitelyPaymentPlan = ("PAYMENT PLAN" == paymentType);
     const bool bIsDefinitelySmartContract = ("SMARTCONTRACT" == paymentType);
 
-    if (bIsDefinitelySmartContract)
-    {
-        otOut << "acceptFromPaymentbox: It's a bug that this function was even called at all! "
-        "You CANNOT confirm smart contracts via this function. "
-        "The reason is because you have to select various accounts during the "
-        "confirmation process. The function confirmSmartContract would ask various questions "
-        "at the command line about which accounts to choose. Thus, you MUST have "
-        "your own code in the GUI itself that performs that process for smart contracts.\n";
+    if (bIsDefinitelySmartContract) {
+        otOut << "acceptFromPaymentbox: It's a bug that this function was even "
+                 "called at all! "
+                 "You CANNOT confirm smart contracts via this function. "
+                 "The reason is because you have to select various accounts "
+                 "during the "
+                 "confirmation process. The function confirmSmartContract "
+                 "would ask various questions "
+                 "at the command line about which accounts to choose. Thus, "
+                 "you MUST have "
+                 "your own code in the GUI itself that performs that process "
+                 "for smart contracts.\n";
         return -1;
     }
     // ----------
@@ -390,42 +393,52 @@ int32_t CmdBaseAccept::acceptFromPaymentbox(const string& myacct,
     // value merely communicates: The processing was performed.
     //
     // ===> Whereas if there is only ONE index, then we need to set the return
-    // value directly to the result of processing that index. Just watch nReturnValue
+    // value directly to the result of processing that index. Just watch
+    // nReturnValue
     // to see how that is being done.
     //
     int32_t nReturnValue = 1;
 
     for (int32_t i = items - 1; 0 <= i; i--) {
-        if (all || SwigWrap::NumList_VerifyQuery(indices, to_string(i)))
-        {
-            if (bIsDefinitelyPaymentPlan)
-            {
+        if (all || SwigWrap::NumList_VerifyQuery(indices, to_string(i))) {
+            if (bIsDefinitelyPaymentPlan) {
 
-                string instrument = OT::App().API().OTME().get_payment_instrument(server, mynym, i, inbox);
+                string instrument =
+                    OT::App().API().OTME().get_payment_instrument(
+                        server, mynym, i, inbox);
                 if ("" == instrument) {
                     otOut << "CmdBaseAccept::acceptFromPaymentbox: "
-                        "Error: cannot get payment instrument from inpayments box.\n";
+                             "Error: cannot get payment instrument from "
+                             "inpayments box.\n";
                     return -1;
                 }
 
                 CmdConfirm cmd;
-                string recipient = SwigWrap::Instrmnt_GetRecipientNymID(instrument);
-                int32_t nTemp = cmd.confirmInstrument(server, mynym, myacct,
-                                                      recipient, instrument,
-                                                      i, pOptionalOutput);
-                if (1 == nNumlistCount) { // If there's exactly 1 instrument being singled-out
-                    nReturnValue = nTemp; // for processing, then return its success/fail status.
-                    break; // Since there's only one, might as well break;
+                string recipient =
+                    SwigWrap::Instrmnt_GetRecipientNymID(instrument);
+                int32_t nTemp = cmd.confirmInstrument(
+                    server,
+                    mynym,
+                    myacct,
+                    recipient,
+                    instrument,
+                    i,
+                    pOptionalOutput);
+                if (1 == nNumlistCount) {  // If there's exactly 1 instrument
+                                           // being singled-out
+                    nReturnValue = nTemp;  // for processing, then return its
+                                           // success/fail status.
+                    break;  // Since there's only one, might as well break;
                 }
-            }
-            else
-            {
+            } else {
                 CmdPayInvoice payInvoice;
-                int32_t nTemp = payInvoice.processPayment(myacct, paymentType,
-                                                          inbox, i, pOptionalOutput);
-                if (1 == nNumlistCount) { // If there's exactly 1 instrument being singled-out
-                    nReturnValue = nTemp; // for processing, then return its success/fail status.
-                    break; // Since there's only one, might as well break;
+                int32_t nTemp = payInvoice.processPayment(
+                    myacct, paymentType, inbox, i, pOptionalOutput);
+                if (1 == nNumlistCount) {  // If there's exactly 1 instrument
+                                           // being singled-out
+                    nReturnValue = nTemp;  // for processing, then return its
+                                           // success/fail status.
+                    break;  // Since there's only one, might as well break;
                 }
             }
         }

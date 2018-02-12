@@ -40,14 +40,13 @@
 
 #include "CmdBase.hpp"
 
+#include <opentxs/api/client/Sync.hpp>
 #include <opentxs/api/Api.hpp>
 #include <opentxs/api/Native.hpp>
 #include <opentxs/client/OT_ME.hpp>
-#include <opentxs/client/OTME_too.hpp>
+#include <opentxs/core/Identifier.hpp>
 #include <opentxs/core/Log.hpp>
 #include <opentxs/OT.hpp>
-
-#include <ostream>
 
 namespace opentxs
 {
@@ -67,7 +66,7 @@ std::int32_t CmdSendMessage::contact(
     const std::string& message)
 {
     auto result =
-        OT::App().API().OTME_TOO().MessageContact(mynym, hisnym, message);
+        OT::App().API().Sync().MessageContact(Identifier(mynym), Identifier(hisnym), message);
 
     otErr << "Thread " << String(result) << " started." << std::endl;
 

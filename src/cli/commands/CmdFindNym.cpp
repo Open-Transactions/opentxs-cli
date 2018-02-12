@@ -40,11 +40,11 @@
 
 #include "CmdBase.hpp"
 
+#include <opentxs/api/client/Sync.hpp>
 #include <opentxs/api/Api.hpp>
 #include <opentxs/api/Native.hpp>
-#include <opentxs/client/OTME_too.hpp>
+#include <opentxs/core/Identifier.hpp>
 #include <opentxs/OT.hpp>
-
 
 namespace opentxs
 {
@@ -67,7 +67,7 @@ std::int32_t CmdFindNym::run(std::string hisnym)
         return -1;
     }
 
-    const auto response = OT::App().API().OTME_TOO().FindNym(hisnym, "");
+    const auto response = OT::App().API().Sync().FindNym(Identifier(hisnym));
 
     if (String(response).Exists()) { return 1; }
 

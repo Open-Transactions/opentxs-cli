@@ -43,7 +43,6 @@
 #include <opentxs/api/ContactManager.hpp>
 #include <opentxs/api/Native.hpp>
 #include <opentxs/contact/Contact.hpp>
-#include <opentxs/client/OTME_too.hpp>
 #include <opentxs/contact/Contact.hpp>
 #include <opentxs/contact/ContactData.hpp>
 #include <opentxs/core/Identifier.hpp>

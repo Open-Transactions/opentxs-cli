@@ -56,7 +56,7 @@ int32_t CmdRefreshAll::runWithOptions()
 
 int32_t CmdRefreshAll::run()
 {
-    SwigWrap::Trigger_Refresh("");
+    SwigWrap::Trigger_Refresh();
 
     return 1;
 }

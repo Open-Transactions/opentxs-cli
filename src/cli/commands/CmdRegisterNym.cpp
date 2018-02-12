@@ -40,10 +40,11 @@
 
 #include "CmdBase.hpp"
 
+#include <opentxs/api/client/Sync.hpp>
 #include <opentxs/api/Api.hpp>
 #include <opentxs/api/Native.hpp>
+#include <opentxs/core/Identifier.hpp>
 #include <opentxs/OT.hpp>
-#include <opentxs/client/OTME_too.hpp>
 
 namespace opentxs
 {
@@ -73,9 +74,9 @@ std::int32_t CmdRegisterNym::run(std::string server, std::string mynym)
     }
 
     const auto response =
-        OT::App().API().OTME_TOO().RegisterNym(mynym, server, true);
+        OT::App().API().Sync().RegisterNym(Identifier(mynym), Identifier(server), true);
 
-    if (response) {
+    if (false == response.empty()) {
 
         return 0;
     } else {

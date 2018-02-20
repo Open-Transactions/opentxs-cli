@@ -89,29 +89,31 @@ bool CmdBase::checkAccount(const char* name, string& account) const
         return false;
     }
 
-    Account* pAccount = nullptr;
+    std::shared_ptr<Account> pAccount{nullptr};
     OTWallet* wallet = getWallet();
-
     Identifier theID(account);
 
     if (!theID.empty()) pAccount = wallet->GetAccount(theID);
 
-    if (nullptr == pAccount) {
+    if (false == bool(pAccount)) {
         pAccount = wallet->GetAccountPartialMatch(account);
-        if (nullptr == pAccount) {
+
+        if (false == bool(pAccount)) {
             otOut << "Error: " << name << ": unknown account: " << account
                   << "\n";
+
             return false;
         }
     }
 
-    if (nullptr != pAccount) {
+    if (pAccount) {
         String tmp;
         pAccount->GetPurportedAccountID().GetString(tmp);
         account = tmp.Get();
     }
 
     otOut << "Using " << name << ": " << account << "\n";
+
     return true;
 }
 
@@ -269,8 +271,7 @@ bool CmdBase::checkPurse(const char* name, string& purse) const
         // See if it's available using the partial length ID.
         for (auto& it : units) {
             if (0 == it.first.compare(0, purse.length(), purse)) {
-                pUnit =
-                    OT::App().Wallet().UnitDefinition(Identifier(it.first));
+                pUnit = OT::App().Wallet().UnitDefinition(Identifier(it.first));
                 break;
             }
         }
@@ -278,8 +279,8 @@ bool CmdBase::checkPurse(const char* name, string& purse) const
             // See if it's available using the full length name.
             for (auto& it : units) {
                 if (0 == it.second.compare(0, it.second.length(), purse)) {
-                    pUnit = OT::App().Wallet().UnitDefinition(
-                        Identifier(it.first));
+                    pUnit =
+                        OT::App().Wallet().UnitDefinition(Identifier(it.first));
                     break;
                 }
             }

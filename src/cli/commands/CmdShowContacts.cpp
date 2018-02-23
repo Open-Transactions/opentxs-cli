@@ -39,15 +39,12 @@
 #include "CmdShowContacts.hpp"
 
 
-#include <opentxs/api/storage/Storage.hpp>
-#include <opentxs/api/Api.hpp>
-#include <opentxs/api/ContactManager.hpp>
 #include <opentxs/api/Native.hpp>
-#include <opentxs/contact/Contact.hpp>
-#include <opentxs/contact/ContactData.hpp>
+#include <opentxs/api/UI.hpp>
 #include <opentxs/core/Identifier.hpp>
 #include <opentxs/core/Log.hpp>
-#include <opentxs/core/String.hpp>
+#include <opentxs/ui/ContactList.hpp>
+#include <opentxs/ui/ContactListItem.hpp>
 #include <opentxs/OT.hpp>
 
 namespace opentxs
@@ -56,30 +53,36 @@ namespace opentxs
 CmdShowContacts::CmdShowContacts()
 {
     command = "showcontacts";
+    args[0] = "--mynym <nym>";
     category = catOtherUsers;
-    help = "Show the contacts in the wallet.";
+    help = "Show the contact list for a nym in the wallet.";
 }
 
 std::int32_t CmdShowContacts::runWithOptions()
 {
-    return run();
+    return run(getOption("mynym"));
 }
 
-std::int32_t CmdShowContacts::run()
+std::int32_t CmdShowContacts::run(std::string mynym)
 {
-    auto& ot = OT::App();
-    auto& storage = ot.DB();
-    const auto contactList = storage.ContactList();
+    if (!checkNym("mynym", mynym)) {
+        return -1;
+    }
+
+    const Identifier nymID{mynym};
+    auto& list = OT::App().UI().ContactList(nymID);
     otOut << "Contacts:\n";
     dashLine();
+    auto& line = list.First();
+    auto last = line.Last();
+    otOut << " " << line.Section() << " " << line.DisplayName() << " ("
+          << line.ContactID() << ")\n";
 
-    for (const auto& it : contactList) {
-        const auto& contactID = it.first;
-        auto contact = ot.Contact().Contact(Identifier(contactID));
-
-        OT_ASSERT(contact);
-
-        otOut << " * " << contactID << " (" << contact->Label() << ")\n";
+    while (false == last) {
+        auto& line = list.Next();
+        last = line.Last();
+        otOut << " " << line.Section() << "  " << line.DisplayName() << " ("
+              << line.ContactID() << ")\n";
     }
 
     otOut << std::endl;

@@ -51,7 +51,7 @@ class CmdShowContacts : public CmdBase
 public:
     EXPORT CmdShowContacts();
 
-    EXPORT std::int32_t run();
+    EXPORT std::int32_t run(std::string mynym);
 
     EXPORT ~CmdShowContacts() = default;
 

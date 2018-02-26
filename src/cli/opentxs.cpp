@@ -40,6 +40,7 @@
 
 #include "commands/CmdAcceptAll.hpp"
 #include "commands/CmdAcceptInbox.hpp"
+#include "commands/CmdAcceptIncoming.hpp"
 #include "commands/CmdAcceptInvoices.hpp"
 #include "commands/CmdAcceptMoney.hpp"
 #include "commands/CmdAcceptPayments.hpp"
@@ -227,6 +228,7 @@ const char* categoryName[] = {
 
 CmdBase* cmds[] = {
     new CmdAcceptAll,                new CmdAcceptInbox,
+    new CmdAcceptIncoming,
     new CmdAcceptInvoices,           new CmdAcceptMoney,
     new CmdAcceptPayments,           new CmdAcceptReceipts,
     new CmdAcceptTransfers,          new CmdAcknowledgeBailment,

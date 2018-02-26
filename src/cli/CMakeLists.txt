@@ -1,6 +1,7 @@
 set(cxx-sources
   commands/CmdAcceptAll.cpp
   commands/CmdAcceptInbox.cpp
+  commands/CmdAcceptIncoming.cpp
   commands/CmdAcceptInvoices.cpp
   commands/CmdAcceptMoney.cpp
   commands/CmdAcceptPayments.cpp

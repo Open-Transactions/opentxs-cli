@@ -56,24 +56,12 @@ public:
 
     int run(int argc, char* argv[]);
 
-    typedef enum {
-        catError = 0,
-        catAdmin = 1,
-        catWallet = 2,
-        catMisc = 3,
-        catMarkets = 4,
-        catAccounts = 5,
-        catOtherUsers = 6,
-        catInstruments = 7,
-        catBaskets = 8,
-        catNyms = 9,
-        catLast = 10
-    } Category;
-
 private:
     void loadOptions(AnyOption& opt);
-    const char* getOption(AnyOption& opt, const char* optionName,
-                          const char* defaultName = nullptr);
+    const char* getOption(
+        AnyOption& opt,
+        const char* optionName,
+        const char* defaultName = nullptr);
     int processCommand(AnyOption& opt);
     int runCommand(CmdBase& cmd);
 
@@ -87,5 +75,5 @@ private:
     char** newArgv{nullptr};
     bool expectFailure{false};
 };
-} // namespace opentxs
-#endif // __OPENTXS_HPP__
+}  // namespace opentxs
+#endif  // __OPENTXS_HPP__

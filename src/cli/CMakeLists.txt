@@ -11,6 +11,7 @@ set(cxx-sources
   commands/CmdAcknowledgeConnection.cpp
   commands/CmdAcknowledgeNotice.cpp
   commands/CmdAcknowledgeOutBailment.cpp
+  commands/CmdActivitySummary.cpp
   commands/CmdAddAsset.cpp
   commands/CmdAddBitcoinAccount.cpp
   commands/CmdAddContact.cpp

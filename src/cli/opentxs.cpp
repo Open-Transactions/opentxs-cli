@@ -50,6 +50,7 @@
 #include "commands/CmdAcknowledgeConnection.hpp"
 #include "commands/CmdAcknowledgeNotice.hpp"
 #include "commands/CmdAcknowledgeOutBailment.hpp"
+#include "commands/CmdActivitySummary.hpp"
 #include "commands/CmdAddAsset.hpp"
 #include "commands/CmdAddBitcoinAccount.hpp"
 #include "commands/CmdAddContact.hpp"
@@ -229,12 +230,12 @@ const char* categoryName[] = {
 
 CmdBase* cmds[] = {
     new CmdAcceptAll,                new CmdAcceptInbox,
-    new CmdAcceptIncoming,
-    new CmdAcceptInvoices,           new CmdAcceptMoney,
-    new CmdAcceptPayments,           new CmdAcceptReceipts,
-    new CmdAcceptTransfers,          new CmdAcknowledgeBailment,
-    new CmdAcknowledgeConnection,    new CmdAcknowledgeNotice,
-    new CmdAcknowledgeOutBailment,   new CmdAddAsset,
+    new CmdAcceptIncoming,           new CmdAcceptInvoices,
+    new CmdAcceptMoney,              new CmdAcceptPayments,
+    new CmdAcceptReceipts,           new CmdAcceptTransfers,
+    new CmdAcknowledgeBailment,      new CmdAcknowledgeConnection,
+    new CmdAcknowledgeNotice,        new CmdAcknowledgeOutBailment,
+    new CmdActivitySummary,          new CmdAddAsset,
     new CmdAddBitcoinAccount,        new CmdAddContact,
     new CmdAddContract,
     new CmdAddServer,                new CmdAddSignature,

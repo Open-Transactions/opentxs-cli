@@ -138,21 +138,27 @@
 #include <cstdint>
 #include <string>
 
-namespace opentxs {
+namespace opentxs
+{
 
-class CmdNotifyBailment : public CmdBase {
+class CmdNotifyBailment : public CmdBase
+{
 public:
-  EXPORT CmdNotifyBailment();
-  virtual ~CmdNotifyBailment();
+    EXPORT CmdNotifyBailment();
+    virtual ~CmdNotifyBailment();
 
-  EXPORT std::int32_t run(std::string server, std::string mynym,
-                          std::string hisnym, std::string mypurse,
-                          std::string request);
+    EXPORT std::int32_t run(
+        std::string server,
+        std::string mynym,
+        std::string hisnym,
+        std::string mypurse,
+        std::string request,
+        std::string amount);
 
 protected:
-  virtual std::int32_t runWithOptions();
+    virtual std::int32_t runWithOptions();
 };
 
-} // namespace opentxs
+}  // namespace opentxs
 
-#endif // OPENTXS_CLIENT_CMDNOTIFYBAILMENT_HPP
+#endif  // OPENTXS_CLIENT_CMDNOTIFYBAILMENT_HPP

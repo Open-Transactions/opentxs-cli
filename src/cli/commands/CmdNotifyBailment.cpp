@@ -42,58 +42,79 @@
 #include <opentxs/api/Api.hpp>
 #include <opentxs/api/Native.hpp>
 #include <opentxs/client/OT_ME.hpp>
+#include <opentxs/client/SwigWrap.hpp>
 
-namespace opentxs {
+namespace opentxs
+{
 
-CmdNotifyBailment::CmdNotifyBailment() {
-  command = "notifybailment";
-  args[0] = "--server <server>";
-  args[1] = "--mynym <nym>";
-  args[2] = "--hisnym <nym>";
-  args[3] = "--mypurse <unit definition id>";
-  args[4] = "--request <request ID>";
-  category = catOtherUsers;
-  help = "Notify a nym of a pending blockchain deposit";
+CmdNotifyBailment::CmdNotifyBailment()
+{
+    command = "notifybailment";
+    args[0] = "--server <server>";
+    args[1] = "--mynym <nym>";
+    args[2] = "--hisnym <nym>";
+    args[3] = "--mypurse <unit definition id>";
+    args[4] = "--request <request ID>";
+    args[5] = "--amount <amount>";
+    category = catOtherUsers;
+    help = "Notify a nym of a pending blockchain deposit";
 }
 
 CmdNotifyBailment::~CmdNotifyBailment() {}
 
-std::int32_t CmdNotifyBailment::runWithOptions() {
-  return run(getOption("server"), getOption("mynym"), getOption("hisnym"),
-             getOption("mypurse"), getOption("request"));
+std::int32_t CmdNotifyBailment::runWithOptions()
+{
+    return run(
+        getOption("server"),
+        getOption("mynym"),
+        getOption("hisnym"),
+        getOption("mypurse"),
+        getOption("request"),
+        getOption("amount"));
 }
 
-std::int32_t CmdNotifyBailment::run(std::string server, std::string mynym,
-                                    std::string hisnym, std::string mypurse,
-                                    std::string request) {
-  if (!checkServer("server", server)) {
-    return -1;
-  }
+std::int32_t CmdNotifyBailment::run(
+    std::string server,
+    std::string mynym,
+    std::string hisnym,
+    std::string mypurse,
+    std::string request,
+    std::string amount)
+{
+    if (!checkServer("server", server)) {
+        return -1;
+    }
 
-  if (!checkNym("mynym", mynym)) {
-    return -1;
-  }
+    if (!checkNym("mynym", mynym)) {
+        return -1;
+    }
 
-  if (!checkNym("hisnym", hisnym)) {
-    return -1;
-  }
+    if (!checkNym("hisnym", hisnym)) {
+        return -1;
+    }
 
-  if (!checkPurse("mypurse", mypurse)) {
-    return -1;
-  }
+    if (!checkPurse("mypurse", mypurse)) {
+        return -1;
+    }
 
-  if (request.empty()) {
-    return -1;
-  }
+    if (request.empty()) {
+        return -1;
+    }
 
-  std::string txid = inputText("Blockchain transaction ID");
+    std::int64_t notifybailmentAmount =
+        SwigWrap::StringToAmount(mypurse, amount);
+    if (OT_ERROR_AMOUNT == notifybailmentAmount) {
+        return -1;
+    }
 
-  if (0 == txid.size()) {
-    return -1;
-  }
+    std::string txid = inputText("Blockchain transaction ID");
 
-  std::string response = OT::App().API().OTME().notify_bailment(
-      server, mynym, hisnym, mypurse, txid, request);
-  return processResponse(response, "notify bailment");
+    if (0 == txid.size()) {
+        return -1;
+    }
+
+    std::string response = OT::App().API().OTME().notify_bailment(
+        server, mynym, hisnym, mypurse, txid, request, notifybailmentAmount);
+    return processResponse(response, "notify bailment");
 }
-} // namespace opentxs
+}  // namespace opentxs

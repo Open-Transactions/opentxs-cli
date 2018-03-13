@@ -40,9 +40,11 @@
 
 #include "CmdBase.hpp"
 
+#include <opentxs/api/client/ServerAction.hpp>
 #include <opentxs/api/Api.hpp>
 #include <opentxs/api/Native.hpp>
-#include <opentxs/client/OT_ME.hpp>
+#include <opentxs/client/ServerAction.hpp>
+#include <opentxs/core/Identifier.hpp>
 #include <opentxs/OT.hpp>
 
 #include <stdint.h>
@@ -86,6 +88,11 @@ int32_t CmdGetInstrumentDefinition::run(
     }
 
     string response =
-        OT::App().API().OTME().retrieve_contract(server, mynym, contract);
+        OT::App()
+            .API()
+            .ServerAction()
+            .DownloadContract(
+                Identifier(mynym), Identifier(server), Identifier(contract))
+            ->Run();
     return processResponse(response, "retrieve contract");
 }

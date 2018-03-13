@@ -38,12 +38,15 @@
 
 #include "CmdRequestAdmin.hpp"
 
+#include <opentxs/api/client/ServerAction.hpp>
 #include <opentxs/api/Api.hpp>
 #include <opentxs/api/Native.hpp>
 #include <opentxs/OT.hpp>
-#include <opentxs/client/OT_ME.hpp>
+#include <opentxs/client/ServerAction.hpp>
+#include <opentxs/core/Identifier.hpp>
 
-namespace opentxs {
+namespace opentxs
+{
 
 CmdRequestAdmin::CmdRequestAdmin()
 {
@@ -55,16 +58,11 @@ CmdRequestAdmin::CmdRequestAdmin()
     help = "Request to become the admin nym for a server";
 }
 
-CmdRequestAdmin::~CmdRequestAdmin()
-{
-}
+CmdRequestAdmin::~CmdRequestAdmin() {}
 
 std::int32_t CmdRequestAdmin::runWithOptions()
 {
-    return run(
-        getOption("server"),
-        getOption("mynym"),
-        getOption("hisnym"));
+    return run(getOption("server"), getOption("mynym"), getOption("hisnym"));
 }
 
 std::int32_t CmdRequestAdmin::run(
@@ -84,10 +82,13 @@ std::int32_t CmdRequestAdmin::run(
         return -1;
     }
 
-
-    std::string response = OT::App().API().OTME().request_admin(
-        server, mynym, hisnym);
+    std::string response =
+        OT::App()
+            .API()
+            .ServerAction()
+            .RequestAdmin(Identifier(mynym), Identifier(server), hisnym)
+            ->Run();
 
     return processResponse(response, "request admin");
 }
-} // namespace opentxs
+}  // namespace opentxs

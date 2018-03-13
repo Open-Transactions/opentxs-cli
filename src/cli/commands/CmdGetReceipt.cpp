@@ -40,10 +40,11 @@
 
 #include "CmdBase.hpp"
 
+#include <opentxs/api/client/ServerAction.hpp>
 #include <opentxs/api/Api.hpp>
 #include <opentxs/api/Native.hpp>
 #include <opentxs/OT.hpp>
-#include <opentxs/client/OT_ME.hpp>
+#include <opentxs/client/ServerAction.hpp>
 #include <opentxs/client/SwigWrap.hpp>
 #include <opentxs/core/Log.hpp>
 
@@ -70,18 +71,24 @@ CmdGetReceipt::CmdGetReceipt()
             "For Inbox and Outbox you need to specify --myacct";
 }
 
-CmdGetReceipt::~CmdGetReceipt()
-{
-}
+CmdGetReceipt::~CmdGetReceipt() {}
 
 int32_t CmdGetReceipt::runWithOptions()
 {
-    return run(getOption("server"), getOption("mynym"), getOption("myacct"),
-               getOption("id"), getOption("boxtype"));
+    return run(
+        getOption("server"),
+        getOption("mynym"),
+        getOption("myacct"),
+        getOption("id"),
+        getOption("boxtype"));
 }
 
-int32_t CmdGetReceipt::run(string server, string mynym, string myacct,
-                           string id, string boxtype)
+int32_t CmdGetReceipt::run(
+    string server,
+    string mynym,
+    string myacct,
+    string id,
+    string boxtype)
 {
     if (!checkServer("server", server)) {
         return -1;
@@ -102,8 +109,7 @@ int32_t CmdGetReceipt::run(string server, string mynym, string myacct,
 
     if (0 == type) {
         myacct = mynym;
-    }
-    else {
+    } else {
         if (!checkAccount("myacct", myacct)) {
             return -1;
         }
@@ -121,9 +127,17 @@ int32_t CmdGetReceipt::run(string server, string mynym, string myacct,
         }
     }
 
-
     int64_t i;
     sscanf(id.c_str(), "%" SCNd64, &i);
-    string response = OT::App().API().OTME().get_box_receipt(server, mynym, myacct, type, i);
+    string response = OT::App()
+                          .API()
+                          .ServerAction()
+                          .DownloadBoxReceipt(
+                              Identifier(mynym),
+                              Identifier(server),
+                              Identifier(myacct),
+                              RemoteBoxType(type),
+                              TransactionNumber(i))
+                          ->Run();
     return processResponse(response, "get box receipt");
 }

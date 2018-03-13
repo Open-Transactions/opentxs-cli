@@ -42,7 +42,6 @@
 
 #include <opentxs/api/Api.hpp>
 #include <opentxs/api/Native.hpp>
-#include <opentxs/client/OT_ME.hpp>
 #include <opentxs/OT.hpp>
 
 #include <stdint.h>
@@ -70,7 +69,7 @@ int32_t CmdShowAccount::run(string myacct)
         return -1;
     }
 
-    string accountData = OT::App().API().OTME().stat_asset_account(myacct);
+    string accountData = stat_asset_account(myacct);
     if ("" == accountData) {
         cout << "Error trying to stat asset account: " << myacct << "\n";
         return -1;

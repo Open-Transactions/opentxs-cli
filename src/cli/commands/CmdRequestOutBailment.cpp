@@ -38,13 +38,16 @@
 
 #include "CmdRequestOutBailment.hpp"
 
+#include <opentxs/api/client/ServerAction.hpp>
 #include <opentxs/api/Api.hpp>
 #include <opentxs/api/Native.hpp>
 #include <opentxs/OT.hpp>
-#include <opentxs/client/OT_ME.hpp>
+#include <opentxs/client/ServerAction.hpp>
 #include <opentxs/client/SwigWrap.hpp>
+#include <opentxs/core/Identifier.hpp>
 
-namespace opentxs {
+namespace opentxs
+{
 
 CmdRequestOutBailment::CmdRequestOutBailment()
 {
@@ -58,9 +61,7 @@ CmdRequestOutBailment::CmdRequestOutBailment()
     help = "Ask the issuer of a unit to process a withdrawal";
 }
 
-CmdRequestOutBailment::~CmdRequestOutBailment()
-{
-}
+CmdRequestOutBailment::~CmdRequestOutBailment() {}
 
 std::int32_t CmdRequestOutBailment::runWithOptions()
 {
@@ -100,15 +101,22 @@ std::int32_t CmdRequestOutBailment::run(
         return -1;
     }
 
-
     std::int64_t outbailmentAmount = SwigWrap::StringToAmount(mypurse, amount);
     if (OT_ERROR_AMOUNT == outbailmentAmount) {
         return -1;
     }
 
-
-    std::string response = OT::App().API().OTME().initiate_outbailment(
-        server, mynym, hisnym, mypurse, outbailmentAmount, terms);
+    std::string response = OT::App()
+                               .API()
+                               .ServerAction()
+                               .InitiateOutbailment(
+                                   Identifier(mynym),
+                                   Identifier(server),
+                                   Identifier(hisnym),
+                                   Identifier(mypurse),
+                                   outbailmentAmount,
+                                   terms)
+                               ->Run();
     return processResponse(response, "request outbailment");
 }
-} // namespace opentxs
+}  // namespace opentxs

@@ -40,10 +40,11 @@
 
 #include "CmdBase.hpp"
 
+#include <opentxs/api/client/ServerAction.hpp>
 #include <opentxs/api/client/Sync.hpp>
 #include <opentxs/api/Api.hpp>
 #include <opentxs/api/Native.hpp>
-#include <opentxs/client/OT_ME.hpp>
+#include <opentxs/client/ServerAction.hpp>
 #include <opentxs/core/Identifier.hpp>
 #include <opentxs/core/Log.hpp>
 #include <opentxs/OT.hpp>
@@ -65,8 +66,8 @@ std::int32_t CmdSendMessage::contact(
     const std::string& hisnym,
     const std::string& message)
 {
-    auto result =
-        OT::App().API().Sync().MessageContact(Identifier(mynym), Identifier(hisnym), message);
+    auto result = OT::App().API().Sync().MessageContact(
+        Identifier(mynym), Identifier(hisnym), message);
 
     otErr << "Thread " << String(result) << " started." << std::endl;
 
@@ -85,8 +86,13 @@ std::int32_t CmdSendMessage::nym(
         return -1;
     }
 
-    auto& me = OT::App().API().OTME();
-    std::string response = me.send_user_msg(server, mynym, hisnym, message);
+    auto& se = OT::App().API().ServerAction();
+    std::string response = se.SendMessage(
+                                 Identifier(mynym),
+                                 Identifier(server),
+                                 Identifier(hisnym),
+                                 message)
+                               ->Run();
 
     return processResponse(response, "send message");
 }

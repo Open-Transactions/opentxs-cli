@@ -143,17 +143,39 @@ protected:
     CmdBaseInstrument();
     virtual ~CmdBaseInstrument() = 0;
 
-    int32_t getTokens(std::vector<std::string>& tokens,
-                      const std::string& server, const std::string& mynym,
-                      const std::string& assetType, std::string purse,
-                      const std::string& indices) const;
-    int32_t sendPayment(const std::string& cheque, std::string sender,
-                        const char* what) const;
-    std::string writeCheque(std::string myacct, std::string hisnym,
-                            std::string amount, std::string memo,
-                            std::string validfor, bool isInvoice) const;
+    int32_t getTokens(
+        std::vector<std::string>& tokens,
+        const std::string& server,
+        const std::string& mynym,
+        const std::string& assetType,
+        std::string purse,
+        const std::string& indices) const;
+#if OT_CASH
+    bool processCashPurse(
+        std::string& newPurse,
+        std::string& newPurseForSender,
+        const std::string& notaryID,
+        const std::string& instrumentDefinitionID,
+        const std::string& nymID,
+        std::string& oldPurse,
+        const std::vector<std::string>& selectedTokens,
+        const std::string& recipientNymID,
+        bool bPWProtectOldPurse,
+        bool bPWProtectNewPurse) const;
+#endif  // OT_CASH
+    int32_t sendPayment(
+        const std::string& cheque,
+        std::string sender,
+        const char* what) const;
+    std::string writeCheque(
+        std::string myacct,
+        std::string hisnym,
+        std::string amount,
+        std::string memo,
+        std::string validfor,
+        bool isInvoice) const;
 };
 
-} // namespace opentxs
+}  // namespace opentxs
 
-#endif // OPENTXS_CLIENT_CMDBASEINSTRUMENT_HPP
+#endif  // OPENTXS_CLIENT_CMDBASEINSTRUMENT_HPP

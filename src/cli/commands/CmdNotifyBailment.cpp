@@ -39,10 +39,12 @@
 #include "CmdNotifyBailment.hpp"
 
 #include <opentxs/OT.hpp>
+#include <opentxs/api/client/ServerAction.hpp>
 #include <opentxs/api/Api.hpp>
 #include <opentxs/api/Native.hpp>
-#include <opentxs/client/OT_ME.hpp>
+#include <opentxs/client/ServerAction.hpp>
 #include <opentxs/client/SwigWrap.hpp>
+#include <opentxs/core/Identifier.hpp>
 
 namespace opentxs
 {
@@ -113,8 +115,18 @@ std::int32_t CmdNotifyBailment::run(
         return -1;
     }
 
-    std::string response = OT::App().API().OTME().notify_bailment(
-        server, mynym, hisnym, mypurse, txid, request, notifybailmentAmount);
+    std::string response = OT::App()
+                               .API()
+                               .ServerAction()
+                               .NotifyBailment(
+                                   Identifier(mynym),
+                                   Identifier(server),
+                                   Identifier(hisnym),
+                                   Identifier(mypurse),
+                                   Identifier(request),
+                                   txid,
+                                   notifybailmentAmount)
+                               ->Run();
     return processResponse(response, "notify bailment");
 }
 }  // namespace opentxs

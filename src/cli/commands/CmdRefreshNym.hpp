@@ -146,10 +146,17 @@ public:
 
     EXPORT int32_t run(std::string server, std::string mynym);
 
+private:
+    std::int32_t retrieve_nym(
+        const std::string& strNotaryID,
+        const std::string& strMyNymID,
+        bool& bWasMsgSent,
+        bool bForceDownload) const;
+
 protected:
     virtual int32_t runWithOptions();
 };
 
-} // namespace opentxs
+}  // namespace opentxs
 
-#endif // OPENTXS_CLIENT_CMDREFRESHNYM_HPP
+#endif  // OPENTXS_CLIENT_CMDREFRESHNYM_HPP

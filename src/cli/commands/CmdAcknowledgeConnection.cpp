@@ -38,12 +38,15 @@
 
 #include "CmdAcknowledgeConnection.hpp"
 
+#include <opentxs/api/client/ServerAction.hpp>
 #include <opentxs/api/Api.hpp>
 #include <opentxs/api/Native.hpp>
-#include <opentxs/client/OT_ME.hpp>
+#include <opentxs/client/ServerAction.hpp>
+#include <opentxs/core/Identifier.hpp>
 #include <opentxs/OT.hpp>
 
-namespace opentxs {
+namespace opentxs
+{
 
 CmdAcknowledgeConnection::CmdAcknowledgeConnection()
 {
@@ -88,10 +91,21 @@ std::int32_t CmdAcknowledgeConnection::run(
     std::string password = inputText("Password");
     std::string key = inputText("Key");
 
-
-    std::string response = OT::App().API().OTME().acknowledge_connection(
-        server, mynym, hisnym, mypurse, true, url, login, password, key);
+    std::string response = OT::App()
+                               .API()
+                               .ServerAction()
+                               .AcknowledgeConnection(
+                                   Identifier(mynym),
+                                   Identifier(server),
+                                   Identifier(hisnym),
+                                   Identifier(mypurse),
+                                   true,
+                                   url,
+                                   login,
+                                   password,
+                                   key)
+                               ->Run();
 
     return processResponse(response, "acknowledge connection");
 }
-} // namespace opentxs
+}  // namespace opentxs

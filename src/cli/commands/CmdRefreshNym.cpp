@@ -40,15 +40,19 @@
 
 #include "CmdBase.hpp"
 
+#include <opentxs/api/client/Wallet.hpp>
 #include <opentxs/api/Api.hpp>
 #include <opentxs/api/Native.hpp>
-#include <opentxs/client/OT_ME.hpp>
+#include "opentxs/client/Utility.hpp"
+#include <opentxs/consensus/ServerContext.hpp>
 #include <opentxs/core/Log.hpp>
 #include <opentxs/OT.hpp>
 
 #include <stdint.h>
 #include <ostream>
 #include <string>
+
+#define OT_METHOD "opentxs::CmdRefreshNym::"
 
 using namespace opentxs;
 using namespace std;
@@ -80,8 +84,8 @@ int32_t CmdRefreshNym::run(string server, string mynym)
     }
 
     bool msgWasSent = false;
-    switch (
-        OT::App().API().OTME().retrieve_nym(server, mynym, msgWasSent, true)) {
+    auto nymBox = retrieve_nym(server, mynym, msgWasSent, true);
+    switch (nymBox) {
         case 1:
             break;
 
@@ -100,4 +104,38 @@ int32_t CmdRefreshNym::run(string server, string mynym)
     }
 
     return 1;
+}
+
+// RETRIEVE NYM INTERMEDIARY FILES
+// Returns:
+//  True if I have enough numbers, or if there was success getting more
+// transaction numbers.
+//  False if I didn't have enough numbers, tried to get more, and failed
+// somehow.
+//
+std::int32_t CmdRefreshNym::retrieve_nym(
+    const std::string& strNotaryID,
+    const std::string& strMyNymID,
+    bool& bWasMsgSent,
+    bool bForceDownload) const
+{
+    auto context = OT::App().Wallet().mutable_ServerContext(
+        Identifier(strMyNymID), Identifier(strNotaryID));
+    Utility MsgUtil(context.It(), OT::App().API().OTAPI());
+
+    if (0 >= context.It().UpdateRequestNumber()) {
+        otErr << OT_METHOD << __FUNCTION__
+              << ": Failed calling getRequestNumber" << std::endl;
+
+        return -1;
+    } else  // If it returns 1, we know for sure that the request number is in
+            // sync.
+    {
+        otInfo << "SUCCESS syncronizing the request number." << std::endl;
+    }
+
+    std::int32_t nGetAndProcessNymbox = MsgUtil.getAndProcessNymbox_4(
+        strNotaryID, strMyNymID, bWasMsgSent, bForceDownload);
+
+    return nGetAndProcessNymbox;
 }

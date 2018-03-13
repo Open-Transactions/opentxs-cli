@@ -40,10 +40,12 @@
 
 #include "CmdBase.hpp"
 
+#include <opentxs/api/client/ServerAction.hpp>
 #include <opentxs/api/Api.hpp>
 #include <opentxs/api/Native.hpp>
 #include <opentxs/OT.hpp>
-#include <opentxs/client/OT_ME.hpp>
+#include <opentxs/client/ServerAction.hpp>
+#include <opentxs/core/Identifier.hpp>
 
 #include <stdint.h>
 #include <string>
@@ -61,9 +63,7 @@ CmdRegisterContractUnit::CmdRegisterContractUnit()
     help = "Upload a server contract to a server.";
 }
 
-CmdRegisterContractUnit::~CmdRegisterContractUnit()
-{
-}
+CmdRegisterContractUnit::~CmdRegisterContractUnit() {}
 
 int32_t CmdRegisterContractUnit::runWithOptions()
 {
@@ -83,8 +83,13 @@ int32_t CmdRegisterContractUnit::run(
         return -1;
     }
 
-
-    std::string response = OT::App().API().OTME().register_contract_unit(server, mynym, hispurse);
+    std::string response =
+        OT::App()
+            .API()
+            .ServerAction()
+            .PublishUnitDefinition(
+                Identifier(mynym), Identifier(server), Identifier(hispurse))
+            ->Run();
 
     return processResponse(response, "register contract");
 }

@@ -38,14 +38,17 @@
 
 #include "CmdRequestConnection.hpp"
 
+#include <opentxs/api/client/ServerAction.hpp>
 #include <opentxs/api/Api.hpp>
 #include <opentxs/api/Native.hpp>
 #include <opentxs/OT.hpp>
-#include <opentxs/client/OT_ME.hpp>
+#include <opentxs/client/ServerAction.hpp>
+#include <opentxs/core/Identifier.hpp>
 
 #include <stdexcept>
 
-namespace opentxs {
+namespace opentxs
+{
 
 CmdRequestConnection::CmdRequestConnection()
 {
@@ -58,9 +61,7 @@ CmdRequestConnection::CmdRequestConnection()
     help = "Request service connection info from another user";
 }
 
-CmdRequestConnection::~CmdRequestConnection()
-{
-}
+CmdRequestConnection::~CmdRequestConnection() {}
 
 std::int32_t CmdRequestConnection::runWithOptions()
 {
@@ -103,10 +104,16 @@ std::int32_t CmdRequestConnection::run(
         return -1;
     }
 
-
-    std::string response = OT::App().API().OTME().request_connection(
-        server, mynym, hisnym, type);
+    std::string response = OT::App()
+                               .API()
+                               .ServerAction()
+                               .InitiateRequestConnection(
+                                   Identifier(mynym),
+                                   Identifier(server),
+                                   Identifier(hisnym),
+                                   proto::ConnectionInfoType(type))
+                               ->Run();
 
     return processResponse(response, "request connection");
 }
-} // namespace opentxs
+}  // namespace opentxs

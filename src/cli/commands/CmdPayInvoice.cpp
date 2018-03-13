@@ -45,7 +45,6 @@
 #include <opentxs/api/Api.hpp>
 #include <opentxs/api/Native.hpp>
 #include <opentxs/OT.hpp>
-#include <opentxs/client/OT_ME.hpp>
 #include <opentxs/client/SwigWrap.hpp>
 #include <opentxs/core/util/Common.hpp>
 #include <opentxs/core/Log.hpp>
@@ -67,9 +66,7 @@ CmdPayInvoice::CmdPayInvoice()
     usage = "If --index is omitted you must paste an invoice.";
 }
 
-CmdPayInvoice::~CmdPayInvoice()
-{
-}
+CmdPayInvoice::~CmdPayInvoice() {}
 
 int32_t CmdPayInvoice::runWithOptions()
 {
@@ -169,14 +166,16 @@ int32_t CmdPayInvoice::run(string myacct, string index)
         return -1;
     }
 
-    return processPayment(myacct, "INVOICE", "",
-                          "" == index ? -1 : stoi(index));
+    return processPayment(
+        myacct, "INVOICE", "", "" == index ? -1 : stoi(index));
 }
 
-int32_t CmdPayInvoice::processPayment(const string& myacct,
-                                      const string& paymentType,
-                                      const string& inbox, const int32_t index,
-                                      string * pOptionalOutput/*=nullptr*/)
+int32_t CmdPayInvoice::processPayment(
+    const string& myacct,
+    const string& paymentType,
+    const string& inbox,
+    const int32_t index,
+    string* pOptionalOutput /*=nullptr*/)
 {
     if ("" == myacct) {
         otOut << "Failure: myacct not a valid string.\n";
@@ -201,10 +200,9 @@ int32_t CmdPayInvoice::processPayment(const string& myacct,
         if ("" == instrument) {
             return -1;
         }
-    }
-    else {
+    } else {
 
-        instrument = OT::App().API().OTME().get_payment_instrument(server, mynym, index, inbox);
+        instrument = get_payment_instrument(server, mynym, index, inbox);
         if ("" == instrument) {
             otOut << "Error: cannot get payment instrument.\n";
             return -1;
@@ -222,26 +220,27 @@ int32_t CmdPayInvoice::processPayment(const string& myacct,
         strIndexErrorMsg = "at index " + to_string(index) + " ";
     }
 
-    if ("" != paymentType && // If there is a payment type specified..
-        paymentType != "ANY" && // ...and if that type isn't "ANY"...
-        paymentType != type)    // ...and it's the wrong type:
-    {   // Then skip this one.
+    if ("" != paymentType &&     // If there is a payment type specified..
+        paymentType != "ANY" &&  // ...and if that type isn't "ANY"...
+        paymentType != type)     // ...and it's the wrong type:
+    {                            // Then skip this one.
         // Except:
         if (("CHEQUE" == paymentType && "VOUCHER" == type) ||
             ("VOUCHER" == paymentType && "CHEQUE" == type)) {
             // in this case we allow it to drop through.
-        }
-        else {
+        } else {
             otOut << "Error: invalid instrument type.\n";
             return -1;
         }
     }
 
-    const bool bIsPaymentPlan   = ("PAYMENT PLAN"  == type);
+    const bool bIsPaymentPlan = ("PAYMENT PLAN" == type);
     const bool bIsSmartContract = ("SMARTCONTRACT" == type);
 
     if (bIsPaymentPlan) {
-        otOut << "Error: Cannot process a payment plan here. You HAVE to explicitly confirm it using confirmInstrument instead of processPayment.\n";
+        otOut << "Error: Cannot process a payment plan here. You HAVE to "
+                 "explicitly confirm it using confirmInstrument instead of "
+                 "processPayment.\n";
         // NOTE: I could remove this block and it would still work. I'm just
         // deliberately disallowing payment plans here, so you are forced to
         // explicitly confirm a payment plan. Otherwise here you might confirm
@@ -251,7 +250,12 @@ int32_t CmdPayInvoice::processPayment(const string& myacct,
     }
 
     if (bIsSmartContract) {
-        otOut << "Error: Cannot process a smart contract here. You HAVE to provide that functionality in your GUI directly, since you may have to choose various accounts as part of the activation process, and your user will need to probably do that in a GUI wizard. It's not so simple as in this function where you just have 'myacct'.\n";
+        otOut << "Error: Cannot process a smart contract here. You HAVE to "
+                 "provide that functionality in your GUI directly, since you "
+                 "may have to choose various accounts as part of the "
+                 "activation process, and your user will need to probably do "
+                 "that in a GUI wizard. It's not so simple as in this function "
+                 "where you just have 'myacct'.\n";
         return -1;
     }
 
@@ -266,7 +270,7 @@ int32_t CmdPayInvoice::processPayment(const string& myacct,
     // one.) Because if it IS endorsed to a Nym, and mynym is NOT that nym,
     // then the transaction will fail. So let's check, before we bother
     // sending it...
-    string sender    = SwigWrap::Instrmnt_GetSenderNymID(instrument);
+    string sender = SwigWrap::Instrmnt_GetSenderNymID(instrument);
     string recipient = SwigWrap::Instrmnt_GetRecipientNymID(instrument);
 
     string endorsee = bIsPaymentPlan ? sender : recipient;
@@ -275,10 +279,12 @@ int32_t CmdPayInvoice::processPayment(const string& myacct,
     // make sure the Nym matches.
     if ("" != endorsee && (endorsee != mynym)) {
         otOut << "The instrument " << strIndexErrorMsg
-        << "is endorsed to a specific " << (bIsPaymentPlan ? "customer" : "recipient")
-              << " (" << endorsee
+              << "is endorsed to a specific "
+              << (bIsPaymentPlan ? "customer" : "recipient") << " (" << endorsee
               << ") and it doesn't match the account's owner NymId (" << mynym
-              << "). This is a problem, for example, because you can't deposit a cheque into your own account, if the cheque is made out to someone else. (Skipping.)\nTry specifying a different "
+              << "). This is a problem, for example, because you can't deposit "
+                 "a cheque into your own account, if the cheque is made out to "
+                 "someone else. (Skipping.)\nTry specifying a different "
                  "account, using --myacct ACCT_ID \n";
         return -1;
     }
@@ -288,8 +294,7 @@ int32_t CmdPayInvoice::processPayment(const string& myacct,
     // use to pay the invoice from. So let's pay it!
     // P.S. recipient might be empty, but mynym is guaranteed to be good.
 
-    string assetType =
-        SwigWrap::Instrmnt_GetInstrumentDefinitionID(instrument);
+    string assetType = SwigWrap::Instrmnt_GetInstrumentDefinitionID(instrument);
     string accountAssetType = getAccountAssetType(myacct);
 
     if ("" != assetType && accountAssetType != assetType) {
@@ -301,8 +306,7 @@ int32_t CmdPayInvoice::processPayment(const string& myacct,
         return -1;
     }
     // ---------------------------------------------
-    if (bIsPaymentPlan)
-    {
+    if (bIsPaymentPlan) {
         // Note: this block is currently unreachable/disallowed.
         //       (But it would otherwise work.)
         //
@@ -317,15 +321,21 @@ int32_t CmdPayInvoice::processPayment(const string& myacct,
         // use GUI input/output instead of command line i/o.
         //
         CmdConfirm cmd;
-        return cmd.confirmInstrument(server, mynym, myacct, recipient, instrument,
-                                     index, pOptionalOutput);
+        return cmd.confirmInstrument(
+            server,
+            mynym,
+            myacct,
+            recipient,
+            instrument,
+            index,
+            pOptionalOutput);
         // NOTE: we don't perform any RecordPayment here because
         // confirmInstrument already does that.
     }
     // ---------------------------------------------
-    time64_t from  = SwigWrap::Instrmnt_GetValidFrom(instrument);
+    time64_t from = SwigWrap::Instrmnt_GetValidFrom(instrument);
     time64_t until = SwigWrap::Instrmnt_GetValidTo(instrument);
-    time64_t now   = SwigWrap::GetTime();
+    time64_t now = SwigWrap::GetTime();
 
     if (now < from) {
         otOut << "The instrument at index " << index
@@ -358,12 +368,12 @@ int32_t CmdPayInvoice::processPayment(const string& myacct,
     // but just not here in the script. (Rather, internally by OT itself.)
     if ("CHEQUE" == type || "VOUCHER" == type || "INVOICE" == type) {
         CmdDeposit deposit;
-        return deposit.depositCheque(server, myacct, mynym, instrument, pOptionalOutput);
-    }
-    else if ("PURSE" == type) {
+        return deposit.depositCheque(
+            server, myacct, mynym, instrument, pOptionalOutput);
+    } else if ("PURSE" == type) {
         CmdDeposit deposit;
-        int32_t success =
-            deposit.depositPurse(server, myacct, mynym, instrument, "", pOptionalOutput);
+        int32_t success = deposit.depositPurse(
+            server, myacct, mynym, instrument, "", pOptionalOutput);
 
         // if index != -1, go ahead and call RecordPayment on the purse at that
         // index, to remove it from payments inbox and move it to the recordbox.

@@ -43,10 +43,14 @@
 
 #include <opentxs/api/Native.hpp>
 #include <opentxs/api/Api.hpp>
-#include <opentxs/client/OT_ME.hpp>
+#include <opentxs/api/client/ServerAction.hpp>
+#include <opentxs/client/ServerAction.hpp>
 #include <opentxs/client/SwigWrap.hpp>
+#include "opentxs/core/recurring/OTPaymentPlan.hpp"
+#include "opentxs/core/script/OTSmartContract.hpp"
 #include <opentxs/core/util/Common.hpp>
 #include <opentxs/core/Log.hpp>
+#include "opentxs/ext/OTPayment.hpp"
 #include <opentxs/OT.hpp>
 
 #include <stdint.h>
@@ -134,8 +138,7 @@ int32_t CmdConfirm::run(
 
     // use specified payment instrument from inpayments
 
-    string instrument = OT::App().API().OTME().get_payment_instrument(
-        server, mynym, messageNr, "");
+    string instrument = get_payment_instrument(server, mynym, messageNr, "");
     if ("" == instrument) {
         otOut << "Error: cannot load payment instrument.\n";
         return -1;
@@ -244,8 +247,8 @@ int32_t CmdConfirm::confirmPaymentPlan(
         return -1;
     }
 
-    if (!OT::App().API().OTME().make_sure_enough_trans_nums(
-            2, server, senderUser)) {
+    if (!OT::App().API().ServerAction().GetTransactionNumbers(
+            Identifier(senderUser), Identifier(server), 2)) {
         otOut << "Error: cannot reserve transaction numbers.\n";
         return -1;
     }
@@ -259,8 +262,20 @@ int32_t CmdConfirm::confirmPaymentPlan(
 
     // If we fail, then we need to harvest the transaction numbers back from
     // the payment plan that we confirmed
-    string response = OT::App().API().OTME().deposit_payment_plan(
-        server, senderUser, confirmed);
+    std::unique_ptr<OTPaymentPlan> paymentPlan =
+        std::make_unique<OTPaymentPlan>();
+
+    OT_ASSERT(paymentPlan)
+
+    paymentPlan->LoadContractFromString(String(confirmed));
+
+    string response =
+        OT::App()
+            .API()
+            .ServerAction()
+            .DepositPaymentPlan(
+                Identifier(senderUser), Identifier(server), paymentPlan)
+            ->Run();
 
     int32_t success = responseStatus(response);
     if (1 != success) {
@@ -277,8 +292,11 @@ int32_t CmdConfirm::confirmPaymentPlan(
 
     if (nullptr != pOptionalOutput) *pOptionalOutput = response;
 
-    if (!OT::App().API().OTME().retrieve_account(
-            server, senderUser, senderAcct, true)) {
+    if (!OT::App().API().ServerAction().DownloadAccount(
+            Identifier(senderUser),
+            Identifier(server),
+            Identifier(senderAcct),
+            true)) {
         otOut << "Error retrieving intermediary files for account.\n";
         return -1;
     }
@@ -516,8 +534,25 @@ int32_t CmdConfirm::activateContract(
         }
     }
 
-    string response = OT::App().API().OTME().activate_smart_contract(
-        server, mynym, myAcctID, myAcctAgentName, contract);
+    const Identifier theNotaryID{server}, theNymID{mynym}, theAcctID{myAcctID};
+
+    std::unique_ptr<OTSmartContract> smartContract =
+        std::make_unique<OTSmartContract>();
+
+    OT_ASSERT(smartContract)
+
+    smartContract->LoadContractFromString(String(contract));
+
+    string response = OT::App()
+                          .API()
+                          .ServerAction()
+                          .ActivateSmartContract(
+                              theNymID,
+                              theNotaryID,
+                              theAcctID,
+                              myAcctAgentName,
+                              smartContract)
+                          ->Run();
     if (1 != responseStatus(response)) {
         otOut << "Error: cannot activate smart contract.\n";
         harvestTxNumbers(contract, mynym);
@@ -531,8 +566,8 @@ int32_t CmdConfirm::activateContract(
         return reply;
     }
 
-    if (!OT::App().API().OTME().retrieve_account(
-            server, mynym, myAcctID, true)) {
+    if (!OT::App().API().ServerAction().DownloadAccount(
+            theNymID, theNotaryID, theAcctID, true)) {
         otOut << "Error retrieving intermediary files for account.\n";
     }
 
@@ -585,8 +620,18 @@ int32_t CmdConfirm::sendToNextParty(
         }
     }
 
-    string response = OT::App().API().OTME().send_user_payment(
-        server, mynym, hisNymID, contract);
+    std::unique_ptr<OTPayment> payment =
+        std::make_unique<OTPayment>(String(contract.c_str()));
+
+    string response = OT::App()
+                          .API()
+                          .ServerAction()
+                          .SendPayment(
+                              Identifier(mynym),
+                              Identifier(server),
+                              Identifier(hisNymID),
+                              payment)
+                          ->Run();
     if (1 != responseStatus(response)) {
         otOut << "\nFor whatever reason, our attempt to send the instrument on "
                  "to the next user has failed.\n";
@@ -646,9 +691,10 @@ int32_t CmdConfirm::confirmAccounts(
         otOut << "\n";
         showPartyAccounts(contract, name, 2);
 
-        otOut << "\nThere are " << accounts << " asset accounts remaining to "
-                                               "be confirmed.\nEnter the index "
-                                               "for an UNconfirmed account: ";
+        otOut << "\nThere are " << accounts
+              << " asset accounts remaining to "
+                 "be confirmed.\nEnter the index "
+                 "for an UNconfirmed account: ";
 
         int32_t acctIndex = checkIndex("account index", inputLine(), accounts);
         if (0 > acctIndex) {
@@ -868,8 +914,8 @@ int32_t CmdConfirm::confirmAccounts(
         int32_t needed = SwigWrap::SmartContract_CountNumsNeeded(
             contract, mapAgents[x->first]);
 
-        if (!OT::App().API().OTME().make_sure_enough_trans_nums(
-                needed + 1, server, mynym)) {
+        if (!OT::App().API().ServerAction().GetTransactionNumbers(
+                Identifier(mynym), Identifier(server), needed + 1)) {
             otOut << "Error: cannot reserve transaction numbers.\n";
             return -1;
         }

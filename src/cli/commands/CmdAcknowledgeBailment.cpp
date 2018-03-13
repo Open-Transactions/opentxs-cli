@@ -38,12 +38,15 @@
 
 #include "CmdAcknowledgeBailment.hpp"
 
+#include <opentxs/api/client/ServerAction.hpp>
 #include <opentxs/api/Api.hpp>
 #include <opentxs/api/Native.hpp>
-#include <opentxs/client/OT_ME.hpp>
+#include <opentxs/client/ServerAction.hpp>
+#include <opentxs/core/Identifier.hpp>
 #include <opentxs/OT.hpp>
 
-namespace opentxs {
+namespace opentxs
+{
 
 CmdAcknowledgeBailment::CmdAcknowledgeBailment()
 {
@@ -56,9 +59,7 @@ CmdAcknowledgeBailment::CmdAcknowledgeBailment()
     help = "Respond to a bailment request with deposit instructions";
 }
 
-CmdAcknowledgeBailment::~CmdAcknowledgeBailment()
-{
-}
+CmdAcknowledgeBailment::~CmdAcknowledgeBailment() {}
 
 std::int32_t CmdAcknowledgeBailment::runWithOptions()
 {
@@ -92,9 +93,16 @@ std::int32_t CmdAcknowledgeBailment::run(
         return -1;
     }
 
-
-    std::string response = OT::App().API().OTME().acknowledge_bailment(
-        server, mynym, hisnym, mypurse, terms);
+    std::string response = OT::App()
+                               .API()
+                               .ServerAction()
+                               .AcknowledgeBailment(
+                                   Identifier(mynym),
+                                   Identifier(server),
+                                   Identifier(hisnym),
+                                   Identifier(mypurse),
+                                   terms)
+                               ->Run();
     return processResponse(response, "acknowledge bailment");
 }
-} // namespace opentxs
+}  // namespace opentxs

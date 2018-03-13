@@ -40,7 +40,6 @@
 
 #include "CmdBase.hpp"
 
-#include <opentxs/client/OT_ME.hpp>
 #include <opentxs/client/SwigWrap.hpp>
 #include <opentxs/core/Log.hpp>
 
@@ -62,9 +61,7 @@ CmdNewNymLegacy::CmdNewNymLegacy()
     help = "create a new OpenSSL-based RSA nym.";
 }
 
-CmdNewNymLegacy::~CmdNewNymLegacy()
-{
-}
+CmdNewNymLegacy::~CmdNewNymLegacy() {}
 
 int32_t CmdNewNymLegacy::runWithOptions()
 {
@@ -98,7 +95,6 @@ int32_t CmdNewNymLegacy::run(string keybits, string label, string source)
         otOut << "Error: invalid keybits value.\n";
         return -1;
     }
-
 
     string mynym = SwigWrap::CreateNymLegacy(bits, source);
     if ("" == mynym) {

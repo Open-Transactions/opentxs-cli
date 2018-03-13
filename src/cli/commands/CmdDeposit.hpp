@@ -145,21 +145,39 @@ public:
     virtual ~CmdDeposit();
 
     EXPORT int32_t
-        run(std::string mynym, std::string myacct, std::string indices);
-    EXPORT int32_t depositCheque(const std::string& server,
-                                 const std::string& myacct,
-                                 const std::string& mynym,
-                                 const std::string& instrument,
-                                 std::string * pOptionalOutput=nullptr) const;
-    EXPORT int32_t
-        depositPurse(const std::string& server, const std::string& myacct,
-                     const std::string& mynym, std::string instrument,
-                     const std::string& indices, std::string * pOptionalOutput=nullptr) const;
+    run(std::string mynym, std::string myacct, std::string indices);
+    EXPORT int32_t depositCheque(
+        const std::string& server,
+        const std::string& myacct,
+        const std::string& mynym,
+        const std::string& instrument,
+        std::string* pOptionalOutput = nullptr) const;
+    EXPORT int32_t depositPurse(
+        const std::string& server,
+        const std::string& myacct,
+        const std::string& mynym,
+        std::string instrument,
+        const std::string& indices,
+        std::string* pOptionalOutput = nullptr) const;
+
+private:
+#if OT_CASH
+    EXPORT std::int32_t depositCashPurse(
+        const std::string& notaryID,
+        const std::string& instrumentDefinitionID,
+        const std::string& nymID,
+        const std::string& oldPurse,
+        const std::vector<std::string>& selectedTokens,
+        const std::string& accountID,
+        bool bReimportIfFailure,  // So we don't re-import a purse that wasn't
+                                  // internal to begin with.
+        std::string* pOptionalOutput = nullptr) const;
+#endif  // OT_CASH
 
 protected:
     virtual int32_t runWithOptions();
 };
 
-} // namespace opentxs
+}  // namespace opentxs
 
-#endif // OPENTXS_CLIENT_CMDDEPOSIT_HPP
+#endif  // OPENTXS_CLIENT_CMDDEPOSIT_HPP

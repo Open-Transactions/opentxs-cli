@@ -41,10 +41,12 @@
 #include "CmdBase.hpp"
 #include "CmdShowMyOffers.hpp"
 
+#include <opentxs/api/client/ServerAction.hpp>
 #include <opentxs/api/Api.hpp>
 #include <opentxs/api/Native.hpp>
 #include <opentxs/OT.hpp>
-#include <opentxs/client/OT_ME.hpp>
+#include <opentxs/client/ServerAction.hpp>
+#include <opentxs/core/Identifier.hpp>
 
 #include <stdint.h>
 #include <string>
@@ -61,9 +63,7 @@ CmdGetMyOffers::CmdGetMyOffers()
     help = "Download mynym's list of market offers.";
 }
 
-CmdGetMyOffers::~CmdGetMyOffers()
-{
-}
+CmdGetMyOffers::~CmdGetMyOffers() {}
 
 int32_t CmdGetMyOffers::runWithOptions()
 {
@@ -80,8 +80,12 @@ int32_t CmdGetMyOffers::run(string server, string mynym)
         return -1;
     }
 
-
-    string response = OT::App().API().OTME().get_nym_market_offers(server, mynym);
+    string response =
+        OT::App()
+            .API()
+            .ServerAction()
+            .DownloadNymMarketOffers(Identifier(mynym), Identifier(server))
+            ->Run();
     if (1 != processResponse(response, "get market offers")) {
         return -1;
     }

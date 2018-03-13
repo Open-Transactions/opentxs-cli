@@ -40,10 +40,12 @@
 
 #include "CmdBase.hpp"
 
+#include <opentxs/api/client/Wallet.hpp>
 #include <opentxs/api/Api.hpp>
 #include <opentxs/api/Native.hpp>
 #include <opentxs/OT.hpp>
-#include <opentxs/client/OT_ME.hpp>
+#include <opentxs/consensus/ServerContext.hpp>
+#include <opentxs/core/Message.hpp>
 
 #include <stdint.h>
 #include <string>
@@ -60,9 +62,7 @@ CmdPingNotary::CmdPingNotary()
     help = "See if a notary is responsive.";
 }
 
-CmdPingNotary::~CmdPingNotary()
-{
-}
+CmdPingNotary::~CmdPingNotary() {}
 
 int32_t CmdPingNotary::runWithOptions()
 {
@@ -79,6 +79,9 @@ int32_t CmdPingNotary::run(string server, string mynym)
         return -1;
     }
 
-    string response = OT::App().API().OTME().ping_notary(server, mynym);
-    return processResponse(response, "ping notary");
+    auto context = OT::App().Wallet().mutable_ServerContext(
+        Identifier(mynym), Identifier(server));
+    const auto response = context.It().PingNotary();
+    const auto& reply = response.second;
+    return processResponse(String(*reply).Get(), "ping notary");
 }

@@ -44,9 +44,12 @@
 #include <opentxs/api/client/Sync.hpp>
 #include <opentxs/api/Api.hpp>
 #include <opentxs/api/Native.hpp>
+#include <opentxs/api/UI.hpp>
 #include <opentxs/client/ServerAction.hpp>
 #include <opentxs/core/Identifier.hpp>
 #include <opentxs/core/Log.hpp>
+#include <opentxs/ui/ActivityThread.hpp>
+#include <opentxs/ui/ActivityThreadItem.hpp>
 #include <opentxs/OT.hpp>
 
 namespace opentxs
@@ -66,12 +69,18 @@ std::int32_t CmdSendMessage::contact(
     const std::string& hisnym,
     const std::string& message)
 {
-    auto result = OT::App().API().Sync().MessageContact(
-        Identifier(mynym), Identifier(hisnym), message);
+    const Identifier nymID(mynym);
+    const Identifier contactID(hisnym);
+    auto& thread = OT::App().UI().ActivityThread(nymID, contactID);
+    const auto loaded = thread.SetDraft(message);
 
-    otErr << "Thread " << String(result) << " started." << std::endl;
+    OT_ASSERT(loaded)
 
-    return String(result).Exists();
+    const auto sent = thread.SendDraft();
+
+    OT_ASSERT(sent)
+
+    return 0;
 }
 
 std::int32_t CmdSendMessage::nym(

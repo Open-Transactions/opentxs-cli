@@ -41,6 +41,7 @@
 
 #include "CmdBase.hpp"
 
+#include <chrono>
 #include <cstdint>
 #include <string>
 
@@ -51,6 +52,9 @@ class CmdShowThread : public CmdBase
 {
 public:
     CmdShowThread();
+
+    std::string time(
+        const std::chrono::system_clock::time_point in) const;
 
     std::int32_t run(
         std::string mynym,

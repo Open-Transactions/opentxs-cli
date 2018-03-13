@@ -38,17 +38,16 @@
 
 #include "CmdShowThread.hpp"
 
-#include <opentxs/api/client/Wallet.hpp>
-#include <opentxs/api/storage/Storage.hpp>
-#include <opentxs/api/Api.hpp>
 #include <opentxs/api/Native.hpp>
-#include <opentxs/client/OT_API.hpp>
+#include <opentxs/api/UI.hpp>
 #include <opentxs/core/Identifier.hpp>
 #include <opentxs/core/Log.hpp>
-#include <opentxs/core/Message.hpp>
-#include <opentxs/core/String.hpp>
+#include <opentxs/ui/ActivityThread.hpp>
+#include <opentxs/ui/ActivityThreadItem.hpp>
 #include <opentxs/OT.hpp>
 #include <opentxs/Types.hpp>
+
+#include <ctime>
 
 namespace opentxs
 {
@@ -71,75 +70,38 @@ std::int32_t CmdShowThread::run(
     const std::string& threadID)
 {
     if (!checkNym("mynym", mynym)) {
-        return -1;
-    }
-
-    auto& ot = OT::App();
-    auto& storage = ot.DB();
-    auto& wallet = ot.Wallet();
-    std::shared_ptr<proto::StorageThread> thread;
-    storage.Load(mynym, threadID, thread);
-
-    if (!thread) {
-        otErr << "Thread does not exist." << std::endl;
 
         return -1;
     }
 
-    otOut << "Thread " << thread->id() << ", version " << thread->version()
-          << "\nParticipants:\n" << "    * " << mynym
-          << " (you)\n";
+    const auto& thread = OT::App().UI().ActivityThread(
+        Identifier(mynym), Identifier(threadID));
+    const auto& first = thread.First();
+    otOut << thread.DisplayName() << "\n";
 
-          for (const auto& it : thread->participant()) {
-              otOut << "    * " << it << "\n";
-          }
+    if (false == first.Valid()) {
+        return 0;
+    }
 
-    otOut << "Contents (" << thread->item().size() << " items):\n";
+    auto last = first.Last();
+    otOut << " * " << time(first.Timestamp()) << " " << first.Text() << "\n";
 
-    for (const auto& item : thread->item()) {
-        const StorageBox box = static_cast<StorageBox>(item.box());
-        otOut << "-----------------------------------------------------------\n"
-              << "Item " << item.id() << ", version " << item.version() << "\n"
-              << "Index: " << item.index() << "\n"
-              << "Time: " << item.time() << "\n"
-              << "Box: ";
-
-        switch (box) {
-            case (StorageBox::MAILINBOX) : {
-                otOut << "mail inbox\n";
-            } break;
-            case (StorageBox::MAILOUTBOX) : {
-                otOut << "mail outbox\n";
-            } break;
-            case (StorageBox::SENTPEERREQUEST) :
-            case (StorageBox::INCOMINGPEERREQUEST) :
-            case (StorageBox::SENTPEERREPLY) :
-            case (StorageBox::INCOMINGPEERREPLY) :
-            case (StorageBox::FINISHEDPEERREQUEST) :
-            case (StorageBox::FINISHEDPEERREPLY) :
-            case (StorageBox::PROCESSEDPEERREQUEST) :
-            case (StorageBox::PROCESSEDPEERREPLY) :
-            default : {}
-        }
-        otOut << "Account: " << item.account() << "\n";
-
-        if (item.unread()) { otOut << "Unread\n"; }
-
-        auto message = ot.API().OTAPI().BoxContents(
-            Identifier(mynym), Identifier(item.id()), box);
-
-        if (message.empty()) {
-            otErr << "Failed to load message.\n";
-
-            continue;
-        }
-
-        otOut << "Contents:\n";
-        otOut << message;
+    while (false == last) {
+        auto& line = thread.Next();
+        last = line.Last();
+        otOut << " * " << time(line.Timestamp()) << " " << line.Text() << "\n";
     }
 
     otOut << std::endl;
 
     return 0;
+}
+
+std::string CmdShowThread::time(
+    const std::chrono::system_clock::time_point in) const
+{
+    const auto converted = std::chrono::system_clock::to_time_t(in);
+
+    return std::ctime(&converted);
 }
 } // namespace opentxs

@@ -74,7 +74,7 @@ std::int32_t CmdAddContact::run(
     }
 
     Identifier nymID(String(hisnym.c_str()));
-    PaymentCode code(hisnym);
+    auto code = PaymentCode::Factory(hisnym);
 
     if (nymID.empty()) {
         otErr << "Provided ID was not a nymID." << std::endl;
@@ -82,14 +82,14 @@ std::int32_t CmdAddContact::run(
         otErr << "Provided ID was a nymID." << std::endl;
     }
 
-    if (false == code.VerifyInternally()) {
+    if (false == code->VerifyInternally()) {
         otErr << "Provided ID was not a payment code." << std::endl;
     } else {
         otErr << "Provided ID was a payment code." << std::endl;
     }
 
-    if (nymID.empty() && code.VerifyInternally()) {
-        nymID = code.ID();
+    if (nymID.empty() && code->VerifyInternally()) {
+        nymID = code->ID();
         otErr << "Derived nymID: " << String(nymID) << std::endl;
     }
 

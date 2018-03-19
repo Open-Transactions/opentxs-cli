@@ -41,10 +41,11 @@
 #include "CmdBase.hpp"
 #include "CmdRegisterNym.hpp"
 
+#include <opentxs/api/client/ServerAction.hpp>
 #include <opentxs/api/Api.hpp>
 #include <opentxs/api/Native.hpp>
 #include <opentxs/OT.hpp>
-#include <opentxs/client/OT_ME.hpp>
+#include <opentxs/client/ServerAction.hpp>
 #include <opentxs/client/SwigWrap.hpp>
 
 #include <stdint.h>
@@ -90,7 +91,14 @@ int32_t CmdIssueAsset::run(string server, string mynym)
         registerNym.run(server, mynym);
     }
 
-    string response =
-        OT::App().API().OTME().issue_asset_type(server, mynym, contract);
+    string response = OT::App()
+                          .API()
+                          .ServerAction()
+                          .IssueUnitDefinition(
+                              Identifier(mynym),
+                              Identifier(server),
+                              proto::StringToProto<proto::UnitDefinition>(
+                                  String(contract.c_str())))
+                          ->Run();
     return processResponse(response, "issue asset contract");
 }

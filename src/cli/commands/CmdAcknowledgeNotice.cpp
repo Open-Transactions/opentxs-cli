@@ -38,12 +38,15 @@
 
 #include "CmdAcknowledgeNotice.hpp"
 
+#include <opentxs/api/client/ServerAction.hpp>
 #include <opentxs/api/Api.hpp>
 #include <opentxs/api/Native.hpp>
-#include <opentxs/client/OT_ME.hpp>
+#include <opentxs/client/ServerAction.hpp>
+#include <opentxs/core/Identifier.hpp>
 #include <opentxs/OT.hpp>
 
-namespace opentxs {
+namespace opentxs
+{
 
 CmdAcknowledgeNotice::CmdAcknowledgeNotice()
 {
@@ -56,9 +59,7 @@ CmdAcknowledgeNotice::CmdAcknowledgeNotice()
     help = "Acknowledge receipt of a peer notice";
 }
 
-CmdAcknowledgeNotice::~CmdAcknowledgeNotice()
-{
-}
+CmdAcknowledgeNotice::~CmdAcknowledgeNotice() {}
 
 std::int32_t CmdAcknowledgeNotice::runWithOptions()
 {
@@ -87,9 +88,16 @@ std::int32_t CmdAcknowledgeNotice::run(
         return -1;
     }
 
-
-    std::string response = OT::App().API().OTME().acknowledge_notice(
-        server, mynym, hisnym, mypurse, true);
+    std::string response = OT::App()
+                               .API()
+                               .ServerAction()
+                               .AcknowledgeNotice(
+                                   Identifier(mynym),
+                                   Identifier(server),
+                                   Identifier(hisnym),
+                                   Identifier(mypurse),
+                                   true)
+                               ->Run();
     return processResponse(response, "acknowledge notice");
 }
-} // namespace opentxs
+}  // namespace opentxs

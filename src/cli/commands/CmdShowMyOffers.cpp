@@ -40,7 +40,6 @@
 
 #include "CmdBase.hpp"
 
-#include <opentxs/client/OT_ME.hpp>
 #include <opentxs/core/Log.hpp>
 #include <opentxs/core/OTStorage.hpp>
 

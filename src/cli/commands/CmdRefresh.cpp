@@ -41,10 +41,12 @@
 #include "CmdBase.hpp"
 #include "CmdRefreshNym.hpp"
 
+#include <opentxs/api/client/ServerAction.hpp>
 #include <opentxs/api/Api.hpp>
 #include <opentxs/api/Native.hpp>
-#include <opentxs/client/OT_ME.hpp>
+#include <opentxs/client/ServerAction.hpp>
 #include <opentxs/client/SwigWrap.hpp>
+#include <opentxs/core/Identifier.hpp>
 #include <opentxs/core/Log.hpp>
 #include <opentxs/OT.hpp>
 
@@ -90,7 +92,8 @@ int32_t CmdRefresh::run(string myacct)
         return -1;
     }
 
-    if (!OT::App().API().OTME().retrieve_account(server, mynym, myacct, true)) {
+    if (!OT::App().API().ServerAction().DownloadAccount(
+            Identifier(mynym), Identifier(server), Identifier(myacct), true)) {
         otOut << "Error retrieving intermediary files for myacct.\n";
         return -1;
     }

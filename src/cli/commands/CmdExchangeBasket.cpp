@@ -40,10 +40,12 @@
 
 #include "CmdBase.hpp"
 
+#include <opentxs/api/client/ServerAction.hpp>
 #include <opentxs/api/Native.hpp>
 #include <opentxs/api/Api.hpp>
-#include <opentxs/client/OT_ME.hpp>
+#include <opentxs/client/ServerAction.hpp>
 #include <opentxs/client/SwigWrap.hpp>
+#include "opentxs/client/Utility.hpp"
 #include <opentxs/core/util/Common.hpp>
 #include <opentxs/core/Log.hpp>
 #include <opentxs/OT.hpp>
@@ -152,8 +154,8 @@ int32_t CmdExchangeBasket::run(string myacct, string direction, string multiple)
         }
     }
 
-    if (!OT::App().API().OTME().make_sure_enough_trans_nums(
-            20, server, mynym)) {
+    if (!OT::App().API().ServerAction().GetTransactionNumbers(
+            Identifier(mynym), Identifier(server), 20)) {
         otOut << "Error: cannot reserve transaction numbers.\n";
         return -1;
     }
@@ -247,15 +249,26 @@ int32_t CmdExchangeBasket::run(string myacct, string direction, string multiple)
         basket = newBasket;
     }
 
-    string response = OT::App().API().OTME().exchange_basket_currency(
-        server, mynym, assetType, basket, myacct, bExchangingIn);
+    const Identifier theNotaryID{server}, theNymID{mynym}, theAcctID{myacct};
+    string response = OT::App()
+                          .API()
+                          .ServerAction()
+                          .ExchangeBasketCurrency(
+                              theNymID,
+                              theNotaryID,
+                              Identifier(assetType),
+                              theAcctID,
+                              Identifier(basket),
+                              bExchangingIn)
+                          ->Run();
     int32_t reply =
         responseReply(response, server, mynym, myacct, "exchange_basket");
     if (1 != reply) {
         return reply;
     }
 
-    if (!OT::App().API().OTME().retrieve_account(server, mynym, myacct, true)) {
+    if (!OT::App().API().ServerAction().DownloadAccount(
+            theNymID, theNotaryID, theAcctID, true)) {
         otOut << "Error retrieving intermediary files for account.\n";
         return -1;
     }
@@ -319,8 +332,7 @@ int32_t CmdExchangeBasket::showBasketAccounts(
                 if (("" == assetType && SwigWrap::IsBasketCurrency(asset)) ||
                     ("" != assetType && bFilter && assetType == asset) ||
                     ("" != assetType && !bFilter && assetType != asset)) {
-                    string statAccount =
-                        OT::App().API().OTME().stat_asset_account(acct);
+                    string statAccount = stat_asset_account(acct);
                     if ("" == statAccount) {
                         otOut << "Error: cannot stat account.\n";
                         return -1;

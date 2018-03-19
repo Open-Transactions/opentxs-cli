@@ -41,11 +41,13 @@
 #include "CmdBase.hpp"
 #include "CmdRegisterNym.hpp"
 
+#include <opentxs/api/client/ServerAction.hpp>
 #include <opentxs/api/Api.hpp>
 #include <opentxs/api/Native.hpp>
 #include <opentxs/OT.hpp>
-#include <opentxs/client/OT_ME.hpp>
+#include <opentxs/client/ServerAction.hpp>
 #include <opentxs/client/SwigWrap.hpp>
+#include <opentxs/core/Identifier.hpp>
 
 #include <stdint.h>
 #include <string>
@@ -90,6 +92,11 @@ int32_t CmdNewAccount::run(string server, string mynym, string mypurse)
     }
 
     string response =
-        OT::App().API().OTME().create_asset_acct(server, mynym, mypurse);
+        OT::App()
+            .API()
+            .ServerAction()
+            .RegisterAccount(
+                Identifier(mynym), Identifier(server), Identifier(mypurse))
+            ->Run();
     return processResponse(response, "create asset account");
 }

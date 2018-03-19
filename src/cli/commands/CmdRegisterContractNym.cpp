@@ -40,10 +40,12 @@
 
 #include "CmdBase.hpp"
 
+#include <opentxs/api/client/ServerAction.hpp>
 #include <opentxs/api/Api.hpp>
 #include <opentxs/api/Native.hpp>
 #include <opentxs/OT.hpp>
-#include <opentxs/client/OT_ME.hpp>
+#include <opentxs/client/ServerAction.hpp>
+#include <opentxs/core/Identifier.hpp>
 
 #include <stdint.h>
 #include <string>
@@ -61,9 +63,7 @@ CmdRegisterContractNym::CmdRegisterContractNym()
     help = "Upload a nym's credentials to a server without registering.";
 }
 
-CmdRegisterContractNym::~CmdRegisterContractNym()
-{
-}
+CmdRegisterContractNym::~CmdRegisterContractNym() {}
 
 int32_t CmdRegisterContractNym::runWithOptions()
 {
@@ -84,8 +84,13 @@ int32_t CmdRegisterContractNym::run(string server, string mynym, string hisnym)
         return -1;
     }
 
-
-    std::string response = OT::App().API().OTME().register_contract_nym(server, mynym, hisnym);
+    std::string response =
+        OT::App()
+            .API()
+            .ServerAction()
+            .PublishNym(
+                Identifier(mynym), Identifier(server), Identifier(hisnym))
+            ->Run();
 
     return processResponse(response, "register contract");
 }

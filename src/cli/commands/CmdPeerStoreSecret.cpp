@@ -38,12 +38,15 @@
 
 #include "CmdPeerStoreSecret.hpp"
 
+#include <opentxs/api/client/ServerAction.hpp>
 #include <opentxs/api/Api.hpp>
 #include <opentxs/api/Native.hpp>
 #include <opentxs/OT.hpp>
-#include <opentxs/client/OT_ME.hpp>
+#include <opentxs/client/ServerAction.hpp>
+#include <opentxs/core/Identifier.hpp>
 
-namespace opentxs {
+namespace opentxs
+{
 
 CmdPeerStoreSecret::CmdPeerStoreSecret()
 {
@@ -55,16 +58,11 @@ CmdPeerStoreSecret::CmdPeerStoreSecret()
     help = "Request a nym to store a BIP-39 seed on behalf of the requestor";
 }
 
-CmdPeerStoreSecret::~CmdPeerStoreSecret()
-{
-}
+CmdPeerStoreSecret::~CmdPeerStoreSecret() {}
 
 std::int32_t CmdPeerStoreSecret::runWithOptions()
 {
-    return run(
-        getOption("server"),
-        getOption("mynym"),
-        getOption("hisnym"));
+    return run(getOption("server"), getOption("mynym"), getOption("hisnym"));
 }
 
 std::int32_t CmdPeerStoreSecret::run(
@@ -93,11 +91,18 @@ std::int32_t CmdPeerStoreSecret::run(
 
     const std::string secondary = inputText("Passphrase");
 
-
-
-    const std::string response = OT::App().API().OTME().store_secret(
-        server, mynym, hisnym, 1, primary, secondary);
+    const std::string response = OT::App()
+                                     .API()
+                                     .ServerAction()
+                                     .InitiateStoreSecret(
+                                         Identifier(mynym),
+                                         Identifier(server),
+                                         Identifier(hisnym),
+                                         proto::SecretType(1),
+                                         primary,
+                                         secondary)
+                                     ->Run();
 
     return processResponse(response, "peer store secret");
 }
-} // namespace opentxs
+}  // namespace opentxs

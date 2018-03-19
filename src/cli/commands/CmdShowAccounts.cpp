@@ -42,7 +42,6 @@
 
 #include <opentxs/api/Api.hpp>
 #include <opentxs/api/Native.hpp>
-#include <opentxs/client/OT_ME.hpp>
 #include <opentxs/client/SwigWrap.hpp>
 #include <opentxs/core/Log.hpp>
 #include <opentxs/OT.hpp>
@@ -88,7 +87,7 @@ int32_t CmdShowAccounts::run()
             return -1;
         }
 
-        string accountData = OT::App().API().OTME().stat_asset_account(myacct);
+        string accountData = stat_asset_account(myacct);
         if ("" == accountData) {
             cout << "Error : cannot load account data.\n";
             return -1;

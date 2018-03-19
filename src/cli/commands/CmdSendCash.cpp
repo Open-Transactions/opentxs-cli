@@ -42,11 +42,14 @@
 #include "CmdExportCash.hpp"
 #include "CmdWithdrawCash.hpp"
 
+#include <opentxs/api/client/ServerAction.hpp>
 #include <opentxs/api/Api.hpp>
 #include <opentxs/api/Native.hpp>
-#include <opentxs/client/OT_ME.hpp>
+#include <opentxs/cash/Purse.hpp>
+#include <opentxs/client/ServerAction.hpp>
 #include <opentxs/client/SwigWrap.hpp>
 #include <opentxs/core/util/Common.hpp>
+#include <opentxs/core/Identifier.hpp>
 #include <opentxs/core/Log.hpp>
 #include <opentxs/OT.hpp>
 
@@ -237,8 +240,24 @@ int32_t CmdSendCash::sendCash(
         return -1;
     }
 
-    response = OT::App().API().OTME().send_user_cash(
-        server, mynym, hisnym, exportedCash, retainedCopy);
+    std::unique_ptr<Purse> recipientCopy(
+        Purse::PurseFactory(String(exportedCash)));
+    std::unique_ptr<Purse> senderCopy(
+        Purse::PurseFactory(String(retainedCopy)));
+
+    OT_ASSERT(recipientCopy);
+    OT_ASSERT(senderCopy);
+
+    response = OT::App()
+                   .API()
+                   .ServerAction()
+                   .SendCash(
+                       Identifier(mynym),
+                       Identifier(server),
+                       Identifier(hisnym),
+                       recipientCopy,
+                       senderCopy)
+                   ->Run();
     if (1 != responseStatus(response)) {
         // cannot send cash so try to re-import into sender's purse
         if (!SwigWrap::Wallet_ImportPurse(

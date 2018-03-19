@@ -144,21 +144,47 @@ public:
     EXPORT CmdExportCash();
     virtual ~CmdExportCash();
 
-    EXPORT int32_t run(std::string server, std::string mynym,
-                       std::string mypurse, std::string hisnym,
-                       std::string indices, std::string password);
+    EXPORT int32_t
+    run(std::string server,
+        std::string mynym,
+        std::string mypurse,
+        std::string hisnym,
+        std::string indices,
+        std::string password);
 
-    EXPORT std::string exportCash(const std::string& server,
-                                  const std::string& mynym,
-                                  const std::string& assetType,
-                                  std::string& hisnym,
-                                  const std::string& indices, bool hasPassword,
-                                  std::string& retainedCopy) const;
+    EXPORT std::string exportCash(
+        const std::string& server,
+        const std::string& mynym,
+        const std::string& assetType,
+        std::string& hisnym,
+        const std::string& indices,
+        bool hasPassword,
+        std::string& retainedCopy) const;
+
+private:
+#if OT_CASH
+    EXPORT std::string exportCashPurse(
+        const std::string& notaryID,
+        const std::string& instrumentDefinitionID,
+        const std::string& nymID,
+        const std::string& oldPurse,
+        const std::vector<std::string>& selectedTokens,
+        std::string& recipientNymID,
+        bool bPasswordProtected,
+        std::string& strRetainedCopy) const;
+#endif  // OT_CASH
+
+    std::string load_or_retrieve_encrypt_key(
+        const std::string& NOTARY_ID,
+        const std::string& NYM_ID,
+        const std::string& TARGET_NYM_ID) const;
+
+    std::string load_public_encryption_key(const std::string& NYM_ID) const;
 
 protected:
     virtual int32_t runWithOptions();
 };
 
-} // namespace opentxs
+}  // namespace opentxs
 
-#endif // OPENTXS_CLIENT_CMDEXPORTCASH_HPP
+#endif  // OPENTXS_CLIENT_CMDEXPORTCASH_HPP

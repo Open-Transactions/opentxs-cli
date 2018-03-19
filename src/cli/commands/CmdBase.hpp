@@ -135,11 +135,81 @@
 
 #ifdef ANDROID
 #include <opentxs/core/util/android_string.hpp>
-#endif // ANDROID
+#endif  // ANDROID
 #include <opentxs/core/util/Common.hpp>
 
 #include <vector>
 #include <map>
+
+#ifndef SWIG
+#include "opentxs/core/OTStorage.hpp"
+#endif
+
+#ifndef SWIG
+class the_lambda_struct
+{
+public:
+    std::vector<std::string> the_vector;  // used for returning a list of
+                                          // something.
+    std::string the_asset_acct;     // for newoffer, we want to remove existing
+                                    // offers
+                                    // for the same accounts in certain cases.
+    std::string the_currency_acct;  // for newoffer, we want to remove existing
+                                    // offers
+                                    // for the same accounts in certain cases.
+    std::string the_scale;          // for newoffer as well.
+    std::string the_price;          // for newoffer as well.
+    bool bSelling{false};           // for newoffer as well.
+
+    the_lambda_struct();
+};
+typedef std::map<std::string, opentxs::OTDB::OfferDataNym*> SubMap;
+typedef std::map<std::string, SubMap*> MapOfMaps;
+typedef std::int32_t (*LambdaFunc)(
+    const opentxs::OTDB::OfferDataNym& offer_data,
+    std::int32_t nIndex,
+    const MapOfMaps& map_of_maps,
+    const SubMap& sub_map,
+    the_lambda_struct& extra_vals);
+
+MapOfMaps* convert_offerlist_to_maps(opentxs::OTDB::OfferListNym& offerList);
+std::int32_t find_strange_offers(
+    const opentxs::OTDB::OfferDataNym& offer_data,
+    std::int32_t nIndex,
+    const MapOfMaps& map_of_maps,
+    const SubMap& sub_map,
+    the_lambda_struct& extra_vals);  // if 10 offers are printed
+                                     // for the SAME market,
+                                     // nIndex will be 0..9
+std::int32_t iterate_nymoffers_maps(
+    MapOfMaps& map_of_maps,
+    LambdaFunc the_lambda);  // low level. map_of_maps
+                             // must be
+                             // good. (assumed.)
+std::int32_t iterate_nymoffers_maps(
+    MapOfMaps& map_of_maps,
+    LambdaFunc the_lambda,
+    the_lambda_struct& extra_vals);  // low level.
+                                     // map_of_maps
+                                     // must be good.
+                                     // (assumed.)
+std::int32_t iterate_nymoffers_sub_map(
+    const MapOfMaps& map_of_maps,
+    SubMap& sub_map,
+    LambdaFunc the_lambda,
+    the_lambda_struct& extra_vals);
+opentxs::OTDB::OfferListNym* loadNymOffers(
+    const std::string& notaryID,
+    const std::string& nymID);
+std::int32_t output_nymoffer_data(
+    const opentxs::OTDB::OfferDataNym& offer_data,
+    std::int32_t nIndex,
+    const MapOfMaps& map_of_maps,
+    const SubMap& sub_map,
+    the_lambda_struct& extra_vals);  // if 10 offers are printed
+                                     // for the SAME market,
+                                     // nIndex will be 0..9
+#endif
 
 namespace opentxs
 {
@@ -183,53 +253,84 @@ protected:
     const char* help;
     const char* usage;
 
+    std::string check_nym(
+        const std::string& NOTARY_ID,
+        const std::string& NYM_ID,
+        const std::string& TARGET_NYM_ID) const;
+
     bool checkAccount(const char* name, std::string& account) const;
-    int64_t checkAmount(const char* name, const std::string& amount,
-                        const std::string& myacct) const;
+    int64_t checkAmount(
+        const char* name,
+        const std::string& amount,
+        const std::string& myacct) const;
     bool checkFlag(const char* name, const std::string& value) const;
-    int32_t checkIndex(const char* name, const std::string& index,
-                       int32_t items) const;
+    int32_t checkIndex(
+        const char* name,
+        const std::string& index,
+        int32_t items) const;
     bool checkIndices(const char* name, const std::string& indices) const;
-    bool checkIndicesRange(const char* name, const std::string& indices,
-                           int32_t items) const;
+    bool checkIndicesRange(
+        const char* name,
+        const std::string& indices,
+        int32_t items) const;
     bool checkMandatory(const char* name, const std::string& value) const;
-    bool checkNym(const char* name, std::string& nym,
-                  bool checkExistance = true) const;
+    bool checkNym(
+        const char* name,
+        std::string& nym,
+        bool checkExistance = true) const;
     bool checkPurse(const char* name, std::string& purse) const;
     bool checkServer(const char* name, std::string& server) const;
     int64_t checkTransNum(const char* name, const std::string& id) const;
     bool checkValue(const char* name, const std::string& index) const;
     void dashLine() const;
-    std::string formatAmount(const std::string& assetType,
-                             int64_t amount) const;
+    std::string formatAmount(const std::string& assetType, int64_t amount)
+        const;
     std::string getAccountAssetType(const std::string& myacct) const;
     std::string getOption(std::string optionName) const;
+    std::string get_payment_instrument(
+        const std::string& NOTARY_ID,
+        const std::string& NYM_ID,
+        std::int32_t nIndex,
+        const std::string& PRELOADED_INBOX = "") const;
     OTWallet* getWallet() const;
-    int32_t harvestTxNumbers(const std::string& contract,
-                             const std::string& mynym);
+    int32_t harvestTxNumbers(
+        const std::string& contract,
+        const std::string& mynym);
     std::string inputLine();
     std::string inputText(const char* what);
-    int32_t processResponse(const std::string& response,
-                            const char* what) const;
-    int32_t processTxResponse(const std::string& server,
-                              const std::string& mynym,
-                              const std::string& myacct,
-                              const std::string& response,
-                              const char* what) const;
-    int32_t responseReply(const std::string& response,
-                          const std::string& server, const std::string& mynym,
-                          const std::string& myacct,
-                          const char* function) const;
+#if OT_CASH
+    std::string load_or_retrieve_mint(
+        const std::string& NOTARY_ID,
+        const std::string& NYM_ID,
+        const std::string& INSTRUMENT_DEFINITION_ID) const;
+#endif  // OT_CASH
+    int32_t processResponse(const std::string& response, const char* what)
+        const;
+    int32_t processTxResponse(
+        const std::string& server,
+        const std::string& mynym,
+        const std::string& myacct,
+        const std::string& response,
+        const char* what) const;
+    int32_t responseReply(
+        const std::string& response,
+        const std::string& server,
+        const std::string& mynym,
+        const std::string& myacct,
+        const char* function) const;
     int32_t responseStatus(const std::string& response) const;
     virtual int32_t runWithOptions() = 0;
-    std::vector<std::string> tokenize(const std::string& str, char delim,
-                                      bool noEmpty) const;
+    std::string stat_asset_account(const std::string& ACCOUNT_ID) const;
+    std::vector<std::string> tokenize(
+        const std::string& str,
+        char delim,
+        bool noEmpty) const;
 
 private:
     std::vector<std::string> argNames;
     std::map<std::string, std::string> options;
 };
 
-} // namespace opentxs
+}  // namespace opentxs
 
-#endif // OPENTXS_CLIENT_CMDBASE_HPP
+#endif  // OPENTXS_CLIENT_CMDBASE_HPP

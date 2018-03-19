@@ -43,8 +43,11 @@
 
 #include <opentxs/api/Api.hpp>
 #include <opentxs/api/Native.hpp>
-#include <opentxs/client/OT_ME.hpp>
+#include "opentxs/api/client/ServerAction.hpp"
+#include <opentxs/client/ServerAction.hpp>
 #include <opentxs/client/SwigWrap.hpp>
+#include "opentxs/core/recurring/OTPaymentPlan.hpp"
+#include "opentxs/core/script/OTSmartContract.hpp"
 #include <opentxs/core/Log.hpp>
 #include <opentxs/OT.hpp>
 
@@ -66,9 +69,7 @@ CmdCancel::CmdCancel()
     usage = "Specify --myacct when canceling a smart contract.";
 }
 
-CmdCancel::~CmdCancel()
-{
-}
+CmdCancel::~CmdCancel() {}
 
 int32_t CmdCancel::runWithOptions()
 {
@@ -133,8 +134,7 @@ int32_t CmdCancel::run(string mynym, string myacct, string indices)
             continue;
         }
 
-        string payment =
-            SwigWrap::GetNym_OutpaymentsContentsByIndex(mynym, i);
+        string payment = SwigWrap::GetNym_OutpaymentsContentsByIndex(mynym, i);
         if ("" == payment) {
             otOut << "Error: cannot load payment " << i << ".\n";
             retVal = -1;
@@ -181,6 +181,7 @@ int32_t CmdCancel::run(string mynym, string myacct, string indices)
         // drawn on, that will be interpreted by the server as a request to
         // CANCEL the cheque.
 
+        const Identifier theNotaryID{server}, theNymID{mynym};
         string type = SwigWrap::Instrmnt_GetType(payment);
 
         if ("SMARTCONTRACT" == type) {
@@ -201,8 +202,22 @@ int32_t CmdCancel::run(string mynym, string myacct, string indices)
             // desired effect of cancelling the smart contract and sending
             // failure notices to all the parties.
 
-            string response = OT::App().API().OTME().activate_smart_contract(
-                server, mynym, myacct, "acct_agent_name", payment);
+            std::unique_ptr<OTSmartContract> contract =
+                std::make_unique<OTSmartContract>();
+
+            OT_ASSERT(contract)
+
+            contract->LoadContractFromString(String(payment));
+            string response = OT::App()
+                                  .API()
+                                  .ServerAction()
+                                  .ActivateSmartContract(
+                                      theNymID,
+                                      theNotaryID,
+                                      Identifier(myacct),
+                                      "acct_agent_name",
+                                      contract)
+                                  ->Run();
             if ("" == response) {
                 otOut << "Error: cannot cancel smart contract.\n";
                 retVal = -1;
@@ -228,8 +243,18 @@ int32_t CmdCancel::run(string mynym, string myacct, string indices)
             // propagated to the other party to the contract. (Which will result
             // in its automatic removal from the outpayment box.)
 
+            std::unique_ptr<OTPaymentPlan> plan =
+                std::make_unique<OTPaymentPlan>();
 
-            string response = OT::App().API().OTME().cancel_payment_plan(server, mynym, payment);
+            OT_ASSERT(plan)
+
+            plan->LoadContractFromString(String(payment));
+            string response =
+                OT::App()
+                    .API()
+                    .ServerAction()
+                    .CancelPaymentPlan(theNymID, theNotaryID, plan)
+                    ->Run();
             if ("" == response) {
                 otOut << "Error: cannot cancel payment plan.\n";
                 retVal = -1;
@@ -288,9 +313,8 @@ int32_t CmdCancel::run(string mynym, string myacct, string indices)
             continue;
         }
 
-        string nymID = isVoucher
-                           ? SwigWrap::Instrmnt_GetRemitterNymID(payment)
-                           : SwigWrap::Instrmnt_GetSenderNymID(payment);
+        string nymID = isVoucher ? SwigWrap::Instrmnt_GetRemitterNymID(payment)
+                                 : SwigWrap::Instrmnt_GetSenderNymID(payment);
         if ("" == nymID) {
             otOut << "Error: cannot retrieve sender nym.\n";
             retVal = -1;

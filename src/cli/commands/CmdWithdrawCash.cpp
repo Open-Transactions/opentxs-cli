@@ -40,11 +40,13 @@
 
 #include "CmdBase.hpp"
 
+#include <opentxs/api/client/ServerAction.hpp>
 #include <opentxs/api/Api.hpp>
 #include <opentxs/api/Native.hpp>
-#include <opentxs/client/OT_ME.hpp>
+#include <opentxs/client/ServerAction.hpp>
 #include <opentxs/client/SwigWrap.hpp>
 #include <opentxs/core/util/Common.hpp>
+#include <opentxs/core/Identifier.hpp>
 #include <opentxs/core/Log.hpp>
 #include <opentxs/OT.hpp>
 
@@ -106,10 +108,17 @@ int32_t CmdWithdrawCash::withdrawCash(const string& myacct, int64_t amount)
         return -1;
     }
 
+    const Identifier theNotaryID{server}, theNymID{mynym},
+        theAssetType{assetType}, theAcctID{myacct};
+
     string assetContract = SwigWrap::GetAssetType_Contract(assetType);
     if ("" == assetContract) {
         string response =
-            OT::App().API().OTME().retrieve_contract(server, mynym, assetType);
+            OT::App()
+                .API()
+                .ServerAction()
+                .DownloadContract(theNymID, theNotaryID, theAssetType)
+                ->Run();
         if (1 != responseStatus(response)) {
             otOut << "Error: cannot retrieve asset contract.\n";
             return -1;
@@ -122,22 +131,26 @@ int32_t CmdWithdrawCash::withdrawCash(const string& myacct, int64_t amount)
         }
     }
 
-    string mint =
-        OT::App().API().OTME().load_or_retrieve_mint(server, mynym, assetType);
+    string mint = load_or_retrieve_mint(server, mynym, assetType);
     if ("" == mint) {
         otOut << "Error: cannot load asset mint.\n";
         return -1;
     }
 
     string response =
-        OT::App().API().OTME().withdraw_cash(server, mynym, myacct, amount);
+        OT::App()
+            .API()
+            .ServerAction()
+            .WithdrawCash(theNymID, theNotaryID, theAcctID, amount)
+            ->Run();
     int32_t reply =
         responseReply(response, server, mynym, myacct, "withdraw_cash");
     if (1 != reply) {
         return reply;
     }
 
-    if (!OT::App().API().OTME().retrieve_account(server, mynym, myacct, true)) {
+    if (!OT::App().API().ServerAction().DownloadAccount(
+            theNymID, theNotaryID, theAcctID, true)) {
         otOut << "Error retrieving intermediary files for account.\n";
         return -1;
     }

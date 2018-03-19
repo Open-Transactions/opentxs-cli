@@ -42,12 +42,14 @@
 
 #include <opentxs/client/SwigWrap.hpp>
 
+#include <opentxs/api/client/ServerAction.hpp>
 #include <opentxs/api/Api.hpp>
 #include <opentxs/api/Native.hpp>
 #include <opentxs/OT.hpp>
-#include <opentxs/client/OT_ME.hpp>
+#include <opentxs/client/ServerAction.hpp>
 #include <opentxs/core/Log.hpp>
 #include <opentxs/core/OTStorage.hpp>
+#include <opentxs/core/Identifier.hpp>
 
 #include <inttypes.h>
 #include <stdint.h>
@@ -183,8 +185,21 @@ int32_t CmdNewOffer::run(
     sscanf(quantity.c_str(), "%" SCNd64, &q);
     sscanf(price.c_str(), "%" SCNd64, &p);
     sscanf(lifespan.c_str(), "%" SCNd64, &l);
-    string response = OT::App().API().OTME().create_market_offer(
-        myacct, hisacct, s, m, q, p, type == "ask", l, "", 0);
+    string response = OT::App()
+                          .API()
+                          .ServerAction()
+                          .CreateMarketOffer(
+                              Identifier(myacct),
+                              Identifier(hisacct),
+                              Amount(s),
+                              Amount(m),
+                              Amount(q),
+                              Amount(p),
+                              type == "ask",
+                              std::chrono::seconds(l),
+                              "",
+                              Amount(0))
+                          ->Run();
     return responseReply(
         response, server, mynym, myacct, "create_market_offer");
 }
@@ -290,8 +305,15 @@ int32_t CmdNewOffer::cleanMarketOfferList(
 
         int64_t j;
         sscanf(id.c_str(), "%" SCNd64, &j);
-        string response =
-            OT::App().API().OTME().kill_market_offer(server, mynym, myacct, j);
+        string response = OT::App()
+                              .API()
+                              .ServerAction()
+                              .KillMarketOffer(
+                                  Identifier(mynym),
+                                  Identifier(server),
+                                  Identifier(myacct),
+                                  j)
+                              ->Run();
         if (0 > processTxResponse(
                     server, mynym, myacct, response, "kill market offer")) {
             return -1;

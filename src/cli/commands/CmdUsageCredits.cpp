@@ -40,11 +40,13 @@
 
 #include "CmdBase.hpp"
 
+#include <opentxs/api/client/ServerAction.hpp>
 #include <opentxs/api/Api.hpp>
 #include <opentxs/api/Native.hpp>
 #include <opentxs/OT.hpp>
-#include <opentxs/client/OT_ME.hpp>
+#include <opentxs/client/ServerAction.hpp>
 #include <opentxs/client/SwigWrap.hpp>
+#include <opentxs/core/Identifier.hpp>
 #include <opentxs/core/Log.hpp>
 
 #include <stdint.h>
@@ -66,18 +68,22 @@ CmdUsageCredits::CmdUsageCredits()
     usage = "Mynym can use this on himself, read-only.";
 }
 
-CmdUsageCredits::~CmdUsageCredits()
-{
-}
+CmdUsageCredits::~CmdUsageCredits() {}
 
 int32_t CmdUsageCredits::runWithOptions()
 {
-    return run(getOption("server"), getOption("mynym"), getOption("hisnym"),
-               getOption("adjust"));
+    return run(
+        getOption("server"),
+        getOption("mynym"),
+        getOption("hisnym"),
+        getOption("adjust"));
 }
 
-int32_t CmdUsageCredits::run(string server, string mynym, string hisnym,
-                             string adjust)
+int32_t CmdUsageCredits::run(
+    string server,
+    string mynym,
+    string hisnym,
+    string adjust)
 {
     if (!checkServer("server", server)) {
         return -1;
@@ -96,8 +102,15 @@ int32_t CmdUsageCredits::run(string server, string mynym, string hisnym,
         return -1;
     }
 
-
-    string response = OT::App().API().OTME().adjust_usage_credits(server, mynym, hisnym, adjust);
+    string response = OT::App()
+                          .API()
+                          .ServerAction()
+                          .AdjustUsageCredits(
+                              Identifier(mynym),
+                              Identifier(server),
+                              Identifier(hisnym),
+                              std::stoll(adjust))
+                          ->Run();
     if (1 != processResponse(response, "adjust usage credits")) {
         return -1;
     }

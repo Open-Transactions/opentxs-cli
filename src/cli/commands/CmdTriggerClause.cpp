@@ -40,10 +40,12 @@
 
 #include "CmdBase.hpp"
 
+#include <opentxs/api/client/ServerAction.hpp>
 #include <opentxs/api/Api.hpp>
 #include <opentxs/api/Native.hpp>
 #include <opentxs/OT.hpp>
-#include <opentxs/client/OT_ME.hpp>
+#include <opentxs/client/ServerAction.hpp>
+#include <opentxs/core/Identifier.hpp>
 
 #include <stdint.h>
 #include <string>
@@ -64,14 +66,16 @@ CmdTriggerClause::CmdTriggerClause()
     help = "Trigger a clause on a running smart contract.";
 }
 
-CmdTriggerClause::~CmdTriggerClause()
-{
-}
+CmdTriggerClause::~CmdTriggerClause() {}
 
 int32_t CmdTriggerClause::runWithOptions()
 {
-    return run(getOption("server"), getOption("mynym"), getOption("id"),
-               getOption("clause"), getOption("param"));
+    return run(
+        getOption("server"),
+        getOption("mynym"),
+        getOption("id"),
+        getOption("clause"),
+        getOption("param"));
 }
 
 // We might also need something like: OT_Command::main_show_cron_items
@@ -79,8 +83,12 @@ int32_t CmdTriggerClause::runWithOptions()
 // we are able to list the running smart contracts and thus ascertain
 // the transaction number of the one whose clause we wish to trigger.)
 
-int32_t CmdTriggerClause::run(string server, string mynym, string id,
-                              string clause, string param)
+int32_t CmdTriggerClause::run(
+    string server,
+    string mynym,
+    string id,
+    string clause,
+    string param)
 {
     if (!checkServer("server", server)) {
         return -1;
@@ -105,8 +113,15 @@ int32_t CmdTriggerClause::run(string server, string mynym, string id,
         }
     }
 
-
-    string response =
-        OT::App().API().OTME().trigger_clause(server, mynym, std::stoi(id), clause, param);
+    string response = OT::App()
+                          .API()
+                          .ServerAction()
+                          .TriggerClause(
+                              Identifier(mynym),
+                              Identifier(server),
+                              std::stoi(id),
+                              clause,
+                              param)
+                          ->Run();
     return processResponse(response, "trigger clause");
 }

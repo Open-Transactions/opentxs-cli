@@ -40,12 +40,15 @@
 
 #include "CmdBase.hpp"
 
+#include <opentxs/api/client/ServerAction.hpp>
 #include <opentxs/api/Api.hpp>
 #include <opentxs/api/Native.hpp>
 #include <opentxs/OT.hpp>
-#include <opentxs/client/OT_ME.hpp>
+#include <opentxs/client/ServerAction.hpp>
 #include <opentxs/client/SwigWrap.hpp>
+#include <opentxs/core/Identifier.hpp>
 #include <opentxs/core/Log.hpp>
+#include <opentxs/ext/OTPayment.hpp>
 
 #include <stdint.h>
 #include <ostream>
@@ -80,26 +83,38 @@ CmdProposePlan::CmdProposePlan()
             "           <number> of payments, default is unlimited.";
 }
 
-CmdProposePlan::~CmdProposePlan()
-{
-}
+CmdProposePlan::~CmdProposePlan() {}
 
 int32_t CmdProposePlan::runWithOptions()
 {
-    return run(getOption("server"), getOption("mynym"), getOption("hisnym"),
-               getOption("myacct"), getOption("hisacct"), getOption("memo"),
-               getOption("daterange"), getOption("initialpayment"),
-               getOption("paymentplan"), getOption("planexpiry"));
+    return run(
+        getOption("server"),
+        getOption("mynym"),
+        getOption("hisnym"),
+        getOption("myacct"),
+        getOption("hisacct"),
+        getOption("memo"),
+        getOption("daterange"),
+        getOption("initialpayment"),
+        getOption("paymentplan"),
+        getOption("planexpiry"));
 }
 
 // The merchant (sender of proposal / payee of proposal) proposes the payment
 // plan to the customer (recipient of proposal / payer of proposal.)
 // So this function is called by the merchant.
 
-int32_t CmdProposePlan::run(string server, string mynym, string hisnym,
-                            string myacct, string hisacct, string memo,
-                            string daterange, string initialpayment,
-                            string paymentplan, string planexpiry)
+int32_t CmdProposePlan::run(
+    string server,
+    string mynym,
+    string hisnym,
+    string myacct,
+    string hisacct,
+    string memo,
+    string daterange,
+    string initialpayment,
+    string paymentplan,
+    string planexpiry)
 {
     if (!checkServer("server", server)) {
         return -1;
@@ -134,8 +149,8 @@ int32_t CmdProposePlan::run(string server, string mynym, string hisnym,
     otOut << "payment_plan (amount,delay,period): " << paymentplan << "\n";
     otOut << "plan_expiry (length,number): " << planexpiry << "\n";
 
-
-    if (!OT::App().API().OTME().make_sure_enough_trans_nums(2, server, mynym)) {
+    if (!OT::App().API().ServerAction().GetTransactionNumbers(
+            Identifier(mynym), Identifier(server), 2)) {
         otOut << "Error: cannot reserve transaction numbers.\n";
         return -1;
     }
@@ -147,8 +162,16 @@ int32_t CmdProposePlan::run(string server, string mynym, string hisnym,
     // three at a time into a single parameter, as a comma-separated list in
     // string form. See details for each parameter, in the comment below.
     string plan = SwigWrap::EasyProposePlan(
-        server, daterange, hisacct, hisnym, memo, myacct, mynym, initialpayment,
-        paymentplan, planexpiry);
+        server,
+        daterange,
+        hisacct,
+        hisnym,
+        memo,
+        myacct,
+        mynym,
+        initialpayment,
+        paymentplan,
+        planexpiry);
     if ("" == plan) {
         otOut << "Error: cannot create proposed plan.\n";
         return -1;
@@ -160,7 +183,17 @@ int32_t CmdProposePlan::run(string server, string mynym, string hisnym,
     // before sending it -- he already has done that by this point, just as part
     // of the proposal itself.)
 
-    string response = OT::App().API().OTME().send_user_payment(server, mynym, hisnym, plan);
+    std::unique_ptr<OTPayment> payment =
+        std::make_unique<OTPayment>(String(plan.c_str()));
+    string response = OT::App()
+                          .API()
+                          .ServerAction()
+                          .SendPayment(
+                              Identifier(mynym),
+                              Identifier(server),
+                              Identifier(hisnym),
+                              payment)
+                          ->Run();
     if (1 != responseStatus(response)) {
         otOut << "Error: cannot send payment plan.\n";
         return harvestTxNumbers(plan, mynym);

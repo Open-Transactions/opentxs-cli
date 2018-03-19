@@ -38,12 +38,15 @@
 
 #include "CmdServerAddClaim.hpp"
 
+#include <opentxs/api/client/ServerAction.hpp>
 #include <opentxs/api/Api.hpp>
 #include <opentxs/api/Native.hpp>
 #include <opentxs/OT.hpp>
-#include <opentxs/client/OT_ME.hpp>
+#include <opentxs/client/ServerAction.hpp>
+#include <opentxs/core/Identifier.hpp>
 
-namespace opentxs {
+namespace opentxs
+{
 
 CmdServerAddClaim::CmdServerAddClaim()
 {
@@ -54,20 +57,14 @@ CmdServerAddClaim::CmdServerAddClaim()
     help = "Request the server to add a claim to its nym credentials";
 }
 
-CmdServerAddClaim::~CmdServerAddClaim()
-{
-}
+CmdServerAddClaim::~CmdServerAddClaim() {}
 
 std::int32_t CmdServerAddClaim::runWithOptions()
 {
-    return run(
-        getOption("server"),
-        getOption("mynym"));
+    return run(getOption("server"), getOption("mynym"));
 }
 
-std::int32_t CmdServerAddClaim::run(
-    std::string server,
-    std::string mynym)
+std::int32_t CmdServerAddClaim::run(std::string server, std::string mynym)
 {
     if (!checkServer("server", server)) {
         return -1;
@@ -106,10 +103,19 @@ std::int32_t CmdServerAddClaim::run(
         primary = false;
     }
 
-
     const std::string response =
-        OT::App().API().OTME().server_add_claim(server, mynym, section, type, value, primary);
+        OT::App()
+            .API()
+            .ServerAction()
+            .AddServerClaim(
+                Identifier(mynym),
+                Identifier(server),
+                proto::ContactSectionName(std::stoi(section)),
+                proto::ContactItemType(std::stoi(type)),
+                value,
+                primary)
+            ->Run();
 
     return processResponse(response, "server add claim");
 }
-} // namespace opentxs
+}  // namespace opentxs

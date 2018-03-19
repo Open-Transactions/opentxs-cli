@@ -38,12 +38,15 @@
 
 #include "CmdRequestBailment.hpp"
 
+#include <opentxs/api/client/ServerAction.hpp>
 #include <opentxs/api/Api.hpp>
 #include <opentxs/api/Native.hpp>
 #include <opentxs/OT.hpp>
-#include <opentxs/client/OT_ME.hpp>
+#include <opentxs/client/ServerAction.hpp>
+#include <opentxs/core/Identifier.hpp>
 
-namespace opentxs {
+namespace opentxs
+{
 
 CmdRequestBailment::CmdRequestBailment()
 {
@@ -56,9 +59,7 @@ CmdRequestBailment::CmdRequestBailment()
     help = "Ask the issuer of a unit to accept a deposit";
 }
 
-CmdRequestBailment::~CmdRequestBailment()
-{
-}
+CmdRequestBailment::~CmdRequestBailment() {}
 
 std::int32_t CmdRequestBailment::runWithOptions()
 {
@@ -91,9 +92,15 @@ std::int32_t CmdRequestBailment::run(
         return -1;
     }
 
-
-    std::string response = OT::App().API().OTME().initiate_bailment(
-        server, mynym, hisnym, mypurse);
+    std::string response = OT::App()
+                               .API()
+                               .ServerAction()
+                               .InitiateBailment(
+                                   Identifier(mynym),
+                                   Identifier(server),
+                                   Identifier(hisnym),
+                                   Identifier(mypurse))
+                               ->Run();
     return processResponse(response, "request bailment");
 }
-} // namespace opentxs
+}  // namespace opentxs

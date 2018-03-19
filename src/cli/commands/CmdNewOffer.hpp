@@ -144,24 +144,30 @@ public:
     EXPORT CmdNewOffer();
     virtual ~CmdNewOffer();
 
-    EXPORT int32_t run(std::string mynym, std::string hisnym, std::string type,
-                       std::string scale, std::string mininc,
-                       std::string quantity, std::string price,
-                       std::string lifespan);
+    EXPORT int32_t
+    run(std::string mynym,
+        std::string hisnym,
+        std::string type,
+        std::string scale,
+        std::string mininc,
+        std::string quantity,
+        std::string price,
+        std::string lifespan);
 
 protected:
     virtual int32_t runWithOptions();
 
 private:
-    int32_t cleanMarketOfferList(const std::string& server,
-                                 const std::string& mynym,
-                                 const std::string& myacct,
-                                 const std::string& hisacct,
-                                 const std::string& type,
-                                 const std::string& scale,
-                                 const std::string& price);
+    int32_t cleanMarketOfferList(
+        const std::string& server,
+        const std::string& mynym,
+        const std::string& myacct,
+        const std::string& hisacct,
+        const std::string& type,
+        const std::string& scale,
+        const std::string& price);
 };
 
-} // namespace opentxs
+}  // namespace opentxs
 
-#endif // OPENTXS_CLIENT_CMDNEWOFFER_HPP
+#endif  // OPENTXS_CLIENT_CMDNEWOFFER_HPP

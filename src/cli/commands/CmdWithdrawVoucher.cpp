@@ -40,12 +40,15 @@
 
 #include "CmdBase.hpp"
 
+#include <opentxs/api/client/ServerAction.hpp>
 #include <opentxs/api/Api.hpp>
 #include <opentxs/api/Native.hpp>
-#include <opentxs/client/OT_ME.hpp>
+#include <opentxs/client/ServerAction.hpp>
 #include <opentxs/client/SwigWrap.hpp>
 #include <opentxs/core/util/Common.hpp>
+#include <opentxs/core/Identifier.hpp>
 #include <opentxs/core/Log.hpp>
+#include "opentxs/ext/OTPayment.hpp"
 #include <opentxs/OT.hpp>
 
 #include <stdint.h>
@@ -126,8 +129,19 @@ int32_t CmdWithdrawVoucher::run(
         return -1;
     }
 
-    string response = OT::App().API().OTME().withdraw_voucher(
-        server, mynym, myacct, hisnym, memo, value);
+    const Identifier theNotaryID{server}, theNymID{mynym}, theAcctID{myacct};
+
+    string response = OT::App()
+                          .API()
+                          .ServerAction()
+                          .WithdrawVoucher(
+                              theNymID,
+                              theNotaryID,
+                              theAcctID,
+                              Identifier(hisnym),
+                              value,
+                              memo)
+                          ->Run();
     int32_t reply =
         responseReply(response, server, mynym, myacct, "withdraw_voucher");
     if (1 != reply) {
@@ -161,9 +175,16 @@ int32_t CmdWithdrawVoucher::run(
     // Notice how I can send an instrument to myself. This doesn't actually
     // send anything -- it just puts a copy into my outpayments box for
     // safe-keeping.
-    OT::App().API().OTME().send_user_payment(server, mynym, mynym, voucher);
+    std::unique_ptr<OTPayment> payment =
+        std::make_unique<OTPayment>(String(voucher.c_str()));
+    OT::App()
+        .API()
+        .ServerAction()
+        .SendPayment(theNymID, theNotaryID, theNymID, payment)
+        ->Run();
 
-    if (!OT::App().API().OTME().retrieve_account(server, mynym, myacct, true)) {
+    if (!OT::App().API().ServerAction().DownloadAccount(
+            theNymID, theNotaryID, theAcctID, true)) {
         otOut << "Error retrieving intermediary files for account.\n";
         return -1;
     }

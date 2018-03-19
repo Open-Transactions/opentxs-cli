@@ -41,10 +41,12 @@
 #include "CmdBase.hpp"
 #include "CmdShowMarkets.hpp"
 
+#include <opentxs/api/client/ServerAction.hpp>
 #include <opentxs/api/Api.hpp>
 #include <opentxs/api/Native.hpp>
 #include <opentxs/OT.hpp>
-#include <opentxs/client/OT_ME.hpp>
+#include <opentxs/client/ServerAction.hpp>
+#include <opentxs/core/Identifier.hpp>
 #include <opentxs/core/Log.hpp>
 
 #include <stdint.h>
@@ -63,9 +65,7 @@ CmdGetMarkets::CmdGetMarkets()
     help = "Download mynym's list of markets.";
 }
 
-CmdGetMarkets::~CmdGetMarkets()
-{
-}
+CmdGetMarkets::~CmdGetMarkets() {}
 
 int32_t CmdGetMarkets::runWithOptions()
 {
@@ -82,8 +82,12 @@ int32_t CmdGetMarkets::run(string server, string mynym)
         return -1;
     }
 
-
-    string response = OT::App().API().OTME().get_market_list(server, mynym);
+    string response =
+        OT::App()
+            .API()
+            .ServerAction()
+            .DownloadMarketList(Identifier(mynym), Identifier(server))
+            ->Run();
     if (1 != responseStatus(response)) {
         otOut << "Error: cannot get market list.\n";
         return -1;

@@ -41,10 +41,12 @@
 #include "CmdBase.hpp"
 #include "CmdShowOffers.hpp"
 
+#include <opentxs/api/client/ServerAction.hpp>
 #include <opentxs/api/Api.hpp>
 #include <opentxs/api/Native.hpp>
 #include <opentxs/OT.hpp>
-#include <opentxs/client/OT_ME.hpp>
+#include <opentxs/client/ServerAction.hpp>
+#include <opentxs/core/Identifier.hpp>
 
 #include <stdint.h>
 #include <string>
@@ -64,18 +66,22 @@ CmdGetOffers::CmdGetOffers()
     usage = "Default depth is 50";
 }
 
-CmdGetOffers::~CmdGetOffers()
-{
-}
+CmdGetOffers::~CmdGetOffers() {}
 
 int32_t CmdGetOffers::runWithOptions()
 {
-    return run(getOption("server"), getOption("mynym"), getOption("market"),
-               getOption("depth"));
+    return run(
+        getOption("server"),
+        getOption("mynym"),
+        getOption("market"),
+        getOption("depth"));
 }
 
-int32_t CmdGetOffers::run(string server, string mynym, string market,
-                          string depth)
+int32_t CmdGetOffers::run(
+    string server,
+    string mynym,
+    string market,
+    string depth)
 {
     if (!checkServer("server", server)) {
         return -1;
@@ -93,9 +99,15 @@ int32_t CmdGetOffers::run(string server, string mynym, string market,
         depth = "50";
     }
 
-
-    string response =
-        OT::App().API().OTME().get_market_offers(server, mynym, market, stoll(depth));
+    string response = OT::App()
+                          .API()
+                          .ServerAction()
+                          .DownloadMarketOffers(
+                              Identifier(mynym),
+                              Identifier(server),
+                              Identifier(market),
+                              stoll(depth))
+                          ->Run();
     if (1 != processResponse(response, "get market offers")) {
         return -1;
     }

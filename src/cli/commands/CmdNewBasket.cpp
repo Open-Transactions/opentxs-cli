@@ -41,12 +41,14 @@
 #include "CmdBase.hpp"
 #include "CmdShowAssets.hpp"
 
+#include <opentxs/api/client/ServerAction.hpp>
 #include <opentxs/api/Api.hpp>
 #include <opentxs/api/Native.hpp>
 #include <opentxs/OT.hpp>
-#include <opentxs/client/OT_ME.hpp>
+#include <opentxs/client/ServerAction.hpp>
 #include <opentxs/client/SwigWrap.hpp>
 #include <opentxs/core/Log.hpp>
+#include <opentxs/core/Identifier.hpp>
 
 #include <stdint.h>
 #include <iostream>
@@ -186,8 +188,15 @@ int32_t CmdNewBasket::run(
 
     otOut << "Here's the basket we're issuing:\n\n" << basket << std::endl;
 
-    string response =
-        OT::App().API().OTME().issue_basket_currency(server, mynym, basket);
+    string response = OT::App()
+                          .API()
+                          .ServerAction()
+                          .IssueBasketCurrency(
+                              Identifier(mynym),
+                              Identifier(server),
+                              proto::StringToProto<proto::UnitDefinition>(
+                                  String(basket.c_str())))
+                          ->Run();
     int32_t status = responseStatus(response);
     switch (status) {
         case 1: {
@@ -202,8 +211,14 @@ int32_t CmdNewBasket::run(
             string strEnding = ".";
 
             if (bGotNewID) {
-                response = OT::App().API().OTME().retrieve_contract(
-                    server, mynym, strNewID);
+                response = OT::App()
+                               .API()
+                               .ServerAction()
+                               .DownloadContract(
+                                   Identifier(mynym),
+                                   Identifier(server),
+                                   Identifier(strNewID))
+                               ->Run();
                 strEnding = ": " + strNewID;
 
                 if (1 == responseStatus(response)) {

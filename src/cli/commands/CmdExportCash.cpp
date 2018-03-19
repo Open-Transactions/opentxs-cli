@@ -40,10 +40,12 @@
 
 #include "CmdBase.hpp"
 
+#include <opentxs/api/client/ServerAction.hpp>
 #include <opentxs/api/Api.hpp>
 #include <opentxs/api/Native.hpp>
-#include <opentxs/client/OT_ME.hpp>
+#include <opentxs/client/ServerAction.hpp>
 #include <opentxs/client/SwigWrap.hpp>
+#include <opentxs/client/Utility.hpp>
 #include <opentxs/core/Log.hpp>
 #include <opentxs/OT.hpp>
 
@@ -185,9 +187,24 @@ string CmdExportCash::exportCash(
     string& retainedCopy) const
 {
 #if OT_CASH
-    string contract = OT::App().API().OTME().load_or_retrieve_contract(
-        server, mynym, assetType);
-    if ("" == contract) {
+    std::string strContract = SwigWrap::GetAssetType_Contract(assetType);
+
+    if (!VerifyStringVal(strContract)) {
+        std::string strResponse = OT::App()
+                                      .API()
+                                      .ServerAction()
+                                      .DownloadContract(
+                                          Identifier(mynym),
+                                          Identifier(server),
+                                          Identifier(assetType))
+                                      ->Run();
+
+        if (1 == VerifyMessageSuccess(strResponse)) {
+            strContract = SwigWrap::GetAssetType_Contract(assetType);
+        }
+    }
+
+    if ("" == strContract) {
         otOut << "Error: cannot load asset contract.\n";
         return "";
     }
@@ -203,7 +220,7 @@ string CmdExportCash::exportCash(
         return "";
     }
 
-    return OT::App().API().OTME().exportCashPurse(
+    return exportCashPurse(
         server,
         assetType,
         mynym,
@@ -215,4 +232,144 @@ string CmdExportCash::exportCash(
 #else
     return {};
 #endif  // OT_CASH
+}
+
+#if OT_CASH
+// Input: server ID, instrumentDefinitionID, Nym of current owner, existing
+// purse, list of
+// selected tokens, Nym of Recipient, and bool bPasswordProtected.
+// Returns: "new Purse"
+//
+std::string CmdExportCash::exportCashPurse(
+    const std::string& notaryID,
+    const std::string& instrumentDefinitionID,
+    const std::string& nymID,
+    const std::string& oldPurse,
+    const std::vector<std::string>& selectedTokens,
+    std::string& recipientNymID,
+    bool bPasswordProtected,
+    std::string& strRetainedCopy) const
+{
+    //  otOut << "OT_ME_exportCashPurse starts, selectedTokens:" <<
+    // selectedTokens << "\n";
+    //  Utility.setObj(null);
+
+    if (!bPasswordProtected) {
+        // If no recipient, then recipient == Nym.
+        //
+        if (!VerifyStringVal(recipientNymID) || (recipientNymID.size() == 0)) {
+            otOut << "OT_ME_exportCashPurse: recipientNym empty--using NymID "
+                     "for recipient instead: "
+                  << nymID << "\n";
+            recipientNymID = nymID;
+        }
+
+        if (!(recipientNymID == nymID)) {
+            // Even though we don't use this variable after this point,
+            // we've still done something important: loaded and possibly
+            // downloaded the recipient Nym, so that later in this function
+            // we can reference that recipientNymID in other calls and we know
+            // it will work.
+            //
+            std::string recipientPubKey = load_or_retrieve_encrypt_key(
+                notaryID, nymID, recipientNymID);  // this function handles
+            // partial IDs for recipient.;
+
+            if (!VerifyStringVal(recipientPubKey)) {
+                otOut << "OT_ME_exportCashPurse: recipientPubKey is null\n";
+                return "";
+            }
+        }
+    }
+
+    // By this point, we have verified that we can load the public key for the
+    // recipient.
+    // (IF the exported purse isn't meant to be password-protected.)
+    //
+    std::string token = "";
+    std::string exportedToken = "";
+    std::string exportedPurse = "";
+
+    // Next I create another "newPurse" by calling this function.
+    //
+    std::string newPurse = "";  // for recipient;
+    std::string newPurseForSender = "";
+    std::string copyOfOldPurse = oldPurse;
+    bool bSuccessProcess = processCashPurse(
+        newPurse,
+        newPurseForSender,
+        notaryID,
+        instrumentDefinitionID,
+        nymID,
+        copyOfOldPurse,
+        selectedTokens,
+        recipientNymID,
+        false,
+        bPasswordProtected);
+
+    if (bSuccessProcess) {
+        strRetainedCopy = newPurseForSender;
+    }
+
+    // Whatever is returned from that function, I return here also. Presumably a
+    // purse...
+    //
+    return newPurse;
+}
+#endif  // OT_CASH
+
+// load_or_retrieve_pubkey()
+//
+// Load targetNymID from local storage.
+// If not there, then retrieve targetNymID from server,
+// using nymID to send check_nym request. Then re-load
+// and return. (Might still return null.)
+//
+std::string CmdExportCash::load_or_retrieve_encrypt_key(
+    const std::string& notaryID,
+    const std::string& nymID,
+    const std::string& targetNymID) const
+{
+    std::string strPubkey = load_public_encryption_key(targetNymID);
+
+    if (!VerifyStringVal(strPubkey)) {
+        std::string strResponse = check_nym(notaryID, nymID, targetNymID);
+
+        if (1 == VerifyMessageSuccess(strResponse)) {
+            strPubkey = load_public_encryption_key(targetNymID);
+        }
+    }
+
+    return strPubkey;  // might be null.
+}
+
+// load_public_key():
+//
+// Load a public key from local storage, and return it (or null).
+//
+// TODO: Need to fix ugly error messages by passing a bChecking in here
+// so the calling function can try to load the pubkey just to see if it's there,
+// without causing ugly error logs when there's no error.
+std::string CmdExportCash::load_public_encryption_key(
+    const std::string& nymID) const
+{
+    otOut << "\nload_public_encryption_key: Trying to load public "
+             "key, assuming Nym isn't in the local wallet...\n";
+    std::string strPubkey = SwigWrap::LoadPubkey_Encryption(
+        nymID);  // This version is for "other people";
+
+    if (!VerifyStringVal(strPubkey)) {
+        otOut << "\nload_public_encryption_key: Didn't find the Nym (" << nymID
+              << ") as an 'other' user, so next, checking to see if there's "
+                 "a pubkey available for one of the local private Nyms...\n";
+        strPubkey = SwigWrap::LoadUserPubkey_Encryption(
+            nymID);  // This version is for "the user sitting at the machine.";
+
+        if (!VerifyStringVal(strPubkey)) {
+            otOut << "\nload_public_encryption_key: Didn't find "
+                     "him as a local Nym either... returning nullptr.\n";
+        }
+    }
+
+    return strPubkey;  // might be null.;
 }

@@ -40,10 +40,12 @@
 
 #include "CmdBase.hpp"
 
+#include <opentxs/api/client/ServerAction.hpp>
 #include <opentxs/api/Api.hpp>
 #include <opentxs/api/Native.hpp>
 #include <opentxs/OT.hpp>
-#include <opentxs/client/OT_ME.hpp>
+#include <opentxs/client/ServerAction.hpp>
+#include <opentxs/core/Identifier.hpp>
 
 #include <stdint.h>
 #include <cinttypes>
@@ -64,14 +66,15 @@ CmdKillPlan::CmdKillPlan()
     help = "Kill an active payment plan.";
 }
 
-CmdKillPlan::~CmdKillPlan()
-{
-}
+CmdKillPlan::~CmdKillPlan() {}
 
 int32_t CmdKillPlan::runWithOptions()
 {
-    return run(getOption("server"), getOption("mynym"), getOption("myacct"),
-               getOption("id"));
+    return run(
+        getOption("server"),
+        getOption("mynym"),
+        getOption("myacct"),
+        getOption("id"));
 }
 
 int32_t CmdKillPlan::run(string server, string mynym, string myacct, string id)
@@ -88,10 +91,15 @@ int32_t CmdKillPlan::run(string server, string mynym, string myacct, string id)
         return -1;
     }
 
-
     int64_t i;
     sscanf(id.c_str(), "%" SCNd64, &i);
-    string response = OT::App().API().OTME().kill_payment_plan(server, mynym, myacct, i);
-    return processTxResponse(server, mynym, myacct, response,
-                             "kill payment plan");
+    string response =
+        OT::App()
+            .API()
+            .ServerAction()
+            .KillPaymentPlan(
+                Identifier(mynym), Identifier(server), Identifier(myacct), i)
+            ->Run();
+    return processTxResponse(
+        server, mynym, myacct, response, "kill payment plan");
 }

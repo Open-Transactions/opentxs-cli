@@ -42,7 +42,6 @@
 
 #include <opentxs/api/Api.hpp>
 #include <opentxs/api/Native.hpp>
-#include <opentxs/client/OT_ME.hpp>
 #include <opentxs/core/Log.hpp>
 #include <opentxs/OT.hpp>
 
@@ -86,8 +85,7 @@ int32_t CmdShowMint::run(string server, string mynym, string mypurse)
         return -1;
     }
 
-    string mint =
-        OT::App().API().OTME().load_or_retrieve_mint(server, mynym, mypurse);
+    string mint = load_or_retrieve_mint(server, mynym, mypurse);
     if ("" == mint) {
         otOut << "Error: cannot load mint.\n";
         return -1;

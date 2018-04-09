@@ -265,7 +265,7 @@ int32_t CmdBaseAccept::acceptFromInbox(
 
         if (!bReceiptResponseCreated) {
             otErr << __FUNCTION__
-                  << "Error: cannot create transaction response.\n";
+                  << " Error: cannot create transaction response.\n";
             return -1;
         }
     }  // for

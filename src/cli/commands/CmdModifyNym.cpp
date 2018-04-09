@@ -98,11 +98,11 @@ std::int32_t CmdModifyNym::run(
     }
 
     if (false == individual.empty()) {
-        data.SetType(proto::CITEMTYPE_INDIVIDUAL, individual);
+        data.SetScope(proto::CITEMTYPE_INDIVIDUAL, individual, true);
     }
 
     if (false == server.empty()) {
-        data.SetType(proto::CITEMTYPE_SERVER, server);
+        data.SetScope(proto::CITEMTYPE_SERVER, server, true);
     }
 
     if (false == opentxs.empty()) {
@@ -129,4 +129,4 @@ std::int32_t CmdModifyNym::run(
 
     return 1;
 }
-} // namespace opentxs
+}  // namespace opentxs

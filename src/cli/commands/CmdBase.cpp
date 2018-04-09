@@ -709,13 +709,12 @@ bool CmdBase::checkNym(const char* name, string& nym, bool checkExistance) const
 {
     if (!checkMandatory(name, nym)) return false;
 
-    const Nym* pNym = nullptr;
+    ConstNym pNym = nullptr;
     const Identifier nymID(nym);
 
-    if (!nymID.empty()) pNym = OT::App().API().OTAPI().GetOrLoadNym(nymID);
+    if (!nymID.empty()) pNym = OT::App().Wallet().Nym(nymID);
 
-    if (nullptr == pNym)
-        pNym = OT::App().API().OTAPI().GetNymByIDPartialMatch(nym);
+    if (false == bool(pNym)) pNym = OT::App().Wallet().NymByIDPartialMatch(nym);
 
     if (nullptr != pNym) {
         String tmp;

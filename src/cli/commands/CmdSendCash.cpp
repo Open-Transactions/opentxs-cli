@@ -240,9 +240,9 @@ int32_t CmdSendCash::sendCash(
         return -1;
     }
 
-    std::unique_ptr<Purse> recipientCopy(
+    std::shared_ptr<const Purse> recipientCopy(
         Purse::PurseFactory(String(exportedCash)));
-    std::unique_ptr<Purse> senderCopy(
+    std::shared_ptr<const Purse> senderCopy(
         Purse::PurseFactory(String(retainedCopy)));
 
     OT_ASSERT(recipientCopy);

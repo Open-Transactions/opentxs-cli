@@ -183,8 +183,7 @@ int32_t CmdProposePlan::run(
     // before sending it -- he already has done that by this point, just as part
     // of the proposal itself.)
 
-    std::unique_ptr<OTPayment> payment =
-        std::make_unique<OTPayment>(String(plan.c_str()));
+    auto payment = std::make_shared<const OTPayment>(String(plan.c_str()));
     string response = OT::App()
                           .API()
                           .ServerAction()

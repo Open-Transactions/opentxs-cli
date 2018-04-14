@@ -620,9 +620,7 @@ int32_t CmdConfirm::sendToNextParty(
         }
     }
 
-    std::unique_ptr<OTPayment> payment =
-        std::make_unique<OTPayment>(String(contract.c_str()));
-
+    auto payment = std::make_shared<const OTPayment>(String(contract.c_str()));
     string response = OT::App()
                           .API()
                           .ServerAction()

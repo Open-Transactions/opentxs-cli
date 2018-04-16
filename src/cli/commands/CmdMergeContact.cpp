@@ -41,10 +41,11 @@
 
 #include <opentxs/api/ContactManager.hpp>
 #include <opentxs/api/Native.hpp>
-#include <opentxs/OT.hpp>
 #include <opentxs/contact/Contact.hpp>
 #include <opentxs/contact/ContactData.hpp>
+#include <opentxs/core/Identifier.hpp>
 #include <opentxs/core/Log.hpp>
+#include <opentxs/OT.hpp>
 
 namespace opentxs
 {

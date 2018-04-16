@@ -44,6 +44,7 @@
 #include <opentxs/client/OT_API.hpp>
 #include <opentxs/client/OTWallet.hpp>
 #include <opentxs/core/Account.hpp>
+#include <opentxs/core/Identifier.hpp>
 #include <opentxs/OT.hpp>
 
 #include <cstdint>

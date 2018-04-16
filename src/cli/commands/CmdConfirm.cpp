@@ -49,6 +49,7 @@
 #include "opentxs/core/recurring/OTPaymentPlan.hpp"
 #include "opentxs/core/script/OTSmartContract.hpp"
 #include <opentxs/core/util/Common.hpp>
+#include <opentxs/core/Identifier.hpp>
 #include <opentxs/core/Log.hpp>
 #include "opentxs/ext/OTPayment.hpp"
 #include <opentxs/OT.hpp>

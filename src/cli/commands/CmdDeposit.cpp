@@ -47,6 +47,7 @@
 #include <opentxs/client/ServerAction.hpp>
 #include <opentxs/client/SwigWrap.hpp>
 #include <opentxs/client/Utility.hpp>
+#include <opentxs/core/Identifier.hpp>
 #include <opentxs/core/Log.hpp>
 #include <opentxs/core/Cheque.hpp>
 #include <opentxs/OT.hpp>

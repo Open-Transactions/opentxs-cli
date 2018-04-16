@@ -137,6 +137,7 @@
 #include <opentxs/core/util/android_string.hpp>
 #endif  // ANDROID
 #include <opentxs/core/util/Common.hpp>
+#include <opentxs/core/Identifier.hpp>
 
 #include <vector>
 #include <map>

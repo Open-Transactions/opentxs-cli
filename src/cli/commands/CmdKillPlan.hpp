@@ -148,7 +148,7 @@ public:
                        std::string myacct, std::string id);
 
 protected:
-    virtual int32_t runWithOptions();
+    std::int32_t runWithOptions() override;
 };
 
 } // namespace opentxs

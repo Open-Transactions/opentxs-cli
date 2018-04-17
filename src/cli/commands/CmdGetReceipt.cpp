@@ -38,16 +38,7 @@
 
 #include "CmdGetReceipt.hpp"
 
-#include "CmdBase.hpp"
-
-#include <opentxs/api/client/ServerAction.hpp>
-#include <opentxs/api/Api.hpp>
-#include <opentxs/api/Native.hpp>
-#include <opentxs/client/ServerAction.hpp>
-#include <opentxs/client/SwigWrap.hpp>
-#include <opentxs/core/Identifier.hpp>
-#include <opentxs/core/Log.hpp>
-#include <opentxs/OT.hpp>
+#include <opentxs/opentxs.hpp>
 
 #include <inttypes.h>
 #include <stdint.h>
@@ -130,7 +121,10 @@ int32_t CmdGetReceipt::run(
 
     int64_t i;
     sscanf(id.c_str(), "%" SCNd64, &i);
-    string response = OT::App()
+    std::string response;
+    {
+        rLock lock (api_lock_);
+        response = OT::App()
                           .API()
                           .ServerAction()
                           .DownloadBoxReceipt(
@@ -140,5 +134,6 @@ int32_t CmdGetReceipt::run(
                               RemoteBoxType(type),
                               TransactionNumber(i))
                           ->Run();
+    }
     return processResponse(response, "get box receipt");
 }

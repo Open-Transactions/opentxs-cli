@@ -37,16 +37,9 @@
  ************************************************************/
 
 #include "CmdGetMyOffers.hpp"
-
-#include "CmdBase.hpp"
 #include "CmdShowMyOffers.hpp"
 
-#include <opentxs/api/client/ServerAction.hpp>
-#include <opentxs/api/Api.hpp>
-#include <opentxs/api/Native.hpp>
-#include <opentxs/OT.hpp>
-#include <opentxs/client/ServerAction.hpp>
-#include <opentxs/core/Identifier.hpp>
+#include <opentxs/opentxs.hpp>
 
 #include <stdint.h>
 #include <string>
@@ -80,12 +73,15 @@ int32_t CmdGetMyOffers::run(string server, string mynym)
         return -1;
     }
 
-    string response =
-        OT::App()
+    std::string response;
+    {
+        rLock lock (api_lock_);
+        response = OT::App()
             .API()
             .ServerAction()
             .DownloadNymMarketOffers(Identifier(mynym), Identifier(server))
             ->Run();
+    }
     if (1 != processResponse(response, "get market offers")) {
         return -1;
     }

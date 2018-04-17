@@ -148,7 +148,7 @@ public:
         run(std::string myacct, std::string direction, std::string multiple);
 
 protected:
-    virtual int32_t runWithOptions();
+    std::int32_t runWithOptions() override;
 
 private:
     int32_t showBasketAccounts(const std::string& server,

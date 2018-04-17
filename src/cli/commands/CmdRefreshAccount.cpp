@@ -38,16 +38,7 @@
 
 #include "CmdRefreshAccount.hpp"
 
-#include "CmdBase.hpp"
-
-#include <opentxs/api/client/ServerAction.hpp>
-#include <opentxs/api/Api.hpp>
-#include <opentxs/api/Native.hpp>
-#include <opentxs/client/ServerAction.hpp>
-#include <opentxs/client/SwigWrap.hpp>
-#include <opentxs/core/Identifier.hpp>
-#include <opentxs/core/Log.hpp>
-#include <opentxs/OT.hpp>
+#include <opentxs/opentxs.hpp>
 
 #include <stdint.h>
 #include <ostream>
@@ -86,10 +77,13 @@ int32_t CmdRefreshAccount::run(string myacct)
         return -1;
     }
 
-    if (!OT::App().API().ServerAction().DownloadAccount(
-            Identifier(mynym), Identifier(server), Identifier(myacct), true)) {
-        otOut << "Error retrieving intermediary files for myacct.\n";
-        return -1;
+    {
+        rLock lock (api_lock_);
+        if (!OT::App().API().ServerAction().DownloadAccount(
+                Identifier(mynym), Identifier(server), Identifier(myacct), true)) {
+            otOut << "Error retrieving intermediary files for myacct.\n";
+            return -1;
+        }
     }
 
     return 1;

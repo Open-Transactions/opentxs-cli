@@ -37,17 +37,9 @@
  ************************************************************/
 
 #include "CmdNewAccount.hpp"
-
-#include "CmdBase.hpp"
 #include "CmdRegisterNym.hpp"
 
-#include <opentxs/api/client/ServerAction.hpp>
-#include <opentxs/api/Api.hpp>
-#include <opentxs/api/Native.hpp>
-#include <opentxs/OT.hpp>
-#include <opentxs/client/ServerAction.hpp>
-#include <opentxs/client/SwigWrap.hpp>
-#include <opentxs/core/Identifier.hpp>
+#include <opentxs/opentxs.hpp>
 
 #include <stdint.h>
 #include <string>
@@ -91,12 +83,15 @@ int32_t CmdNewAccount::run(string server, string mynym, string mypurse)
         registerNym.run(server, mynym);
     }
 
-    string response =
-        OT::App()
+    std::string response;
+    {
+        rLock lock (api_lock_);
+        response = OT::App()
             .API()
             .ServerAction()
             .RegisterAccount(
                 Identifier(mynym), Identifier(server), Identifier(mypurse))
             ->Run();
+    }
     return processResponse(response, "create asset account");
 }

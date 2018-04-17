@@ -78,7 +78,11 @@ int32_t CmdBaseInstrument::sendPayment(
     }
 
     auto payment = std::make_shared<const OTPayment>(String(cheque.c_str()));
-    string response = OT::App()
+
+    std::string response;
+    {
+        rLock lock (api_lock_);
+        response = OT::App()
                           .API()
                           .ServerAction()
                           .SendPayment(
@@ -87,6 +91,7 @@ int32_t CmdBaseInstrument::sendPayment(
                               Identifier(recipient),
                               payment)
                           ->Run();
+    }
     return processResponse(response, what);
 }
 
@@ -127,10 +132,14 @@ string CmdBaseInstrument::writeCheque(
         return "";
     }
 
-    if (!OT::App().API().ServerAction().GetTransactionNumbers(
-            Identifier(mynym), Identifier(server), 10)) {
-        otOut << "Error: cannot reserve transaction numbers.\n";
-        return "";
+    {
+        rLock lock (api_lock_);
+
+        if (!OT::App().API().ServerAction().GetTransactionNumbers(
+                Identifier(mynym), Identifier(server), 10)) {
+            otOut << "Error: cannot reserve transaction numbers.\n";
+            return "";
+        }
     }
 
     int64_t oneMonth = OTTimeGetSecondsFromTime(OT_TIME_MONTH_IN_SECONDS);

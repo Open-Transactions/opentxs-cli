@@ -38,12 +38,7 @@
 
 #include "CmdServerAddClaim.hpp"
 
-#include <opentxs/api/client/ServerAction.hpp>
-#include <opentxs/api/Api.hpp>
-#include <opentxs/api/Native.hpp>
-#include <opentxs/OT.hpp>
-#include <opentxs/client/ServerAction.hpp>
-#include <opentxs/core/Identifier.hpp>
+#include <opentxs/opentxs.hpp>
 
 namespace opentxs
 {
@@ -103,8 +98,10 @@ std::int32_t CmdServerAddClaim::run(std::string server, std::string mynym)
         primary = false;
     }
 
-    const std::string response =
-        OT::App()
+    std::string response;
+    {
+        rLock lock (api_lock_);
+        response = OT::App()
             .API()
             .ServerAction()
             .AddServerClaim(
@@ -115,6 +112,7 @@ std::int32_t CmdServerAddClaim::run(std::string server, std::string mynym)
                 value,
                 primary)
             ->Run();
+    }
 
     return processResponse(response, "server add claim");
 }

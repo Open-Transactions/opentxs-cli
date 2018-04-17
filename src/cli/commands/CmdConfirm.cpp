@@ -420,7 +420,10 @@ int32_t CmdConfirm::activateContract(
 
     smartContract->LoadContractFromString(String(contract));
 
-    string response = OT::App()
+    std::string response;
+    {
+        rLock lock (api_lock_);
+        response = OT::App()
                           .API()
                           .ServerAction()
                           .ActivateSmartContract(
@@ -430,6 +433,7 @@ int32_t CmdConfirm::activateContract(
                               myAcctAgentName,
                               smartContract)
                           ->Run();
+    }
     if (1 != responseStatus(response)) {
         otOut << "Error: cannot activate smart contract.\n";
         harvestTxNumbers(contract, mynym);
@@ -443,9 +447,12 @@ int32_t CmdConfirm::activateContract(
         return reply;
     }
 
-    if (!OT::App().API().ServerAction().DownloadAccount(
-            theNymID, theNotaryID, theAcctID, true)) {
-        otOut << "Error retrieving intermediary files for account.\n";
+    {
+        rLock lock(api_lock_);
+        if (!OT::App().API().ServerAction().DownloadAccount(
+                theNymID, theNotaryID, theAcctID, true)) {
+            otOut << "Error retrieving intermediary files for account.\n";
+        }
     }
 
     return 1;
@@ -498,7 +505,10 @@ int32_t CmdConfirm::sendToNextParty(
     }
 
     auto payment = std::make_shared<const OTPayment>(String(contract.c_str()));
-    string response = OT::App()
+    std::string response;
+    {
+        rLock lock (api_lock_);
+        response = OT::App()
                           .API()
                           .ServerAction()
                           .SendPayment(
@@ -507,10 +517,11 @@ int32_t CmdConfirm::sendToNextParty(
                               Identifier(hisNymID),
                               payment)
                           ->Run();
-    if (1 != responseStatus(response)) {
-        otOut << "\nFor whatever reason, our attempt to send the instrument on "
-                 "to the next user has failed.\n";
-        return harvestTxNumbers(contract, mynym);
+        if (1 != responseStatus(response)) {
+            otOut << "\nFor whatever reason, our attempt to send the instrument on "
+            "to the next user has failed.\n";
+            return harvestTxNumbers(contract, mynym);
+        }
     }
 
     // Success. (Remove the payment instrument we just successfully sent from
@@ -789,6 +800,7 @@ int32_t CmdConfirm::confirmAccounts(
         int32_t needed = SwigWrap::SmartContract_CountNumsNeeded(
             contract, mapAgents[x->first]);
 
+        rLock lock(api_lock_);
         if (!OT::App().API().ServerAction().GetTransactionNumbers(
                 Identifier(mynym), Identifier(server), needed + 1)) {
             otOut << "Error: cannot reserve transaction numbers.\n";

@@ -38,12 +38,7 @@
 
 #include "CmdAcknowledgeConnection.hpp"
 
-#include <opentxs/api/client/ServerAction.hpp>
-#include <opentxs/api/Api.hpp>
-#include <opentxs/api/Native.hpp>
-#include <opentxs/client/ServerAction.hpp>
-#include <opentxs/core/Identifier.hpp>
-#include <opentxs/OT.hpp>
+#include <opentxs/opentxs.hpp>
 
 namespace opentxs
 {
@@ -91,7 +86,10 @@ std::int32_t CmdAcknowledgeConnection::run(
     std::string password = inputText("Password");
     std::string key = inputText("Key");
 
-    std::string response = OT::App()
+    std::string response;
+    {
+        rLock lock (api_lock_);
+        response = OT::App()
                                .API()
                                .ServerAction()
                                .AcknowledgeConnection(
@@ -105,6 +103,7 @@ std::int32_t CmdAcknowledgeConnection::run(
                                    password,
                                    key)
                                ->Run();
+    }
 
     return processResponse(response, "acknowledge connection");
 }

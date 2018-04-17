@@ -38,19 +38,7 @@
 
 #include "CmdSendMessage.hpp"
 
-#include "CmdBase.hpp"
-
-#include <opentxs/api/client/ServerAction.hpp>
-#include <opentxs/api/client/Sync.hpp>
-#include <opentxs/api/Api.hpp>
-#include <opentxs/api/Native.hpp>
-#include <opentxs/api/UI.hpp>
-#include <opentxs/client/ServerAction.hpp>
-#include <opentxs/core/Identifier.hpp>
-#include <opentxs/core/Log.hpp>
-#include <opentxs/ui/ActivityThread.hpp>
-#include <opentxs/ui/ActivityThreadItem.hpp>
-#include <opentxs/OT.hpp>
+#include <opentxs/opentxs.hpp>
 
 namespace opentxs
 {
@@ -95,13 +83,17 @@ std::int32_t CmdSendMessage::nym(
         return -1;
     }
 
-    auto& se = OT::App().API().ServerAction();
-    std::string response = se.SendMessage(
+    std::string response;
+    {
+        rLock lock (api_lock_);
+        response = OT::App()
+                            .API().ServerAction().SendMessage(
                                  Identifier(mynym),
                                  Identifier(server),
                                  Identifier(hisnym),
                                  message)
                                ->Run();
+    }
 
     return processResponse(response, "send message");
 }

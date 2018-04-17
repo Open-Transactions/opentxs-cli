@@ -37,17 +37,9 @@
  ************************************************************/
 
 #include "CmdIssueAsset.hpp"
-
-#include "CmdBase.hpp"
 #include "CmdRegisterNym.hpp"
 
-#include <opentxs/api/client/ServerAction.hpp>
-#include <opentxs/api/Api.hpp>
-#include <opentxs/api/Native.hpp>
-#include <opentxs/client/ServerAction.hpp>
-#include <opentxs/client/SwigWrap.hpp>
-#include <opentxs/core/Identifier.hpp>
-#include <opentxs/OT.hpp>
+#include <opentxs/opentxs.hpp>
 
 #include <stdint.h>
 #include <string>
@@ -92,7 +84,10 @@ int32_t CmdIssueAsset::run(string server, string mynym)
         registerNym.run(server, mynym);
     }
 
-    string response = OT::App()
+    std::string response;
+    {
+        rLock lock (api_lock_);
+        response = OT::App()
                           .API()
                           .ServerAction()
                           .IssueUnitDefinition(
@@ -101,5 +96,6 @@ int32_t CmdIssueAsset::run(string server, string mynym)
                               proto::StringToProto<proto::UnitDefinition>(
                                   String(contract.c_str())))
                           ->Run();
+    }
     return processResponse(response, "issue asset contract");
 }

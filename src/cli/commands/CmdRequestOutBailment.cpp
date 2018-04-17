@@ -38,13 +38,7 @@
 
 #include "CmdRequestOutBailment.hpp"
 
-#include <opentxs/api/client/ServerAction.hpp>
-#include <opentxs/api/Api.hpp>
-#include <opentxs/api/Native.hpp>
-#include <opentxs/OT.hpp>
-#include <opentxs/client/ServerAction.hpp>
-#include <opentxs/client/SwigWrap.hpp>
-#include <opentxs/core/Identifier.hpp>
+#include <opentxs/opentxs.hpp>
 
 namespace opentxs
 {
@@ -106,7 +100,10 @@ std::int32_t CmdRequestOutBailment::run(
         return -1;
     }
 
-    std::string response = OT::App()
+    std::string response;
+    {
+        rLock lock (api_lock_);
+        response = OT::App()
                                .API()
                                .ServerAction()
                                .InitiateOutbailment(
@@ -117,6 +114,7 @@ std::int32_t CmdRequestOutBailment::run(
                                    outbailmentAmount,
                                    terms)
                                ->Run();
+    }
     return processResponse(response, "request outbailment");
 }
 }  // namespace opentxs

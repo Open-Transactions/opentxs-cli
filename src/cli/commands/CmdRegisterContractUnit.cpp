@@ -38,14 +38,7 @@
 
 #include "CmdRegisterContractUnit.hpp"
 
-#include "CmdBase.hpp"
-
-#include <opentxs/api/client/ServerAction.hpp>
-#include <opentxs/api/Api.hpp>
-#include <opentxs/api/Native.hpp>
-#include <opentxs/OT.hpp>
-#include <opentxs/client/ServerAction.hpp>
-#include <opentxs/core/Identifier.hpp>
+#include <opentxs/opentxs.hpp>
 
 #include <stdint.h>
 #include <string>
@@ -83,13 +76,16 @@ int32_t CmdRegisterContractUnit::run(
         return -1;
     }
 
-    std::string response =
-        OT::App()
+    std::string response;
+    {
+        rLock lock (api_lock_);
+        response = OT::App()
             .API()
             .ServerAction()
             .PublishUnitDefinition(
                 Identifier(mynym), Identifier(server), Identifier(hispurse))
             ->Run();
+    }
 
     return processResponse(response, "register contract");
 }

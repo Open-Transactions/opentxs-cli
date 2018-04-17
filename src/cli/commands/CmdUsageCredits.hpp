@@ -148,7 +148,7 @@ public:
                        std::string hisnym, std::string adjust);
 
 protected:
-    virtual int32_t runWithOptions();
+    std::int32_t runWithOptions() override;
 };
 
 } // namespace opentxs

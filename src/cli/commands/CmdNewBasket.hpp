@@ -154,7 +154,7 @@ public:
         std::string weight);
 
 protected:
-    virtual int32_t runWithOptions();
+    std::int32_t runWithOptions() override;
 };
 
 } // namespace opentxs

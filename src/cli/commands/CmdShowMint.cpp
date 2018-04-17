@@ -38,12 +38,7 @@
 
 #include "CmdShowMint.hpp"
 
-#include "CmdBase.hpp"
-
-#include <opentxs/api/Api.hpp>
-#include <opentxs/api/Native.hpp>
-#include <opentxs/core/Log.hpp>
-#include <opentxs/OT.hpp>
+#include <opentxs/opentxs.hpp>
 
 #include <stdint.h>
 #include <iostream>
@@ -100,7 +95,10 @@ std::string CmdShowMint::load_or_retrieve_mint(
                   "missing or expired. Downloading from "
                   "server...\n";
 
-        response = OT::App()
+        std::string response;
+        {
+            rLock lock (api_lock_);
+            response = OT::App()
                        .API()
                        .ServerAction()
                        .DownloadMint(
@@ -108,6 +106,7 @@ std::string CmdShowMint::load_or_retrieve_mint(
                            Identifier(notaryID),
                            Identifier(unitTypeID))
                        ->Run();
+        }
 
         if (1 != VerifyMessageSuccess(response)) {
             otOut << "load_or_retrieve_mint: Unable to "

@@ -38,12 +38,7 @@
 
 #include "CmdRequestBailment.hpp"
 
-#include <opentxs/api/client/ServerAction.hpp>
-#include <opentxs/api/Api.hpp>
-#include <opentxs/api/Native.hpp>
-#include <opentxs/OT.hpp>
-#include <opentxs/client/ServerAction.hpp>
-#include <opentxs/core/Identifier.hpp>
+#include <opentxs/opentxs.hpp>
 
 namespace opentxs
 {
@@ -92,7 +87,10 @@ std::int32_t CmdRequestBailment::run(
         return -1;
     }
 
-    std::string response = OT::App()
+    std::string response;
+    {
+        rLock lock (api_lock_);
+        response = OT::App()
                                .API()
                                .ServerAction()
                                .InitiateBailment(
@@ -101,6 +99,7 @@ std::int32_t CmdRequestBailment::run(
                                    Identifier(hisnym),
                                    Identifier(mypurse))
                                ->Run();
+    }
     return processResponse(response, "request bailment");
 }
 }  // namespace opentxs

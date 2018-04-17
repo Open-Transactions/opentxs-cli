@@ -147,7 +147,7 @@ public:
     EXPORT int32_t run(std::string server, std::string mynym);
 
 protected:
-    virtual int32_t runWithOptions();
+    std::int32_t runWithOptions() override;
 };
 
 } // namespace opentxs

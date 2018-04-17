@@ -38,10 +38,7 @@
 
 #include "CmdShowNyms.hpp"
 
-#include "CmdBase.hpp"
-
-#include <opentxs/client/SwigWrap.hpp>
-#include <opentxs/core/Log.hpp>
+#include <opentxs/opentxs.hpp>
 
 #include <stdint.h>
 #include <iostream>
@@ -57,14 +54,9 @@ CmdShowNyms::CmdShowNyms()
     help = "Show the nyms in the wallet.";
 }
 
-CmdShowNyms::~CmdShowNyms()
-{
-}
+CmdShowNyms::~CmdShowNyms() {}
 
-int32_t CmdShowNyms::runWithOptions()
-{
-    return run();
-}
+int32_t CmdShowNyms::runWithOptions() { return run(); }
 
 int32_t CmdShowNyms::run()
 {

@@ -1,5 +1,13 @@
 /************************************************************
  *
+ *  CmdShowNyms.hpp
+ *
+ */
+
+/************************************************************
+ -----BEGIN PGP SIGNED MESSAGE-----
+ Hash: SHA1
+
  *                 OPEN TRANSACTIONS
  *
  *       Financial Cryptography and Digital Cash
@@ -53,9 +61,9 @@ public:
     EXPORT int32_t run();
 
 protected:
-    virtual int32_t runWithOptions();
+    int32_t runWithOptions() override;
 };
 
-} // namespace opentxs
+}  // namespace opentxs
 
-#endif // OPENTXS_CLIENT_CMDSHOWNYMS_HPP
+#endif  // OPENTXS_CLIENT_CMDSHOWNYMS_HPP

@@ -141,18 +141,20 @@ namespace opentxs
 class CmdBaseAccept : public CmdBase
 {
 protected:
-    enum ItemType { typeBoth = 0, typeTransfers = 1, typeReceipts = 2 };
+    //enum ItemType { typeBoth = 0, typeTransfers = 1, typeReceipts = 2 };
 
 public:
-    EXPORT int32_t acceptFromInbox(const std::string& myacct,
-                                   const std::string& indices,
-                                   const int32_t itemType) const;
-    EXPORT int32_t acceptFromPaymentbox(const std::string& myacct,
-                                        const std::string& indices,
-                                        const std::string& paymentType,
-                                        std::string * pOptionalOutput=nullptr) const;
+    EXPORT int32_t acceptFromInbox(
+        const std::string& myacct,
+        const std::string& indices,
+        const std::int32_t itemType) const;
+    EXPORT int32_t acceptFromPaymentbox(
+        const std::string& myacct,
+        const std::string& indices,
+        const std::string& paymentType,
+        std::string* pOptionalOutput = nullptr) const;
 };
 
-} // namespace opentxs
+}  // namespace opentxs
 
-#endif // OPENTXS_CLIENT_CMDBASEACCEPT_HPP
+#endif  // OPENTXS_CLIENT_CMDBASEACCEPT_HPP

@@ -259,6 +259,7 @@ protected:
         const std::string& NYM_ID,
         const std::string& TARGET_NYM_ID) const;
 
+    std::string stat_asset_account(const std::string& ACCOUNT_ID) const;
     bool checkAccount(const char* name, std::string& account) const;
     int64_t checkAmount(
         const char* name,

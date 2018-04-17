@@ -38,6 +38,8 @@
 
 #include "CmdConfirm.hpp"
 
+#include "CmdShowNyms.hpp"
+
 #include <opentxs/opentxs.hpp>
 
 #include <stdint.h>

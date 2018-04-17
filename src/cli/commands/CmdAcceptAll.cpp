@@ -38,8 +38,7 @@
 
 #include "CmdAcceptAll.hpp"
 
-#include "CmdBase.hpp"
-#include "CmdBaseAccept.hpp"
+#include <opentxs/opentxs.hpp>
 
 #include <stdint.h>
 #include <string>
@@ -72,7 +71,7 @@ int32_t CmdAcceptAll::run(string myacct)
     }
 
     //  Incoming transfers and receipts (asset account inbox.)
-    bool success = 0 <= acceptFromInbox(myacct, "all", typeBoth);
+    bool success = 0 <= acceptFromInbox(myacct, "all", OTRecordList::typeBoth);
 
     // Incoming payments -- cheques, purses, vouchers
     success &= 0 <= acceptFromPaymentbox(myacct, "all", "PURSE");

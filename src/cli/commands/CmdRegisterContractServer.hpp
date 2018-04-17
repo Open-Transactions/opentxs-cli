@@ -54,7 +54,7 @@ public:
         run(std::string server, std::string mynym, std::string hispurse);
 
 protected:
-    virtual int32_t runWithOptions();
+    std::int32_t runWithOptions() override;
 };
 } // namespace opentxs
 #endif // OPENTXS_CLIENT_CMDREGISTERCONTRACTSERVER_HPP

@@ -155,7 +155,7 @@ public:
         std::string lifespan);
 
 protected:
-    virtual int32_t runWithOptions();
+    std::int32_t runWithOptions() override;
 
 private:
     int32_t cleanMarketOfferList(

@@ -38,18 +38,7 @@
 
 #include "CmdWithdrawVoucher.hpp"
 
-#include "CmdBase.hpp"
-
-#include <opentxs/api/client/ServerAction.hpp>
-#include <opentxs/api/Api.hpp>
-#include <opentxs/api/Native.hpp>
-#include <opentxs/client/ServerAction.hpp>
-#include <opentxs/client/SwigWrap.hpp>
-#include <opentxs/core/util/Common.hpp>
-#include <opentxs/core/Identifier.hpp>
-#include <opentxs/core/Log.hpp>
-#include "opentxs/ext/OTPayment.hpp"
-#include <opentxs/OT.hpp>
+#include <opentxs/opentxs.hpp>
 
 #include <stdint.h>
 #include <iostream>
@@ -131,7 +120,10 @@ int32_t CmdWithdrawVoucher::run(
 
     const Identifier theNotaryID{server}, theNymID{mynym}, theAcctID{myacct};
 
-    string response = OT::App()
+    std::string response;
+    {
+        rLock lock (api_lock_);
+        response = OT::App()
                           .API()
                           .ServerAction()
                           .WithdrawVoucher(
@@ -142,6 +134,7 @@ int32_t CmdWithdrawVoucher::run(
                               value,
                               memo)
                           ->Run();
+    }
     int32_t reply =
         responseReply(response, server, mynym, myacct, "withdraw_voucher");
     if (1 != reply) {
@@ -176,16 +169,18 @@ int32_t CmdWithdrawVoucher::run(
     // send anything -- it just puts a copy into my outpayments box for
     // safe-keeping.
     auto payment = std::make_shared<const OTPayment>(String(voucher.c_str()));
-    OT::App()
-        .API()
-        .ServerAction()
-        .SendPayment(theNymID, theNotaryID, theNymID, payment)
-        ->Run();
-
-    if (!OT::App().API().ServerAction().DownloadAccount(
-            theNymID, theNotaryID, theAcctID, true)) {
-        otOut << "Error retrieving intermediary files for account.\n";
-        return -1;
+    {
+        rLock lock (api_lock_);
+        OT::App()
+            .API()
+            .ServerAction()
+            .SendPayment(theNymID, theNotaryID, theNymID, payment)
+            ->Run();
+        if (!OT::App().API().ServerAction().DownloadAccount(
+                theNymID, theNotaryID, theAcctID, true)) {
+            otOut << "Error retrieving intermediary files for account.\n";
+            return -1;
+        }
     }
 
     return 1;

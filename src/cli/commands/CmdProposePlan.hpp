@@ -151,7 +151,7 @@ public:
                        std::string paymentplan, std::string planexpiry);
 
 protected:
-    virtual int32_t runWithOptions();
+    std::int32_t runWithOptions() override;
 };
 
 } // namespace opentxs

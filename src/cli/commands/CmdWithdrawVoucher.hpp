@@ -152,7 +152,7 @@ public:
                        std::string& voucher);
 
 protected:
-    virtual int32_t runWithOptions();
+    std::int32_t runWithOptions() override;
 };
 
 } // namespace opentxs

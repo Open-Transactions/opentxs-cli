@@ -181,7 +181,10 @@ string CmdExportCash::exportCash(
     std::string strContract = SwigWrap::GetAssetType_Contract(assetType);
 
     if (!VerifyStringVal(strContract)) {
-        std::string strResponse = OT::App()
+        std::string response;
+        {
+            rLock lock (api_lock_);
+            response = OT::App()
                                       .API()
                                       .ServerAction()
                                       .DownloadContract(
@@ -189,8 +192,9 @@ string CmdExportCash::exportCash(
                                           Identifier(server),
                                           Identifier(assetType))
                                       ->Run();
+        }
 
-        if (1 == VerifyMessageSuccess(strResponse)) {
+        if (1 == VerifyMessageSuccess(response)) {
             strContract = SwigWrap::GetAssetType_Contract(assetType);
         }
     }

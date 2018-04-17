@@ -38,14 +38,7 @@
 
 #include "CmdKillPlan.hpp"
 
-#include "CmdBase.hpp"
-
-#include <opentxs/api/client/ServerAction.hpp>
-#include <opentxs/api/Api.hpp>
-#include <opentxs/api/Native.hpp>
-#include <opentxs/OT.hpp>
-#include <opentxs/client/ServerAction.hpp>
-#include <opentxs/core/Identifier.hpp>
+#include <opentxs/opentxs.hpp>
 
 #include <stdint.h>
 #include <cinttypes>
@@ -93,13 +86,16 @@ int32_t CmdKillPlan::run(string server, string mynym, string myacct, string id)
 
     int64_t i;
     sscanf(id.c_str(), "%" SCNd64, &i);
-    string response =
-        OT::App()
+    std::string response;
+    {
+        rLock lock (api_lock_);
+        response = OT::App()
             .API()
             .ServerAction()
             .KillPaymentPlan(
                 Identifier(mynym), Identifier(server), Identifier(myacct), i)
             ->Run();
+    }
     return processTxResponse(
         server, mynym, myacct, response, "kill payment plan");
 }

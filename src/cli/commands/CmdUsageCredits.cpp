@@ -38,16 +38,7 @@
 
 #include "CmdUsageCredits.hpp"
 
-#include "CmdBase.hpp"
-
-#include <opentxs/api/client/ServerAction.hpp>
-#include <opentxs/api/Api.hpp>
-#include <opentxs/api/Native.hpp>
-#include <opentxs/OT.hpp>
-#include <opentxs/client/ServerAction.hpp>
-#include <opentxs/client/SwigWrap.hpp>
-#include <opentxs/core/Identifier.hpp>
-#include <opentxs/core/Log.hpp>
+#include <opentxs/opentxs.hpp>
 
 #include <stdint.h>
 #include <ostream>
@@ -102,7 +93,10 @@ int32_t CmdUsageCredits::run(
         return -1;
     }
 
-    string response = OT::App()
+    std::string response;
+    {
+        rLock lock (api_lock_);
+        response = OT::App()
                           .API()
                           .ServerAction()
                           .AdjustUsageCredits(
@@ -111,6 +105,7 @@ int32_t CmdUsageCredits::run(
                               Identifier(hisnym),
                               std::stoll(adjust))
                           ->Run();
+    }
     if (1 != processResponse(response, "adjust usage credits")) {
         return -1;
     }

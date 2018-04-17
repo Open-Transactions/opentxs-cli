@@ -148,7 +148,7 @@ public:
         run(std::string server, std::string mynym, std::string hisnym);
 
 protected:
-    virtual int32_t runWithOptions();
+    std::int32_t runWithOptions() override;
 };
 
 } // namespace opentxs

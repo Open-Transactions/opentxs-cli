@@ -60,7 +60,7 @@ public:
             std::string hisnym);
 
 protected:
-    virtual std::int32_t runWithOptions();
+    std::int32_t runWithOptions() override;
 };
 } // namespace opentxs
 

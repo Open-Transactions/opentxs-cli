@@ -38,12 +38,7 @@
 
 #include "CmdRequestConnection.hpp"
 
-#include <opentxs/api/client/ServerAction.hpp>
-#include <opentxs/api/Api.hpp>
-#include <opentxs/api/Native.hpp>
-#include <opentxs/OT.hpp>
-#include <opentxs/client/ServerAction.hpp>
-#include <opentxs/core/Identifier.hpp>
+#include <opentxs/opentxs.hpp>
 
 #include <stdexcept>
 
@@ -104,7 +99,10 @@ std::int32_t CmdRequestConnection::run(
         return -1;
     }
 
-    std::string response = OT::App()
+    std::string response;
+    {
+        rLock lock (api_lock_);
+        response = OT::App()
                                .API()
                                .ServerAction()
                                .InitiateRequestConnection(
@@ -113,6 +111,7 @@ std::int32_t CmdRequestConnection::run(
                                    Identifier(hisnym),
                                    proto::ConnectionInfoType(type))
                                ->Run();
+    }
 
     return processResponse(response, "request connection");
 }

@@ -38,14 +38,7 @@
 
 #include "CmdRegisterContractNym.hpp"
 
-#include "CmdBase.hpp"
-
-#include <opentxs/api/client/ServerAction.hpp>
-#include <opentxs/api/Api.hpp>
-#include <opentxs/api/Native.hpp>
-#include <opentxs/OT.hpp>
-#include <opentxs/client/ServerAction.hpp>
-#include <opentxs/core/Identifier.hpp>
+#include <opentxs/opentxs.hpp>
 
 #include <stdint.h>
 #include <string>
@@ -84,13 +77,16 @@ int32_t CmdRegisterContractNym::run(string server, string mynym, string hisnym)
         return -1;
     }
 
-    std::string response =
-        OT::App()
+    std::string response;
+    {
+        rLock lock (api_lock_);
+        response = OT::App()
             .API()
             .ServerAction()
             .PublishNym(
                 Identifier(mynym), Identifier(server), Identifier(hisnym))
             ->Run();
+    }
 
     return processResponse(response, "register contract");
 }

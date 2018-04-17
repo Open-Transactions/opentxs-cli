@@ -38,17 +38,7 @@
 
 #include "CmdProposePlan.hpp"
 
-#include "CmdBase.hpp"
-
-#include <opentxs/api/client/ServerAction.hpp>
-#include <opentxs/api/Api.hpp>
-#include <opentxs/api/Native.hpp>
-#include <opentxs/OT.hpp>
-#include <opentxs/client/ServerAction.hpp>
-#include <opentxs/client/SwigWrap.hpp>
-#include <opentxs/core/Identifier.hpp>
-#include <opentxs/core/Log.hpp>
-#include <opentxs/ext/OTPayment.hpp>
+#include <opentxs/opentxs.hpp>
 
 #include <stdint.h>
 #include <ostream>
@@ -149,10 +139,13 @@ int32_t CmdProposePlan::run(
     otOut << "payment_plan (amount,delay,period): " << paymentplan << "\n";
     otOut << "plan_expiry (length,number): " << planexpiry << "\n";
 
-    if (!OT::App().API().ServerAction().GetTransactionNumbers(
-            Identifier(mynym), Identifier(server), 2)) {
-        otOut << "Error: cannot reserve transaction numbers.\n";
-        return -1;
+    {
+        rLock lock (api_lock_);
+        if (!OT::App().API().ServerAction().GetTransactionNumbers(
+                Identifier(mynym), Identifier(server), 2)) {
+            otOut << "Error: cannot reserve transaction numbers.\n";
+            return -1;
+        }
     }
 
     // SwigWrap::EasyProposePlan is a version of ProposePaymentPlan that
@@ -184,7 +177,10 @@ int32_t CmdProposePlan::run(
     // of the proposal itself.)
 
     auto payment = std::make_shared<const OTPayment>(String(plan.c_str()));
-    string response = OT::App()
+    std::string response;
+    {
+        rLock lock (api_lock_);
+        response = OT::App()
                           .API()
                           .ServerAction()
                           .SendPayment(
@@ -193,6 +189,7 @@ int32_t CmdProposePlan::run(
                               Identifier(hisnym),
                               payment)
                           ->Run();
+    }
     if (1 != responseStatus(response)) {
         otOut << "Error: cannot send payment plan.\n";
         return harvestTxNumbers(plan, mynym);

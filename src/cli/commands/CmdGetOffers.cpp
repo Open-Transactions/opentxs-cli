@@ -37,16 +37,9 @@
  ************************************************************/
 
 #include "CmdGetOffers.hpp"
-
-#include "CmdBase.hpp"
 #include "CmdShowOffers.hpp"
 
-#include <opentxs/api/client/ServerAction.hpp>
-#include <opentxs/api/Api.hpp>
-#include <opentxs/api/Native.hpp>
-#include <opentxs/OT.hpp>
-#include <opentxs/client/ServerAction.hpp>
-#include <opentxs/core/Identifier.hpp>
+#include <opentxs/opentxs.hpp>
 
 #include <stdint.h>
 #include <string>
@@ -99,7 +92,10 @@ int32_t CmdGetOffers::run(
         depth = "50";
     }
 
-    string response = OT::App()
+    std::string response;
+    {
+        rLock lock (api_lock_);
+        response = OT::App()
                           .API()
                           .ServerAction()
                           .DownloadMarketOffers(
@@ -108,6 +104,7 @@ int32_t CmdGetOffers::run(
                               Identifier(market),
                               stoll(depth))
                           ->Run();
+    }
     if (1 != processResponse(response, "get market offers")) {
         return -1;
     }

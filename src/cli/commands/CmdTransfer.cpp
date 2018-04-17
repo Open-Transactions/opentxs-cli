@@ -38,17 +38,7 @@
 
 #include "CmdTransfer.hpp"
 
-#include "CmdBase.hpp"
-
-#include <opentxs/api/client/ServerAction.hpp>
-#include <opentxs/api/Api.hpp>
-#include <opentxs/api/Native.hpp>
-#include <opentxs/client/ServerAction.hpp>
-#include <opentxs/client/SwigWrap.hpp>
-#include <opentxs/core/util/Common.hpp>
-#include <opentxs/core/Identifier.hpp>
-#include <opentxs/core/Log.hpp>
-#include <opentxs/OT.hpp>
+#include <opentxs/opentxs.hpp>
 
 #include <stdint.h>
 #include <ostream>
@@ -122,7 +112,10 @@ int32_t CmdTransfer::run(
     }
 
     opentxs::TransactionNumber notUsed{0};
-    string response = OT::App()
+    std::string response;
+    {
+        rLock lock (api_lock_);
+        response = OT::App()
                           .API()
                           .ServerAction()
                           .SendTransfer(
@@ -133,17 +126,21 @@ int32_t CmdTransfer::run(
                               value,
                               memo)
                           ->Run();
+    }
     int32_t reply =
         responseReply(response, server, mynym, myacct, "send_transfer");
     if (1 != reply) {
         return reply;
     }
 
-    if (!OT::App().API().ServerAction().DownloadAccount(
-            Identifier(mynym), Identifier(server), Identifier(myacct), true)) {
-        otOut << "Error retrieving intermediary files for account.\n";
-        return -1;
+    {
+        rLock lock(api_lock_);
+        if (!OT::App().API().ServerAction().DownloadAccount(
+                Identifier(mynym), Identifier(server), Identifier(myacct), true)) {
+            otOut << "Error retrieving intermediary files for account.\n";
+            return -1;
+        }
     }
-
+    
     return 1;
 }

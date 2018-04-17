@@ -38,27 +38,7 @@
 
 #include "CmdBase.hpp"
 
-#include <opentxs/api/client/ServerAction.hpp>
-#include <opentxs/api/client/Wallet.hpp>
-#include <opentxs/api/Api.hpp>
-#include <opentxs/api/Native.hpp>
-#include <opentxs/client/OT_API.hpp>
-#include <opentxs/client/OTAPI_Exec.hpp>
-#include <opentxs/client/OTWallet.hpp>
-#include <opentxs/client/ServerAction.hpp>
-#include <opentxs/client/SwigWrap.hpp>
-#include <opentxs/client/Utility.hpp>
-#include <opentxs/core/contract/ServerContract.hpp>
-#include <opentxs/core/contract/UnitDefinition.hpp>
-#include <opentxs/core/util/Assert.hpp>
-#include <opentxs/core/util/Common.hpp>
-#include <opentxs/core/Account.hpp>
-#include <opentxs/core/Identifier.hpp>
-#include <opentxs/core/Log.hpp>
-#include <opentxs/core/Nym.hpp>
-#include <opentxs/core/String.hpp>
-#include <opentxs/ext/Helpers.hpp>
-#include <opentxs/OT.hpp>
+#include <opentxs/opentxs.hpp>
 
 #include <ctype.h>
 #include <stdint.h>
@@ -560,36 +540,7 @@ std::string CmdBase::check_nym(
 
 bool CmdBase::checkAccount(const char* name, string& account) const
 {
-    if (!checkMandatory(name, account)) {
-        return false;
-    }
-
-    std::shared_ptr<Account> pAccount{nullptr};
-    OTWallet* wallet = getWallet();
-    Identifier theID(account);
-
-    if (!theID.empty()) pAccount = wallet->GetAccount(theID);
-
-    if (false == bool(pAccount)) {
-        pAccount = wallet->GetAccountPartialMatch(account);
-
-        if (false == bool(pAccount)) {
-            otOut << "Error: " << name << ": unknown account: " << account
-                  << "\n";
-
-            return false;
-        }
-    }
-
-    if (pAccount) {
-        String tmp;
-        pAccount->GetPurportedAccountID().GetString(tmp);
-        account = tmp.Get();
-    }
-
-    otOut << "Using " << name << ": " << account << "\n";
-
-    return true;
+    return OTRecordList::checkAccount(name, account);
 }
 
 int64_t CmdBase::checkAmount(
@@ -638,7 +589,7 @@ int32_t CmdBase::checkIndex(
         return -1;
     }
 
-    if (!checkIndicesRange(name, index, items)) {
+    if (!OTRecordList::checkIndicesRange(name, index, items)) {
         return -1;
     }
 
@@ -647,86 +598,17 @@ int32_t CmdBase::checkIndex(
 
 bool CmdBase::checkIndices(const char* name, const string& indices) const
 {
-    if (!checkMandatory(name, indices)) {
-        return false;
-    }
-
-    if ("all" == indices) {
-        return true;
-    }
-
-    for (string::size_type i = 0; i < indices.length(); i++) {
-        if (!isdigit(indices[i])) {
-            otOut << "Error: " << name << ": not a value: " << indices << "\n";
-            return false;
-        }
-        for (i++; i < indices.length() && isdigit(indices[i]); i++) {
-        }
-        if (i < indices.length() && ',' != indices[i]) {
-            otOut << "Error: " << name << ": not a value: " << indices << "\n";
-            return false;
-        }
-    }
-
-    return true;
-}
-
-bool CmdBase::checkIndicesRange(
-    const char* name,
-    const string& indices,
-    int32_t items) const
-{
-    if ("all" == indices) {
-        return true;
-    }
-
-    for (string::size_type i = 0; i < indices.length(); i++) {
-        int32_t value = 0;
-        for (; isdigit(indices[i]); i++) {
-            value = value * 10 + indices[i] - '0';
-        }
-        if (0 > value || value >= items) {
-            otOut << "Error: " << name << ": value (" << value
-                  << ") out of range (must be < " << items << ")\n";
-            return false;
-        }
-    }
-
-    return true;
+    return OTRecordList::checkIndices(name, indices);
 }
 
 bool CmdBase::checkMandatory(const char* name, const string& value) const
 {
-    if ("" == value) {
-        otOut << "Error: " << name << ": mandatory parameter not specified.\n";
-        return false;
-    }
-
-    return true;
+    return OTRecordList::checkMandatory(name, value);
 }
 
 bool CmdBase::checkNym(const char* name, string& nym, bool checkExistance) const
 {
-    if (!checkMandatory(name, nym)) return false;
-
-    ConstNym pNym = nullptr;
-    const Identifier nymID(nym);
-
-    if (!nymID.empty()) pNym = OT::App().Wallet().Nym(nymID);
-
-    if (false == bool(pNym)) pNym = OT::App().Wallet().NymByIDPartialMatch(nym);
-
-    if (nullptr != pNym) {
-        String tmp;
-        pNym->GetIdentifier(tmp);
-        nym = tmp.Get();
-    } else if (checkExistance) {
-        otOut << "Error: " << name << ": unknown nym: " << nym << "\n";
-        return false;
-    }
-
-    otOut << "Using " << name << ": " << nym << "\n";
-    return true;
+    return OTRecordList::checkNym(name, nym, checkExistance);
 }
 
 bool CmdBase::checkPurse(const char* name, string& purse) const
@@ -778,61 +660,14 @@ bool CmdBase::checkPurse(const char* name, string& purse) const
         return false;
     }
 
-    purse = String(pUnit->ID()).Get();
+    purse = pUnit->ID().str();
     otOut << "Using " << name << ": " << purse << "\n";
     return true;
 }
 
 bool CmdBase::checkServer(const char* name, string& server) const
 {
-    if (!checkMandatory(name, server)) return false;
-
-    Identifier theID(server);
-    ConstServerContract pServer;  // shared_ptr to const.
-
-    // See if it's available using the full length ID.
-    if (!theID.empty()) pServer = OT::App().Wallet().Server(theID);
-
-    if (!pServer) {
-        const auto servers = OT::App().Wallet().ServerList();
-
-        // See if it's available using the partial length ID.
-        for (auto& it : servers) {
-            if (0 == it.first.compare(0, server.length(), server)) {
-                pServer = OT::App().Wallet().Server(Identifier(it.first));
-                break;
-            }
-        }
-        if (!pServer) {
-            // See if it's available using the full length name.
-            for (auto& it : servers) {
-                if (0 == it.second.compare(0, it.second.length(), server)) {
-                    pServer = OT::App().Wallet().Server(Identifier(it.first));
-                    break;
-                }
-            }
-
-            if (!pServer) {
-                // See if it's available using the partial name.
-                for (auto& it : servers) {
-                    if (0 == it.second.compare(0, server.length(), server)) {
-                        pServer =
-                            OT::App().Wallet().Server(Identifier(it.first));
-                        break;
-                    }
-                }
-            }
-        }
-    }
-
-    if (!pServer) {
-        otOut << "Error: " << name << ": unknown server: " << server << "\n";
-        return false;
-    }
-
-    server = String(pServer->ID()).Get();
-    otOut << "Using " << name << ": " << server << "\n";
-    return true;
+    return OTRecordList::checkServer(name, server);
 }
 
 int64_t CmdBase::checkTransNum(const char* name, const string& id) const
@@ -946,52 +781,6 @@ string CmdBase::getOption(string optionName) const
     return result->second;
 }
 
-// GET PAYMENT INSTRUMENT (from payments inbox, by index.)
-//
-std::string CmdBase::get_payment_instrument(
-    const std::string& notaryID,
-    const std::string& nymID,
-    std::int32_t nIndex,
-    const std::string& PRELOADED_INBOX) const
-{
-    std::string strInstrument;
-    std::string strInbox =
-        VerifyStringVal(PRELOADED_INBOX)
-            ? PRELOADED_INBOX
-            : OT::App().API().Exec().LoadPaymentInbox(
-                  notaryID, nymID);  // Returns nullptr, or an inbox.
-
-    if (!VerifyStringVal(strInbox)) {
-        otWarn << "\n\n get_payment_instrument:  "
-                  "OT_API_LoadPaymentInbox Failed. (Probably just "
-                  "doesn't exist yet.)\n\n";
-        return "";
-    }
-
-    std::int32_t nCount = OT::App().API().Exec().Ledger_GetCount(
-        notaryID, nymID, nymID, strInbox);
-    if (0 > nCount) {
-        otOut
-            << "Unable to retrieve size of payments inbox ledger. (Failure.)\n";
-        return "";
-    }
-    if (nIndex > (nCount - 1)) {
-        otOut << "Index " << nIndex
-              << " out of bounds. (The last index is: " << (nCount - 1)
-              << ". The first is 0.)\n";
-        return "";
-    }
-
-    strInstrument = OT::App().API().Exec().Ledger_GetInstrument(
-        notaryID, nymID, nymID, strInbox, nIndex);
-    if (!VerifyStringVal(strInstrument)) {
-        otOut << "Failed trying to get payment instrument from payments box.\n";
-        return "";
-    }
-
-    return strInstrument;
-}
-
 string CmdBase::getUsage() const
 {
     stringstream ss;
@@ -1036,95 +825,6 @@ string CmdBase::inputText(const char* what)
     }
     return input;
 }
-
-#if OT_CASH
-// LOAD MINT (from local storage)
-//
-// To load a mint withOUT retrieving it from server, call:
-//
-// var strMint = OT_API_LoadMint(notaryID, instrumentDefinitionID);
-// It returns the mint, or null.
-// LOAD MINT (from local storage).
-// Also, if necessary, RETRIEVE it from the server first.
-//
-// Returns the mint, or null.
-//
-std::string CmdBase::load_or_retrieve_mint(
-    const std::string& notaryID,
-    const std::string& nymID,
-    const std::string& instrumentDefinitionID) const
-{
-    std::string response = check_nym(notaryID, nymID, nymID);
-
-    if (1 != VerifyMessageSuccess(response)) {
-        otOut << "OT_ME_load_or_retrieve_mint: Cannot verify nym for IDs: \n";
-        otOut << "  Notary ID: " << notaryID << "\n";
-        otOut << "     Nym ID: " << nymID << "\n";
-        otOut << "   Instrument Definition Id: " << instrumentDefinitionID
-              << "\n";
-        return "";
-    }
-
-    // HERE, WE MAKE SURE WE HAVE THE PROPER MINT...
-    //
-    // Download the public mintfile if it's not there, or if it's expired.
-    // Also load it up into memory as a std::string (just to make sure it
-    // works.)
-
-    // expired or missing.
-    if (!SwigWrap::Mint_IsStillGood(notaryID, instrumentDefinitionID)) {
-        otWarn << "OT_ME_load_or_retrieve_mint: Mint file is "
-                  "missing or expired. Downloading from "
-                  "server...\n";
-
-        response = OT::App()
-                       .API()
-                       .ServerAction()
-                       .DownloadMint(
-                           Identifier(notaryID),
-                           Identifier(nymID),
-                           Identifier(instrumentDefinitionID))
-                       ->Run();
-
-        if (1 != VerifyMessageSuccess(response)) {
-            otOut << "OT_ME_load_or_retrieve_mint: Unable to "
-                     "retrieve mint for IDs: \n";
-            otOut << "  Notary ID: " << notaryID << "\n";
-            otOut << "     Nym ID: " << nymID << "\n";
-            otOut << "   Instrument Definition Id: " << instrumentDefinitionID
-                  << "\n";
-            return "";
-        }
-
-        if (!SwigWrap::Mint_IsStillGood(notaryID, instrumentDefinitionID)) {
-            otOut << "OT_ME_load_or_retrieve_mint: Retrieved "
-                     "mint, but still 'not good' for IDs: \n";
-            otOut << "  Notary ID: " << notaryID << "\n";
-            otOut << "     Nym ID: " << nymID << "\n";
-            otOut << "   Instrument Definition Id: " << instrumentDefinitionID
-                  << "\n";
-            return "";
-        }
-    }
-    // else // current mint IS available already on local storage (and not
-    // expired.)
-
-    // By this point, the mint is definitely good, whether we had to download it
-    // or not.
-    // It's here, and it's NOT expired. (Or we would have returned already.)
-
-    std::string strMint = SwigWrap::LoadMint(notaryID, instrumentDefinitionID);
-    if (!VerifyStringVal(strMint)) {
-        otOut << "OT_ME_load_or_retrieve_mint: Unable to load mint for IDs: \n";
-        otOut << "  Notary ID: " << notaryID << "\n";
-        otOut << "     Nym ID: " << nymID << "\n";
-        otOut << "   Instrument Definition Id: " << instrumentDefinitionID
-              << "\n";
-    }
-
-    return strMint;
-}
-#endif  // OT_CASH
 
 int32_t CmdBase::processResponse(const string& response, const char* what) const
 {

@@ -70,6 +70,85 @@ int32_t CmdShowMint::runWithOptions()
     return run(getOption("server"), getOption("mynym"), getOption("mypurse"));
 }
 
+
+std::string CmdShowMint::load_or_retrieve_mint(
+    const std::string& notaryID,
+    const std::string& nymID,
+    const std::string& unitTypeID) const
+{
+#if OT_CASH
+    std::string response = check_nym(notaryID, nymID, nymID);
+
+    if (1 != VerifyMessageSuccess(response)) {
+        otOut << "load_or_retrieve_mint: Cannot verify nym for "
+                 "IDs: \n";
+        otOut << "   Notary ID: " << notaryID << "\n";
+        otOut << "      Nym ID: " << nymID << "\n";
+        otOut << "Unit Type Id: " << unitTypeID << "\n";
+        return "";
+    }
+
+    // HERE, WE MAKE SURE WE HAVE THE PROPER MINT...
+    //
+    // Download the public mintfile if it's not there, or if it's expired.
+    // Also load it up into memory as a std::string (just to make sure it
+    // works.)
+
+    // expired or missing.
+    if (!SwigWrap::Mint_IsStillGood(notaryID, unitTypeID)) {
+        otWarn << "load_or_retrieve_mint: Mint file is "
+                  "missing or expired. Downloading from "
+                  "server...\n";
+
+        response = OT::App()
+                       .API()
+                       .ServerAction()
+                       .DownloadMint(
+                           Identifier(nymID),
+                           Identifier(notaryID),
+                           Identifier(unitTypeID))
+                       ->Run();
+
+        if (1 != VerifyMessageSuccess(response)) {
+            otOut << "load_or_retrieve_mint: Unable to "
+                     "retrieve mint for IDs: \n";
+            otOut << "   Notary ID: " << notaryID << "\n";
+            otOut << "      Nym ID: " << nymID << "\n";
+            otOut << "Unit Type Id: " << unitTypeID << "\n";
+            return "";
+        }
+
+        if (!SwigWrap::Mint_IsStillGood(notaryID, unitTypeID)) {
+            otOut << "load_or_retrieve_mint: Retrieved "
+                     "mint, but still 'not good' for IDs: \n";
+            otOut << "   Notary ID: " << notaryID << "\n";
+            otOut << "      Nym ID: " << nymID << "\n";
+            otOut << "Unit Type Id: " << unitTypeID << "\n";
+            return "";
+        }
+    }
+    // else // current mint IS available already on local storage (and not
+    // expired.)
+
+    // By this point, the mint is definitely good, whether we had to download it
+    // or not.
+    // It's here, and it's NOT expired. (Or we would have returned already.)
+
+    std::string strMint = SwigWrap::LoadMint(notaryID, unitTypeID);
+    if (!VerifyStringVal(strMint)) {
+        otOut << "load_or_retrieve_mint: Unable to load mint "
+                 "for IDs: \n";
+        otOut << "   Notary ID: " << notaryID << "\n";
+        otOut << "      Nym ID: " << nymID << "\n";
+        otOut << "Unit Type Id: " << unitTypeID << "\n";
+    }
+
+    return strMint;
+#else
+    return "";
+#endif
+}
+
 int32_t CmdShowMint::run(string server, string mynym, string mypurse)
 {
 #if OT_CASH

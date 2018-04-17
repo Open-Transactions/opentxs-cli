@@ -38,19 +38,7 @@
 
 #include "CmdDeposit.hpp"
 
-#include "CmdBase.hpp"
-
-#include <opentxs/api/client/ServerAction.hpp>
-#include <opentxs/api/Native.hpp>
-#include <opentxs/api/Api.hpp>
-#include <opentxs/cash/Purse.hpp>
-#include <opentxs/client/ServerAction.hpp>
-#include <opentxs/client/SwigWrap.hpp>
-#include <opentxs/client/Utility.hpp>
-#include <opentxs/core/Identifier.hpp>
-#include <opentxs/core/Log.hpp>
-#include <opentxs/core/Cheque.hpp>
-#include <opentxs/OT.hpp>
+#include <opentxs/opentxs.hpp>
 
 #include <stdint.h>
 #include <ostream>
@@ -122,7 +110,7 @@ int32_t CmdDeposit::run(string mynym, string myacct, string indices)
         // purse, but you want to deposit it into Nym B's account. So we have a
         // "to" Nym and a "from" Nym even though they will often be the same.
         string fromNym = toNym;
-        if ("" != mynym) {
+        if (!mynym.empty()) {
             if (!checkNym("mynym", mynym)) {
                 return -1;
             }
@@ -157,128 +145,6 @@ int32_t CmdDeposit::run(string mynym, string myacct, string indices)
     return -1;
 }
 
-#if OT_CASH
-std::int32_t CmdDeposit::depositCashPurse(
-    const std::string& notaryID,
-    const std::string& instrumentDefinitionID,
-    const std::string& nymID,
-    const std::string& oldPurse,
-    const std::vector<std::string>& selectedTokens,
-    const std::string& accountID,
-    bool bReimportIfFailure,  // So we don't re-import a purse that wasn't
-                              // internal to begin with.
-    std::string* pOptionalOutput /*=nullptr*/) const
-{
-    std::string recipientNymID = SwigWrap::GetAccountWallet_NymID(accountID);
-    if (!VerifyStringVal(recipientNymID)) {
-        otOut << "\ndepositCashPurse: Unable to find recipient Nym based on "
-                 "myacct. \n";
-        return -1;
-    }
-
-    bool bPasswordProtected = SwigWrap::Purse_HasPassword(notaryID, oldPurse);
-
-    std::string newPurse;                // being deposited.;
-    std::string newPurseForSender = "";  // Probably unused in this case.;
-    std::string copyOfOldPurse = oldPurse;
-    bool bSuccessProcess = processCashPurse(
-        newPurse,
-        newPurseForSender,
-        notaryID,
-        instrumentDefinitionID,
-        nymID,
-        copyOfOldPurse,
-        selectedTokens,
-        recipientNymID,
-        bPasswordProtected,
-        false);
-
-    if (!bSuccessProcess || !VerifyStringVal(newPurse)) {
-        otOut << "OT_ME_depositCashPurse: new Purse is empty, after processing "
-                 "it for deposit. \n";
-        return -1;
-    }
-
-    std::unique_ptr<Purse> purse(Purse::PurseFactory(String(newPurse)));
-
-    OT_ASSERT(purse);
-
-    auto action = OT::App().API().ServerAction().DepositCashPurse(
-        Identifier(nymID), Identifier(notaryID), Identifier(accountID), purse);
-    std::string strResponse = action->Run();
-    std::string strAttempt = "deposit_cash";
-
-    // HERE, WE INTERPRET THE SERVER REPLY, WHETHER SUCCESS, FAIL, OR ERROR...
-
-    std::int32_t nInterpretReply = InterpretTransactionMsgReply(
-        notaryID, recipientNymID, accountID, strAttempt, strResponse);
-
-    if (1 == nInterpretReply) {
-
-        if (nullptr != pOptionalOutput) *pOptionalOutput = strResponse;
-
-        // Download all the intermediary files (account balance, inbox, outbox,
-        // etc)
-        // since they have probably changed from this operation.
-        //
-        bool bRetrieved = OT::App().API().ServerAction().DownloadAccount(
-            Identifier(recipientNymID),
-            Identifier(notaryID),
-            Identifier(accountID),
-            true);  // bForceDownload defaults to false.;
-
-        otOut << "\nServer response (" << strAttempt
-              << "): SUCCESS depositing cash!\n";
-        otOut << std::string(bRetrieved ? "Success" : "Failed")
-              << " retrieving intermediary files for account.\n";
-    } else  // failure. (so we re-import the cash, so as not to lose it...)
-    {
-
-        if (!bPasswordProtected && bReimportIfFailure) {
-            bool importStatus = SwigWrap::Wallet_ImportPurse(
-                notaryID, instrumentDefinitionID, recipientNymID, newPurse);
-            otOut << "Since failure in OT_ME_depositCashPurse, "
-                     "OT_API_Wallet_ImportPurse called. Status of "
-                     "import: "
-                  << importStatus << "\n";
-
-            if (!importStatus) {
-                // Raise the alarm here that we failed depositing the purse, and
-                // then we failed
-                // importing it back into our wallet again.
-                otOut << "Error: Failed depositing the cash purse, and then "
-                         "failed re-importing it back to wallet. Therefore YOU "
-                         "must copy the purse NOW and save it to a safe place! "
-                         "\n";
-
-                otOut << newPurse << "\n";
-
-                otOut << "AGAIN: Be sure to copy the above purse "
-                         "to a safe place, since it FAILED to "
-                         "deposit and FAILED to re-import back "
-                         "into the wallet. \n";
-            }
-        } else {
-            otOut << "Error: Failed depositing the cash purse. "
-                     "Therefore YOU must copy the purse NOW and "
-                     "save it to a safe place! \n";
-
-            otOut << newPurse << "\n";
-
-            otOut << "AGAIN: Be sure to copy the above purse to a "
-                     "safe place, since it FAILED to deposit. \n";
-        }
-
-        return -1;
-    }
-
-    //
-    // Return status to caller.
-    //
-    return nInterpretReply;
-}
-#endif  // OT_CASH
-
 // THESE FUNCTIONS were added for the PAYMENTS screen. (They are fairly new.)
 //
 // Basically there was a need to have DIFFERENT instruments, but to be able to
@@ -296,44 +162,8 @@ int32_t CmdDeposit::depositCheque(
     const string& instrument,
     string* pOptionalOutput /*=nullptr*/) const
 {
-    string assetType = getAccountAssetType(myacct);
-    if ("" == assetType) {
-        return -1;
-    }
-
-    if (assetType != SwigWrap::Instrmnt_GetInstrumentDefinitionID(instrument)) {
-        otOut << "Error: instrument definitions of instrument and myacct do "
-                 "not match.\n";
-        return -1;
-    }
-
-    std::unique_ptr<Cheque> cheque = std::make_unique<Cheque>();
-    cheque->LoadContractFromString(String(instrument.c_str()));
-
-    string response = OT::App()
-                          .API()
-                          .ServerAction()
-                          .DepositCheque(
-                              Identifier(mynym),
-                              Identifier(server),
-                              Identifier(myacct),
-                              cheque)
-                          ->Run();
-    int32_t reply =
-        responseReply(response, server, mynym, myacct, "deposit_cheque");
-    if (1 != reply) {
-        return reply;
-    }
-
-    if (nullptr != pOptionalOutput) *pOptionalOutput = response;
-
-    if (!OT::App().API().ServerAction().DownloadAccount(
-            Identifier(mynym), Identifier(server), Identifier(myacct), true)) {
-        otOut << "Error retrieving intermediary files for account.\n";
-        return -1;
-    }
-
-    return 1;
+    return OTRecordList::depositCheque(
+        server, myacct, mynym, instrument, pOptionalOutput);
 }
 
 int32_t CmdDeposit::depositPurse(
@@ -345,45 +175,8 @@ int32_t CmdDeposit::depositPurse(
     string* pOptionalOutput /*=nullptr*/) const
 {
 #if OT_CASH
-    string assetType = getAccountAssetType(myacct);
-    if ("" == assetType) {
-        return -1;
-    }
-
-    if ("" != instrument) {
-        vector<string> tokens;
-        return depositCashPurse(
-            server,
-            assetType,
-            mynym,
-            instrument,
-            tokens,
-            myacct,
-            false,
-            pOptionalOutput);
-    }
-
-    // we have to load the purse ourselves
-    instrument = SwigWrap::LoadPurse(server, assetType, mynym);
-    if ("" == instrument) {
-        otOut << "Error: cannot load purse.\n";
-        return -1;
-    }
-
-    vector<string> tokens;
-    if (0 > getTokens(tokens, server, mynym, assetType, instrument, indices)) {
-        return -1;
-    }
-
-    return depositCashPurse(
-        server,
-        assetType,
-        mynym,
-        instrument,
-        tokens,
-        myacct,
-        true,
-        pOptionalOutput);
+    return OT::App().API().Cash().deposit_purse(
+        server, myacct, mynym, instrument, indices, pOptionalOutput);
 #else
     return -1;
 #endif  // OT_CASH

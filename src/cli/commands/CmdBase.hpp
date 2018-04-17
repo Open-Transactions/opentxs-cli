@@ -133,18 +133,18 @@
 #ifndef OPENTXS_CLIENT_CMDBASE_HPP
 #define OPENTXS_CLIENT_CMDBASE_HPP
 
-#ifdef ANDROID
-#include <opentxs/core/util/android_string.hpp>
-#endif  // ANDROID
-#include <opentxs/core/util/Common.hpp>
-#include <opentxs/core/Identifier.hpp>
+//#ifdef ANDROID
+//#include <opentxs/core/util/android_string.hpp>
+//#endif  // ANDROID
+
+#include <opentxs/opentxs.hpp>
 
 #include <vector>
 #include <map>
 
-#ifndef SWIG
-#include "opentxs/core/OTStorage.hpp"
-#endif
+// #ifndef SWIG
+// #include "opentxs/core/OTStorage.hpp"
+// #endif
 
 #ifndef SWIG
 class the_lambda_struct
@@ -259,6 +259,7 @@ protected:
         const std::string& NYM_ID,
         const std::string& TARGET_NYM_ID) const;
 
+    std::string stat_asset_account(const std::string& ACCOUNT_ID) const;
     bool checkAccount(const char* name, std::string& account) const;
     int64_t checkAmount(
         const char* name,
@@ -288,23 +289,12 @@ protected:
         const;
     std::string getAccountAssetType(const std::string& myacct) const;
     std::string getOption(std::string optionName) const;
-    std::string get_payment_instrument(
-        const std::string& NOTARY_ID,
-        const std::string& NYM_ID,
-        std::int32_t nIndex,
-        const std::string& PRELOADED_INBOX = "") const;
     OTWallet* getWallet() const;
     int32_t harvestTxNumbers(
         const std::string& contract,
         const std::string& mynym);
     std::string inputLine();
     std::string inputText(const char* what);
-#if OT_CASH
-    std::string load_or_retrieve_mint(
-        const std::string& NOTARY_ID,
-        const std::string& NYM_ID,
-        const std::string& INSTRUMENT_DEFINITION_ID) const;
-#endif  // OT_CASH
     int32_t processResponse(const std::string& response, const char* what)
         const;
     int32_t processTxResponse(
@@ -321,7 +311,6 @@ protected:
         const char* function) const;
     int32_t responseStatus(const std::string& response) const;
     virtual int32_t runWithOptions() = 0;
-    std::string stat_asset_account(const std::string& ACCOUNT_ID) const;
     std::vector<std::string> tokenize(
         const std::string& str,
         char delim,

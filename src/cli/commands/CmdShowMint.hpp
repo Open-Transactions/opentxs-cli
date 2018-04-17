@@ -148,7 +148,12 @@ public:
         run(std::string server, std::string mynym, std::string mypurse);
 
 protected:
-    virtual int32_t runWithOptions();
+    int32_t runWithOptions() override;
+
+    std::string load_or_retrieve_mint(
+        const std::string& notaryID,
+        const std::string& nymID,
+        const std::string& unitTypeID) const;
 };
 
 } // namespace opentxs

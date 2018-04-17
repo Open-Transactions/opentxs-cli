@@ -38,21 +38,9 @@
 
 #include "CmdConfirm.hpp"
 
-#include "CmdBase.hpp"
 #include "CmdShowNyms.hpp"
 
-#include <opentxs/api/Native.hpp>
-#include <opentxs/api/Api.hpp>
-#include <opentxs/api/client/ServerAction.hpp>
-#include <opentxs/client/ServerAction.hpp>
-#include <opentxs/client/SwigWrap.hpp>
-#include "opentxs/core/recurring/OTPaymentPlan.hpp"
-#include "opentxs/core/script/OTSmartContract.hpp"
-#include <opentxs/core/util/Common.hpp>
-#include <opentxs/core/Identifier.hpp>
-#include <opentxs/core/Log.hpp>
-#include "opentxs/ext/OTPayment.hpp"
-#include <opentxs/OT.hpp>
+#include <opentxs/opentxs.hpp>
 
 #include <stdint.h>
 #include <iostream>
@@ -138,9 +126,9 @@ int32_t CmdConfirm::run(
     }
 
     // use specified payment instrument from inpayments
-
-    string instrument = get_payment_instrument(server, mynym, messageNr, "");
-    if ("" == instrument) {
+    string instrument =
+        OTRecordList::get_payment_instrument(server, mynym, messageNr, "");
+    if (instrument.empty()) {
         otOut << "Error: cannot load payment instrument.\n";
         return -1;
     }
@@ -159,13 +147,12 @@ int32_t CmdConfirm::confirmInstrument(
     std::string* pOptionalOutput /*=nullptr*/)
 {
     string instrumentType = SwigWrap::Instrmnt_GetType(instrument);
-    if ("" == instrumentType) {
-        otOut << "Error: cannot determine instrument type.\n";
+    if (instrumentType.empty()) {
+        otOut << "Error: instrument is empty.\n";
         return -1;
     }
 
     time64_t now = SwigWrap::GetTime();
-
     time64_t from = SwigWrap::Instrmnt_GetValidFrom(instrument);
     if (now < from) {
         otOut << "The instrument is not yet valid.\n";
@@ -207,124 +194,13 @@ int32_t CmdConfirm::confirmInstrument(
 }
 
 int32_t CmdConfirm::confirmPaymentPlan(
-    const string& mynym,
-    const string& myacct,
-    const string& plan,
-    string* pOptionalOutput /*=nullptr*/)
+    const std::string& mynym,
+    const std::string& myacct,
+    const std::string& plan,
+    std::string* pOptionalOutput /*=nullptr*/)
 {
-    string server = SwigWrap::Instrmnt_GetNotaryID(plan);
-    if ("" == server) {
-        otOut << "Error: cannot get server from instrument.\n";
-        return -1;
-    }
-
-    string senderUser = mynym;
-
-    if ("" == senderUser) senderUser = SwigWrap::Instrmnt_GetSenderNymID(plan);
-
-    if ("" == senderUser) {
-        otOut << "Error: cannot get sender user from instrument.\n";
-        return -1;
-    }
-
-    string senderAcct = myacct;
-
-    if ("" == senderAcct) senderAcct = SwigWrap::Instrmnt_GetSenderAcctID(plan);
-
-    if ("" == senderAcct) {
-        otOut << "Error: cannot get sender account from instrument.\n";
-        return -1;
-    }
-
-    string recipientUser = SwigWrap::Instrmnt_GetRecipientNymID(plan);
-    if ("" == recipientUser) {
-        otOut << "Error: cannot get recipient user from instrument.\n";
-        return -1;
-    }
-
-    string recipientAcct = SwigWrap::Instrmnt_GetRecipientAcctID(plan);
-    if ("" == recipientAcct) {
-        otOut << "Error: cannot get recipient account from instrument.\n";
-        return -1;
-    }
-
-    if (!OT::App().API().ServerAction().GetTransactionNumbers(
-            Identifier(senderUser), Identifier(server), 2)) {
-        otOut << "Error: cannot reserve transaction numbers.\n";
-        return -1;
-    }
-
-    string confirmed = SwigWrap::ConfirmPaymentPlan(
-        server, senderUser, senderAcct, recipientUser, plan);
-    if ("" == confirmed) {
-        otOut << "Error: cannot confirm payment plan.\n";
-        return -1;
-    }
-
-    // If we fail, then we need to harvest the transaction numbers back from
-    // the payment plan that we confirmed
-    std::unique_ptr<OTPaymentPlan> paymentPlan =
-        std::make_unique<OTPaymentPlan>();
-
-    OT_ASSERT(paymentPlan)
-
-    paymentPlan->LoadContractFromString(String(confirmed));
-
-    string response =
-        OT::App()
-            .API()
-            .ServerAction()
-            .DepositPaymentPlan(
-                Identifier(senderUser), Identifier(server), paymentPlan)
-            ->Run();
-
-    int32_t success = responseStatus(response);
-    if (1 != success) {
-        otOut << "Error: cannot deposit payment plan.\n";
-        harvestTxNumbers(confirmed, senderUser);
-        return success;
-    }
-
-    int32_t reply = responseReply(
-        response, server, senderUser, senderAcct, "deposit_payment_plan");
-    if (1 != reply) {
-        return reply;
-    }
-
-    if (nullptr != pOptionalOutput) *pOptionalOutput = response;
-
-    if (!OT::App().API().ServerAction().DownloadAccount(
-            Identifier(senderUser),
-            Identifier(server),
-            Identifier(senderAcct),
-            true)) {
-        otOut << "Error retrieving intermediary files for account.\n";
-        return -1;
-    }
-
-    // NOTICE here (on success) we do NOT call RecordPayment. (Contrast this
-    // with confirmSmartContract, below.) Why does it call RecordPayment for a
-    // smart contract, yet here we do not?
-    //
-    // Because with a smart contract, it has been sent on to the next party. So
-    // it's now got a copy in the outpayments. There was no transaction
-    // performed
-    // at that time; perhaps it will go to 3 more parties before it's actually
-    // activated onto a server. Only THEN is a transaction performed. Therefore,
-    // confirmSmartContract is finished with the incoming instrument, in every
-    // respect,
-    // and can directly RecordPayment it to remove it from the payments inbox.
-    //
-    // Whereas with a payment plan, a transaction HAS just been performed.
-    // (See the call just above, to deposit_payment_plan.) Therefore, OT has
-    // already received the server reply at a lower level, and OT already should
-    // be smart enough to RecordPayment at THAT time.
-    //
-    // And that's why we don't need to do it here and now: Because it has
-    // already
-    // been done.
-
-    return 1;
+    return OTRecordList::confirmPaymentPlan_lowLevel(
+        mynym, myacct, plan, pOptionalOutput);
 }
 
 // NOTE: if index is -1, then it's assumed the instrument was PASTED in, and

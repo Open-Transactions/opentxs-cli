@@ -1,5 +1,13 @@
 /************************************************************
  *
+ *  CmdAcceptInbox.hpp
+ *
+ */
+
+/************************************************************
+ -----BEGIN PGP SIGNED MESSAGE-----
+ Hash: SHA1
+
  *                 OPEN TRANSACTIONS
  *
  *       Financial Cryptography and Digital Cash
@@ -41,8 +49,10 @@
 
 #include "CmdBaseAccept.hpp"
 
+
 namespace opentxs
 {
+
 class CmdAcceptInbox : public CmdBaseAccept
 {
 public:
@@ -52,7 +62,9 @@ public:
     EXPORT int32_t run(std::string myacct, std::string indices);
 
 protected:
-    virtual int32_t runWithOptions();
+    int32_t runWithOptions() override;
 };
-} // namespace opentxs
-#endif // OPENTXS_CLIENT_CMDACCEPTINBOX_HPP
+
+}  // namespace opentxs
+
+#endif  // OPENTXS_CLIENT_CMDACCEPTINBOX_HPP

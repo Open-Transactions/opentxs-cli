@@ -38,8 +38,7 @@
 
 #include "CmdAcceptMoney.hpp"
 
-#include "CmdBase.hpp"
-#include "CmdBaseAccept.hpp"
+#include <opentxs/opentxs.hpp>
 
 #include <stdint.h>
 #include <string>
@@ -71,7 +70,8 @@ int32_t CmdAcceptMoney::run(string myacct)
     }
 
     // FIX: these OR's should become AND's so we can detect any failure
-    bool success = 0 <= acceptFromInbox(myacct, "all", typeTransfers);
+    bool success = 0 <= acceptFromInbox(myacct, "all",
+                                        OTRecordList::typeTransfers);
     success |= 0 <= acceptFromPaymentbox(myacct, "all", "PURSE");
     success |= 0 <= acceptFromPaymentbox(myacct, "all", "CHEQUE");
     return success ? 1 : -1;

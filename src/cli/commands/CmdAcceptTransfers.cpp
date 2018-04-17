@@ -38,8 +38,7 @@
 
 #include "CmdAcceptTransfers.hpp"
 
-#include "CmdBase.hpp"
-#include "CmdBaseAccept.hpp"
+#include <opentxs/opentxs.hpp>
 
 #include <stdint.h>
 #include <string>
@@ -57,9 +56,7 @@ CmdAcceptTransfers::CmdAcceptTransfers()
     usage = "Omitting --indices is the same as specifying --indices all.";
 }
 
-CmdAcceptTransfers::~CmdAcceptTransfers()
-{
-}
+CmdAcceptTransfers::~CmdAcceptTransfers() {}
 
 int32_t CmdAcceptTransfers::runWithOptions()
 {
@@ -76,5 +73,5 @@ int32_t CmdAcceptTransfers::run(string myacct, string indices)
         return -1;
     }
 
-    return acceptFromInbox(myacct, indices, typeTransfers);
+    return acceptFromInbox(myacct, indices, OTRecordList::typeTransfers);
 }

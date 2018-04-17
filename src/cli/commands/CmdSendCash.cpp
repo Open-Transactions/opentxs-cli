@@ -38,20 +38,7 @@
 
 #include "CmdSendCash.hpp"
 
-#include "CmdBase.hpp"
-#include "CmdExportCash.hpp"
-#include "CmdWithdrawCash.hpp"
-
-#include <opentxs/api/client/ServerAction.hpp>
-#include <opentxs/api/Api.hpp>
-#include <opentxs/api/Native.hpp>
-#include <opentxs/cash/Purse.hpp>
-#include <opentxs/client/ServerAction.hpp>
-#include <opentxs/client/SwigWrap.hpp>
-#include <opentxs/core/util/Common.hpp>
-#include <opentxs/core/Identifier.hpp>
-#include <opentxs/core/Log.hpp>
-#include <opentxs/OT.hpp>
+#include <opentxs/opentxs.hpp>
 
 #include <stdint.h>
 #include <iostream>
@@ -199,189 +186,17 @@ int32_t CmdSendCash::sendCash(
     bool hasPassword) const
 {
 #if OT_CASH
-    int64_t startAmount = "" == amount ? 0 : stoll(amount);
-
-    // What we want to do from here is, see if we can send the cash purely using
-    // cash we already have in the local purse. If so, we just package it up and
-    // send it off using send_user_payment.
-    //
-    // But if we do NOT have the proper cash tokens in the local purse to send,
-    // then we need to withdraw enough tokens until we do, and then try sending
-    // again.
-
-    int64_t remain = startAmount;
-    if (!getPurseIndicesOrAmount(server, mynym, assetType, remain, indices)) {
-        if ("" != indices) {
-            otOut << "Error: invalid purse indices.\n";
-            return -1;
-        }
-
-        // Not enough cash found in existing purse to match the amount
-        CmdWithdrawCash cmd;
-        if (1 != cmd.withdrawCash(myacct, remain)) {
-            otOut << "Error: cannot withdraw cash.\n";
-            return -1;
-        }
-
-        remain = startAmount;
-        if (!getPurseIndicesOrAmount(
-                server, mynym, assetType, remain, indices)) {
-            otOut << "Error: cannot retrieve purse indices.\n";
-            return -1;
-        }
-    }
-
-    CmdExportCash cmd;
-    string retainedCopy = "";
-    string exportedCash = cmd.exportCash(
-        server, mynym, assetType, hisnym, indices, hasPassword, retainedCopy);
-    if ("" == exportedCash) {
-        otOut << "Error: cannot export cash.\n";
-        return -1;
-    }
-
-    std::shared_ptr<const Purse> recipientCopy(
-        Purse::PurseFactory(String(exportedCash)));
-    std::shared_ptr<const Purse> senderCopy(
-        Purse::PurseFactory(String(retainedCopy)));
-
-    OT_ASSERT(recipientCopy);
-    OT_ASSERT(senderCopy);
-
-    response = OT::App()
-                   .API()
-                   .ServerAction()
-                   .SendCash(
-                       Identifier(mynym),
-                       Identifier(server),
-                       Identifier(hisnym),
-                       recipientCopy,
-                       senderCopy)
-                   ->Run();
-    if (1 != responseStatus(response)) {
-        // cannot send cash so try to re-import into sender's purse
-        if (!SwigWrap::Wallet_ImportPurse(
-                server, assetType, mynym, retainedCopy)) {
-            otOut << "Error: cannot send cash AND failed re-importing purse."
-                  << "\nServer: " << server << "\nAsset Type: " << assetType
-                  << "\nNym: " << mynym
-                  << "\n\nPurse (SAVE THIS SOMEWHERE!):\n\n"
-                  << retainedCopy << "\n";
-            return -1;
-        }
-
-        // at least re-importing succeeeded
-        otOut << "Error: cannot send cash.\n";
-        return -1;
-    }
-
-    return 1;
+    return OT::App().API().Cash().send_cash(
+        response,
+        server,
+        mynym,
+        assetType,
+        myacct,
+        hisnym,
+        amount,
+        indices,
+        hasPassword);
 #else
     return -1;
-#endif  // OT_CASH
-}
-
-// If you pass the indices, this function returns true if those exact indices
-// exist. In that case, this function will also set remain to the total.
-//
-// If, instead, you pass remain and a blank indices, this function will try to
-// determine the indices that would create remain, if they were selected.
-
-bool CmdSendCash::getPurseIndicesOrAmount(
-    const string& server,
-    const string& mynym,
-    const string& assetType,
-    int64_t& remain,
-    string& indices) const
-{
-#if OT_CASH
-    bool findAmountFromIndices = "" != indices && 0 == remain;
-    bool findIndicesFromAmount = "" == indices && 0 != remain;
-    if (!findAmountFromIndices && !findIndicesFromAmount) {
-        otOut << "Error: invalid parameter combination.\n";
-        return false;
-    }
-
-    string purse = SwigWrap::LoadPurse(server, assetType, mynym);
-    if ("" == purse) {
-        otOut << "Error: cannot load purse.\n";
-        return false;
-    }
-
-    int32_t items = SwigWrap::Purse_Count(server, assetType, purse);
-    if (0 > items) {
-        otOut << "Error: cannot load purse item count.\n\n";
-        return false;
-    }
-
-    if (0 == items) {
-        otOut << "Error: the purse is empty.\n\n";
-        return false;
-    }
-
-    for (int32_t i = 0; i < items; i++) {
-        string token = SwigWrap::Purse_Peek(server, assetType, mynym, purse);
-        if ("" == token) {
-            otOut << "Error:cannot load token from purse.\n";
-            return false;
-        }
-
-        purse = SwigWrap::Purse_Pop(server, assetType, mynym, purse);
-        if ("" == purse) {
-            otOut << "Error: cannot load updated purse.\n";
-            return false;
-        }
-
-        int64_t denomination =
-            SwigWrap::Token_GetDenomination(server, assetType, token);
-        if (0 >= denomination) {
-            otOut << "Error: cannot get token denomination.\n";
-            return false;
-        }
-
-        time64_t validTo = SwigWrap::Token_GetValidTo(server, assetType, token);
-        if (OT_TIME_ZERO > validTo) {
-            otOut << "Error: cannot get token validTo.\n";
-            return false;
-        }
-
-        time64_t time = SwigWrap::GetTime();
-        if (OT_TIME_ZERO > time) {
-            otOut << "Error: cannot get token time.\n";
-            return false;
-        }
-
-        if (time > validTo) {
-            otOut << "Skipping: token is expired.\n";
-            continue;
-        }
-
-        if (findAmountFromIndices) {
-            if ("all" == indices ||
-                SwigWrap::NumList_VerifyQuery(indices, to_string(i))) {
-                remain += denomination;
-            }
-            continue;
-        }
-
-        // TODO: There could be a denomination order that will cause this
-        // function to fail, even though there is a denomination combination
-        // that would make it succeeed. Example: try to find 6 when the
-        // denominations are: 5, 2, 2, and 2. This will not succeed since it
-        // will use the 5 first and then cannot satisfy the remaining 1 even
-        // though the three 2's would satisfy the 6...
-
-        if (denomination <= remain) {
-            indices = SwigWrap::NumList_Add(indices, to_string(i));
-            remain -= denomination;
-            if (0 == remain) {
-                return true;
-            }
-        }
-    }
-
-    return findAmountFromIndices ? true : false;
-#else
-    return false;
 #endif  // OT_CASH
 }

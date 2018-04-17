@@ -145,12 +145,12 @@ public:
     virtual ~CmdCancel();
 
     EXPORT int32_t
-        run(std::string mynym, std::string myacct, std::string indices);
+    run(std::string mynym, std::string myacct, std::string indices);
 
 protected:
-    virtual int32_t runWithOptions();
+    int32_t runWithOptions() override;
 };
 
-} // namespace opentxs
+}  // namespace opentxs
 
-#endif // OPENTXS_CLIENT_CMDCANCEL_HPP
+#endif  // OPENTXS_CLIENT_CMDCANCEL_HPP

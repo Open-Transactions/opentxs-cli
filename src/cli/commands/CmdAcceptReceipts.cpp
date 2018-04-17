@@ -38,8 +38,7 @@
 
 #include "CmdAcceptReceipts.hpp"
 
-#include "CmdBase.hpp"
-#include "CmdBaseAccept.hpp"
+#include <opentxs/opentxs.hpp>
 
 #include <stdint.h>
 #include <string>
@@ -57,9 +56,7 @@ CmdAcceptReceipts::CmdAcceptReceipts()
     usage = "Omitting --indices is the same as specifying --indices all.";
 }
 
-CmdAcceptReceipts::~CmdAcceptReceipts()
-{
-}
+CmdAcceptReceipts::~CmdAcceptReceipts() {}
 
 int32_t CmdAcceptReceipts::runWithOptions()
 {
@@ -76,5 +73,5 @@ int32_t CmdAcceptReceipts::run(string myacct, string indices)
         return -1;
     }
 
-    return acceptFromInbox(myacct, indices, typeReceipts);
+    return acceptFromInbox(myacct, indices, OTRecordList::typeReceipts);
 }

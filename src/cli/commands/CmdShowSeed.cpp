@@ -38,10 +38,7 @@
 
 #include "CmdShowSeed.hpp"
 
-#include "CmdBase.hpp"
-
-#include <opentxs/client/SwigWrap.hpp>
-
+#include <opentxs/opentxs.hpp>
 
 #include <stdint.h>
 #include <iostream>
@@ -56,14 +53,9 @@ CmdShowSeed::CmdShowSeed()
     help = "Show the wallet BIP32 seed as a hex string.";
 }
 
-CmdShowSeed::~CmdShowSeed()
-{
-}
+CmdShowSeed::~CmdShowSeed() {}
 
-int32_t CmdShowSeed::runWithOptions()
-{
-    return run();
-}
+int32_t CmdShowSeed::runWithOptions() { return run(); }
 
 int32_t CmdShowSeed::run()
 {
@@ -73,4 +65,4 @@ int32_t CmdShowSeed::run()
 
     return empty ? -1 : 0;
 }
-} // namespace opentxs
+}  // namespace opentxs

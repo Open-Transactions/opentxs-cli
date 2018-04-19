@@ -38,10 +38,7 @@
 
 #include "CmdImportCash.hpp"
 
-#include "CmdBase.hpp"
-
-#include <opentxs/client/SwigWrap.hpp>
-#include <opentxs/core/Log.hpp>
+#include <opentxs/opentxs.hpp>
 
 #include <stdint.h>
 #include <ostream>
@@ -59,14 +56,9 @@ CmdImportCash::CmdImportCash()
     usage = "Specify mynym when a signer nym cannot be deduced.";
 }
 
-CmdImportCash::~CmdImportCash()
-{
-}
+CmdImportCash::~CmdImportCash() {}
 
-int32_t CmdImportCash::runWithOptions()
-{
-    return run(getOption("mynym"));
-}
+int32_t CmdImportCash::runWithOptions() { return run(getOption("mynym")); }
 
 int32_t CmdImportCash::run(string mynym)
 {
@@ -159,8 +151,8 @@ int32_t CmdImportCash::run(string mynym)
         return -1;
     }
 
-    if (!SwigWrap::Wallet_ImportPurse(server, instrumentDefinitionID,
-                                        purseOwner, instrument)) {
+    if (!SwigWrap::Wallet_ImportPurse(
+            server, instrumentDefinitionID, purseOwner, instrument)) {
         otOut << "Error: cannot import purse.\n";
         return -1;
     }

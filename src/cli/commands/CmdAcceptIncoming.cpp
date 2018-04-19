@@ -38,14 +38,7 @@
 
 #include "CmdAcceptIncoming.hpp"
 
-#include <opentxs/api/client/Sync.hpp>
-#include <opentxs/api/Api.hpp>
-#include <opentxs/api/Native.hpp>
-#include <opentxs/client/OT_API.hpp>
-#include <opentxs/client/OTWallet.hpp>
-#include <opentxs/core/Account.hpp>
-#include <opentxs/core/Identifier.hpp>
-#include <opentxs/OT.hpp>
+#include <opentxs/opentxs.hpp>
 
 #include <cstdint>
 #include <string>
@@ -71,7 +64,7 @@ std::int32_t CmdAcceptIncoming::run(std::string myacct)
         return -1;
     }
 
-    const auto& otapi =  OT::App().API().OTAPI();
+    const auto& otapi = OT::App().API().OTAPI();
     auto wallet = otapi.GetWallet();
 
     OT_ASSERT(nullptr != wallet);
@@ -84,8 +77,8 @@ std::int32_t CmdAcceptIncoming::run(std::string myacct)
     const auto& nymID = account->GetNymID();
     const auto& serverID = account->GetRealNotaryID();
 
-    const auto output = OT::App().API().Sync().AcceptIncoming(
-        nymID, accountID, serverID);
+    const auto output =
+        OT::App().API().Sync().AcceptIncoming(nymID, accountID, serverID);
 
     if (!output) {
         otErr << "Failed to accept incoming payments." << std::endl;

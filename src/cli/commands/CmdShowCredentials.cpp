@@ -38,10 +38,7 @@
 
 #include "CmdShowCredentials.hpp"
 
-#include "CmdBase.hpp"
-
-#include <opentxs/client/SwigWrap.hpp>
-#include <opentxs/core/Log.hpp>
+#include <opentxs/opentxs.hpp>
 
 #include <stdint.h>
 #include <iostream>
@@ -58,14 +55,9 @@ CmdShowCredentials::CmdShowCredentials()
     help = "Show mynym's credentials.";
 }
 
-CmdShowCredentials::~CmdShowCredentials()
-{
-}
+CmdShowCredentials::~CmdShowCredentials() {}
 
-int32_t CmdShowCredentials::runWithOptions()
-{
-    return run(getOption("mynym"));
-}
+int32_t CmdShowCredentials::runWithOptions() { return run(getOption("mynym")); }
 
 int32_t CmdShowCredentials::run(string mynym)
 {
@@ -87,8 +79,7 @@ int32_t CmdShowCredentials::run(string mynym)
 
     if (0 == items) {
         otOut << "The credential list is empty.\n";
-    }
-    else {
+    } else {
         otOut << "Idx     Credential ID\n"
                  "---------------------------\n";
 
@@ -114,8 +105,7 @@ int32_t CmdShowCredentials::run(string mynym)
 
     if (0 == revokedItems) {
         cout << "The revoked credential list is empty.\n";
-    }
-    else {
+    } else {
         otOut << "Idx     Revoked Credential ID\n"
                  "---------------------------\n";
 

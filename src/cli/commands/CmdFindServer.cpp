@@ -38,13 +38,7 @@
 
 #include "CmdFindServer.hpp"
 
-#include "CmdBase.hpp"
-
-#include <opentxs/api/client/Sync.hpp>
-#include <opentxs/api/Api.hpp>
-#include <opentxs/api/Native.hpp>
-#include <opentxs/core/Identifier.hpp>
-#include <opentxs/OT.hpp>
+#include <opentxs/opentxs.hpp>
 
 namespace opentxs
 {
@@ -65,8 +59,10 @@ std::int32_t CmdFindServer::run(std::string server)
 {
     const auto response = OT::App().API().Sync().FindServer(Identifier(server));
 
-    if (String(response).Exists()) { return 1; }
+    if (String(response).Exists()) {
+        return 1;
+    }
 
     return -1;
 }
-} // namespace opentxs
+}  // namespace opentxs

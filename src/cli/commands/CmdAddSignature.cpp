@@ -38,10 +38,7 @@
 
 #include "CmdAddSignature.hpp"
 
-#include "CmdBase.hpp"
-
-#include <opentxs/client/SwigWrap.hpp>
-#include <opentxs/core/Log.hpp>
+#include <opentxs/opentxs.hpp>
 
 #include <stdint.h>
 #include <iostream>
@@ -58,14 +55,9 @@ CmdAddSignature::CmdAddSignature()
     help = "Add a signature to a contract without erasing others.";
 }
 
-CmdAddSignature::~CmdAddSignature()
-{
-}
+CmdAddSignature::~CmdAddSignature() {}
 
-int32_t CmdAddSignature::runWithOptions()
-{
-    return run(getOption("mynym"));
-}
+int32_t CmdAddSignature::runWithOptions() { return run(getOption("mynym")); }
 
 // Addsignature leaves all signatures in place and appends the new one
 // Signcontract erases all signatures and replaces them with the new one

@@ -38,10 +38,7 @@
 
 #include "CmdNewNymLegacy.hpp"
 
-#include "CmdBase.hpp"
-
-#include <opentxs/client/SwigWrap.hpp>
-#include <opentxs/core/Log.hpp>
+#include <opentxs/opentxs.hpp>
 
 #include <stdint.h>
 #include <iostream>

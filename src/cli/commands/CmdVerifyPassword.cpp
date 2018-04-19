@@ -38,10 +38,7 @@
 
 #include "CmdVerifyPassword.hpp"
 
-#include "CmdBase.hpp"
-
-#include <opentxs/client/SwigWrap.hpp>
-#include <opentxs/core/Log.hpp>
+#include <opentxs/opentxs.hpp>
 
 namespace opentxs
 {
@@ -53,10 +50,7 @@ CmdVerifyPassword::CmdVerifyPassword()
     help = "Prompt for wallet passphrase entry.";
 }
 
-std::int32_t CmdVerifyPassword::runWithOptions()
-{
-    return run();
-}
+std::int32_t CmdVerifyPassword::runWithOptions() { return run(); }
 
 std::int32_t CmdVerifyPassword::run()
 {

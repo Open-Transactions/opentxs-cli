@@ -38,11 +38,7 @@
 
 #include "CmdOutpayment.hpp"
 
-#include "CmdBase.hpp"
-
-#include <opentxs/client/SwigWrap.hpp>
-#include <opentxs/core/Log.hpp>
-#include <opentxs/core/util/Common.hpp>
+#include <opentxs/opentxs.hpp>
 
 #include <stdint.h>
 #include <iostream>
@@ -61,9 +57,7 @@ CmdOutpayment::CmdOutpayment()
     usage = "Omitting --index shows all outpayments.";
 }
 
-CmdOutpayment::~CmdOutpayment()
-{
-}
+CmdOutpayment::~CmdOutpayment() {}
 
 int32_t CmdOutpayment::runWithOptions()
 {
@@ -115,11 +109,12 @@ int32_t CmdOutpayment::run(string mynym, string index)
     return 1;
 }
 
-bool CmdOutpayment::showOutpayment(const string& mynym, int32_t index,
-                                   bool showMessage)
+bool CmdOutpayment::showOutpayment(
+    const string& mynym,
+    int32_t index,
+    bool showMessage)
 {
-    string payment =
-        SwigWrap::GetNym_OutpaymentsContentsByIndex(mynym, index);
+    string payment = SwigWrap::GetNym_OutpaymentsContentsByIndex(mynym, index);
     if ("" == payment) {
         otOut << "Error: cannot load payment " << index << ".\n";
         return false;
@@ -129,8 +124,7 @@ bool CmdOutpayment::showOutpayment(const string& mynym, int32_t index,
 
     if (!SwigWrap::Nym_VerifyOutpaymentsByIndex(mynym, index)) {
         cout << "UNVERIFIED outpayment message " << index << ".\n";
-    }
-    else {
+    } else {
         cout << "Verified outpayment message " << index << "\n";
     }
 
@@ -145,8 +139,7 @@ bool CmdOutpayment::showOutpayment(const string& mynym, int32_t index,
     cout << "         Amount: ";
     if (OT_ERROR_AMOUNT == amount) {
         cout << "UNKNOWN_PAYMENT_AMOUNT\n";
-    }
-    else {
+    } else {
         cout << amount;
         if ("" == type) {
             type = "UNKNOWN_PAYMENT_TYPE";

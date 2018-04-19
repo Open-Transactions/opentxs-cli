@@ -38,10 +38,7 @@
 
 #include "CmdEncrypt.hpp"
 
-#include "CmdBase.hpp"
-
-#include <opentxs/client/SwigWrap.hpp>
-#include <opentxs/core/Log.hpp>
+#include <opentxs/opentxs.hpp>
 
 #include <stdint.h>
 #include <iostream>
@@ -58,14 +55,9 @@ CmdEncrypt::CmdEncrypt()
     help = "Encrypt plaintext input using hisnym's public key.";
 }
 
-CmdEncrypt::~CmdEncrypt()
-{
-}
+CmdEncrypt::~CmdEncrypt() {}
 
-int32_t CmdEncrypt::runWithOptions()
-{
-    return run(getOption("hisnym"));
-}
+int32_t CmdEncrypt::runWithOptions() { return run(getOption("hisnym")); }
 
 int32_t CmdEncrypt::run(string hisnym)
 {

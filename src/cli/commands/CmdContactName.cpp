@@ -38,17 +38,7 @@
 
 #include "CmdContactName.hpp"
 
-
-#include <opentxs/api/Api.hpp>
-#include <opentxs/api/ContactManager.hpp>
-#include <opentxs/api/Native.hpp>
-#include <opentxs/contact/Contact.hpp>
-#include <opentxs/contact/Contact.hpp>
-#include <opentxs/contact/ContactData.hpp>
-#include <opentxs/core/Identifier.hpp>
-#include <opentxs/core/Log.hpp>
-#include <opentxs/core/String.hpp>
-#include <opentxs/OT.hpp>
+#include <opentxs/opentxs.hpp>
 
 namespace opentxs
 {
@@ -72,11 +62,9 @@ std::int32_t CmdContactName::run(const std::string& id)
         return -1;
     }
 
-    const auto pContact = OT::App().Contact().
-        Contact(opentxs::Identifier{id});
+    const auto pContact = OT::App().Contact().Contact(opentxs::Identifier{id});
 
-    if (pContact)
-    {
+    if (pContact) {
         const auto label = pContact->Label();
 
         otOut << label << std::endl;
@@ -85,4 +73,4 @@ std::int32_t CmdContactName::run(const std::string& id)
 
     return -1;
 }
-} // namespace opentxs
+}  // namespace opentxs

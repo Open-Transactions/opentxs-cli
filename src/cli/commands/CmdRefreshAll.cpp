@@ -38,9 +38,10 @@
 
 #include "CmdRefreshAll.hpp"
 
-#include <opentxs/client/SwigWrap.hpp>
+#include <opentxs/opentxs.hpp>
 
-namespace opentxs {
+namespace opentxs
+{
 
 CmdRefreshAll::CmdRefreshAll()
 {
@@ -49,10 +50,7 @@ CmdRefreshAll::CmdRefreshAll()
     help = "Refresh all nyms in the wallet on all servers.";
 }
 
-int32_t CmdRefreshAll::runWithOptions()
-{
-    return run();
-}
+int32_t CmdRefreshAll::runWithOptions() { return run(); }
 
 int32_t CmdRefreshAll::run()
 {
@@ -60,4 +58,4 @@ int32_t CmdRefreshAll::run()
 
     return 1;
 }
-} // namespace opentxs
+}  // namespace opentxs

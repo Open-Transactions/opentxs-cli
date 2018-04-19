@@ -38,10 +38,7 @@
 
 #include "CmdShowCredential.hpp"
 
-#include "CmdBase.hpp"
-
-#include <opentxs/client/SwigWrap.hpp>
-#include <opentxs/core/Log.hpp>
+#include <opentxs/opentxs.hpp>
 
 #include <stdint.h>
 #include <iostream>
@@ -59,9 +56,7 @@ CmdShowCredential::CmdShowCredential()
     help = "Show a specific credential in detail.";
 }
 
-CmdShowCredential::~CmdShowCredential()
-{
-}
+CmdShowCredential::~CmdShowCredential() {}
 
 int32_t CmdShowCredential::runWithOptions()
 {

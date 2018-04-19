@@ -38,10 +38,7 @@
 
 #include "CmdClearExpired.hpp"
 
-#include "CmdBase.hpp"
-
-#include <opentxs/client/SwigWrap.hpp>
-#include <opentxs/core/Log.hpp>
+#include <opentxs/opentxs.hpp>
 
 #include <stdint.h>
 #include <ostream>
@@ -59,9 +56,7 @@ CmdClearExpired::CmdClearExpired()
     help = "Clear all mynym's expired records.";
 }
 
-CmdClearExpired::~CmdClearExpired()
-{
-}
+CmdClearExpired::~CmdClearExpired() {}
 
 int32_t CmdClearExpired::runWithOptions()
 {

@@ -38,10 +38,7 @@
 
 #include "CmdGetContact.hpp"
 
-#include "CmdBase.hpp"
-
-#include <opentxs/client/SwigWrap.hpp>
-#include <opentxs/core/Log.hpp>
+#include <opentxs/opentxs.hpp>
 
 namespace opentxs
 {
@@ -71,4 +68,4 @@ std::int32_t CmdGetContact::run(const std::string& hisnym)
 
     return 0;
 }
-} // namespace opentxs
+}  // namespace opentxs

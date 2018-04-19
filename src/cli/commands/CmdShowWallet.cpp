@@ -38,7 +38,6 @@
 
 #include "CmdShowWallet.hpp"
 
-#include "CmdBase.hpp"
 #include "CmdShowAccounts.hpp"
 #include "CmdShowAssets.hpp"
 #include "CmdShowNyms.hpp"
@@ -57,14 +56,9 @@ CmdShowWallet::CmdShowWallet()
     help = "Show wallet contents.";
 }
 
-CmdShowWallet::~CmdShowWallet()
-{
-}
+CmdShowWallet::~CmdShowWallet() {}
 
-int32_t CmdShowWallet::runWithOptions()
-{
-    return run();
-}
+int32_t CmdShowWallet::runWithOptions() { return run(); }
 
 int32_t CmdShowWallet::run()
 {

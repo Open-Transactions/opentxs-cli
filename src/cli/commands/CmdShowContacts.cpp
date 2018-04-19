@@ -38,14 +38,7 @@
 
 #include "CmdShowContacts.hpp"
 
-
-#include <opentxs/api/Native.hpp>
-#include <opentxs/api/UI.hpp>
-#include <opentxs/core/Identifier.hpp>
-#include <opentxs/core/Log.hpp>
-#include <opentxs/ui/ContactList.hpp>
-#include <opentxs/ui/ContactListItem.hpp>
-#include <opentxs/OT.hpp>
+#include <opentxs/opentxs.hpp>
 
 namespace opentxs
 {
@@ -89,4 +82,4 @@ std::int32_t CmdShowContacts::run(std::string mynym)
 
     return 1;
 }
-} // namespace opentxs
+}  // namespace opentxs

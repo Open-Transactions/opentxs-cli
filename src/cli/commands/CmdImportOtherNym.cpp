@@ -38,10 +38,7 @@
 
 #include "CmdImportOtherNym.hpp"
 
-#include "CmdBase.hpp"
-
-#include <opentxs/client/SwigWrap.hpp>
-#include <opentxs/core/Log.hpp>
+#include <opentxs/opentxs.hpp>
 
 #include <iostream>
 #include <string>
@@ -55,10 +52,7 @@ CmdImportOtherNym::CmdImportOtherNym()
     help = "Import a pasted nym.";
 }
 
-std::int32_t CmdImportOtherNym::runWithOptions()
-{
-    return run();
-}
+std::int32_t CmdImportOtherNym::runWithOptions() { return run(); }
 
 std::int32_t CmdImportOtherNym::run()
 {
@@ -81,4 +75,4 @@ std::int32_t CmdImportOtherNym::run()
 
     return 1;
 }
-} // namespace opentxs
+}  // namespace opentxs

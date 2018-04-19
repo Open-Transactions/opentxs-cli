@@ -38,11 +38,10 @@
 
 #include "CmdGetPeerRequests.hpp"
 
-#include "CmdBase.hpp"
-#include <opentxs/client/SwigWrap.hpp>
-#include <opentxs/core/Log.hpp>
+#include <opentxs/opentxs.hpp>
 
-namespace opentxs {
+namespace opentxs
+{
 
 CmdGetPeerRequests::CmdGetPeerRequests()
 {
@@ -52,9 +51,7 @@ CmdGetPeerRequests::CmdGetPeerRequests()
     help = "Get a list of incoming peer request IDs";
 }
 
-CmdGetPeerRequests::~CmdGetPeerRequests()
-{
-}
+CmdGetPeerRequests::~CmdGetPeerRequests() {}
 
 std::int32_t CmdGetPeerRequests::runWithOptions()
 {
@@ -84,4 +81,4 @@ std::int32_t CmdGetPeerRequests::run(std::string mynym)
 
     return 1;
 }
-} // namespace opentxs
+}  // namespace opentxs

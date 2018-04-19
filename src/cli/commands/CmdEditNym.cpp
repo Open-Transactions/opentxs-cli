@@ -38,10 +38,7 @@
 
 #include "CmdEditNym.hpp"
 
-#include "CmdBase.hpp"
-
-#include <opentxs/client/SwigWrap.hpp>
-#include <opentxs/core/Log.hpp>
+#include <opentxs/opentxs.hpp>
 
 #include <stdint.h>
 #include <ostream>
@@ -59,9 +56,7 @@ CmdEditNym::CmdEditNym()
     help = "Edit mynym's label, as it appears in your wallet.";
 }
 
-CmdEditNym::~CmdEditNym()
-{
-}
+CmdEditNym::~CmdEditNym() {}
 
 int32_t CmdEditNym::runWithOptions()
 {

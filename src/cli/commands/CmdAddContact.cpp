@@ -38,16 +38,7 @@
 
 #include "CmdAddContact.hpp"
 
-
-
-#include <opentxs/api/Api.hpp>
-#include <opentxs/api/ContactManager.hpp>
-#include <opentxs/api/Native.hpp>
-#include <opentxs/core/crypto/OTPassword.hpp>
-#include <opentxs/core/crypto/PaymentCode.hpp>
-#include <opentxs/core/Identifier.hpp>
-#include <opentxs/core/String.hpp>
-#include <opentxs/OT.hpp>
+#include <opentxs/opentxs.hpp>
 
 namespace opentxs
 {
@@ -101,4 +92,4 @@ std::int32_t CmdAddContact::run(
 
     return -1;
 }
-} // namespace opentxs
+}  // namespace opentxs

@@ -38,13 +38,7 @@
 
 #include "CmdShowNym.hpp"
 
-
-#include <opentxs/api/client/Wallet.hpp>
-#include <opentxs/api/Native.hpp>
-#include <opentxs/OT.hpp>
-#include <opentxs/client/SwigWrap.hpp>
-#include <opentxs/core/Identifier.hpp>
-#include <opentxs/Proto.hpp>
+#include <opentxs/opentxs.hpp>
 
 #include <iostream>
 
@@ -58,10 +52,7 @@ CmdShowNym::CmdShowNym()
     help = "Show mynym's statistics.";
 }
 
-std::int32_t CmdShowNym::runWithOptions()
-{
-    return run(getOption("mynym"));
-}
+std::int32_t CmdShowNym::runWithOptions() { return run(getOption("mynym")); }
 
 std::int32_t CmdShowNym::run(std::string mynym)
 {
@@ -87,4 +78,4 @@ std::int32_t CmdShowNym::run(std::string mynym)
 
     return 1;
 }
-} // namespace opentxs
+}  // namespace opentxs

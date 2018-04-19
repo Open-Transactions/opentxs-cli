@@ -38,10 +38,7 @@
 
 #include "CmdImportSeed.hpp"
 
-#include "CmdBase.hpp"
-
-#include <opentxs/client/SwigWrap.hpp>
-
+#include <opentxs/opentxs.hpp>
 
 #include <stdint.h>
 #include <iostream>
@@ -70,8 +67,7 @@ int32_t CmdImportSeed::run(const std::string& words, const std::string& phrase)
         return -1;
     }
 
-    const std::string fingerprint =
-        SwigWrap::Wallet_ImportSeed(words, phrase);
+    const std::string fingerprint = SwigWrap::Wallet_ImportSeed(words, phrase);
     const bool empty = fingerprint.empty();
 
     if (!empty) {
@@ -80,4 +76,4 @@ int32_t CmdImportSeed::run(const std::string& words, const std::string& phrase)
 
     return empty ? -1 : 0;
 }
-} // namespace opentxs
+}  // namespace opentxs

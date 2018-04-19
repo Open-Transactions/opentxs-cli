@@ -38,10 +38,7 @@
 
 #include "CmdExportNym.hpp"
 
-#include "CmdBase.hpp"
-
-#include <opentxs/client/SwigWrap.hpp>
-#include <opentxs/core/Log.hpp>
+#include <opentxs/opentxs.hpp>
 
 #include <stdint.h>
 #include <iostream>
@@ -58,14 +55,9 @@ CmdExportNym::CmdExportNym()
     help = "Export myym as a single importable file.";
 }
 
-CmdExportNym::~CmdExportNym()
-{
-}
+CmdExportNym::~CmdExportNym() {}
 
-int32_t CmdExportNym::runWithOptions()
-{
-    return run(getOption("mynym"));
-}
+int32_t CmdExportNym::runWithOptions() { return run(getOption("mynym")); }
 
 int32_t CmdExportNym::run(string mynym)
 {

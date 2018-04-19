@@ -38,8 +38,6 @@
 
 #include "CmdSendCheque.hpp"
 
-#include "CmdBase.hpp"
-
 #include <stdint.h>
 #include <iostream>
 #include <string>
@@ -60,18 +58,24 @@ CmdSendCheque::CmdSendCheque()
     usage = "Use writecheque if you don't want to send it immediately.";
 }
 
-CmdSendCheque::~CmdSendCheque()
-{
-}
+CmdSendCheque::~CmdSendCheque() {}
 
 int32_t CmdSendCheque::runWithOptions()
 {
-    return run(getOption("myacct"), getOption("hisnym"), getOption("amount"),
-               getOption("memo"), getOption("validfor"));
+    return run(
+        getOption("myacct"),
+        getOption("hisnym"),
+        getOption("amount"),
+        getOption("memo"),
+        getOption("validfor"));
 }
 
-int32_t CmdSendCheque::run(string myacct, string hisnym, string amount,
-                           string memo, string validfor)
+int32_t CmdSendCheque::run(
+    string myacct,
+    string hisnym,
+    string amount,
+    string memo,
+    string validfor)
 {
     string cheque = writeCheque(myacct, hisnym, amount, memo, validfor, false);
     if ("" == cheque) {

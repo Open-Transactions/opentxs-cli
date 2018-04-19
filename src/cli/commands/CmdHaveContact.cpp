@@ -38,14 +38,7 @@
 
 #include "CmdHaveContact.hpp"
 
-
-#include <opentxs/api/Api.hpp>
-#include <opentxs/api/ContactManager.hpp>
-#include <opentxs/api/Native.hpp>
-#include <opentxs/OT.hpp>
-#include <opentxs/core/Identifier.hpp>
-#include <opentxs/core/Log.hpp>
-#include <opentxs/core/String.hpp>
+#include <opentxs/opentxs.hpp>
 
 namespace opentxs
 {
@@ -79,4 +72,4 @@ std::int32_t CmdHaveContact::run(const std::string& id)
 
     return 0;
 }
-} // namespace opentxs
+}  // namespace opentxs

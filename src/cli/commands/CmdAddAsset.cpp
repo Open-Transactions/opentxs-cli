@@ -38,10 +38,7 @@
 
 #include "CmdAddAsset.hpp"
 
-#include "CmdBase.hpp"
-
-#include <opentxs/client/SwigWrap.hpp>
-#include <opentxs/core/Log.hpp>
+#include <opentxs/opentxs.hpp>
 
 #include <stdint.h>
 #include <ostream>
@@ -57,14 +54,9 @@ CmdAddAsset::CmdAddAsset()
     help = "Import an existing asset contract into your wallet.";
 }
 
-CmdAddAsset::~CmdAddAsset()
-{
-}
+CmdAddAsset::~CmdAddAsset() {}
 
-int32_t CmdAddAsset::runWithOptions()
-{
-    return run();
-}
+int32_t CmdAddAsset::runWithOptions() { return run(); }
 
 int32_t CmdAddAsset::run()
 {

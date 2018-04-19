@@ -38,14 +38,7 @@
 
 #include "CmdAllocateBitcoinAddress.hpp"
 
-
-#include <opentxs/api/Blockchain.hpp>
-#include <opentxs/api/Native.hpp>
-#include <opentxs/core/Identifier.hpp>
-#include <opentxs/core/Log.hpp>
-#include <opentxs/core/String.hpp>
-#include <opentxs/OT.hpp>
-#include <opentxs/Proto.hpp>
+#include <opentxs/opentxs.hpp>
 
 #define OT_METHOD "opentxs::CmdAllocateBitcoinAddress::"
 
@@ -98,10 +91,7 @@ std::int32_t CmdAllocateBitcoinAddress::run(
     }
 
     const auto address = OT::App().Blockchain().AllocateAddress(
-        Identifier(mynym),
-        accountID,
-        label,
-        change);
+        Identifier(mynym), accountID, label, change);
 
     if (false == bool(address)) {
         otErr << OT_METHOD << __FUNCTION__ << ": Failed to allocate address."
@@ -111,9 +101,9 @@ std::int32_t CmdAllocateBitcoinAddress::run(
     }
 
     otOut << "Allocated new address at index " << address->index() << ": "
-          << address->address() << std::endl << " (" << address->label() << ")"
-          << std::endl;
+          << address->address() << std::endl
+          << " (" << address->label() << ")" << std::endl;
 
     return 0;
 }
-} // namespace opentxs
+}  // namespace opentxs

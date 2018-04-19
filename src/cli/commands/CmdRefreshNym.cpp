@@ -38,15 +38,7 @@
 
 #include "CmdRefreshNym.hpp"
 
-#include "CmdBase.hpp"
-
-#include <opentxs/api/client/Wallet.hpp>
-#include <opentxs/api/Api.hpp>
-#include <opentxs/api/Native.hpp>
-#include "opentxs/client/Utility.hpp"
-#include <opentxs/consensus/ServerContext.hpp>
-#include <opentxs/core/Log.hpp>
-#include <opentxs/OT.hpp>
+#include <opentxs/opentxs.hpp>
 
 #include <stdint.h>
 #include <ostream>

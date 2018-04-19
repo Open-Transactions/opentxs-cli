@@ -38,10 +38,7 @@
 
 #include "CmdNewAsset.hpp"
 
-#include "CmdBase.hpp"
-
-#include <opentxs/client/SwigWrap.hpp>
-#include <opentxs/core/Log.hpp>
+#include <opentxs/opentxs.hpp>
 
 #include <stdint.h>
 #include <iostream>
@@ -64,9 +61,7 @@ CmdNewAsset::CmdNewAsset()
     help = "Create a new currency contract.";
 }
 
-CmdNewAsset::~CmdNewAsset()
-{
-}
+CmdNewAsset::~CmdNewAsset() {}
 
 int32_t CmdNewAsset::runWithOptions()
 {
@@ -99,14 +94,7 @@ int32_t CmdNewAsset::run(
     }
 
     string unitDefinitionID = SwigWrap::CreateCurrencyContract(
-        mynym,
-        shortname,
-        input,
-        name,
-        symbol,
-        tla,
-        stoi(power),
-        fraction);
+        mynym, shortname, input, name, symbol, tla, stoi(power), fraction);
 
     if ("" == unitDefinitionID) {
         otOut << "Error: cannot create unit definition.\n";

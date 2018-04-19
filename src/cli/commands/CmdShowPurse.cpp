@@ -38,11 +38,7 @@
 
 #include "CmdShowPurse.hpp"
 
-#include "CmdBase.hpp"
-
-#include <opentxs/client/SwigWrap.hpp>
-#include <opentxs/core/Log.hpp>
-#include <opentxs/core/util/Common.hpp>
+#include <opentxs/opentxs.hpp>
 
 #include <stdint.h>
 #include <iostream>
@@ -61,9 +57,7 @@ CmdShowPurse::CmdShowPurse()
     help = "Show contents of a cash purse.";
 }
 
-CmdShowPurse::~CmdShowPurse()
-{
-}
+CmdShowPurse::~CmdShowPurse() {}
 
 int32_t CmdShowPurse::runWithOptions()
 {
@@ -92,8 +86,7 @@ int32_t CmdShowPurse::run(string server, string mynym, string mypurse)
     }
 
     int64_t amount = SwigWrap::Purse_GetTotalValue(server, mypurse, purse);
-    cout << "Total value: " << SwigWrap::FormatAmount(mypurse, amount)
-         << "\n";
+    cout << "Total value: " << SwigWrap::FormatAmount(mypurse, amount) << "\n";
 
     int32_t items = SwigWrap::Purse_Count(server, mypurse, purse);
     if (0 > items) {

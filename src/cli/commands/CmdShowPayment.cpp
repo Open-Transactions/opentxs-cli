@@ -38,10 +38,7 @@
 
 #include "CmdShowPayment.hpp"
 
-#include "CmdBase.hpp"
-
-#include <opentxs/client/SwigWrap.hpp>
-#include <opentxs/core/Log.hpp>
+#include <opentxs/opentxs.hpp>
 
 #include <stdint.h>
 #include <iostream>
@@ -62,18 +59,22 @@ CmdShowPayment::CmdShowPayment()
     usage = "Default index is 0. Default showmemo is false.";
 }
 
-CmdShowPayment::~CmdShowPayment()
-{
-}
+CmdShowPayment::~CmdShowPayment() {}
 
 int32_t CmdShowPayment::runWithOptions()
 {
-    return run(getOption("server"), getOption("mynym"), getOption("index"),
-               getOption("showmemo"));
+    return run(
+        getOption("server"),
+        getOption("mynym"),
+        getOption("index"),
+        getOption("showmemo"));
 }
 
-int32_t CmdShowPayment::run(string server, string mynym, string index,
-                            string showmemo)
+int32_t CmdShowPayment::run(
+    string server,
+    string mynym,
+    string index,
+    string showmemo)
 {
     if (!checkServer("server", server)) {
         return -1;
@@ -112,15 +113,15 @@ int32_t CmdShowPayment::run(string server, string mynym, string index,
     cout << "Idx  Amt   Type       Txn#   Memo\n";
     cout << "---------------------------------\n";
 
-    string payment = SwigWrap::Ledger_GetInstrument(server, mynym, mynym,
-                                                      inbox, messageNr);
+    string payment =
+        SwigWrap::Ledger_GetInstrument(server, mynym, mynym, inbox, messageNr);
     if ("" == payment) {
         otOut << "Error: cannot load payment.\n";
         return -1;
     }
 
-    string tx = SwigWrap::Ledger_GetTransactionByIndex(server, mynym, mynym,
-                                                         inbox, messageNr);
+    string tx = SwigWrap::Ledger_GetTransactionByIndex(
+        server, mynym, mynym, inbox, messageNr);
     int64_t txNum = SwigWrap::Ledger_GetTransactionIDByIndex(
         server, mynym, mynym, inbox, messageNr);
     /* int64_t refNum = */ SwigWrap::Transaction_GetDisplayReferenceToNum(
@@ -139,8 +140,7 @@ int32_t CmdShowPayment::run(string server, string mynym, string index,
     if ("" != memo) {
         if (memo.find("\n") != string::npos && showmemo != "true") {
             memo = "<too large to display here>";
-        }
-        else {
+        } else {
             memo = "\"" + memo + "\"";
         }
     }

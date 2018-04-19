@@ -38,8 +38,6 @@
 
 #include "CmdWriteInvoice.hpp"
 
-#include "CmdBase.hpp"
-
 #include <stdint.h>
 #include <iostream>
 #include <string>
@@ -60,18 +58,24 @@ CmdWriteInvoice::CmdWriteInvoice()
     usage = "Use sendinvoice if you want to write AND send the cheque.";
 }
 
-CmdWriteInvoice::~CmdWriteInvoice()
-{
-}
+CmdWriteInvoice::~CmdWriteInvoice() {}
 
 int32_t CmdWriteInvoice::runWithOptions()
 {
-    return run(getOption("myacct"), getOption("hisnym"), getOption("amount"),
-               getOption("memo"), getOption("validfor"));
+    return run(
+        getOption("myacct"),
+        getOption("hisnym"),
+        getOption("amount"),
+        getOption("memo"),
+        getOption("validfor"));
 }
 
-int32_t CmdWriteInvoice::run(string myacct, string hisnym, string amount,
-                             string memo, string validfor)
+int32_t CmdWriteInvoice::run(
+    string myacct,
+    string hisnym,
+    string amount,
+    string memo,
+    string validfor)
 {
     string cheque = writeCheque(myacct, hisnym, amount, memo, validfor, true);
     if ("" == cheque) {

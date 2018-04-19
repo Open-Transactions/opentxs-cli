@@ -38,13 +38,7 @@
 
 #include "CmdShowContact.hpp"
 
-
-#include <opentxs/api/ContactManager.hpp>
-#include <opentxs/api/Native.hpp>
-#include <opentxs/OT.hpp>
-#include <opentxs/contact/Contact.hpp>
-#include <opentxs/contact/ContactData.hpp>
-#include <opentxs/core/Log.hpp>
+#include <opentxs/opentxs.hpp>
 
 namespace opentxs
 {
@@ -75,4 +69,4 @@ std::int32_t CmdShowContact::run(const std::string& id)
 
     return 1;
 }
-} // namespace opentxs
+}  // namespace opentxs

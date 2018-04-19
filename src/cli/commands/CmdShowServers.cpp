@@ -38,10 +38,7 @@
 
 #include "CmdShowServers.hpp"
 
-#include "CmdBase.hpp"
-
-#include <opentxs/client/SwigWrap.hpp>
-#include <opentxs/core/Log.hpp>
+#include <opentxs/opentxs.hpp>
 
 #include <stdint.h>
 #include <iostream>
@@ -57,14 +54,9 @@ CmdShowServers::CmdShowServers()
     help = "Show the server contracts in the wallet.";
 }
 
-CmdShowServers::~CmdShowServers()
-{
-}
+CmdShowServers::~CmdShowServers() {}
 
-int32_t CmdShowServers::runWithOptions()
-{
-    return run();
-}
+int32_t CmdShowServers::runWithOptions() { return run(); }
 
 int32_t CmdShowServers::run()
 {

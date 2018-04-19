@@ -38,10 +38,7 @@
 
 #include "CmdVerifyReceipt.hpp"
 
-#include "CmdBase.hpp"
-
-#include <opentxs/client/SwigWrap.hpp>
-#include <opentxs/core/Log.hpp>
+#include <opentxs/opentxs.hpp>
 
 #include <stdint.h>
 #include <ostream>
@@ -59,9 +56,7 @@ CmdVerifyReceipt::CmdVerifyReceipt()
     help = "Verify your intermediary files against last signed receipt.";
 }
 
-CmdVerifyReceipt::~CmdVerifyReceipt()
-{
-}
+CmdVerifyReceipt::~CmdVerifyReceipt() {}
 
 int32_t CmdVerifyReceipt::runWithOptions()
 {

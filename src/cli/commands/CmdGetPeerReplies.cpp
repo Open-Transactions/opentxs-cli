@@ -38,11 +38,10 @@
 
 #include "CmdGetPeerReplies.hpp"
 
-#include "CmdBase.hpp"
-#include <opentxs/client/SwigWrap.hpp>
-#include <opentxs/core/Log.hpp>
+#include <opentxs/opentxs.hpp>
 
-namespace opentxs {
+namespace opentxs
+{
 
 CmdGetPeerReplies::CmdGetPeerReplies()
 {
@@ -52,9 +51,7 @@ CmdGetPeerReplies::CmdGetPeerReplies()
     help = "Get a list of incoming peer reply IDs";
 }
 
-CmdGetPeerReplies::~CmdGetPeerReplies()
-{
-}
+CmdGetPeerReplies::~CmdGetPeerReplies() {}
 
 std::int32_t CmdGetPeerReplies::runWithOptions()
 {
@@ -84,4 +81,4 @@ std::int32_t CmdGetPeerReplies::run(std::string mynym)
 
     return 1;
 }
-} // namespace opentxs
+}  // namespace opentxs

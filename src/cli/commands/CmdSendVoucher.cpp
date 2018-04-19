@@ -38,12 +38,9 @@
 
 #include "CmdSendVoucher.hpp"
 
-#include "CmdBase.hpp"
 #include "CmdWithdrawVoucher.hpp"
 
-#include <opentxs/client/SwigWrap.hpp>
-#include <opentxs/core/util/Common.hpp>
-#include <opentxs/core/Log.hpp>
+#include <opentxs/opentxs.hpp>
 
 #include <stdint.h>
 #include <iostream>
@@ -64,18 +61,22 @@ CmdSendVoucher::CmdSendVoucher()
     usage = "Use withdrawvoucher if you don't want to send it immediately.";
 }
 
-CmdSendVoucher::~CmdSendVoucher()
-{
-}
+CmdSendVoucher::~CmdSendVoucher() {}
 
 int32_t CmdSendVoucher::runWithOptions()
 {
-    return run(getOption("myacct"), getOption("hisnym"), getOption("amount"),
-               getOption("memo"));
+    return run(
+        getOption("myacct"),
+        getOption("hisnym"),
+        getOption("amount"),
+        getOption("memo"));
 }
 
-int32_t CmdSendVoucher::run(string myacct, string hisnym, string amount,
-                            string memo)
+int32_t CmdSendVoucher::run(
+    string myacct,
+    string hisnym,
+    string amount,
+    string memo)
 {
     if (!checkAccount("myacct", myacct)) {
         return -1;

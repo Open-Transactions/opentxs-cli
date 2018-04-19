@@ -38,10 +38,7 @@
 
 #include "CmdAddContract.hpp"
 
-#include "CmdBase.hpp"
-
-#include <opentxs/client/SwigWrap.hpp>
-#include <opentxs/core/Log.hpp>
+#include <opentxs/opentxs.hpp>
 
 namespace opentxs
 {
@@ -57,10 +54,7 @@ CmdAddContract::CmdAddContract()
 
 std::int32_t CmdAddContract::runWithOptions()
 {
-    return run(
-        getOption("mynym"),
-        getOption("type"),
-        getOption("value"));
+    return run(getOption("mynym"), getOption("type"), getOption("value"));
 }
 
 std::int32_t CmdAddContract::run(
@@ -86,8 +80,7 @@ std::int32_t CmdAddContract::run(
         return -1;
     }
 
-    const auto currency = static_cast<proto::ContactItemType>(
-        std::stoi(type));
+    const auto currency = static_cast<proto::ContactItemType>(std::stoi(type));
     auto data = SwigWrap::Wallet_GetNym(mynym);
 
     if (false == data.Valid()) {
@@ -96,11 +89,7 @@ std::int32_t CmdAddContract::run(
         return -1;
     }
 
-    const auto set = data.AddContract(
-        value,
-        currency,
-        true,
-        true);
+    const auto set = data.AddContract(value, currency, true, true);
 
     if (false == set) {
         otErr << "Failed to set claim" << std::endl;
@@ -112,4 +101,4 @@ std::int32_t CmdAddContract::run(
 
     return 1;
 }
-} // namespace opentxs
+}  // namespace opentxs

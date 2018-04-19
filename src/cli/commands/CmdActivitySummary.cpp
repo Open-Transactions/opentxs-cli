@@ -38,18 +38,7 @@
 
 #include "CmdActivitySummary.hpp"
 
-#include <opentxs/api/Api.hpp>
-#include <opentxs/api/Native.hpp>
-#include <opentxs/api/UI.hpp>
-#include <opentxs/client/OT_API.hpp>
-#include <opentxs/core/Identifier.hpp>
-#include <opentxs/core/Log.hpp>
-#include <opentxs/core/Message.hpp>
-#include <opentxs/core/String.hpp>
-#include <opentxs/ui/ActivitySummary.hpp>
-#include <opentxs/ui/ActivitySummaryItem.hpp>
-#include <opentxs/OT.hpp>
-#include <opentxs/Types.hpp>
+#include <opentxs/opentxs.hpp>
 
 #include <iostream>
 #include <ctime>
@@ -87,14 +76,15 @@ std::int32_t CmdActivitySummary::run(std::string mynym)
     }
 
     auto last = line.Last();
-    otOut << "* " << line.DisplayName() << " (" << line.ThreadID() << "): "
-          << time(line.Timestamp()) << "\n  " << line.Text() << "\n";
+    otOut << "* " << line.DisplayName() << " (" << line.ThreadID()
+          << "): " << time(line.Timestamp()) << "\n  " << line.Text() << "\n";
 
     while (false == last) {
         auto& line = activity.Next();
         last = line.Last();
-        otOut << "* " << line.DisplayName() << " (" << line.ThreadID() << "): "
-              << time(line.Timestamp()) << "\n  " << line.Text() << "\n";
+        otOut << "* " << line.DisplayName() << " (" << line.ThreadID()
+              << "): " << time(line.Timestamp()) << "\n  " << line.Text()
+              << "\n";
     }
 
     otOut << std::endl;
@@ -109,4 +99,4 @@ std::string CmdActivitySummary::time(
 
     return std::ctime(&converted);
 }
-} // namespace opentxs
+}  // namespace opentxs

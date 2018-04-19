@@ -38,10 +38,7 @@
 
 #include "CmdInpayments.hpp"
 
-#include "CmdBase.hpp"
-
-#include <opentxs/client/SwigWrap.hpp>
-#include <opentxs/core/Log.hpp>
+#include <opentxs/opentxs.hpp>
 
 #include <stdint.h>
 #include <iostream>
@@ -59,9 +56,7 @@ CmdInpayments::CmdInpayments()
     help = "Show mynym's incoming payments box.";
 }
 
-CmdInpayments::~CmdInpayments()
-{
-}
+CmdInpayments::~CmdInpayments() {}
 
 int32_t CmdInpayments::runWithOptions()
 {
@@ -108,8 +103,8 @@ int32_t CmdInpayments::run(string server, string mynym)
             return -1;
         }
 
-        string tx = SwigWrap::Ledger_GetTransactionByIndex(server, mynym,
-                                                             mynym, inbox, i);
+        string tx = SwigWrap::Ledger_GetTransactionByIndex(
+            server, mynym, mynym, inbox, i);
         int64_t txNum = SwigWrap::Ledger_GetTransactionIDByIndex(
             server, mynym, mynym, inbox, i);
         /* int64_t refNum = */ SwigWrap::Transaction_GetDisplayReferenceToNum(
@@ -132,8 +127,7 @@ int32_t CmdInpayments::run(string server, string mynym)
 
         string assetName = "";
         if ("" != assetType) {
-            assetName =
-                " - \"" + SwigWrap::GetAssetType_Name(assetType) + "\"";
+            assetName = " - \"" + SwigWrap::GetAssetType_Name(assetType) + "\"";
         }
 
         cout << i << "    ";

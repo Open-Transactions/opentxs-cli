@@ -38,10 +38,7 @@
 
 #include "CmdDecrypt.hpp"
 
-#include "CmdBase.hpp"
-
-#include <opentxs/client/SwigWrap.hpp>
-#include <opentxs/core/Log.hpp>
+#include <opentxs/opentxs.hpp>
 
 #include <stdint.h>
 #include <iostream>
@@ -58,14 +55,9 @@ CmdDecrypt::CmdDecrypt()
     help = "Decrypt encrypted input text using mynym's private key.";
 }
 
-CmdDecrypt::~CmdDecrypt()
-{
-}
+CmdDecrypt::~CmdDecrypt() {}
 
-int32_t CmdDecrypt::runWithOptions()
-{
-    return run(getOption("mynym"));
-}
+int32_t CmdDecrypt::runWithOptions() { return run(getOption("mynym")); }
 
 int32_t CmdDecrypt::run(string mynym)
 {

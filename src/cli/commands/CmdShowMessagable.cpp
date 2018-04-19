@@ -38,14 +38,7 @@
 
 #include "CmdShowMessagable.hpp"
 
-
-#include <opentxs/api/Native.hpp>
-#include <opentxs/api/UI.hpp>
-#include <opentxs/core/Identifier.hpp>
-#include <opentxs/core/Log.hpp>
-#include <opentxs/ui/ContactListItem.hpp>
-#include <opentxs/ui/MessagableList.hpp>
-#include <opentxs/OT.hpp>
+#include <opentxs/opentxs.hpp>
 
 namespace opentxs
 {
@@ -100,4 +93,4 @@ std::int32_t CmdShowMessagable::run(std::string mynym)
 
     return 1;
 }
-} // namespace opentxs
+}  // namespace opentxs

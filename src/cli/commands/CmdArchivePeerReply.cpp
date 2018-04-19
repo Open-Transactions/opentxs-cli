@@ -38,12 +38,10 @@
 
 #include "CmdArchivePeerReply.hpp"
 
-#include <opentxs/api/Api.hpp>
-#include <opentxs/api/Native.hpp>
-#include <opentxs/client/OTAPI_Exec.hpp>
-#include <opentxs/OT.hpp>
+#include <opentxs/opentxs.hpp>
 
-namespace opentxs {
+namespace opentxs
+{
 
 CmdArchivePeerReply::CmdArchivePeerReply()
 {
@@ -67,4 +65,4 @@ std::int32_t CmdArchivePeerReply::run(std::string mynym, std::string mypurse)
 
     return OT::App().API().Exec().completePeerRequest(mynym, mypurse);
 }
-} // namespace opentxs
+}  // namespace opentxs

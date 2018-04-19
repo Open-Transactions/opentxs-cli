@@ -38,14 +38,7 @@
 
 #include "CmdAssignBitcoinAddress.hpp"
 
-
-#include <opentxs/api/Blockchain.hpp>
-#include <opentxs/api/Native.hpp>
-#include <opentxs/core/Identifier.hpp>
-#include <opentxs/core/Log.hpp>
-#include <opentxs/core/String.hpp>
-#include <opentxs/OT.hpp>
-#include <opentxs/Proto.hpp>
+#include <opentxs/opentxs.hpp>
 
 #define OT_METHOD "opentxs::CmdAssignBitcoinAddress::"
 
@@ -110,7 +103,7 @@ std::int32_t CmdAssignBitcoinAddress::run(
                 index = temp;
             } else {
                 otErr << OT_METHOD << __FUNCTION__ << ": Negative index."
-                    << std::endl;
+                      << std::endl;
 
                 return -1;
             }
@@ -119,25 +112,20 @@ std::int32_t CmdAssignBitcoinAddress::run(
         } else if (sizeof(std::int32_t) == sizeof(unsigned long long)) {
             index = std::stoull(indexArg);
         }
-    } catch (const std::invalid_argument &) {
-        otErr << OT_METHOD << __FUNCTION__ << ": Invalid index."
-            << std::endl;
+    } catch (const std::invalid_argument&) {
+        otErr << OT_METHOD << __FUNCTION__ << ": Invalid index." << std::endl;
 
         return -1;
     } catch (const std::out_of_range&) {
         otErr << OT_METHOD << __FUNCTION__ << ": Index out of range."
-            << std::endl;
+              << std::endl;
 
         return -1;
     }
 
     const Identifier nymID(mynym);
     const auto assigned = OT::App().Blockchain().AssignAddress(
-        nymID,
-        accountID,
-        index,
-        Identifier(contact),
-        change);
+        nymID, accountID, index, Identifier(contact), change);
 
     if (false == assigned) {
         otErr << OT_METHOD << __FUNCTION__ << ": Failed to allocate address."
@@ -146,11 +134,8 @@ std::int32_t CmdAssignBitcoinAddress::run(
         return -1;
     }
 
-    const auto address = OT::App().Blockchain().LoadAddress(
-        nymID,
-        accountID,
-        index,
-        change);
+    const auto address =
+        OT::App().Blockchain().LoadAddress(nymID, accountID, index, change);
 
     if (false == bool(address)) {
         otErr << OT_METHOD << __FUNCTION__ << ": Failed to load address."
@@ -160,9 +145,11 @@ std::int32_t CmdAssignBitcoinAddress::run(
     }
 
     otOut << "Assigned address at index " << address->index() << ": "
-          << address->address() << std::endl << " (" << address->label()
-          << ") to contact: " << address->contact() << "\n" << std::endl;
+          << address->address() << std::endl
+          << " (" << address->label() << ") to contact: " << address->contact()
+          << "\n"
+          << std::endl;
 
     return 0;
 }
-} // namespace opentxs
+}  // namespace opentxs

@@ -38,14 +38,7 @@
 
 #include "CmdMergeContact.hpp"
 
-
-#include <opentxs/api/ContactManager.hpp>
-#include <opentxs/api/Native.hpp>
-#include <opentxs/contact/Contact.hpp>
-#include <opentxs/contact/ContactData.hpp>
-#include <opentxs/core/Identifier.hpp>
-#include <opentxs/core/Log.hpp>
-#include <opentxs/OT.hpp>
+#include <opentxs/opentxs.hpp>
 
 namespace opentxs
 {
@@ -79,4 +72,4 @@ std::int32_t CmdMergeContact::run(
 
     return 1;
 }
-} // namespace opentxs
+}  // namespace opentxs

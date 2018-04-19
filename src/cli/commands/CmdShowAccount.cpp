@@ -38,11 +38,7 @@
 
 #include "CmdShowAccount.hpp"
 
-#include "CmdBase.hpp"
-
-#include <opentxs/api/Api.hpp>
-#include <opentxs/api/Native.hpp>
-#include <opentxs/OT.hpp>
+#include <opentxs/opentxs.hpp>
 
 #include <stdint.h>
 #include <iostream>

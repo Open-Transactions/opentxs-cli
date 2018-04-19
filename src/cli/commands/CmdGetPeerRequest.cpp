@@ -38,11 +38,10 @@
 
 #include "CmdGetPeerRequest.hpp"
 
-#include "CmdBase.hpp"
-#include <opentxs/client/SwigWrap.hpp>
-#include <opentxs/core/Log.hpp>
+#include <opentxs/opentxs.hpp>
 
-namespace opentxs {
+namespace opentxs
+{
 
 CmdGetPeerRequest::CmdGetPeerRequest()
 {
@@ -75,4 +74,4 @@ std::int32_t CmdGetPeerRequest::run(std::string mynym, std::string request)
 
     return 1;
 }
-} // namespace opentxs
+}  // namespace opentxs

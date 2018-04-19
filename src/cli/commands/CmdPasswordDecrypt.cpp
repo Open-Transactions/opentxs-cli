@@ -38,10 +38,7 @@
 
 #include "CmdPasswordDecrypt.hpp"
 
-#include "CmdBase.hpp"
-
-#include <opentxs/client/SwigWrap.hpp>
-#include <opentxs/core/Log.hpp>
+#include <opentxs/opentxs.hpp>
 
 #include <stdint.h>
 #include <iostream>
@@ -57,14 +54,9 @@ CmdPasswordDecrypt::CmdPasswordDecrypt()
     help = "Password-decrypt a ciphertext using a symmetric key.";
 }
 
-CmdPasswordDecrypt::~CmdPasswordDecrypt()
-{
-}
+CmdPasswordDecrypt::~CmdPasswordDecrypt() {}
 
-int32_t CmdPasswordDecrypt::runWithOptions()
-{
-    return run();
-}
+int32_t CmdPasswordDecrypt::runWithOptions() { return run(); }
 
 int32_t CmdPasswordDecrypt::run()
 {

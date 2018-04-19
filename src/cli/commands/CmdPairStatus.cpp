@@ -38,9 +38,10 @@
 
 #include "CmdPairStatus.hpp"
 
-#include <opentxs/client/SwigWrap.hpp>
+#include <opentxs/opentxs.hpp>
 
-namespace opentxs {
+namespace opentxs
+{
 
 CmdPairStatus::CmdPairStatus()
 {
@@ -69,4 +70,4 @@ std::int32_t CmdPairStatus::run(
 
     return 1;
 }
-} // namespace opentxs
+}  // namespace opentxs

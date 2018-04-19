@@ -38,10 +38,7 @@
 
 #include "CmdShowPhrase.hpp"
 
-#include "CmdBase.hpp"
-
-#include <opentxs/client/SwigWrap.hpp>
-
+#include <opentxs/opentxs.hpp>
 
 #include <stdint.h>
 #include <iostream>
@@ -56,14 +53,9 @@ CmdShowPhrase::CmdShowPhrase()
     help = "Show wallet BIP39 passphrase.";
 }
 
-CmdShowPhrase::~CmdShowPhrase()
-{
-}
+CmdShowPhrase::~CmdShowPhrase() {}
 
-int32_t CmdShowPhrase::runWithOptions()
-{
-    return run();
-}
+int32_t CmdShowPhrase::runWithOptions() { return run(); }
 
 int32_t CmdShowPhrase::run()
 {
@@ -73,4 +65,4 @@ int32_t CmdShowPhrase::run()
 
     return empty ? -1 : 0;
 }
-} // namespace opentxs
+}  // namespace opentxs

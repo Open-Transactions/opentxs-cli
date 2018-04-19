@@ -38,10 +38,7 @@
 
 #include "CmdShowRecords.hpp"
 
-#include "CmdBase.hpp"
-
-#include <opentxs/client/SwigWrap.hpp>
-#include <opentxs/core/Log.hpp>
+#include <opentxs/opentxs.hpp>
 
 #include <stdint.h>
 #include <iostream>
@@ -61,9 +58,7 @@ CmdShowRecords::CmdShowRecords()
     usage = "Specify either one of --server/--mynym and --myacct.";
 }
 
-CmdShowRecords::~CmdShowRecords()
-{
-}
+CmdShowRecords::~CmdShowRecords() {}
 
 int32_t CmdShowRecords::runWithOptions()
 {
@@ -80,8 +75,7 @@ int32_t CmdShowRecords::run(string server, string mynym, string myacct)
         if (!checkNym("mynym", mynym)) {
             return -1;
         }
-    }
-    else {
+    } else {
         if (!checkAccount("myacct", myacct)) {
             return -1;
         }
@@ -122,8 +116,10 @@ int32_t CmdShowRecords::run(string server, string mynym, string myacct)
     return success ? 1 : -1;
 }
 
-int32_t CmdShowRecords::showRecords(const string& server, const string& mynym,
-                                    const string& myacct)
+int32_t CmdShowRecords::showRecords(
+    const string& server,
+    const string& mynym,
+    const string& myacct)
 {
     string records = SwigWrap::LoadRecordBox(server, mynym, myacct);
     if ("" == records) {
@@ -153,16 +149,15 @@ int32_t CmdShowRecords::showRecords(const string& server, const string& mynym,
             server, mynym, myacct, tx);
         int64_t amount =
             SwigWrap::Transaction_GetAmount(server, mynym, myacct, tx);
-        string type =
-            SwigWrap::Transaction_GetType(server, mynym, myacct, tx);
+        string type = SwigWrap::Transaction_GetType(server, mynym, myacct, tx);
         string senderUser =
             SwigWrap::Transaction_GetSenderNymID(server, mynym, myacct, tx);
         string senderAcct =
             SwigWrap::Transaction_GetSenderAcctID(server, mynym, myacct, tx);
-        string recipientUser = SwigWrap::Transaction_GetRecipientNymID(
-            server, mynym, myacct, tx);
-        string recipientAcct = SwigWrap::Transaction_GetRecipientAcctID(
-            server, mynym, myacct, tx);
+        string recipientUser =
+            SwigWrap::Transaction_GetRecipientNymID(server, mynym, myacct, tx);
+        string recipientAcct =
+            SwigWrap::Transaction_GetRecipientAcctID(server, mynym, myacct, tx);
 
         string user = "" != senderUser ? senderUser : recipientUser;
         string acct = "" != senderAcct ? senderAcct : recipientAcct;

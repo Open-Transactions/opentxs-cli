@@ -38,10 +38,7 @@
 
 #include "CmdMarkRead.hpp"
 
-#include <opentxs/api/Activity.hpp>
-#include <opentxs/api/Native.hpp>
-#include <opentxs/OT.hpp>
-#include <opentxs/core/Identifier.hpp>
+#include <opentxs/opentxs.hpp>
 
 namespace opentxs
 {
@@ -80,4 +77,4 @@ std::int32_t CmdMarkRead::run(
 
     return -1;
 }
-} // namespace opentxs
+}  // namespace opentxs

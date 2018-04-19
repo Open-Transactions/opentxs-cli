@@ -38,10 +38,7 @@
 
 #include "CmdShowActive.hpp"
 
-#include "CmdBase.hpp"
-
-#include <opentxs/client/SwigWrap.hpp>
-#include <opentxs/core/Log.hpp>
+#include <opentxs/opentxs.hpp>
 
 #include <stddef.h>
 #include <stdint.h>
@@ -63,9 +60,7 @@ CmdShowActive::CmdShowActive()
     usage = "Specify either of --mynym and --id.";
 }
 
-CmdShowActive::~CmdShowActive()
-{
-}
+CmdShowActive::~CmdShowActive() {}
 
 int32_t CmdShowActive::runWithOptions()
 {
@@ -95,7 +90,8 @@ int32_t CmdShowActive::run(string server, string mynym, string id)
 
             otOut << "Found an active transaction!\n"
                   << "ID: " << transNum << "  Type: " << type
-                  << "\n\nContents:\n\n" << item << "\n\n";
+                  << "\n\nContents:\n\n"
+                  << item << "\n\n";
         }
         return 1;
     }
@@ -112,7 +108,8 @@ int32_t CmdShowActive::run(string server, string mynym, string id)
     }
 
     vector<string> items = tokenize(ids, ',', true);
-    otOut << "\n Found " << items.size() << " active transactions:  " << ids << "\n\n";
+    otOut << "\n Found " << items.size() << " active transactions:  " << ids
+          << "\n\n";
     for (size_t i = 0; i < items.size(); i++) {
         string id = items[i];
         int64_t transNum = checkTransNum("id", id);

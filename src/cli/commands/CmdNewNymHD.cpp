@@ -38,11 +38,7 @@
 
 #include "CmdNewNymHD.hpp"
 
-#include "CmdBase.hpp"
-
-#include <opentxs/client/SwigWrap.hpp>
-#include <opentxs/core/Log.hpp>
-#include <opentxs/Types.hpp>
+#include <opentxs/opentxs.hpp>
 
 #include <stdint.h>
 #include <iostream>
@@ -77,9 +73,11 @@ int32_t CmdNewNymHD::run(string label, string source, string path)
     if (!path.empty()) {
         try {
             nym = stoul(path);
+        } catch (std::invalid_argument) {
+            nym = 0;
+        } catch (std::out_of_range) {
+            nym = 0;
         }
-        catch (std::invalid_argument) { nym = 0; }
-        catch (std::out_of_range) { nym = 0; }
 
         const std::uint32_t hardened =
             static_cast<std::uint32_t>(opentxs::Bip32Child::HARDENED);
@@ -88,7 +86,6 @@ int32_t CmdNewNymHD::run(string label, string source, string path)
             nym = nym ^ hardened;
         }
     }
-
 
     std::string mynym = SwigWrap::CreateIndividualNym(label, source, nym);
 

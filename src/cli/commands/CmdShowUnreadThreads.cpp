@@ -38,11 +38,7 @@
 
 #include "CmdShowUnreadThreads.hpp"
 
-#include <opentxs/api/Activity.hpp>
-#include <opentxs/api/Native.hpp>
-#include <opentxs/OT.hpp>
-#include <opentxs/core/Identifier.hpp>
-#include <opentxs/core/Log.hpp>
+#include <opentxs/opentxs.hpp>
 
 namespace opentxs
 {
@@ -51,7 +47,8 @@ CmdShowUnreadThreads::CmdShowUnreadThreads()
     command = "showunreadthreads";
     args[0] = "--mynym <nym>";
     category = catOtherUsers;
-    help = "List activity threads containing unread items for the specified user.";
+    help =
+        "List activity threads containing unread items for the specified user.";
 }
 
 std::int32_t CmdShowUnreadThreads::runWithOptions()
@@ -80,4 +77,4 @@ std::int32_t CmdShowUnreadThreads::run(std::string mynym)
 
     return 1;
 }
-} // namespace opentxs
+}  // namespace opentxs

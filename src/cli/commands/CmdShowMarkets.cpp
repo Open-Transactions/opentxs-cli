@@ -38,10 +38,7 @@
 
 #include "CmdShowMarkets.hpp"
 
-#include "CmdBase.hpp"
-
-#include <opentxs/core/Log.hpp>
-#include <opentxs/core/OTStorage.hpp>
+#include <opentxs/opentxs.hpp>
 
 #include <stdint.h>
 #include <iostream>
@@ -58,14 +55,9 @@ CmdShowMarkets::CmdShowMarkets()
     help = "Show the list of markets.";
 }
 
-CmdShowMarkets::~CmdShowMarkets()
-{
-}
+CmdShowMarkets::~CmdShowMarkets() {}
 
-int32_t CmdShowMarkets::runWithOptions()
-{
-    return run(getOption("server"));
-}
+int32_t CmdShowMarkets::runWithOptions() { return run(getOption("server")); }
 
 int32_t CmdShowMarkets::run(string server)
 {

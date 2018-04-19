@@ -38,10 +38,7 @@
 
 #include "CmdShowAssets.hpp"
 
-#include "CmdBase.hpp"
-
-#include <opentxs/client/SwigWrap.hpp>
-#include <opentxs/core/Log.hpp>
+#include <opentxs/opentxs.hpp>
 
 #include <stdint.h>
 #include <iostream>
@@ -57,14 +54,9 @@ CmdShowAssets::CmdShowAssets()
     help = "Show the currency contracts in the wallet.";
 }
 
-CmdShowAssets::~CmdShowAssets()
-{
-}
+CmdShowAssets::~CmdShowAssets() {}
 
-int32_t CmdShowAssets::runWithOptions()
-{
-    return run();
-}
+int32_t CmdShowAssets::runWithOptions() { return run(); }
 
 int32_t CmdShowAssets::run()
 {

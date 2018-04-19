@@ -108,29 +108,37 @@ int32_t CmdTransfer::run(
     }
 
     if ("" == hisServer) {
-        otOut << "Assuming hisaccount is o5n the same server as myacct.\n";
+        otOut << "Assuming hisaccount is on the same server as myacct.\n";
     }
 
-    opentxs::TransactionNumber notUsed{0};
-    std::string response;
-    {
-        rLock lock (api_lock_);
-        response = OT::App()
-                          .API()
-                          .ServerAction()
-                          .SendTransfer(
-                              Identifier(mynym),
-                              Identifier(server),
-                              Identifier(myacct),
-                              Identifier(hisacct),
-                              value,
-                              memo)
-                          ->Run();
+    auto& sync = OT::App().API().Sync();
+
+    Identifier taskID = sync.SendTransfer(
+        Identifier(mynym),
+        Identifier(server),
+        Identifier(myacct),
+        Identifier(hisacct),
+        value,
+        memo);
+
+    ThreadStatus status = sync.Status(taskID);
+    while (status == ThreadStatus::RUNNING) {
+        Log::Sleep(std::chrono::milliseconds(100));
+        status = sync.Status(taskID);
     }
-    int32_t reply =
-        responseReply(response, server, mynym, myacct, "send_transfer");
-    if (1 != reply) {
-        return reply;
+
+    switch (status) {
+        case ThreadStatus::FINISHED_SUCCESS: {
+            otOut << "Transfer completed successfully " << std::endl;
+        } break;
+        case ThreadStatus::FINISHED_FAILED: {
+            otOut << "Transfer not completed " << std::endl;
+        }
+        case ThreadStatus::ERROR:
+        case ThreadStatus::SHUTDOWN:
+        default: {
+            return -1;
+        }
     }
 
     {

@@ -38,10 +38,7 @@
 
 #include "CmdPreloadThread.hpp"
 
-#include <opentxs/api/Activity.hpp>
-#include <opentxs/api/Native.hpp>
-#include <opentxs/OT.hpp>
-#include <opentxs/core/Identifier.hpp>
+#include <opentxs/opentxs.hpp>
 
 namespace opentxs
 {
@@ -95,11 +92,8 @@ std::int32_t CmdPreloadThread::run(
     }
 
     OT::App().Activity().PreloadThread(
-        Identifier(mynym),
-        Identifier(thread),
-        begin,
-        count);
+        Identifier(mynym), Identifier(thread), begin, count);
 
     return 0;
 }
-} // namespace opentxs
+}  // namespace opentxs

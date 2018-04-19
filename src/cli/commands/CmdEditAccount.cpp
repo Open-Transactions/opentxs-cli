@@ -38,10 +38,7 @@
 
 #include "CmdEditAccount.hpp"
 
-#include "CmdBase.hpp"
-
-#include <opentxs/client/SwigWrap.hpp>
-#include <opentxs/core/Log.hpp>
+#include <opentxs/opentxs.hpp>
 
 #include <stdint.h>
 #include <ostream>
@@ -59,9 +56,7 @@ CmdEditAccount::CmdEditAccount()
     help = "Edit myacct's label, as it appears in your wallet.";
 }
 
-CmdEditAccount::~CmdEditAccount()
-{
-}
+CmdEditAccount::~CmdEditAccount() {}
 
 int32_t CmdEditAccount::runWithOptions()
 {

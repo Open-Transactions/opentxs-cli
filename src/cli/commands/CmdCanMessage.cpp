@@ -38,12 +38,7 @@
 
 #include "CmdCanMessage.hpp"
 
-#include <opentxs/api/client/Sync.hpp>
-#include <opentxs/api/Api.hpp>
-#include <opentxs/api/Native.hpp>
-#include <opentxs/core/Identifier.hpp>
-#include <opentxs/core/Log.hpp>
-#include <opentxs/OT.hpp>
+#include <opentxs/opentxs.hpp>
 
 namespace opentxs
 {
@@ -73,10 +68,10 @@ int32_t CmdCanMessage::run(
         return -1;
     }
 
-    const auto response =
-        OT::App().API().Sync().CanMessage(Identifier(sender), Identifier(recipient));
+    const auto response = OT::App().API().Sync().CanMessage(
+        Identifier(sender), Identifier(recipient));
     otOut << std::to_string(static_cast<std::int8_t>(response)) << std::endl;
 
     return 0;
 }
-} // namespace opentxs
+}  // namespace opentxs

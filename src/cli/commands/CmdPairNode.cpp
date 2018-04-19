@@ -38,9 +38,10 @@
 
 #include "CmdPairNode.hpp"
 
-#include <opentxs/client/SwigWrap.hpp>
+#include <opentxs/opentxs.hpp>
 
-namespace opentxs {
+namespace opentxs
+{
 
 CmdPairNode::CmdPairNode()
 {
@@ -54,10 +55,7 @@ CmdPairNode::CmdPairNode()
 
 std::int32_t CmdPairNode::runWithOptions()
 {
-    return run(
-        getOption("mynym"),
-        getOption("hisnym"),
-        getOption("password"));
+    return run(getOption("mynym"), getOption("hisnym"), getOption("password"));
 }
 
 std::int32_t CmdPairNode::run(
@@ -77,4 +75,4 @@ std::int32_t CmdPairNode::run(
 
     return 0;
 }
-} // namespace opentxs
+}  // namespace opentxs

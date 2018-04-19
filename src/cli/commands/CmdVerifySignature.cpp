@@ -38,10 +38,7 @@
 
 #include "CmdVerifySignature.hpp"
 
-#include "CmdBase.hpp"
-
-#include <opentxs/client/SwigWrap.hpp>
-#include <opentxs/core/Log.hpp>
+#include <opentxs/opentxs.hpp>
 
 #include <stdint.h>
 #include <iostream>
@@ -58,9 +55,7 @@ CmdVerifySignature::CmdVerifySignature()
     help = "Verify hisnym's signature on a pasted contract.";
 }
 
-CmdVerifySignature::~CmdVerifySignature()
-{
-}
+CmdVerifySignature::~CmdVerifySignature() {}
 
 int32_t CmdVerifySignature::runWithOptions()
 {

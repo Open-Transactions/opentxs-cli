@@ -38,10 +38,7 @@
 
 #include "CmdShowExpired.hpp"
 
-#include "CmdBase.hpp"
-
-#include <opentxs/client/SwigWrap.hpp>
-#include <opentxs/core/Log.hpp>
+#include <opentxs/opentxs.hpp>
 
 #include <stdint.h>
 #include <iostream>
@@ -59,9 +56,7 @@ CmdShowExpired::CmdShowExpired()
     help = "Show mynym's expired record box.";
 }
 
-CmdShowExpired::~CmdShowExpired()
-{
-}
+CmdShowExpired::~CmdShowExpired() {}
 
 int32_t CmdShowExpired::runWithOptions()
 {
@@ -108,8 +103,8 @@ int32_t CmdShowExpired::run(string server, string mynym)
     cout << "---------------------------------|(from or to)\n";
 
     for (int32_t i = 0; i < items; i++) {
-        string tx = SwigWrap::Ledger_GetTransactionByIndex(server, mynym,
-                                                             mynym, expired, i);
+        string tx = SwigWrap::Ledger_GetTransactionByIndex(
+            server, mynym, mynym, expired, i);
         int64_t txNum = SwigWrap::Ledger_GetTransactionIDByIndex(
             server, mynym, mynym, expired, i);
         int64_t refNum = SwigWrap::Transaction_GetDisplayReferenceToNum(
@@ -123,8 +118,8 @@ int32_t CmdShowExpired::run(string server, string mynym)
             SwigWrap::Transaction_GetSenderAcctID(server, mynym, mynym, tx);
         string recipientUser =
             SwigWrap::Transaction_GetRecipientNymID(server, mynym, mynym, tx);
-        string recipientAcct = SwigWrap::Transaction_GetRecipientAcctID(
-            server, mynym, mynym, tx);
+        string recipientAcct =
+            SwigWrap::Transaction_GetRecipientAcctID(server, mynym, mynym, tx);
 
         string user = "" != senderUser ? senderUser : recipientUser;
         string acct = "" != senderAcct ? senderAcct : recipientAcct;

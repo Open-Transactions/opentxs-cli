@@ -38,14 +38,7 @@
 
 #include "CmdShowThread.hpp"
 
-#include <opentxs/api/Native.hpp>
-#include <opentxs/api/UI.hpp>
-#include <opentxs/core/Identifier.hpp>
-#include <opentxs/core/Log.hpp>
-#include <opentxs/ui/ActivityThread.hpp>
-#include <opentxs/ui/ActivityThreadItem.hpp>
-#include <opentxs/OT.hpp>
-#include <opentxs/Types.hpp>
+#include <opentxs/opentxs.hpp>
 
 #include <ctime>
 
@@ -65,17 +58,15 @@ std::int32_t CmdShowThread::runWithOptions()
     return run(getOption("mynym"), getOption("thread"));
 }
 
-std::int32_t CmdShowThread::run(
-    std::string mynym,
-    const std::string& threadID)
+std::int32_t CmdShowThread::run(std::string mynym, const std::string& threadID)
 {
     if (!checkNym("mynym", mynym)) {
 
         return -1;
     }
 
-    const auto& thread = OT::App().UI().ActivityThread(
-        Identifier(mynym), Identifier(threadID));
+    const auto& thread =
+        OT::App().UI().ActivityThread(Identifier(mynym), Identifier(threadID));
     const auto& first = thread.First();
     otOut << thread.DisplayName() << "\n";
 
@@ -104,4 +95,4 @@ std::string CmdShowThread::time(
 
     return std::ctime(&converted);
 }
-} // namespace opentxs
+}  // namespace opentxs

@@ -38,10 +38,7 @@
 
 #include "CmdNewKey.hpp"
 
-#include "CmdBase.hpp"
-
-#include <opentxs/client/SwigWrap.hpp>
-#include <opentxs/core/Log.hpp>
+#include <opentxs/opentxs.hpp>
 
 #include <stdint.h>
 #include <iostream>
@@ -57,14 +54,9 @@ CmdNewKey::CmdNewKey()
     help = "Create a new symmetric key.";
 }
 
-CmdNewKey::~CmdNewKey()
-{
-}
+CmdNewKey::~CmdNewKey() {}
 
-int32_t CmdNewKey::runWithOptions()
-{
-    return run();
-}
+int32_t CmdNewKey::runWithOptions() { return run(); }
 
 int32_t CmdNewKey::run()
 {

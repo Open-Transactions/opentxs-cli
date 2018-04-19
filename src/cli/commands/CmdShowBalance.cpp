@@ -38,11 +38,7 @@
 
 #include "CmdShowBalance.hpp"
 
-#include "CmdBase.hpp"
-
-#include <opentxs/client/SwigWrap.hpp>
-#include <opentxs/core/Log.hpp>
-#include <opentxs/core/util/Common.hpp>
+#include <opentxs/opentxs.hpp>
 
 #include <stdint.h>
 #include <iostream>
@@ -59,14 +55,9 @@ CmdShowBalance::CmdShowBalance()
     help = "Show myacct's balance.";
 }
 
-CmdShowBalance::~CmdShowBalance()
-{
-}
+CmdShowBalance::~CmdShowBalance() {}
 
-int32_t CmdShowBalance::runWithOptions()
-{
-    return run(getOption("myacct"));
-}
+int32_t CmdShowBalance::runWithOptions() { return run(getOption("myacct")); }
 
 int32_t CmdShowBalance::run(string myacct)
 {

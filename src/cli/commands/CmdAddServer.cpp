@@ -38,10 +38,7 @@
 
 #include "CmdAddServer.hpp"
 
-#include "CmdBase.hpp"
-
-#include <opentxs/client/SwigWrap.hpp>
-#include <opentxs/core/Log.hpp>
+#include <opentxs/opentxs.hpp>
 
 #include <stdint.h>
 #include <ostream>
@@ -57,14 +54,9 @@ CmdAddServer::CmdAddServer()
     help = "Import an existing server contract into your wallet.";
 }
 
-CmdAddServer::~CmdAddServer()
-{
-}
+CmdAddServer::~CmdAddServer() {}
 
-int32_t CmdAddServer::runWithOptions()
-{
-    return run();
-}
+int32_t CmdAddServer::runWithOptions() { return run(); }
 
 int32_t CmdAddServer::run()
 {
@@ -72,7 +64,6 @@ int32_t CmdAddServer::run()
     if ("" == contract) {
         return -1;
     }
-
 
     if ("" == SwigWrap::AddServerContract(contract)) {
         otOut << "Error: cannot add server contract.\n";

@@ -38,10 +38,7 @@
 
 #include "CmdSignContract.hpp"
 
-#include "CmdBase.hpp"
-
-#include <opentxs/client/SwigWrap.hpp>
-#include <opentxs/core/Log.hpp>
+#include <opentxs/opentxs.hpp>
 
 #include <stdint.h>
 #include <iostream>
@@ -60,9 +57,7 @@ CmdSignContract::CmdSignContract()
     usage = "If --type is specified, flatsign the contract using that type.";
 }
 
-CmdSignContract::~CmdSignContract()
-{
-}
+CmdSignContract::~CmdSignContract() {}
 
 int32_t CmdSignContract::runWithOptions()
 {

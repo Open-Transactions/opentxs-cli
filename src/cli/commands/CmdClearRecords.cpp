@@ -38,10 +38,7 @@
 
 #include "CmdClearRecords.hpp"
 
-#include "CmdBase.hpp"
-
-#include <opentxs/client/SwigWrap.hpp>
-#include <opentxs/core/Log.hpp>
+#include <opentxs/opentxs.hpp>
 
 #include <stdint.h>
 #include <ostream>
@@ -58,14 +55,9 @@ CmdClearRecords::CmdClearRecords()
     help = "Clear all archived records and receipts.";
 }
 
-CmdClearRecords::~CmdClearRecords()
-{
-}
+CmdClearRecords::~CmdClearRecords() {}
 
-int32_t CmdClearRecords::runWithOptions()
-{
-    return run(getOption("myacct"));
-}
+int32_t CmdClearRecords::runWithOptions() { return run(getOption("myacct")); }
 
 int32_t CmdClearRecords::run(string myacct)
 {

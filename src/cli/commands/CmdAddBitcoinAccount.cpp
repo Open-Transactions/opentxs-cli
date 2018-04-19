@@ -38,14 +38,7 @@
 
 #include "CmdAddBitcoinAccount.hpp"
 
-
-#include <opentxs/api/Blockchain.hpp>
-#include <opentxs/api/Native.hpp>
-#include <opentxs/core/Identifier.hpp>
-#include <opentxs/core/Log.hpp>
-#include <opentxs/core/String.hpp>
-#include <opentxs/OT.hpp>
-#include <opentxs/Proto.hpp>
+#include <opentxs/opentxs.hpp>
 
 namespace opentxs
 {
@@ -75,4 +68,4 @@ std::int32_t CmdAddBitcoinAccount::run(std::string mynym)
 
     return 0;
 }
-} // namespace opentxs
+}  // namespace opentxs

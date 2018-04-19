@@ -38,10 +38,7 @@
 
 #include "CmdEncode.hpp"
 
-#include "CmdBase.hpp"
-
-#include <opentxs/client/SwigWrap.hpp>
-#include <opentxs/core/Log.hpp>
+#include <opentxs/opentxs.hpp>
 
 #include <stdint.h>
 #include <iostream>
@@ -57,14 +54,9 @@ CmdEncode::CmdEncode()
     help = "Encode plaintext input to OT-armored text.";
 }
 
-CmdEncode::~CmdEncode()
-{
-}
+CmdEncode::~CmdEncode() {}
 
-int32_t CmdEncode::runWithOptions()
-{
-    return run();
-}
+int32_t CmdEncode::runWithOptions() { return run(); }
 
 int32_t CmdEncode::run()
 {

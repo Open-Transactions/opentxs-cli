@@ -38,10 +38,7 @@
 
 #include "CmdShowMyOffers.hpp"
 
-#include "CmdBase.hpp"
-
-#include <opentxs/core/Log.hpp>
-#include <opentxs/core/OTStorage.hpp>
+#include <opentxs/opentxs.hpp>
 
 #include <stdint.h>
 #include <ostream>

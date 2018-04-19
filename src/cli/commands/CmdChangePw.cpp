@@ -38,10 +38,7 @@
 
 #include "CmdChangePw.hpp"
 
-#include "CmdBase.hpp"
-
-#include <opentxs/client/SwigWrap.hpp>
-#include <opentxs/core/Log.hpp>
+#include <opentxs/opentxs.hpp>
 
 #include <stdint.h>
 #include <ostream>
@@ -56,14 +53,9 @@ CmdChangePw::CmdChangePw()
     help = "Change the master passphrase for the wallet.";
 }
 
-CmdChangePw::~CmdChangePw()
-{
-}
+CmdChangePw::~CmdChangePw() {}
 
-int32_t CmdChangePw::runWithOptions()
-{
-    return run();
-}
+int32_t CmdChangePw::runWithOptions() { return run(); }
 
 int32_t CmdChangePw::run()
 {

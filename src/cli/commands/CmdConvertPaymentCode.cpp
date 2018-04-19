@@ -38,8 +38,7 @@
 
 #include "CmdConvertPaymentCode.hpp"
 
-#include <opentxs/client/SwigWrap.hpp>
-#include <opentxs/core/Log.hpp>
+#include <opentxs/opentxs.hpp>
 
 #include <stdint.h>
 
@@ -78,4 +77,4 @@ std::int32_t CmdConvertPaymentCode::run(const std::string& code)
 
     return 1;
 }
-} // namespace opentxs
+}  // namespace opentxs

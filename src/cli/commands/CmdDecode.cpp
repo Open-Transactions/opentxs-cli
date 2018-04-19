@@ -38,10 +38,7 @@
 
 #include "CmdDecode.hpp"
 
-#include "CmdBase.hpp"
-
-#include <opentxs/client/SwigWrap.hpp>
-#include <opentxs/core/Log.hpp>
+#include <opentxs/opentxs.hpp>
 
 #include <stdint.h>
 #include <iostream>
@@ -57,14 +54,9 @@ CmdDecode::CmdDecode()
     help = "Decode OT-armored input text.";
 }
 
-CmdDecode::~CmdDecode()
-{
-}
+CmdDecode::~CmdDecode() {}
 
-int32_t CmdDecode::runWithOptions()
-{
-    return run();
-}
+int32_t CmdDecode::runWithOptions() { return run(); }
 
 int32_t CmdDecode::run()
 {

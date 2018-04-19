@@ -38,10 +38,7 @@
 
 #include "CmdShowBasket.hpp"
 
-#include "CmdBase.hpp"
-
-#include <opentxs/client/SwigWrap.hpp>
-#include <opentxs/core/Log.hpp>
+#include <opentxs/opentxs.hpp>
 
 #include <stdint.h>
 #include <iostream>
@@ -59,14 +56,9 @@ CmdShowBasket::CmdShowBasket()
     usage = "Omitting --indices lists all basket currencies.";
 }
 
-CmdShowBasket::~CmdShowBasket()
-{
-}
+CmdShowBasket::~CmdShowBasket() {}
 
-int32_t CmdShowBasket::runWithOptions()
-{
-    return run(getOption("indices"));
-}
+int32_t CmdShowBasket::runWithOptions() { return run(getOption("indices")); }
 
 int32_t CmdShowBasket::run(string index)
 {

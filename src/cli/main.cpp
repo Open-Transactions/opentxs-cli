@@ -37,11 +37,19 @@
  ************************************************************/
 
 #include "opentxs.hpp"
+#include "opentxs/OT.hpp"
 
 using namespace opentxs;
 
 int main(int argc, char* argv[])
 {
-    Opentxs opentxsCLI;
-    return opentxsCLI.run(argc, argv);
+    OT::ClientFactory({});
+
+    int returnValue = 0;
+    {
+        Opentxs opentxsCLI;
+        returnValue = opentxsCLI.run(argc, argv);
+    }
+    OT::Cleanup();
+    return returnValue;
 }

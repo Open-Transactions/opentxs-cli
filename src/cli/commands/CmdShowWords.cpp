@@ -38,10 +38,7 @@
 
 #include "CmdShowWords.hpp"
 
-#include "CmdBase.hpp"
-
-#include <opentxs/client/SwigWrap.hpp>
-
+#include <opentxs/opentxs.hpp>
 
 #include <stdint.h>
 #include <iostream>
@@ -56,14 +53,9 @@ CmdShowWords::CmdShowWords()
     help = "Show wallet BIP39 seed as a word list.";
 }
 
-CmdShowWords::~CmdShowWords()
-{
-}
+CmdShowWords::~CmdShowWords() {}
 
-int32_t CmdShowWords::runWithOptions()
-{
-    return run();
-}
+int32_t CmdShowWords::runWithOptions() { return run(); }
 
 int32_t CmdShowWords::run()
 {
@@ -73,4 +65,4 @@ int32_t CmdShowWords::run()
 
     return empty ? -1 : 0;
 }
-} // namespace opentxs
+}  // namespace opentxs

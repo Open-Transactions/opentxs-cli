@@ -38,16 +38,14 @@
 
 #include "CmdRenameNym.hpp"
 
-#include "CmdBase.hpp"
-
-#include <opentxs/client/SwigWrap.hpp>
-#include <opentxs/core/Log.hpp>
+#include <opentxs/opentxs.hpp>
 
 #include <stdint.h>
 #include <ostream>
 #include <string>
 
-namespace opentxs {
+namespace opentxs
+{
 
 CmdRenameNym::CmdRenameNym()
 {
@@ -80,4 +78,4 @@ std::int32_t CmdRenameNym::run(std::string mynym, std::string label)
 
     return 1;
 }
-} // namespace opentxs
+}  // namespace opentxs

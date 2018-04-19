@@ -38,10 +38,7 @@
 
 #include "CmdShowOffers.hpp"
 
-#include "CmdBase.hpp"
-
-#include <opentxs/core/Log.hpp>
-#include <opentxs/core/OTStorage.hpp>
+#include <opentxs/opentxs.hpp>
 
 #include <stdint.h>
 #include <iostream>
@@ -59,9 +56,7 @@ CmdShowOffers::CmdShowOffers()
     help = "Show all offers on a particular server and market.";
 }
 
-CmdShowOffers::~CmdShowOffers()
-{
-}
+CmdShowOffers::~CmdShowOffers() {}
 
 int32_t CmdShowOffers::runWithOptions()
 {
@@ -128,8 +123,9 @@ int32_t CmdShowOffers::run(string server, string market)
     return 1;
 }
 
-OTDB::OfferListMarket* CmdShowOffers::loadMarketOffers(const string& server,
-                                                       const string& market)
+OTDB::OfferListMarket* CmdShowOffers::loadMarketOffers(
+    const string& server,
+    const string& market)
 {
     if (!OTDB::Exists("markets", server, "offers", market + ".bin")) {
         return nullptr;
@@ -137,9 +133,12 @@ OTDB::OfferListMarket* CmdShowOffers::loadMarketOffers(const string& server,
 
     otWarn << "Offers file exists... Querying file for market offers...\n";
 
-    OTDB::Storable* storable =
-        OTDB::QueryObject(OTDB::STORED_OBJ_OFFER_LIST_MARKET, "markets", server,
-                          "offers", market + ".bin");
+    OTDB::Storable* storable = OTDB::QueryObject(
+        OTDB::STORED_OBJ_OFFER_LIST_MARKET,
+        "markets",
+        server,
+        "offers",
+        market + ".bin");
     if (nullptr == storable) {
         otOut << "Unable to verify storable object. Probably doesn't "
                  "exist.\n";

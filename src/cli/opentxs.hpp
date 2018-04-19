@@ -74,6 +74,7 @@ private:
     int newArgc{0};
     char** newArgv{nullptr};
     bool expectFailure{false};
+    CmdBase* cmds[];
 };
 }  // namespace opentxs
 #endif  // __OPENTXS_HPP__

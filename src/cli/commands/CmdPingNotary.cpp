@@ -38,15 +38,7 @@
 
 #include "CmdPingNotary.hpp"
 
-#include "CmdBase.hpp"
-
-#include <opentxs/api/client/Wallet.hpp>
-#include <opentxs/api/Api.hpp>
-#include <opentxs/api/Native.hpp>
-#include <opentxs/consensus/ServerContext.hpp>
-#include <opentxs/core/Identifier.hpp>
-#include <opentxs/core/Message.hpp>
-#include <opentxs/OT.hpp>
+#include <opentxs/opentxs.hpp>
 
 #include <stdint.h>
 #include <string>

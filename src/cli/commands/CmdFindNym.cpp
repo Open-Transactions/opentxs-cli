@@ -38,13 +38,7 @@
 
 #include "CmdFindNym.hpp"
 
-#include "CmdBase.hpp"
-
-#include <opentxs/api/client/Sync.hpp>
-#include <opentxs/api/Api.hpp>
-#include <opentxs/api/Native.hpp>
-#include <opentxs/core/Identifier.hpp>
-#include <opentxs/OT.hpp>
+#include <opentxs/opentxs.hpp>
 
 namespace opentxs
 {
@@ -56,10 +50,7 @@ CmdFindNym::CmdFindNym()
     help = "Search all known servers for a nym.";
 }
 
-std::int32_t CmdFindNym::runWithOptions()
-{
-    return run(getOption("hisnym"));
-}
+std::int32_t CmdFindNym::runWithOptions() { return run(getOption("hisnym")); }
 
 std::int32_t CmdFindNym::run(std::string hisnym)
 {
@@ -69,8 +60,10 @@ std::int32_t CmdFindNym::run(std::string hisnym)
 
     const auto response = OT::App().API().Sync().FindNym(Identifier(hisnym));
 
-    if (String(response).Exists()) { return 1; }
+    if (String(response).Exists()) {
+        return 1;
+    }
 
     return -1;
 }
-} // namespace opentxs
+}  // namespace opentxs

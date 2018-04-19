@@ -38,9 +38,7 @@
 
 #include "CmdImportPublicNym.hpp"
 
-
-#include <opentxs/client/SwigWrap.hpp>
-#include <opentxs/core/Log.hpp>
+#include <opentxs/opentxs.hpp>
 
 #include <string>
 
@@ -54,10 +52,7 @@ CmdImportPublicNym::CmdImportPublicNym()
     help = "Import a public nym.";
 }
 
-std::int32_t CmdImportPublicNym::runWithOptions()
-{
-    return run();
-}
+std::int32_t CmdImportPublicNym::runWithOptions() { return run(); }
 
 std::int32_t CmdImportPublicNym::run()
 {
@@ -80,4 +75,4 @@ std::int32_t CmdImportPublicNym::run()
 
     return 1;
 }
-} // namespace opentxs
+}  // namespace opentxs

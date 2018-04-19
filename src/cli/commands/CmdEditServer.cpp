@@ -38,10 +38,7 @@
 
 #include "CmdEditServer.hpp"
 
-#include "CmdBase.hpp"
-
-#include <opentxs/client/SwigWrap.hpp>
-#include <opentxs/core/Log.hpp>
+#include <opentxs/opentxs.hpp>
 
 #include <stdint.h>
 #include <ostream>
@@ -59,9 +56,7 @@ CmdEditServer::CmdEditServer()
     help = "Edit server's label, as it appears in your wallet.";
 }
 
-CmdEditServer::~CmdEditServer()
-{
-}
+CmdEditServer::~CmdEditServer() {}
 
 int32_t CmdEditServer::runWithOptions()
 {

@@ -38,13 +38,7 @@
 
 #include "CmdRegisterNym.hpp"
 
-#include "CmdBase.hpp"
-
-#include <opentxs/api/client/Sync.hpp>
-#include <opentxs/api/Api.hpp>
-#include <opentxs/api/Native.hpp>
-#include <opentxs/core/Identifier.hpp>
-#include <opentxs/OT.hpp>
+#include <opentxs/opentxs.hpp>
 
 namespace opentxs
 {
@@ -73,8 +67,8 @@ std::int32_t CmdRegisterNym::run(std::string server, std::string mynym)
         return -1;
     }
 
-    const auto response =
-        OT::App().API().Sync().RegisterNym(Identifier(mynym), Identifier(server), true);
+    const auto response = OT::App().API().Sync().RegisterNym(
+        Identifier(mynym), Identifier(server), true);
 
     if (false == response.empty()) {
 
@@ -84,4 +78,4 @@ std::int32_t CmdRegisterNym::run(std::string server, std::string mynym)
         return -1;
     }
 }
-} // namespace opentxs
+}  // namespace opentxs

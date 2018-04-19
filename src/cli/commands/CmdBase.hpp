@@ -145,9 +145,6 @@ typedef enum {
 
 class CmdBase
 {
-protected:
-    std::recursive_mutex& api_lock_;
-
 public:
     EXPORT CmdBase();
     virtual ~CmdBase();

@@ -97,7 +97,6 @@ std::string CmdShowMint::load_or_retrieve_mint(
 
         std::string response;
         {
-            rLock lock (api_lock_);
             response = OT::App()
                        .API()
                        .ServerAction()

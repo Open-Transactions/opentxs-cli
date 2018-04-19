@@ -101,7 +101,6 @@ std::int32_t CmdRequestConnection::run(
 
     std::string response;
     {
-        rLock lock (api_lock_);
         response = OT::App()
                                .API()
                                .ServerAction()

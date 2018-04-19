@@ -181,7 +181,6 @@ int32_t CmdNewBasket::run(
 
     std::string response;
     {
-        rLock lock (api_lock_);
         response = OT::App()
                           .API()
                           .ServerAction()
@@ -207,7 +206,6 @@ int32_t CmdNewBasket::run(
 
             if (bGotNewID) {
                 {
-                    rLock lock (api_lock_);
                     response = OT::App()
                                .API()
                                .ServerAction()

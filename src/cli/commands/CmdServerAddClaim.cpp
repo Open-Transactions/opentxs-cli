@@ -100,7 +100,6 @@ std::int32_t CmdServerAddClaim::run(std::string server, std::string mynym)
 
     std::string response;
     {
-        rLock lock (api_lock_);
         response = OT::App()
             .API()
             .ServerAction()

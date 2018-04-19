@@ -142,13 +142,12 @@ int32_t CmdTransfer::run(
     }
 
     {
-        rLock lock(api_lock_);
         if (!OT::App().API().ServerAction().DownloadAccount(
                 Identifier(mynym), Identifier(server), Identifier(myacct), true)) {
             otOut << "Error retrieving intermediary files for account.\n";
             return -1;
         }
     }
-    
+
     return 1;
 }

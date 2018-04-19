@@ -85,7 +85,6 @@ std::int32_t CmdSendMessage::nym(
 
     std::string response;
     {
-        rLock lock (api_lock_);
         response = OT::App()
                             .API().ServerAction().SendMessage(
                                  Identifier(mynym),

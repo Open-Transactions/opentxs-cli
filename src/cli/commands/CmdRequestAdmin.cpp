@@ -79,14 +79,13 @@ std::int32_t CmdRequestAdmin::run(
 
     std::string response;
     {
-        rLock lock (api_lock_);
         response = OT::App()
             .API()
             .ServerAction()
             .RequestAdmin(Identifier(mynym), Identifier(server), hisnym)
             ->Run();
     }
-    
+
     return processResponse(response, "request admin");
 }
 }  // namespace opentxs

@@ -110,7 +110,6 @@ int32_t CmdCheckNym::run(string server, string mynym, string hisnym)
 
     std::string response;
     {
-        rLock lock (api_lock_);
         response = OT::App()
             .API()
             .ServerAction()

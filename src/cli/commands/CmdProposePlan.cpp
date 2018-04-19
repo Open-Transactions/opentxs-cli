@@ -140,7 +140,6 @@ int32_t CmdProposePlan::run(
     otOut << "plan_expiry (length,number): " << planexpiry << "\n";
 
     {
-        rLock lock (api_lock_);
         if (!OT::App().API().ServerAction().GetTransactionNumbers(
                 Identifier(mynym), Identifier(server), 2)) {
             otOut << "Error: cannot reserve transaction numbers.\n";
@@ -179,7 +178,6 @@ int32_t CmdProposePlan::run(
     auto payment = std::make_shared<const OTPayment>(String(plan.c_str()));
     std::string response;
     {
-        rLock lock (api_lock_);
         response = OT::App()
                           .API()
                           .ServerAction()

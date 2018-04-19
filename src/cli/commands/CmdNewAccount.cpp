@@ -85,7 +85,6 @@ int32_t CmdNewAccount::run(string server, string mynym, string mypurse)
 
     std::string response;
     {
-        rLock lock (api_lock_);
         response = OT::App()
             .API()
             .ServerAction()

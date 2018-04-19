@@ -516,8 +516,7 @@ std::int32_t output_nymoffer_data(
 
 
 CmdBase::CmdBase()
-    : api_lock_(opentxs::OT::App().API().Lock())
-    , category(catError)
+    : category(catError)
     , command(nullptr)
     , help(nullptr)
     , usage(nullptr)
@@ -536,8 +535,6 @@ std::string CmdBase::check_nym(
     const std::string& nymID,
     const std::string& targetNymID) const
 {
-    rLock lock(api_lock_);
-
     auto action = OT::App().API().ServerAction().DownloadNym(
         Identifier(nymID), Identifier(notaryID), Identifier(targetNymID));
 

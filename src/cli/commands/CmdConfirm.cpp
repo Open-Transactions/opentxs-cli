@@ -422,7 +422,6 @@ int32_t CmdConfirm::activateContract(
 
     std::string response;
     {
-        rLock lock (api_lock_);
         response = OT::App()
                           .API()
                           .ServerAction()
@@ -448,7 +447,6 @@ int32_t CmdConfirm::activateContract(
     }
 
     {
-        rLock lock(api_lock_);
         if (!OT::App().API().ServerAction().DownloadAccount(
                 theNymID, theNotaryID, theAcctID, true)) {
             otOut << "Error retrieving intermediary files for account.\n";
@@ -507,7 +505,6 @@ int32_t CmdConfirm::sendToNextParty(
     auto payment = std::make_shared<const OTPayment>(String(contract.c_str()));
     std::string response;
     {
-        rLock lock (api_lock_);
         response = OT::App()
                           .API()
                           .ServerAction()
@@ -800,7 +797,6 @@ int32_t CmdConfirm::confirmAccounts(
         int32_t needed = SwigWrap::SmartContract_CountNumsNeeded(
             contract, mapAgents[x->first]);
 
-        rLock lock(api_lock_);
         if (!OT::App().API().ServerAction().GetTransactionNumbers(
                 Identifier(mynym), Identifier(server), needed + 1)) {
             otOut << "Error: cannot reserve transaction numbers.\n";

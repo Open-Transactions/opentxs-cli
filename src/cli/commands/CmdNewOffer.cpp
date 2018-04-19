@@ -176,7 +176,6 @@ int32_t CmdNewOffer::run(
     sscanf(lifespan.c_str(), "%" SCNd64, &l);
     std::string response;
     {
-        rLock lock (api_lock_);
         response = OT::App()
                           .API()
                           .ServerAction()
@@ -300,7 +299,6 @@ int32_t CmdNewOffer::cleanMarketOfferList(
         sscanf(id.c_str(), "%" SCNd64, &j);
         std::string response;
         {
-            rLock lock (api_lock_);
             response = OT::App()
                               .API()
                               .ServerAction()

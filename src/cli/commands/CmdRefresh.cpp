@@ -84,7 +84,6 @@ int32_t CmdRefresh::run(string myacct)
     }
 
     {
-        rLock lock (api_lock_);
         if (!OT::App().API().ServerAction().DownloadAccount(
                 Identifier(mynym), Identifier(server), Identifier(myacct), true)) {
             otOut << "Error retrieving intermediary files for myacct.\n";

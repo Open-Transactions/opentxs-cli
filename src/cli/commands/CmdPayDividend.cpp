@@ -107,7 +107,6 @@ int32_t CmdPayDividend::run(
 
     std::string response;
     {
-        rLock lock (api_lock_);
         response = OT::App()
                           .API()
                           .ServerAction()
@@ -127,13 +126,12 @@ int32_t CmdPayDividend::run(
     }
 
     {
-        rLock lock (api_lock_);
         if (!OT::App().API().ServerAction().DownloadAccount(
                 Identifier(mynym), Identifier(server), Identifier(myacct), true)) {
             otOut << "Error retrieving intermediary files for account.\n";
             return -1;
         }
     }
-    
+
     return 1;
 }

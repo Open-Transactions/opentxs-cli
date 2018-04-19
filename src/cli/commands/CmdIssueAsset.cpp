@@ -86,7 +86,6 @@ int32_t CmdIssueAsset::run(string server, string mynym)
 
     std::string response;
     {
-        rLock lock (api_lock_);
         response = OT::App()
                           .API()
                           .ServerAction()

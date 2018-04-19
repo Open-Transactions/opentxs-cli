@@ -145,7 +145,6 @@ int32_t CmdExchangeBasket::run(string myacct, string direction, string multiple)
     }
 
     {
-        rLock lock (api_lock_);
         if (!OT::App().API().ServerAction().GetTransactionNumbers(
                 Identifier(mynym), Identifier(server), 20)) {
             otOut << "Error: cannot reserve transaction numbers.\n";
@@ -245,7 +244,6 @@ int32_t CmdExchangeBasket::run(string myacct, string direction, string multiple)
     const Identifier theNotaryID{server}, theNymID{mynym}, theAcctID{myacct};
     std::string response;
     {
-        rLock lock (api_lock_);
         response = OT::App()
                           .API()
                           .ServerAction()
@@ -265,7 +263,6 @@ int32_t CmdExchangeBasket::run(string myacct, string direction, string multiple)
     }
 
     {
-        rLock lock (api_lock_);
         if (!OT::App().API().ServerAction().DownloadAccount(
                 theNymID, theNotaryID, theAcctID, true)) {
             otOut << "Error retrieving intermediary files for account.\n";

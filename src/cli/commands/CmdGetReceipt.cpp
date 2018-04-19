@@ -123,7 +123,6 @@ int32_t CmdGetReceipt::run(
     sscanf(id.c_str(), "%" SCNd64, &i);
     std::string response;
     {
-        rLock lock (api_lock_);
         response = OT::App()
                           .API()
                           .ServerAction()

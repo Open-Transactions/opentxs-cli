@@ -82,7 +82,6 @@ int32_t CmdGetInstrumentDefinition::run(
 
     std::string response;
     {
-        rLock lock (api_lock_);
         response = OT::App()
             .API()
             .ServerAction()

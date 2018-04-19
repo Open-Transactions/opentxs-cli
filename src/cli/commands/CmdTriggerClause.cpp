@@ -108,7 +108,6 @@ int32_t CmdTriggerClause::run(
 
     std::string response;
     {
-        rLock lock (api_lock_);
         response = OT::App()
                           .API()
                           .ServerAction()

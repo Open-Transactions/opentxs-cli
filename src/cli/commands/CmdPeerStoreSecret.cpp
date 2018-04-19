@@ -88,7 +88,6 @@ std::int32_t CmdPeerStoreSecret::run(
 
     std::string response;
     {
-        rLock lock (api_lock_);
         response = OT::App()
                                      .API()
                                      .ServerAction()

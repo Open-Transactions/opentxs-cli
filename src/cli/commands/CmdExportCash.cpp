@@ -183,7 +183,6 @@ string CmdExportCash::exportCash(
     if (!VerifyStringVal(strContract)) {
         std::string response;
         {
-            rLock lock (api_lock_);
             response = OT::App()
                                       .API()
                                       .ServerAction()

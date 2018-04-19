@@ -122,7 +122,6 @@ int32_t CmdWithdrawVoucher::run(
 
     std::string response;
     {
-        rLock lock (api_lock_);
         response = OT::App()
                           .API()
                           .ServerAction()
@@ -170,7 +169,6 @@ int32_t CmdWithdrawVoucher::run(
     // safe-keeping.
     auto payment = std::make_shared<const OTPayment>(String(voucher.c_str()));
     {
-        rLock lock (api_lock_);
         OT::App()
             .API()
             .ServerAction()

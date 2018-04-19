@@ -88,7 +88,6 @@ int32_t CmdKillPlan::run(string server, string mynym, string myacct, string id)
     sscanf(id.c_str(), "%" SCNd64, &i);
     std::string response;
     {
-        rLock lock (api_lock_);
         response = OT::App()
             .API()
             .ServerAction()

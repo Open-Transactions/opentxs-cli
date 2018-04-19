@@ -78,7 +78,6 @@ int32_t CmdRegisterContractServer::run(
 
     std::string response;
     {
-        rLock lock (api_lock_);
         response = OT::App()
             .API()
             .ServerAction()

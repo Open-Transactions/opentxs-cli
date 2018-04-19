@@ -81,7 +81,6 @@ int32_t CmdBaseInstrument::sendPayment(
 
     std::string response;
     {
-        rLock lock (api_lock_);
         response = OT::App()
                           .API()
                           .ServerAction()
@@ -133,8 +132,6 @@ string CmdBaseInstrument::writeCheque(
     }
 
     {
-        rLock lock (api_lock_);
-
         if (!OT::App().API().ServerAction().GetTransactionNumbers(
                 Identifier(mynym), Identifier(server), 10)) {
             otOut << "Error: cannot reserve transaction numbers.\n";

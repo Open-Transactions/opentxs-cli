@@ -168,6 +168,7 @@
 #include "commands/CmdShowNym.hpp"
 #include "commands/CmdShowNyms.hpp"
 #include "commands/CmdShowOffers.hpp"
+#include "commands/CmdShowPayable.hpp"
 #include "commands/CmdShowPayment.hpp"
 #include "commands/CmdShowPhrase.hpp"
 #include "commands/CmdShowPurse.hpp"
@@ -355,6 +356,7 @@ Opentxs::Opentxs()
            new CmdShowNym,
            new CmdShowNyms,
            new CmdShowOffers,
+           new CmdShowPayable,
            new CmdShowPayment,
            new CmdShowPhrase,
            new CmdShowRecords,

@@ -663,7 +663,7 @@ bool CmdBase::checkPurse(const char* name, string& purse) const
         return false;
     }
 
-    purse = pUnit->ID().str();
+    purse = pUnit->ID()->str();
     otOut << "Using " << name << ": " << purse << "\n";
     return true;
 }

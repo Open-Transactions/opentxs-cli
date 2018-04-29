@@ -73,6 +73,7 @@
 #include "commands/CmdDecode.hpp"
 #include "commands/CmdDecrypt.hpp"
 #include "commands/CmdDeposit.hpp"
+#include "commands/CmdDepositCheques.hpp"
 #include "commands/CmdDiscard.hpp"
 #include "commands/CmdEditAccount.hpp"
 #include "commands/CmdEditAsset.hpp"
@@ -261,6 +262,7 @@ Opentxs::Opentxs()
            new CmdDecode,
            new CmdDecrypt,
            new CmdDeposit,
+           new CmdDepositCheques,
            new CmdDiscard,
            new CmdEditAccount,
            new CmdEditAsset,

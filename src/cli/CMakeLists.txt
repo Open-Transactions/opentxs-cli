@@ -38,6 +38,7 @@ set(cxx-sources
   commands/CmdDecode.cpp
   commands/CmdDecrypt.cpp
   commands/CmdDeposit.cpp
+  commands/CmdDepositCheques.cpp
   commands/CmdDiscard.cpp
   commands/CmdEditAccount.cpp
   commands/CmdEditAsset.cpp

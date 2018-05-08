@@ -40,7 +40,7 @@
 
 #include <opentxs/opentxs.hpp>
 
-#include <stdint.h>
+#include <cstdint>
 #include <string>
 
 using namespace opentxs;
@@ -50,24 +50,39 @@ CmdAcceptPayments::CmdAcceptPayments()
 {
     command = "acceptpayments";
     args[0] = "--myacct <account>";
-    args[1] = "[--indices <indices|all>]";
+    args[1] = "[--server <server>]";
+    args[2] = "[--indices <indices|all>]";
     category = catAccounts;
-    help = "Accept all incoming payments in myacct's payments inbox.";
-    usage = "Omitting --indices is the same as specifying --indices all.";
+    help = "Accept all incoming payments in myacct's Nym's payments inbox on "
+    "Server. Confused yet?";
+    usage = "Omitting --indices is the same as specifying --indices all. "
+    "Server defaults to myacct's NotaryId. (Better commands coming soon based "
+    "on the new API).";
 }
 
 CmdAcceptPayments::~CmdAcceptPayments() {}
 
-int32_t CmdAcceptPayments::runWithOptions()
+std::int32_t CmdAcceptPayments::runWithOptions()
 {
-    return run(getOption("myacct"), getOption("indices"));
+    return run(getOption("server"), getOption("myacct"), getOption("indices"));
 }
 
-int32_t CmdAcceptPayments::run(string myacct, string indices)
+std::int32_t CmdAcceptPayments::run(
+    string server,
+    string myacct,
+    string indices)
 {
     if (!checkAccount("myacct", myacct)) {
         return -1;
     }
+
+    if (!checkServer("server", server)) {
+        server = SwigWrap::GetAccountWallet_NotaryID(myacct);
+    }
+    if (!checkServer("server", server)) {
+        return -1;
+    }
+    string & transport_notary = server;
 
     if ("" != indices && !checkIndices("indices", indices)) {
         return -1;
@@ -75,7 +90,9 @@ int32_t CmdAcceptPayments::run(string myacct, string indices)
 
     // Note: Do NOT process invoices.
     // FIX: this OR should become AND so we can detect any failure
-    bool success = 0 <= acceptFromPaymentbox(myacct, indices, "PURSE");
-    success |= 0 <= acceptFromPaymentbox(myacct, indices, "CHEQUE");
+    bool success = 0 <= acceptFromPaymentbox(transport_notary, myacct, indices,
+                                             "PURSE");
+    success |= 0 <= acceptFromPaymentbox(transport_notary, myacct, indices,
+                                         "CHEQUE");
     return success ? 1 : -1;
 }

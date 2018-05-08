@@ -40,7 +40,7 @@
 
 #include <opentxs/opentxs.hpp>
 
-#include <stdint.h>
+#include <cstdint>
 #include <string>
 
 using namespace opentxs;
@@ -50,29 +50,42 @@ CmdAcceptMoney::CmdAcceptMoney()
 {
     command = "acceptmoney";
     args[0] = "--myacct <account>";
+    args[1] = "[--server <server>]";
     category = catAccounts;
     help = "Accept all incoming transfers and payments into myacct.";
+    usage = "Server is notary where I receive messages (and payments). "
+    "FYI, the default server is myacct's NotaryId.";
 }
 
 CmdAcceptMoney::~CmdAcceptMoney()
 {
 }
 
-int32_t CmdAcceptMoney::runWithOptions()
+std::int32_t CmdAcceptMoney::runWithOptions()
 {
-    return run(getOption("myacct"));
+    return run(getOption("server"), getOption("myacct"));
 }
 
-int32_t CmdAcceptMoney::run(string myacct)
+std::int32_t CmdAcceptMoney::run(string server, string myacct)
 {
     if (!checkAccount("myacct", myacct)) {
         return -1;
     }
 
+    if (!checkServer("server", server)) {
+        server = SwigWrap::GetAccountWallet_NotaryID(myacct);
+    }
+    if (!checkServer("server", server)) {
+        return -1;
+    }
+    string & transport_notary = server;
+
     // FIX: these OR's should become AND's so we can detect any failure
     bool success = 0 <= acceptFromInbox(myacct, "all",
                                         OTRecordList::typeTransfers);
-    success |= 0 <= acceptFromPaymentbox(myacct, "all", "PURSE");
-    success |= 0 <= acceptFromPaymentbox(myacct, "all", "CHEQUE");
+    success |= 0 <= acceptFromPaymentbox(transport_notary, myacct, "all",
+                                         "PURSE");
+    success |= 0 <= acceptFromPaymentbox(transport_notary, myacct, "all",
+                                         "CHEQUE");
     return success ? 1 : -1;
 }

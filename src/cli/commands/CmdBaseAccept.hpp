@@ -149,6 +149,7 @@ public:
         const std::string& indices,
         const std::int32_t itemType) const;
     EXPORT int32_t acceptFromPaymentbox(
+        const std::string& transport_notary,
         const std::string& myacct,
         const std::string& indices,
         const std::string& paymentType,

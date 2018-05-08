@@ -114,11 +114,14 @@ int32_t CmdBaseAccept::acceptFromInbox(
 }
 
 int32_t CmdBaseAccept::acceptFromPaymentbox(
+    const string& transport_notary,
     const string& myacct,
     const string& indices,
     const string& paymentType,
     string* pOptionalOutput /*=nullptr*/) const
 {
+
     return OTRecordList::accept_from_paymentbox(
+        transport_notary,
         myacct, indices, paymentType, pOptionalOutput);
 }

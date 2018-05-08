@@ -51,17 +51,22 @@ CmdPayInvoice::CmdPayInvoice()
 {
     command = "payinvoice";
     args[0] = "--myacct <account>";
-    args[1] = "[--index <index>]";
+    args[1] = "[--server <server>]";
+    args[2] = "[--index <index>]";
     category = catOtherUsers;
     help = "Pay an invoice.";
-    usage = "If --index is omitted you must paste an invoice.";
+    usage = "If --index is omitted you must paste an invoice. Also, 'server' "
+    "should be the 'transport notary' aka where myacct's Nym receives "
+    "messages/payments. Default Server will be myacct's Notary ID. This whole "
+    "command and CLI tool needs a revamp to take transport notaries into "
+    "account. Coming soon.";
 }
 
 CmdPayInvoice::~CmdPayInvoice() {}
 
 int32_t CmdPayInvoice::runWithOptions()
 {
-    return run(getOption("myacct"), getOption("index"));
+    return run(getOption("server"), getOption("myacct"), getOption("index"));
 }
 
 // Should I bother moving the invoice from the payments inbox to the record box?
@@ -147,9 +152,16 @@ int32_t CmdPayInvoice::runWithOptions()
 // All of the above needs to happen inside OT, since there are many places
 // where it's the only appropriate place to take the necessary action.
 
-int32_t CmdPayInvoice::run(string myacct, string index)
+int32_t CmdPayInvoice::run(string server, string myacct, string index)
 {
     if (!checkAccount("myacct", myacct)) {
+        return -1;
+    }
+
+    if (!checkServer("server", server)) {
+        server = SwigWrap::GetAccountWallet_NotaryID(myacct);
+    }
+    if (!checkServer("server", server)) {
         return -1;
     }
 
@@ -158,10 +170,11 @@ int32_t CmdPayInvoice::run(string myacct, string index)
     }
 
     return processPayment(
-        myacct, "INVOICE", "", "" == index ? -1 : stoi(index));
+        server, myacct, "INVOICE", "", "" == index ? -1 : stoi(index));
 }
 
 int32_t CmdPayInvoice::processPayment(
+    const string& transport_notary,
     const string& myacct,
     const string& paymentType,
     const string& inbox,
@@ -169,6 +182,7 @@ int32_t CmdPayInvoice::processPayment(
     string* pOptionalOutput /*=nullptr*/)
 {
     return OTRecordList::processPayment(
+        transport_notary,
         myacct,
         paymentType,
         inbox,

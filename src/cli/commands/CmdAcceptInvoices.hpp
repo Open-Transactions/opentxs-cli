@@ -41,6 +41,8 @@
 
 #include "CmdBaseAccept.hpp"
 
+#include <string>
+
 namespace opentxs
 {
 class CmdAcceptInvoices : public CmdBaseAccept
@@ -49,10 +51,12 @@ public:
     EXPORT CmdAcceptInvoices();
     virtual ~CmdAcceptInvoices();
 
-    EXPORT int32_t run(std::string myacct, std::string indices);
+    EXPORT std::int32_t run(std::string server,
+                            std::string myacct,
+                            std::string indices);
 
 protected:
-    virtual int32_t runWithOptions();
+    virtual std::int32_t runWithOptions();
 };
 } // namespace opentxs
 #endif // OPENTXS_CLIENT_CMDACCEPTINVOICES_HPP

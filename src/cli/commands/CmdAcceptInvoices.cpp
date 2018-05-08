@@ -40,7 +40,7 @@
 
 #include "CmdBase.hpp"
 
-#include <stdint.h>
+#include <cstdint>
 #include <string>
 
 using namespace opentxs;
@@ -50,30 +50,44 @@ CmdAcceptInvoices::CmdAcceptInvoices()
 {
     command = "acceptinvoices";
     args[0] = "--myacct <account>";
-    args[1] = "[--indices <indices|all>]";
+    args[1] = "[--server <server>]";
+    args[2] = "[--indices <indices|all>]";
     category = catAccounts;
-    help = "Pay all invoices in myacct's payments inbox.";
-    usage = "Omitting --indices is the same as specifying --indices all.";
+    help = "Pay all invoices in myacct's Nym's payments inbox on Server."
+    " (Confused yet? New API fixes this kind of problem).";
+    usage = "Omitting --indices is the same as specifying --indices all. "
+    "And FYI, it uses MyAcct's server if one is not provided.";
 }
 
 CmdAcceptInvoices::~CmdAcceptInvoices()
 {
 }
 
-int32_t CmdAcceptInvoices::runWithOptions()
+std::int32_t CmdAcceptInvoices::runWithOptions()
 {
-    return run(getOption("myacct"), getOption("indices"));
+    return run(getOption("server"), getOption("myacct"), getOption("indices"));
 }
 
-int32_t CmdAcceptInvoices::run(string myacct, string indices)
+std::int32_t CmdAcceptInvoices::run(
+    string server,
+    string myacct,
+    string indices)
 {
     if (!checkAccount("myacct", myacct)) {
         return -1;
     }
 
+    if (!checkServer("server", server)) {
+        server = SwigWrap::GetAccountWallet_NotaryID(myacct);
+    }
+    if (!checkServer("server", server)) {
+        return -1;
+    }
+    string & transport_notary = server;
+
     if ("" != indices && !checkIndices("indices", indices)) {
         return -1;
     }
 
-    return acceptFromPaymentbox(myacct, indices, "INVOICE");
+    return acceptFromPaymentbox(transport_notary, myacct, indices, "INVOICE");
 }

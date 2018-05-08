@@ -133,8 +133,9 @@
 #ifndef OPENTXS_CLIENT_CMDACCEPTPAYMENTS_HPP
 #define OPENTXS_CLIENT_CMDACCEPTPAYMENTS_HPP
 
-
 #include "CmdBaseAccept.hpp"
+
+#include <string>
 
 namespace opentxs
 {
@@ -145,10 +146,13 @@ public:
     EXPORT CmdAcceptPayments();
     virtual ~CmdAcceptPayments();
 
-    EXPORT int32_t run(std::string myacct, std::string indices);
+    EXPORT std::int32_t run(
+        std::string server,
+        std::string myacct,
+        std::string indices);
 
 protected:
-    int32_t runWithOptions() override;
+    std::int32_t runWithOptions() override;
 };
 
 }  // namespace opentxs

@@ -41,6 +41,8 @@
 
 #include "CmdBaseAccept.hpp"
 
+#include <string>
+
 namespace opentxs
 {
 class CmdAcceptAll : public CmdBaseAccept
@@ -49,10 +51,11 @@ public:
     EXPORT CmdAcceptAll();
     virtual ~CmdAcceptAll();
 
-    EXPORT int32_t run(std::string myacct);
+    EXPORT std::int32_t run(std::string server,
+                       std::string myacct);
 
 protected:
-    virtual int32_t runWithOptions();
+    virtual std::int32_t runWithOptions();
 };
 } // namespace opentxs
 #endif // OPENTXS_CLIENT_CMDACCEPTALL_HPP

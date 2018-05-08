@@ -53,10 +53,10 @@ CmdShowPayment::CmdShowPayment()
     args[0] = "--server <server>";
     args[1] = "--mynym <nym>";
     args[2] = "[--index <index>]";
-    args[3] = "[--showmemo <true|false>]";
+    args[3] = "[--showmemo <true|FALSE>]";
     category = catOtherUsers;
     help = "Show details of an incoming payment in the payments inbox.";
-    usage = "Default index is 0. Default showmemo is false.";
+    usage = "Server is an Opentxs Notary where you receive incoming messages (including payments). Default index is 0.";
 }
 
 CmdShowPayment::~CmdShowPayment() {}

@@ -57,6 +57,8 @@ public:
     ~CmdShowContact() = default;
 
 private:
+    void display_groups(const ui::ContactSection& section) const;
+    void display_items(const ui::ContactSubsection& group) const;
     std::int32_t runWithOptions() override;
 };
 } // namespace opentxs

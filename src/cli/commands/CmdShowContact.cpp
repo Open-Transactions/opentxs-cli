@@ -50,6 +50,52 @@ CmdShowContact::CmdShowContact()
     help = "Display contact data";
 }
 
+void CmdShowContact::display_groups(const ui::ContactSection& section) const
+{
+    auto& group = section.First();
+
+    if (false == group.Valid()) {
+
+        return;
+    }
+
+    auto lastGroup = group.Last();
+    otOut << "** " << group.Name("en") <<  " (" << group.SubsectionType()
+          << ")\n";
+    display_items(group);
+
+    while (false == lastGroup) {
+        auto& group = section.Next();
+        lastGroup = group.Last();
+        otOut << "** " << group.Name("en") <<  " (" << group.SubsectionType()
+              << ")\n";
+        display_items(group);
+    }
+}
+
+void CmdShowContact::display_items(const ui::ContactSubsection& group) const
+{
+    auto& item = group.First();
+
+    if (false == item.Valid()) {
+
+        return;
+    }
+
+    auto lastItem = item.Last();
+    otOut << "  * ID: " << item.ClaimID() << " Value: " << item.Value()
+          <<  " Primary: " << item.IsPrimary() << " Active: "
+          << item.IsActive() << "\n";
+
+    while (false == lastItem) {
+        auto& item = group.Next();
+        lastItem = item.Last();
+        otOut << "  * ID: " << item.ClaimID() << " Value: " << item.Value()
+              <<  " Primary: " << item.IsPrimary() << " Active: "
+              << item.IsActive() << "\n";
+    }
+}
+
 std::int32_t CmdShowContact::runWithOptions()
 {
     return run(getOption("contact"));
@@ -57,15 +103,32 @@ std::int32_t CmdShowContact::runWithOptions()
 
 std::int32_t CmdShowContact::run(const std::string& id)
 {
-    auto contact = OT::App().Contact().Contact(Identifier(id));
+    const Identifier contactID{id};
+    auto& contact = OT::App().UI().Contact(contactID);
+    otOut << contact.DisplayName() << ": (" << contact.ContactID()
+          << ")\nPayment Code: " << contact.PaymentCode() << "\n\n";
+    dashLine();
+    auto& section = contact.First();
 
-    if (false == bool(contact)) {
-        otErr << "Contact " << id << " does not exist." << std::endl;
+    if (false == section.Valid()) {
 
-        return -1;
+        return 1;
     }
 
-    otOut << contact->Print();
+    auto lastSection = section.Last();
+    otOut << "* " << section.Name("en") <<  " (" << section.SectionType()
+          << ")\n";
+          display_groups(section);
+
+    while (false == lastSection) {
+        auto& section = contact.Next();
+        lastSection = section.Last();
+        otOut << "* " << section.Name("en") <<  " (" << section.SectionType()
+              << ")\n";
+        display_groups(section);
+    }
+
+    otOut << std::endl;
 
     return 1;
 }

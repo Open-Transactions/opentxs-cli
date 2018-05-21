@@ -133,6 +133,7 @@ int32_t CmdTransfer::run(
         } break;
         case ThreadStatus::FINISHED_FAILED: {
             otOut << "Transfer not completed " << std::endl;
+            [[fallthrough]];
         }
         case ThreadStatus::ERROR:
         case ThreadStatus::SHUTDOWN:

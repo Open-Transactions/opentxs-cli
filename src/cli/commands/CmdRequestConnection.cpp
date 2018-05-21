@@ -93,9 +93,9 @@ std::int32_t CmdRequestConnection::run(
 
     try {
         type = std::stoi(mypurse);
-    } catch (std::invalid_argument) {
+    } catch (const std::invalid_argument&) {
         return -1;
-    } catch (std::out_of_range) {
+    } catch (const std::out_of_range&) {
         return -1;
     }
 

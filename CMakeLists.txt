@@ -116,7 +116,6 @@ message(STATUS "C++ link flags:  ${CMAKE_CXX_LINK_FLAGS}")
 
 list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake")
 
-add_definitions(-DPROTOBUF_INLINE_NOT_IN_HEADERS=0)
 find_package(opentxs REQUIRED)
 find_package(opentxs-proto REQUIRED)
 find_package(Protobuf REQUIRED)

@@ -73,9 +73,9 @@ int32_t CmdNewNymHD::run(string label, string source, string path)
     if (!path.empty()) {
         try {
             nym = stoul(path);
-        } catch (std::invalid_argument) {
+        } catch (const std::invalid_argument&) {
             nym = 0;
-        } catch (std::out_of_range) {
+        } catch (const std::out_of_range&) {
             nym = 0;
         }
 

@@ -228,7 +228,7 @@ Opentxs::Opentxs()
     : newArgc(0)
     , newArgv(nullptr)
     , expectFailure(false)
-    , cmds{new CmdAcceptAll,
+    , cmds_{new CmdAcceptAll,
            new CmdAcceptInbox,
            new CmdAcceptIncoming,
            new CmdAcceptInvoices,
@@ -381,8 +381,7 @@ Opentxs::Opentxs()
            new CmdWithdrawCash,
            new CmdWithdrawVoucher,
            new CmdWriteCheque,
-           new CmdWriteInvoice,
-           nullptr}
+           new CmdWriteInvoice}
 {
 }
 
@@ -519,8 +518,9 @@ int Opentxs::processCommand(AnyOption& opt)
 
     if ("list" == command) {
         otOut << "\nCommands:\n\n";
-        for (int32_t i = 0; cmds[i] != nullptr; i++) {
-            CmdBase& cmd = *cmds[i];
+
+        for (std::size_t i = 0; i < cmds_.size(); ++i) {
+            CmdBase& cmd = *cmds_[i];
             otOut << (cmd.getCommand() + spaces18).substr(0, 18);
             if (i % 4 == 3) {
                 otOut << "\n";
@@ -539,8 +539,8 @@ int Opentxs::processCommand(AnyOption& opt)
 
         // add commands to their category group
         otOut << "\nCommands:\n";
-        for (int32_t i = 0; cmds[i] != nullptr; i++) {
-            CmdBase& cmd = *cmds[i];
+        for (std::size_t i = 0; i < cmds_.size(); ++i) {
+            CmdBase& cmd = *cmds_[i];
             categoryGroup[cmd.getCategory()] +=
                 (cmd.getCommand() + spaces18).substr(0, 18) + cmd.getHelp() +
                 "\n";
@@ -554,8 +554,8 @@ int Opentxs::processCommand(AnyOption& opt)
         return 0;
     }
 
-    for (int32_t i = 0; cmds[i] != nullptr; i++) {
-        CmdBase& cmd = *cmds[i];
+    for (std::size_t i = 0; i < cmds_.size(); ++i) {
+        CmdBase& cmd = *cmds_[i];
         if (command == cmd.getCommand()) {
             return runCommand(cmd);
         }

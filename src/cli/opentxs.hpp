@@ -40,6 +40,7 @@
 #define __OPENTXS_HPP__
 
 #include <string>
+#include <vector>
 
 class AnyOption;
 
@@ -74,7 +75,7 @@ private:
     int newArgc{0};
     char** newArgv{nullptr};
     bool expectFailure{false};
-    CmdBase* cmds[];
+    std::vector<CmdBase*> cmds_;
 };
 }  // namespace opentxs
 #endif  // __OPENTXS_HPP__

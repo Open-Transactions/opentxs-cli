@@ -40,38 +40,65 @@
 
 #include <opentxs/opentxs.hpp>
 
-#include <stdint.h>
+#include <cstdint>
 #include <iostream>
 #include <string>
 
-using namespace opentxs;
-using namespace std;
-
+namespace opentxs
+{
 CmdShowAccount::CmdShowAccount()
 {
     command = "showaccount";
-    args[0] = "--myacct <account>";
+    args[0] = "--mynym <nym id>";
+    args[1] = "--myacct <account id>";
     category = catAccounts;
     help = "Show myacct's stats.";
 }
 
-CmdShowAccount::~CmdShowAccount() {}
-
-int32_t CmdShowAccount::runWithOptions() { return run(getOption("myacct")); }
-
-int32_t CmdShowAccount::run(string myacct)
+void CmdShowAccount::display_row(const ui::BalanceItem& row) const
 {
+    const auto time = std::chrono::system_clock::to_time_t(row.Timestamp());
+    otOut << " " << row.Text() << " " << row.DisplayAmount() << " "
+          << std::ctime(&time) << "\n " << row.Memo() << "\n";
+}
+
+std::int32_t CmdShowAccount::runWithOptions() {
+
+    return run(getOption("mynym"), getOption("myacct"));
+}
+
+std::int32_t CmdShowAccount::run(std::string mynym, std::string myacct)
+{
+    if (!checkNym("mynym", mynym)) {
+
+        return -1;
+    }
+
     if (!checkAccount("myacct", myacct)) {
+
         return -1;
     }
 
-    string accountData = stat_asset_account(myacct);
-    if ("" == accountData) {
-        cout << "Error trying to stat asset account: " << myacct << "\n";
-        return -1;
+    const auto nymID = Identifier::Factory(mynym);
+    const auto accountID = Identifier::Factory(myacct);
+    auto& list = OT::App().UI().AccountActivity(nymID, accountID);
+    otOut << "Account " << myacct << ":\n";
+    dashLine();
+    auto& firstRow = list.First();
+
+    if (firstRow.Valid()) {
+        display_row(firstRow);
+        auto last = firstRow.Last();
+
+        while (false == last) {
+            auto& row = list.Next();
+            display_row(row);
+            last = row.Last();
+        }
     }
 
-    cout << accountData << "\n";
+    otOut << std::endl;
 
     return 1;
 }
+} // namespace opentxs

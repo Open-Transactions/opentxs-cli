@@ -67,20 +67,20 @@ std::int32_t CmdShowThread::run(std::string mynym, const std::string& threadID)
 
     const auto& thread =
         OT::App().UI().ActivityThread(Identifier(mynym), Identifier(threadID));
-    const auto& first = thread.First();
+    const auto first = thread.First();
     otOut << thread.DisplayName() << "\n";
 
-    if (false == first.Valid()) {
+    if (false == first->Valid()) {
         return 0;
     }
 
-    auto last = first.Last();
-    otOut << " * " << time(first.Timestamp()) << " " << first.Text() << "\n";
+    auto last = first->Last();
+    otOut << " * " << time(first->Timestamp()) << " " << first->Text() << "\n";
 
     while (false == last) {
-        auto& line = thread.Next();
-        last = line.Last();
-        otOut << " * " << time(line.Timestamp()) << " " << line.Text() << "\n";
+        const auto line = thread.Next();
+        last = line->Last();
+        otOut << " * " << time(line->Timestamp()) << " " << line->Text() << "\n";
     }
 
     otOut << std::endl;

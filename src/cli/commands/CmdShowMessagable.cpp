@@ -66,27 +66,27 @@ std::int32_t CmdShowMessagable::run(std::string mynym)
     auto& list = OT::App().UI().MessagableList(nymID);
     otOut << "Contacts:\n";
     dashLine();
-    auto& line = list.First();
-    auto last = line.Last();
+    auto line = list.First();
+    auto last = line->Last();
 
-    if (false == line.Valid()) {
+    if (false == line->Valid()) {
 
         return 1;
     }
 
-    otOut << " " << line.Section() << " " << line.DisplayName() << " ("
-          << line.ContactID() << ")\n";
+    otOut << " " << line->Section() << " " << line->DisplayName() << " ("
+          << line->ContactID() << ")\n";
 
     while (false == last) {
-        auto& line = list.Next();
-        last = line.Last();
+        line = list.Next();
+        last = line->Last();
 
-        if (false == line.Valid()) {
+        if (false == line->Valid()) {
 
             return 1;
         }
-        otOut << " " << line.Section() << "  " << line.DisplayName() << " ("
-              << line.ContactID() << ")\n";
+        otOut << " " << line->Section() << "  " << line->DisplayName() << " ("
+              << line->ContactID() << ")\n";
     }
 
     otOut << std::endl;

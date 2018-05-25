@@ -66,16 +66,16 @@ std::int32_t CmdShowContacts::run(std::string mynym)
     auto& list = OT::App().UI().ContactList(nymID);
     otOut << "Contacts:\n";
     dashLine();
-    auto& line = list.First();
-    auto last = line.Last();
-    otOut << " " << line.Section() << " " << line.DisplayName() << " ("
-          << line.ContactID() << ")\n";
+    auto line = list.First();
+    auto last = line->Last();
+    otOut << " " << line->Section() << " " << line->DisplayName() << " ("
+          << line->ContactID() << ")\n";
 
     while (false == last) {
-        auto& line = list.Next();
-        last = line.Last();
-        otOut << " " << line.Section() << "  " << line.DisplayName() << " ("
-              << line.ContactID() << ")\n";
+        line = list.Next();
+        last = line->Last();
+        otOut << " " << line->Section() << "  " << line->DisplayName() << " ("
+              << line->ContactID() << ")\n";
     }
 
     otOut << std::endl;

@@ -52,47 +52,47 @@ CmdShowContact::CmdShowContact()
 
 void CmdShowContact::display_groups(const ui::ContactSection& section) const
 {
-    auto& group = section.First();
+    auto group = section.First();
 
-    if (false == group.Valid()) {
+    if (false == group->Valid()) {
 
         return;
     }
 
-    auto lastGroup = group.Last();
-    otOut << "** " << group.Name("en") <<  " (" << group.Type()
+    auto lastGroup = group->Last();
+    otOut << "** " << group->Name("en") <<  " (" << group->Type()
           << ")\n";
-    display_items(group);
+    display_items(*group);
 
     while (false == lastGroup) {
-        auto& group = section.Next();
-        lastGroup = group.Last();
-        otOut << "** " << group.Name("en") <<  " (" << group.Type()
+        group = section.Next();
+        lastGroup = group->Last();
+        otOut << "** " << group->Name("en") <<  " (" << group->Type()
               << ")\n";
-        display_items(group);
+        display_items(*group);
     }
 }
 
 void CmdShowContact::display_items(const ui::ContactSubsection& group) const
 {
-    auto& item = group.First();
+    auto item = group.First();
 
-    if (false == item.Valid()) {
+    if (false == item->Valid()) {
 
         return;
     }
 
-    auto lastItem = item.Last();
-    otOut << "  * ID: " << item.ClaimID() << " Value: " << item.Value()
-          <<  " Primary: " << item.IsPrimary() << " Active: "
-          << item.IsActive() << "\n";
+    auto lastItem = item->Last();
+    otOut << "  * ID: " << item->ClaimID() << " Value: " << item->Value()
+          <<  " Primary: " << item->IsPrimary() << " Active: "
+          << item->IsActive() << "\n";
 
     while (false == lastItem) {
-        auto& item = group.Next();
-        lastItem = item.Last();
-        otOut << "  * ID: " << item.ClaimID() << " Value: " << item.Value()
-              <<  " Primary: " << item.IsPrimary() << " Active: "
-              << item.IsActive() << "\n";
+        item = group.Next();
+        lastItem = item->Last();
+        otOut << "  * ID: " << item->ClaimID() << " Value: " << item->Value()
+              <<  " Primary: " << item->IsPrimary() << " Active: "
+              << item->IsActive() << "\n";
     }
 }
 
@@ -108,24 +108,24 @@ std::int32_t CmdShowContact::run(const std::string& id)
     otOut << contact.DisplayName() << ": (" << contact.ContactID()
           << ")\nPayment Code: " << contact.PaymentCode() << "\n\n";
     dashLine();
-    auto& section = contact.First();
+    auto section = contact.First();
 
-    if (false == section.Valid()) {
+    if (false == section->Valid()) {
 
         return 1;
     }
 
-    auto lastSection = section.Last();
-    otOut << "* " << section.Name("en") <<  " (" << section.Type()
+    auto lastSection = section->Last();
+    otOut << "* " << section->Name("en") <<  " (" << section->Type()
           << ")\n";
-          display_groups(section);
+          display_groups(*section);
 
     while (false == lastSection) {
-        auto& section = contact.Next();
-        lastSection = section.Last();
-        otOut << "* " << section.Name("en") <<  " (" << section.Type()
+        section = contact.Next();
+        lastSection = section->Last();
+        otOut << "* " << section->Name("en") <<  " (" << section->Type()
               << ")\n";
-        display_groups(section);
+        display_groups(*section);
     }
 
     otOut << std::endl;

@@ -68,22 +68,22 @@ std::int32_t CmdActivitySummary::run(std::string mynym)
     auto& activity = OT::App().UI().ActivitySummary(nymID);
     otOut << "Activity:\n";
     dashLine();
-    auto& line = activity.First();
+    auto line = activity.First();
 
-    if (false == line.Valid()) {
+    if (false == line->Valid()) {
 
         return 1;
     }
 
-    auto last = line.Last();
-    otOut << "* " << line.DisplayName() << " (" << line.ThreadID()
-          << "): " << time(line.Timestamp()) << "\n  " << line.Text() << "\n";
+    auto last = line->Last();
+    otOut << "* " << line->DisplayName() << " (" << line->ThreadID()
+          << "): " << time(line->Timestamp()) << "\n  " << line->Text() << "\n";
 
     while (false == last) {
-        auto& line = activity.Next();
-        last = line.Last();
-        otOut << "* " << line.DisplayName() << " (" << line.ThreadID()
-              << "): " << time(line.Timestamp()) << "\n  " << line.Text()
+        line = activity.Next();
+        last = line->Last();
+        otOut << "* " << line->DisplayName() << " (" << line->ThreadID()
+              << "): " << time(line->Timestamp()) << "\n  " << line->Text()
               << "\n";
     }
 

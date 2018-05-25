@@ -84,16 +84,16 @@ std::int32_t CmdShowAccount::run(std::string mynym, std::string myacct)
     auto& list = OT::App().UI().AccountActivity(nymID, accountID);
     otOut << "Account " << myacct << ":\n";
     dashLine();
-    auto& firstRow = list.First();
+    auto row = list.First();
 
-    if (firstRow.Valid()) {
-        display_row(firstRow);
-        auto last = firstRow.Last();
+    if (row->Valid()) {
+        display_row(*row);
+        auto last = row->Last();
 
         while (false == last) {
-            auto& row = list.Next();
-            display_row(row);
-            last = row.Last();
+            row = list.Next();
+            display_row(*row);
+            last = row->Last();
         }
     }
 

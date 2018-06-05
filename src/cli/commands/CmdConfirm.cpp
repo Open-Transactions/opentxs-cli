@@ -638,12 +638,15 @@ int32_t CmdConfirm::confirmAccounts(
             "" != templateInstrumentDefinitionID;
 
         bool foundAccounts = false;
-        int32_t accountCount = SwigWrap::GetAccountCount();
+        const auto accountList = OT::App().DB().AccountList();
+        const std::int32_t accountCount = accountList.size();
 
         otOut << "\nAccounts by index (filtered by notaryID and nymID):\n\n";
+        std::int32_t i{0};
 
-        for (int32_t i = 0; i < accountCount; i++) {
-            string acct = SwigWrap::GetAccountWallet_ID(i);
+        for (const auto& it : accountList) {
+            const auto& acct = std::get<0>(it);
+
             if ("" == acct) {
                 otOut << "Error reading account ID based on index: " << i
                       << "\n";
@@ -681,6 +684,8 @@ int32_t CmdConfirm::confirmAccounts(
                     }
                 }
             }
+
+            ++i;
         }
 
         if (!foundAccounts) {
@@ -698,13 +703,24 @@ int32_t CmdConfirm::confirmAccounts(
             return -1;
         }
 
-        int32_t selectedIndex = stol(selectedAcctIndex);
+        const auto selectedIndex = stol(selectedAcctIndex);
         if (0 > selectedIndex || selectedIndex >= accountCount) {
             otOut << "Bad index: " << selectedAcctIndex << "\n";
             return -1;
         }
 
-        string acct = SwigWrap::GetAccountWallet_ID(selectedIndex);
+        i = 0;
+        std::string acct{""};
+
+        for (const auto& it : accountList) {
+            if (selectedIndex == i) {
+                acct = std::get<0>(it);
+                break;
+            }
+
+            ++i;
+        }
+
         if ("" == acct) {
             otOut << "Error reading account ID based on index: "
                   << selectedIndex << "\n";

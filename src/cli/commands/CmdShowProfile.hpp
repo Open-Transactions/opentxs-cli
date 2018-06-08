@@ -36,26 +36,30 @@
  *
  ************************************************************/
 
-#ifndef OPENTXS_CLIENT_CMDISSUEASSET_HPP
-#define OPENTXS_CLIENT_CMDISSUEASSET_HPP
+#ifndef OPENTXS_CLIENT_CMDSHOWPROFILE_HPP
+#define OPENTXS_CLIENT_CMDSHOWPROFILE_HPP
 
 #include "CmdBase.hpp"
 
+#include <cstdint>
+#include <string>
+
 namespace opentxs
 {
-class CmdIssueAsset : public CmdBase
+
+class CmdShowProfile : public CmdBase
 {
 public:
-    EXPORT CmdIssueAsset();
-    EXPORT virtual ~CmdIssueAsset() override = default;
+    CmdShowProfile();
 
-    EXPORT int32_t run(
-        std::string server,
-        std::string mynym,
-        std::string mypurse);
+    std::int32_t run(std::string mynym);
+
+    ~CmdShowProfile() = default;
 
 private:
+    void display_groups(const ui::ProfileSection& section) const;
+    void display_items(const ui::ProfileSubsection& group) const;
     std::int32_t runWithOptions() override;
 };
 } // namespace opentxs
-#endif // OPENTXS_CLIENT_CMDISSUEASSET_HPP
+#endif // OPENTXS_CLIENT_CMDSHOWPROFILE_HPP

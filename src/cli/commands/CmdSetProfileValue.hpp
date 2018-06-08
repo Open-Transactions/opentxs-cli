@@ -36,26 +36,42 @@
  *
  ************************************************************/
 
-#ifndef OPENTXS_CLIENT_CMDISSUEASSET_HPP
-#define OPENTXS_CLIENT_CMDISSUEASSET_HPP
+#ifndef OPENTXS_CLIENT_CMDSETPROFILEVALUE_HPP
+#define OPENTXS_CLIENT_CMDSETPROFILEVALUE_HPP
 
 #include "CmdBase.hpp"
 
+#include <cstdint>
+#include <string>
+
 namespace opentxs
 {
-class CmdIssueAsset : public CmdBase
+
+class CmdSetProfileValue : public CmdBase
 {
 public:
-    EXPORT CmdIssueAsset();
-    EXPORT virtual ~CmdIssueAsset() override = default;
+    CmdSetProfileValue();
 
-    EXPORT int32_t run(
-        std::string server,
+    std::int32_t run(
         std::string mynym,
-        std::string mypurse);
+        const std::string& section,
+        const std::string& type,
+        const std::string& value);
+
+    ~CmdSetProfileValue() = default;
 
 private:
+    template <typename L, typename V>
+    bool section_exists(const L& list, const V value)
+    {
+        for (const auto& item : list) {
+            if (item.first == value) { return true; }
+        }
+
+        return false;
+    }
+
     std::int32_t runWithOptions() override;
 };
-} // namespace opentxs
-#endif // OPENTXS_CLIENT_CMDISSUEASSET_HPP
+}  // namespace opentxs
+#endif  // OPENTXS_CLIENT_CMDSETPROFILEVALUE_HPP

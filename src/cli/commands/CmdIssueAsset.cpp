@@ -44,27 +44,25 @@
 #include <stdint.h>
 #include <string>
 
-using namespace opentxs;
-using namespace std;
-
+namespace opentxs
+{
 CmdIssueAsset::CmdIssueAsset()
 {
     command = "issueasset";
     args[0] = "--server <server>";
     args[1] = "--mynym <nym>";
+    args[2] = "--mypurse <unit definition id>";
     category = catAdmin;
     help = "Issue a currency contract onto an OT server.";
     usage = "Mynym must already be the contract key on the new contract.";
 }
 
-CmdIssueAsset::~CmdIssueAsset() {}
-
 int32_t CmdIssueAsset::runWithOptions()
 {
-    return run(getOption("server"), getOption("mynym"));
+    return run(getOption("server"), getOption("mynym"), getOption("mypurse"));
 }
 
-int32_t CmdIssueAsset::run(string server, string mynym)
+int32_t CmdIssueAsset::run(std::string server, std::string mynym, std::string mypurse)
 {
     if (!checkServer("server", server)) {
         return -1;
@@ -74,14 +72,17 @@ int32_t CmdIssueAsset::run(string server, string mynym)
         return -1;
     }
 
-    string contract = inputText("an asset contract");
-    if ("" == contract) {
-        return -1;
-    }
-
     if (!SwigWrap::IsNym_RegisteredAtServer(mynym, server)) {
         CmdRegisterNym registerNym;
         registerNym.run(server, mynym);
+    }
+
+    const auto contract =
+        OT::App().Wallet().UnitDefinition(Identifier::Factory(mypurse));
+
+    if (false == bool(contract)) {
+
+        return -1;
     }
 
     std::string response;
@@ -92,9 +93,9 @@ int32_t CmdIssueAsset::run(string server, string mynym)
                           .IssueUnitDefinition(
                               Identifier(mynym),
                               Identifier(server),
-                              proto::StringToProto<proto::UnitDefinition>(
-                                  String(contract.c_str())))
+                              contract->PublicContract())
                           ->Run();
     }
     return processResponse(response, "issue asset contract");
 }
+}  // namespace opentxs

@@ -115,6 +115,7 @@ set(cxx-sources
   commands/CmdSendMessage.cpp
   commands/CmdSendVoucher.cpp
   commands/CmdServerAddClaim.cpp
+  commands/CmdSetProfileValue.cpp
   commands/CmdShowAccount.cpp
   commands/CmdShowAccounts.cpp
   commands/CmdShowActive.cpp

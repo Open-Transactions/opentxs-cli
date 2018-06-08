@@ -151,6 +151,7 @@
 #include "commands/CmdSendMessage.hpp"
 #include "commands/CmdSendVoucher.hpp"
 #include "commands/CmdServerAddClaim.hpp"
+#include "commands/CmdSetProfileValue.hpp"
 #include "commands/CmdShowAccount.hpp"
 #include "commands/CmdShowAccounts.hpp"
 #include "commands/CmdShowActive.hpp"
@@ -230,160 +231,161 @@ Opentxs::Opentxs()
     , newArgv(nullptr)
     , expectFailure(false)
     , cmds_{new CmdAcceptAll,
-           new CmdAcceptInbox,
-           new CmdAcceptIncoming,
-           new CmdAcceptInvoices,
-           new CmdAcceptMoney,
-           new CmdAcceptPayments,
-           new CmdAcceptReceipts,
-           new CmdAcceptTransfers,
-           new CmdAcknowledgeBailment,
-           new CmdAcknowledgeConnection,
-           new CmdAcknowledgeNotice,
-           new CmdAcknowledgeOutBailment,
-           new CmdActivitySummary,
-           new CmdAddAsset,
-           new CmdAddBitcoinAccount,
-           new CmdAddContact,
-           new CmdAddContract,
-           new CmdAddServer,
-           new CmdAddSignature,
-           new CmdAllocateBitcoinAddress,
-           new CmdArchivePeerReply,
-           new CmdAssignBitcoinAddress,
-           new CmdCancel,
-           new CmdCanMessage,
-           new CmdChangePw,
-           new CmdCheckNym,
-           new CmdClearExpired,
-           new CmdClearRecords,
-           new CmdConfirm,
-           new CmdContactName,
-           new CmdConvertPaymentCode,
-           new CmdDecode,
-           new CmdDecrypt,
-           new CmdDeposit,
-           new CmdDepositCheques,
-           new CmdDiscard,
-           new CmdEditAccount,
-           new CmdEditAsset,
-           new CmdEditNym,
-           new CmdEditServer,
-           new CmdEncode,
-           new CmdEncrypt,
-           new CmdExchangeBasket,
-           new CmdExportCash,
-           new CmdExportNym,
-           new CmdFindNym,
-           new CmdFindServer,
-           new CmdGetContact,
-           new CmdGetInstrumentDefinition,
-           new CmdGetMarkets,
-           new CmdGetMyOffers,
-           new CmdGetOffers,
-           new CmdGetPeerRequests,
-           new CmdGetPeerRequest,
-           new CmdGetPeerReplies,
-           new CmdGetPeerReply,
-           new CmdGetReceipt,
-           new CmdHaveContact,
-           new CmdImportCash,
-           new CmdImportNym,
-           new CmdImportPublicNym,
-           new CmdImportSeed,
-           new CmdInbox,
-           new CmdInpayments,
-           new CmdIssueAsset,
-           new CmdKillOffer,
-           new CmdKillPlan,
-           new CmdMarkRead,
-           new CmdMarkUnRead,
-           new CmdMergeContact,
-           new CmdModifyNym,
-           new CmdNewAccount,
-           new CmdNewAsset,
-           new CmdNewKey,
-           new CmdNewNymHD,
-           new CmdNewNymLegacy,
-           new CmdNewOffer,
-           new CmdNotifyBailment,
-           new CmdImportOtherNym,
-           new CmdOutbox,
-           new CmdNewBasket,
-           new CmdOutpayment,
-           new CmdPairNode,
-           new CmdPairStatus,
-           new CmdPasswordDecrypt,
-           new CmdPasswordEncrypt,
-           new CmdPayDividend,
-           new CmdPayInvoice,
-           new CmdPeerStoreSecret,
-           new CmdPingNotary,
-           new CmdPreloadActivity,
-           new CmdPreloadThread,
-           new CmdProposePlan,
-           new CmdRefresh,
-           new CmdRefreshAccount,
-           new CmdRefreshAll,
-           new CmdRefreshNym,
-           new CmdRenameNym,
-           new CmdRequestAdmin,
-           new CmdRequestBailment,
-           new CmdRequestConnection,
-           new CmdRequestOutBailment,
-           new CmdRegisterContractNym,
-           new CmdRegisterContractServer,
-           new CmdRegisterContractUnit,
-           new CmdRegisterNym,
-           new CmdSendCash,
-           new CmdSendCheque,
-           new CmdSendInvoice,
-           new CmdSendMessage,
-           new CmdSendVoucher,
-           new CmdServerAddClaim,
-           new CmdShowAccount,
-           new CmdShowAccounts,
-           new CmdShowActive,
-           new CmdShowAssets,
-           new CmdShowBalance,
-           new CmdShowBasket,
-           new CmdShowContact,
-           new CmdShowContacts,
-           new CmdShowCredential,
-           new CmdShowCredentials,
-           new CmdShowExpired,
-           new CmdShowMarkets,
-           new CmdShowMessagable,
-           new CmdShowMint,
-           new CmdShowMyOffers,
-           new CmdShowNym,
-           new CmdShowNyms,
-           new CmdShowOffers,
-           new CmdShowPayable,
-           new CmdShowPayment,
-           new CmdShowProfile,
-           new CmdShowPhrase,
-           new CmdShowRecords,
-           new CmdShowPurse,
-           new CmdShowSeed,
-           new CmdShowServers,
-           new CmdShowThread,
-           new CmdShowThreads,
-           new CmdShowUnreadThreads,
-           new CmdShowWallet,
-           new CmdShowWords,
-           new CmdSignContract,
-           new CmdStartIntroductionServer,
-           new CmdTransfer,
-           new CmdTriggerClause,
-           new CmdUsageCredits,
-           new CmdVerifyPassword,
-           new CmdVerifyReceipt,
-           new CmdVerifySignature,
-           new CmdWithdrawCash,
-           new CmdWithdrawVoucher,
-           new CmdWriteCheque,
-           new CmdWriteInvoice}
+            new CmdAcceptInbox,
+            new CmdAcceptIncoming,
+            new CmdAcceptInvoices,
+            new CmdAcceptMoney,
+            new CmdAcceptPayments,
+            new CmdAcceptReceipts,
+            new CmdAcceptTransfers,
+            new CmdAcknowledgeBailment,
+            new CmdAcknowledgeConnection,
+            new CmdAcknowledgeNotice,
+            new CmdAcknowledgeOutBailment,
+            new CmdActivitySummary,
+            new CmdAddAsset,
+            new CmdAddBitcoinAccount,
+            new CmdAddContact,
+            new CmdAddContract,
+            new CmdAddServer,
+            new CmdAddSignature,
+            new CmdAllocateBitcoinAddress,
+            new CmdArchivePeerReply,
+            new CmdAssignBitcoinAddress,
+            new CmdCancel,
+            new CmdCanMessage,
+            new CmdChangePw,
+            new CmdCheckNym,
+            new CmdClearExpired,
+            new CmdClearRecords,
+            new CmdConfirm,
+            new CmdContactName,
+            new CmdConvertPaymentCode,
+            new CmdDecode,
+            new CmdDecrypt,
+            new CmdDeposit,
+            new CmdDepositCheques,
+            new CmdDiscard,
+            new CmdEditAccount,
+            new CmdEditAsset,
+            new CmdEditNym,
+            new CmdEditServer,
+            new CmdEncode,
+            new CmdEncrypt,
+            new CmdExchangeBasket,
+            new CmdExportCash,
+            new CmdExportNym,
+            new CmdFindNym,
+            new CmdFindServer,
+            new CmdGetContact,
+            new CmdGetInstrumentDefinition,
+            new CmdGetMarkets,
+            new CmdGetMyOffers,
+            new CmdGetOffers,
+            new CmdGetPeerRequests,
+            new CmdGetPeerRequest,
+            new CmdGetPeerReplies,
+            new CmdGetPeerReply,
+            new CmdGetReceipt,
+            new CmdHaveContact,
+            new CmdImportCash,
+            new CmdImportNym,
+            new CmdImportPublicNym,
+            new CmdImportSeed,
+            new CmdInbox,
+            new CmdInpayments,
+            new CmdIssueAsset,
+            new CmdKillOffer,
+            new CmdKillPlan,
+            new CmdMarkRead,
+            new CmdMarkUnRead,
+            new CmdMergeContact,
+            new CmdModifyNym,
+            new CmdNewAccount,
+            new CmdNewAsset,
+            new CmdNewKey,
+            new CmdNewNymHD,
+            new CmdNewNymLegacy,
+            new CmdNewOffer,
+            new CmdNotifyBailment,
+            new CmdImportOtherNym,
+            new CmdOutbox,
+            new CmdNewBasket,
+            new CmdOutpayment,
+            new CmdPairNode,
+            new CmdPairStatus,
+            new CmdPasswordDecrypt,
+            new CmdPasswordEncrypt,
+            new CmdPayDividend,
+            new CmdPayInvoice,
+            new CmdPeerStoreSecret,
+            new CmdPingNotary,
+            new CmdPreloadActivity,
+            new CmdPreloadThread,
+            new CmdProposePlan,
+            new CmdRefresh,
+            new CmdRefreshAccount,
+            new CmdRefreshAll,
+            new CmdRefreshNym,
+            new CmdRenameNym,
+            new CmdRequestAdmin,
+            new CmdRequestBailment,
+            new CmdRequestConnection,
+            new CmdRequestOutBailment,
+            new CmdRegisterContractNym,
+            new CmdRegisterContractServer,
+            new CmdRegisterContractUnit,
+            new CmdRegisterNym,
+            new CmdSendCash,
+            new CmdSendCheque,
+            new CmdSendInvoice,
+            new CmdSendMessage,
+            new CmdSendVoucher,
+            new CmdServerAddClaim,
+            new CmdSetProfileValue,
+            new CmdShowAccount,
+            new CmdShowAccounts,
+            new CmdShowActive,
+            new CmdShowAssets,
+            new CmdShowBalance,
+            new CmdShowBasket,
+            new CmdShowContact,
+            new CmdShowContacts,
+            new CmdShowCredential,
+            new CmdShowCredentials,
+            new CmdShowExpired,
+            new CmdShowMarkets,
+            new CmdShowMessagable,
+            new CmdShowMint,
+            new CmdShowMyOffers,
+            new CmdShowNym,
+            new CmdShowNyms,
+            new CmdShowOffers,
+            new CmdShowPayable,
+            new CmdShowPayment,
+            new CmdShowProfile,
+            new CmdShowPhrase,
+            new CmdShowRecords,
+            new CmdShowPurse,
+            new CmdShowSeed,
+            new CmdShowServers,
+            new CmdShowThread,
+            new CmdShowThreads,
+            new CmdShowUnreadThreads,
+            new CmdShowWallet,
+            new CmdShowWords,
+            new CmdSignContract,
+            new CmdStartIntroductionServer,
+            new CmdTransfer,
+            new CmdTriggerClause,
+            new CmdUsageCredits,
+            new CmdVerifyPassword,
+            new CmdVerifyReceipt,
+            new CmdVerifySignature,
+            new CmdWithdrawCash,
+            new CmdWithdrawVoucher,
+            new CmdWriteCheque,
+            new CmdWriteInvoice}
 {
 }
 
@@ -524,9 +526,7 @@ int Opentxs::processCommand(AnyOption& opt)
         for (std::size_t i = 0; i < cmds_.size(); ++i) {
             CmdBase& cmd = *cmds_[i];
             otOut << (cmd.getCommand() + spaces18).substr(0, 18);
-            if (i % 4 == 3) {
-                otOut << "\n";
-            }
+            if (i % 4 == 3) { otOut << "\n"; }
         }
         otOut << "\n";
         return 0;
@@ -549,18 +549,14 @@ int Opentxs::processCommand(AnyOption& opt)
         }
 
         // print all category groups
-        for (int i = 1; i < catLast; i++) {
-            otOut << categoryGroup[i];
-        }
+        for (int i = 1; i < catLast; i++) { otOut << categoryGroup[i]; }
 
         return 0;
     }
 
     for (std::size_t i = 0; i < cmds_.size(); ++i) {
         CmdBase& cmd = *cmds_[i];
-        if (command == cmd.getCommand()) {
-            return runCommand(cmd);
-        }
+        if (command == cmd.getCommand()) { return runCommand(cmd); }
     }
 
     otOut << "Expecting a single opentxs command.\n";
@@ -596,34 +592,24 @@ int Opentxs::run(int argc, char* argv[])
     int processed = 0;
     while (true) {
         // get next command line from input stream
-        if (!noPrompt) {
-            cout << "\nopentxs> ";
-        }
+        if (!noPrompt) { cout << "\nopentxs> "; }
         string cmd;
         getline(cin, cmd);
 
         // end of file stops processing commands
-        if (cin.eof()) {
-            break;
-        }
+        if (cin.eof()) { break; }
 
         lineNumber++;
 
         cmd = trim(cmd);
-        if (echoCommand) {
-            cout << cmd << endl;
-        }
+        if (echoCommand) { cout << cmd << endl; }
 
         // empty lines and lines starting with a hash character are seen as
         // comments
-        if (cmd.size() == 0 || cmd[0] == '#') {
-            continue;
-        }
+        if (cmd.size() == 0 || cmd[0] == '#') { continue; }
 
         // exit/quit the command loop?
-        if ("exit" == cmd || "quit" == cmd) {
-            break;
-        }
+        if ("exit" == cmd || "quit" == cmd) { break; }
 
         string originalCmd = cmd;
 
@@ -653,9 +639,7 @@ int Opentxs::run(int argc, char* argv[])
 
             // skip whitespace
             size_t i = nameLength;
-            while (i < cmd.length() && isspace(cmd[i])) {
-                i++;
-            }
+            while (i < cmd.length() && isspace(cmd[i])) { i++; }
 
             if (i == cmd.length() || cmd[i] != '=') {
                 otOut << "\n\n***ERROR***\n"
@@ -680,9 +664,7 @@ int Opentxs::run(int argc, char* argv[])
         for (size_t macro = cmd.find_first_of("$"); macro != string::npos;
              macro = cmd.find_first_of("$", macro + 1)) {
             // first see if this is an escaped literal
-            if (macro > 0 && cmd[macro - 1] == '\\') {
-                continue;
-            }
+            if (macro > 0 && cmd[macro - 1] == '\\') { continue; }
 
             // gather rest of macro name 'maximum munch'
             size_t macroEnd = macro + 1;
@@ -741,14 +723,10 @@ int Opentxs::run(int argc, char* argv[])
             cmd = cmd.substr(0, macro) + macroValue + cmd.substr(macroEnd);
         }
 
-        if (echoExpand && cmd != originalCmd) {
-            otOut << cmd << endl;
-        }
+        if (echoExpand && cmd != originalCmd) { otOut << cmd << endl; }
 
         // skip command when anything during macro expansion failed
-        if (expansions > 99) {
-            continue;
-        }
+        if (expansions > 99) { continue; }
 
         // '!' indicates that we expect this command to fail
         //     which is very useful for running a test script
@@ -776,9 +754,7 @@ int Opentxs::run(int argc, char* argv[])
         size_t i = expectFailure ? 1 : 0;
         while (i < cmd.length()) {
             // skip any whitespace
-            while (i < cmd.length() && isspace(cmd[i])) {
-                i++;
-            }
+            while (i < cmd.length() && isspace(cmd[i])) { i++; }
             if (i == cmd.length()) {
                 // it was trailing whitespace; we're done
                 break;
@@ -923,17 +899,13 @@ int Opentxs::runCommand(CmdBase& cmd)
         for (int i = 0; haveDefault[i] != ""; i++) {
             if (haveDefault[i] == optionName) {
                 value = options.getValue((defaultPrefix + optionName).c_str());
-                if (value != nullptr) {
-                    arguments[argNames[i]] = value;
-                }
+                if (value != nullptr) { arguments[argNames[i]] = value; }
                 break;
             }
         }
     }
 
     bool success = cmd.run(arguments);
-    if (!success && !expectFailure) {
-        cout << cmd.getUsage();
-    }
+    if (!success && !expectFailure) { cout << cmd.getUsage(); }
     return success ? 0 : -1;
 }

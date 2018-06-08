@@ -87,12 +87,12 @@ std::int32_t CmdShowAccount::run(std::string mynym, std::string myacct)
     auto row = list.First();
 
     if (row->Valid()) {
-        display_row(*row);
+        display_row(row);
         auto last = row->Last();
 
         while (false == last) {
             row = list.Next();
-            display_row(*row);
+            display_row(row);
             last = row->Last();
         }
     }

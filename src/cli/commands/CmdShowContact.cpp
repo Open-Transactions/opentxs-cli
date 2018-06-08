@@ -62,14 +62,14 @@ void CmdShowContact::display_groups(const ui::ContactSection& section) const
     auto lastGroup = group->Last();
     otOut << "** " << group->Name("en") <<  " (" << group->Type()
           << ")\n";
-    display_items(*group);
+    display_items(group);
 
     while (false == lastGroup) {
         group = section.Next();
         lastGroup = group->Last();
         otOut << "** " << group->Name("en") <<  " (" << group->Type()
               << ")\n";
-        display_items(*group);
+        display_items(group);
     }
 }
 
@@ -118,14 +118,14 @@ std::int32_t CmdShowContact::run(const std::string& id)
     auto lastSection = section->Last();
     otOut << "* " << section->Name("en") <<  " (" << section->Type()
           << ")\n";
-          display_groups(*section);
+          display_groups(section);
 
     while (false == lastSection) {
         section = contact.Next();
         lastSection = section->Last();
         otOut << "* " << section->Name("en") <<  " (" << section->Type()
               << ")\n";
-        display_groups(*section);
+        display_groups(section);
     }
 
     otOut << std::endl;

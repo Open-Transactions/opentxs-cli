@@ -172,6 +172,7 @@
 #include "commands/CmdShowPayable.hpp"
 #include "commands/CmdShowPayment.hpp"
 #include "commands/CmdShowPhrase.hpp"
+#include "commands/CmdShowProfile.hpp"
 #include "commands/CmdShowPurse.hpp"
 #include "commands/CmdShowRecords.hpp"
 #include "commands/CmdShowSeed.hpp"
@@ -360,6 +361,7 @@ Opentxs::Opentxs()
            new CmdShowOffers,
            new CmdShowPayable,
            new CmdShowPayment,
+           new CmdShowProfile,
            new CmdShowPhrase,
            new CmdShowRecords,
            new CmdShowPurse,

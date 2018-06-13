@@ -60,28 +60,20 @@ int32_t CmdShowAccounts::runWithOptions() { return run(); }
 
 int32_t CmdShowAccounts::run()
 {
-    int32_t items = SwigWrap::GetAccountCount();
-    if (0 > items) {
-        otOut << "Error: cannot load account list count.\n";
-        return -1;
-    }
-
-    if (0 == items) {
-        otOut << "The account list is empty.\n";
-        return 0;
-    }
-
+    const auto& storage = OT::App().DB();
     cout << " ** ACCOUNTS:\n";
     dashLine();
 
-    for (int32_t i = 0; i < items; i++) {
-        string myacct = SwigWrap::GetAccountWallet_ID(i);
+    for (const auto& it : storage.AccountList()) {
+        const auto& myacct = std::get<0>(it);
+
         if ("" == myacct) {
             otOut << "Error: cannot load account.\n";
             return -1;
         }
 
         string accountData = stat_asset_account(myacct);
+
         if ("" == accountData) {
             cout << "Error : cannot load account data.\n";
             return -1;

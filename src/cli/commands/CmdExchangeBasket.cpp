@@ -291,21 +291,12 @@ int32_t CmdExchangeBasket::showBasketAccounts(
     const string& assetType,
     bool bFilter)
 {
-    int32_t items = SwigWrap::GetAccountCount();
-    if (0 > items) {
-        otOut << "Error: cannot load account count.\n";
-        return -1;
-    }
-
+    const auto& storage = OT::App().DB();
     dashLine();
     cout << " ** ACCOUNTS:\n\n";
 
-    for (int32_t i = 0; i < items; i++) {
-        string acct = SwigWrap::GetAccountWallet_ID(i);
-        if ("" == acct) {
-            otOut << "Error: cannot load account ID.\n";
-            return -1;
-        }
+    for (const auto& it : storage.AccountList()) {
+        const auto& acct = std::get<0>(it);
 
         string accountServer = SwigWrap::GetAccountWallet_NotaryID(acct);
         if ("" == accountServer) {
@@ -335,9 +326,6 @@ int32_t CmdExchangeBasket::showBasketAccounts(
                         return -1;
                     }
 
-                    if (0 < i) {
-                        cout << "-------------------------------------\n";
-                    }
                     cout << statAccount << "\n";
                 }
             }

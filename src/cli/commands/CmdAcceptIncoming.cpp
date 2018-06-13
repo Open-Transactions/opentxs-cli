@@ -64,18 +64,21 @@ std::int32_t CmdAcceptIncoming::run(std::string myacct)
         return -1;
     }
 
-    const auto& otapi = OT::App().API().OTAPI();
-    auto wallet = otapi.GetWallet();
+    const auto& storage = OT::App().DB();
+    const auto accountID = Identifier::Factory(myacct);
+    const auto nymID = storage.AccountOwner(accountID);
 
-    OT_ASSERT(nullptr != wallet);
+    if (nymID->empty()) {
 
-    const Identifier accountID(myacct);
-    const auto account = otapi.GetAccount(accountID);
+        return -1;
+    }
 
-    OT_ASSERT(account);
+    const auto serverID = storage.AccountServer(accountID);
 
-    const auto& nymID = account->GetNymID();
-    const auto& serverID = account->GetRealNotaryID();
+    if (serverID->empty()) {
+
+        return -1;
+    }
 
     const auto output =
         OT::App().API().Sync().AcceptIncoming(nymID, accountID, serverID);

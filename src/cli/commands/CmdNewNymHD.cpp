@@ -68,22 +68,22 @@ int32_t CmdNewNymHD::run(string label, string source, string path)
         return -1;
     }
 
-    std::uint32_t nym = 0;
+    std::int32_t nym = -1;
 
     if (!path.empty()) {
         try {
-            nym = stoul(path);
+            nym = stol(path);
         } catch (const std::invalid_argument&) {
-            nym = 0;
+            nym = -1;
         } catch (const std::out_of_range&) {
-            nym = 0;
+            nym = -1;
         }
 
         const std::uint32_t hardened =
             static_cast<std::uint32_t>(opentxs::Bip32Child::HARDENED);
 
-        if (hardened <= nym) {
-            nym = nym ^ hardened;
+        if (nym > 0 && nym >= (int32_t)hardened) {
+            nym = nym ^ (int32_t)hardened;
         }
     }
 

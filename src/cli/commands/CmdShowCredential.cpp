@@ -65,13 +65,9 @@ int32_t CmdShowCredential::runWithOptions()
 
 int32_t CmdShowCredential::run(string mynym, string id)
 {
-    if (!checkNym("mynym", mynym)) {
-        return -1;
-    }
+    if (!checkNym("mynym", mynym)) { return -1; }
 
-    if (!checkMandatory("id", id)) {
-        return -1;
-    }
+    if (!checkMandatory("id", id)) { return -1; }
 
     string credential = SwigWrap::GetNym_MasterCredentialContents(mynym, id);
     if ("" != credential) {
@@ -118,17 +114,14 @@ int32_t CmdShowCredential::run(string mynym, string id)
 
 string CmdShowCredential::findMaster(const string& mynym, const string& subID)
 {
-    int32_t items = SwigWrap::GetNym_MasterCredentialCount(mynym);
-    if (0 >= items) {
-        return "";
-    }
-
-    for (int32_t i = 0; i < items; i++) {
-        string id = SwigWrap::GetNym_MasterCredentialID(mynym, i);
-        int32_t subItems = SwigWrap::GetNym_ChildCredentialCount(mynym, id);
-        for (int32_t j = 0; j < subItems; j++) {
-            if (subID == SwigWrap::GetNym_ChildCredentialID(mynym, id, j)) {
-                return id;
+    auto nym = OT::App().Wallet().Nym(Identifier::Factory(mynym));
+    auto masterCredentialIDs = nym->GetMasterCredentialIDs();
+    for (auto masterCredentialID : masterCredentialIDs) {
+        auto childCredentialIDs =
+            nym->GetChildCredentialIDs(masterCredentialID->str());
+        for (auto childCredentialID : childCredentialIDs) {
+            if (subID == childCredentialID->str()) {
+                return masterCredentialID->str();
             }
         }
     }
@@ -138,17 +131,14 @@ string CmdShowCredential::findMaster(const string& mynym, const string& subID)
 
 string CmdShowCredential::findRevoked(const string& mynym, const string& subID)
 {
-    int32_t items = SwigWrap::GetNym_RevokedCredCount(mynym);
-    if (0 >= items) {
-        return "";
-    }
-
-    for (int32_t i = 0; i < items; i++) {
-        string id = SwigWrap::GetNym_RevokedCredID(mynym, i);
-        int32_t subItems = SwigWrap::GetNym_ChildCredentialCount(mynym, id);
-        for (int32_t j = 0; j < subItems; j++) {
-            if (subID == SwigWrap::GetNym_ChildCredentialID(mynym, id, j)) {
-                return id;
+    auto nym = OT::App().Wallet().Nym(Identifier::Factory(mynym));
+    auto revokedCredentialIDs = nym->GetRevokedCredentialIDs();
+    for (auto revokedCredentialID : revokedCredentialIDs) {
+        auto childCredentialIDs =
+            nym->GetChildCredentialIDs(revokedCredentialID->str());
+        for (auto childCredentialID : childCredentialIDs) {
+            if (subID == childCredentialID->str()) {
+                return revokedCredentialID->str();
             }
         }
     }

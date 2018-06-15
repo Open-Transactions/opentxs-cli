@@ -64,9 +64,7 @@ int32_t CmdNewNymHD::runWithOptions()
 
 int32_t CmdNewNymHD::run(string label, string source, string path)
 {
-    if (!checkMandatory("label", label)) {
-        return -1;
-    }
+    if (!checkMandatory("label", label)) { return -1; }
 
     std::int32_t nym = -1;
 

@@ -61,73 +61,69 @@ int32_t CmdShowCredentials::runWithOptions() { return run(getOption("mynym")); }
 
 int32_t CmdShowCredentials::run(string mynym)
 {
-    if (!checkNym("mynym", mynym)) {
-        return -1;
-    }
+    if (!checkNym("mynym", mynym)) { return -1; }
 
-    int32_t items = SwigWrap::GetNym_MasterCredentialCount(mynym);
-    if (0 > items) {
-        otOut << "Error: cannot load credential list item count.\n";
-        return -1;
-    }
+    auto nym = OT::App().Wallet().Nym(Identifier::Factory(mynym));
+    auto masterCredentialIDs = nym->GetMasterCredentialIDs();
 
-    int32_t revokedItems = SwigWrap::GetNym_RevokedCredCount(mynym);
-    if (0 > revokedItems) {
-        otOut << "Error: cannot load revoked credential list item count.\n";
-        return -1;
-    }
-
-    if (0 == items) {
+    if (0 == masterCredentialIDs.size()) {
         otOut << "The credential list is empty.\n";
-    } else {
+    }
+    else {
         otOut << "Idx     Credential ID\n"
                  "---------------------------\n";
 
-        for (int32_t i = 0; i < items; i++) {
-            string credential = SwigWrap::GetNym_MasterCredentialID(mynym, i);
-            cout << i << ":      " << credential << "\n";
+        auto i = 0;
+        for (auto masterCredentialID : masterCredentialIDs) {
+            auto masterCredential = masterCredentialID->str();
+            cout << i++ << ":      " << masterCredential << "\n";
 
-            int32_t subItems =
-                SwigWrap::GetNym_ChildCredentialCount(mynym, credential);
-            if (1 <= subItems) {
+            auto childCredentialIDs =
+                nym->GetChildCredentialIDs(masterCredentialID->str());
+            if (childCredentialIDs.size()) {
                 otOut << "        ---------------------------\n"
                          "        Idx     Credential ID\n"
                          "        ---------------------------\n";
 
-                for (int32_t j = 0; j < subItems; j++) {
-                    string childCred = SwigWrap::GetNym_ChildCredentialID(
-                        mynym, credential, j);
-                    cout << "        " << j << ":      " << childCred << "\n";
+                auto j = 0;
+                for (auto childCredentialID : childCredentialIDs) {
+                    cout << "        " << j++ << ":      "
+                         << childCredentialID->str() << "\n";
                 }
             }
         }
     }
 
-    if (0 == revokedItems) {
+    auto revokedCredentialIDs = nym->GetRevokedCredentialIDs();
+
+    if (0 == revokedCredentialIDs.size()) {
         cout << "The revoked credential list is empty.\n";
-    } else {
+    }
+    else {
         otOut << "Idx     Revoked Credential ID\n"
                  "---------------------------\n";
 
-        for (int32_t i = 0; i < revokedItems; i++) {
-            string credential = SwigWrap::GetNym_RevokedCredID(mynym, i);
-            cout << i << ":      " << credential << "\n";
+        auto i = 0;
+        for (auto revokedCredentialID : revokedCredentialIDs) {
+            auto revokedCredential = revokedCredentialID->str();
+            cout << i++ << ":      " << revokedCredential << "\n";
 
-            int32_t subItems =
-                SwigWrap::GetNym_ChildCredentialCount(mynym, credential);
-            if (1 <= subItems) {
+            auto childCredentialIDs =
+                nym->GetChildCredentialIDs(revokedCredentialID->str());
+            if (childCredentialIDs.size()) {
                 otOut << "        ---------------------------\n"
                          "        Idx     Revoked Credential ID\n"
                          "        ---------------------------\n";
 
-                for (int32_t j = 0; j < subItems; j++) {
-                    string childCred = SwigWrap::GetNym_ChildCredentialID(
-                        mynym, credential, j);
-                    cout << "        " << j << ":      " << childCred << "\n";
+                auto j = 0;
+                for (auto childCredentialID : childCredentialIDs) {
+                    cout << "        " << j++ << ":      "
+                         << childCredentialID->str() << "\n";
                 }
             }
         }
     }
 
-    return (0 == items + revokedItems) ? 0 : 1;
+    return (0 == masterCredentialIDs.size() + revokedCredentialIDs.size()) ? 0
+                                                                           : 1;
 }

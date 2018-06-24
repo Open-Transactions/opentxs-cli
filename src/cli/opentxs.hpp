@@ -41,6 +41,7 @@
 
 #include <string>
 #include <vector>
+#include <deque>
 
 class AnyOption;
 
@@ -70,12 +71,25 @@ private:
     std::string& rtrim(std::string& s);
     std::string& trim(std::string& s);
 
-    const std::string spaces18 = "                  ";
+    const std::string spaces24 = "                        ";
 
     int newArgc{0};
     char** newArgv{nullptr};
     bool expectFailure{false};
     std::vector<CmdBase*> cmds_;
+    
+    struct Command {
+        Command(int32_t optArgc, char ** optArgv) {
+            for (int32_t i = 0; i < optArgc; ++i) {
+                args.emplace_back(optArgv[i]);
+            }
+        }
+        Command(const Command& c) {
+            args = c.args;
+        }
+        std::vector<std::string> args;
+    };
+    std::deque<Command> history;
 };
 }  // namespace opentxs
 #endif  // __OPENTXS_HPP__

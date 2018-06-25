@@ -395,14 +395,17 @@ string& Opentxs::ltrim(string& s)
 {
     s.erase(
         s.begin(),
-        find_if(s.begin(), s.end(), not1(ptr_fun<int, int>(isspace))));
+        find_if(
+            s.begin(), s.end(), not_fn(static_cast<int (*)(int)>(isspace))));
     return s;
 }
 
 string& Opentxs::rtrim(string& s)
 {
     s.erase(
-        find_if(s.rbegin(), s.rend(), not1(ptr_fun<int, int>(isspace))).base(),
+        find_if(
+            s.rbegin(), s.rend(), not_fn(static_cast<int (*)(int)>(isspace)))
+            .base(),
         s.end());
     return s;
 }
@@ -505,6 +508,24 @@ int Opentxs::processCommand(AnyOption& opt)
 {
     string command = opt.getArgv(0);
 
+    if (!command.empty() && isdigit(command[0])) {
+        size_t idx = std::stoi(command);
+        if (idx < history.size()) {
+            Command& c = history[idx];
+            loadOptions(opt);
+            newArgc = c.args.size();
+            delete[] newArgv;
+            newArgv = new char*[newArgc];
+            for (auto i = 0; i < newArgc; ++i) {
+                newArgv[i] = const_cast<char*>(c.args[i].c_str());
+                if (i) { otOut << newArgv[i] << " "; }
+            }
+            otOut << endl << endl;
+            opt.processCommandArgs(newArgc, newArgv);
+            command = newArgv[1];
+        }
+    }
+
     if (opt.getFlag("dummy-passphrase")) {
         // For automatic testing, set the password callback to
         // always return "test" as the password, not prompting the user.
@@ -525,10 +546,16 @@ int Opentxs::processCommand(AnyOption& opt)
 
         for (std::size_t i = 0; i < cmds_.size(); ++i) {
             CmdBase& cmd = *cmds_[i];
-            otOut << (cmd.getCommand() + spaces18).substr(0, 18);
+            otOut << (cmd.getCommand() + spaces24).substr(0, 24);
             if (i % 4 == 3) { otOut << "\n"; }
         }
         otOut << "\n";
+
+        otOut << endl
+              << "history (h) - displays a list of previously executed "
+                 "commands.  Enter the index number to re-execute a command."
+              << endl;
+
         return 0;
     }
 
@@ -544,12 +571,30 @@ int Opentxs::processCommand(AnyOption& opt)
         for (std::size_t i = 0; i < cmds_.size(); ++i) {
             CmdBase& cmd = *cmds_[i];
             categoryGroup[cmd.getCategory()] +=
-                (cmd.getCommand() + spaces18).substr(0, 18) + cmd.getHelp() +
+                (cmd.getCommand() + spaces24).substr(0, 24) + cmd.getHelp() +
                 "\n";
         }
 
         // print all category groups
         for (int i = 1; i < catLast; i++) { otOut << categoryGroup[i]; }
+
+        otOut << endl
+              << "history (h) - displays a list of previously executed "
+                 "commands.  Enter the index number to re-execute a command."
+              << endl;
+
+        return 0;
+    }
+
+    if ("history" == command || "h" == command) {
+        for (int idx = history.size() - 1; idx > -1; --idx) {
+            otOut << idx << ":";
+            Command& c = history[idx];
+            for (size_t i = 1; i < c.args.size(); ++i) {
+                otOut << " " << c.args[i];
+            }
+            otOut << endl;
+        }
 
         return 0;
     }
@@ -906,6 +951,12 @@ int Opentxs::runCommand(CmdBase& cmd)
     }
 
     bool success = cmd.run(arguments);
-    if (!success && !expectFailure) { cout << cmd.getUsage(); }
+    if (!success && !expectFailure) {
+        cout << cmd.getUsage();
+    } else {
+        Command c(newArgc, newArgv);
+        history.emplace_front(c);
+    }
+
     return success ? 0 : -1;
 }

@@ -48,7 +48,8 @@ CmdAddContact::CmdAddContact()
     args[0] = "--hisnym <nym>";
     args[1] = "--label [<label>]";
     category = catOtherUsers;
-    help = "Add a new contact based on Nym ID";
+    help = "Add a new contact based on Nym ID (or payment code)";
+    usage = "Specify a nym id or payment code for hisnym.";
 }
 
 std::int32_t CmdAddContact::runWithOptions()
@@ -60,9 +61,7 @@ std::int32_t CmdAddContact::run(
     const std::string& hisnym,
     const std::string& label)
 {
-    if (hisnym.empty()) {
-        return -1;
-    }
+    if (hisnym.empty()) { return -1; }
 
     Identifier nymID(String(hisnym.c_str()));
     auto code = PaymentCode::Factory(hisnym);
@@ -86,9 +85,7 @@ std::int32_t CmdAddContact::run(
 
     const auto response = OT::App().Contact().NewContact(label, nymID, code);
 
-    if (response) {
-        return 0;
-    }
+    if (response) { return 0; }
 
     return -1;
 }

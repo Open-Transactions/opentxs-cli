@@ -48,34 +48,78 @@ CmdRegisterNym::CmdRegisterNym()
     command = "registernym";
     args[0] = "--server <server>";
     args[1] = "--mynym <nym>";
+    args[2] = "[--publish <true|FALSE>]";
+    args[3] = "[--primary <true|FALSE>]";
     category = catAdmin;
     help = "Register mynym onto an OT server.";
+    usage = "Use --publish to set the server as mynym's preferred server and "
+            "--primary to force it to replace the current one.";
 }
 
 std::int32_t CmdRegisterNym::runWithOptions()
 {
-    return run(getOption("server"), getOption("mynym"));
+    return run(
+        getOption("server"),
+        getOption("mynym"),
+        getOption("publish"),
+        getOption("primary"));
 }
 
-std::int32_t CmdRegisterNym::run(std::string server, std::string mynym)
+std::int32_t CmdRegisterNym::run(
+    std::string server,
+    std::string mynym,
+    std::string publish,
+    std::string primary)
 {
-    if (!checkServer("server", server)) {
+    if (!checkServer("server", server)) { return -1; }
+
+    if (!checkNym("mynym", mynym)) { return -1; }
+
+    bool shouldPublish{false};
+    if ("" != publish && !checkBoolean("publish", publish)) {
         return -1;
-    }
-
-    if (!checkNym("mynym", mynym)) {
-        return -1;
-    }
-
-    const auto response = OT::App().API().Sync().RegisterNym(
-        Identifier(mynym), Identifier(server), true);
-
-    if (false == response->empty()) {
-
-        return 0;
     } else {
+        shouldPublish = publish == "true";
+    }
 
+    bool isPrimary{false};
+    if ("" != primary && !checkBoolean("primary", primary)) {
+        return -1;
+    } else {
+        isPrimary = primary == "true";
+    }
+
+    if (!shouldPublish && isPrimary) {
+        otOut << "Can't make the server primary if it isn't published.";
         return -1;
     }
+
+    auto& sync = OT::App().API().Sync();
+
+    Identifier taskID = sync.RegisterNym(
+        Identifier(mynym), Identifier(server), shouldPublish, isPrimary);
+
+    ThreadStatus status = sync.Status(taskID);
+    while (status == ThreadStatus::RUNNING) {
+        Log::Sleep(std::chrono::milliseconds(100));
+        status = sync.Status(taskID);
+    }
+
+    switch (status) {
+        case ThreadStatus::FINISHED_SUCCESS: {
+            otOut << "Nym registered successfully " << std::endl;
+        } break;
+        case ThreadStatus::FINISHED_FAILED: {
+            otOut << "Nym not registered " << std::endl;
+            [[fallthrough]];
+        }
+        case ThreadStatus::ERROR:
+        case ThreadStatus::SHUTDOWN:
+        default: {
+            return -1;
+        }
+    }
+
+    return 0;
 }
 }  // namespace opentxs

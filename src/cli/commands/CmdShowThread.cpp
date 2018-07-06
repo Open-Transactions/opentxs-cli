@@ -60,27 +60,26 @@ std::int32_t CmdShowThread::runWithOptions()
 
 std::int32_t CmdShowThread::run(std::string mynym, const std::string& threadID)
 {
-    if (!checkNym("mynym", mynym)) {
-
-        return -1;
-    }
+    if (!checkNym("mynym", mynym)) { return -1; }
 
     const auto& thread =
         OT::App().UI().ActivityThread(Identifier(mynym), Identifier(threadID));
     const auto first = thread.First();
     otOut << thread.DisplayName() << "\n";
 
-    if (false == first->Valid()) {
-        return 0;
-    }
+    if (false == first->Valid()) { return 0; }
 
     auto last = first->Last();
-    otOut << " * " << time(first->Timestamp()) << " " << first->Text() << "\n";
+    otOut << " * " << time(first->Timestamp()) << " "
+          << "(StorageBox: " << storage_box_name(first->Type()) << ")\n "
+          << first->Text() << "\n";
 
     while (false == last) {
         const auto line = thread.Next();
         last = line->Last();
-        otOut << " * " << time(line->Timestamp()) << " " << line->Text() << "\n";
+        otOut << " * " << time(line->Timestamp()) << " "
+              << "(StorageBox: " << storage_box_name(line->Type()) << ")\n "
+              << line->Text() << "\n";
     }
 
     otOut << std::endl;

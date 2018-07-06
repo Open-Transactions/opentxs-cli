@@ -53,7 +53,7 @@ CmdRegisterContractUnit::CmdRegisterContractUnit()
     args[1] = "--mynym <nym>";
     args[2] = "--hispurse <nym>";
     category = catMisc;
-    help = "Upload a server contract to a server.";
+    help = "Upload a unit contract to a server.";
 }
 
 CmdRegisterContractUnit::~CmdRegisterContractUnit() {}
@@ -68,22 +68,19 @@ int32_t CmdRegisterContractUnit::run(
     string mynym,
     string hispurse)
 {
-    if (!checkServer("server", server)) {
-        return -1;
-    }
+    if (!checkServer("server", server)) { return -1; }
 
-    if (!checkNym("mynym", mynym)) {
-        return -1;
-    }
+    if (!checkNym("mynym", mynym)) { return -1; }
 
     std::string response;
     {
-        response = OT::App()
-            .API()
-            .ServerAction()
-            .PublishUnitDefinition(
-                Identifier(mynym), Identifier(server), Identifier(hispurse))
-            ->Run();
+        response =
+            OT::App()
+                .API()
+                .ServerAction()
+                .PublishUnitDefinition(
+                    Identifier(mynym), Identifier(server), Identifier(hispurse))
+                ->Run();
     }
 
     return processResponse(response, "register contract");

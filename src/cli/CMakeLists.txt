@@ -127,6 +127,7 @@ set(cxx-sources
   commands/CmdShowCredential.cpp
   commands/CmdShowCredentials.cpp
   commands/CmdShowExpired.cpp
+  commands/CmdShowIssuers.cpp
   commands/CmdShowMarkets.cpp
   commands/CmdShowMessagable.cpp
   commands/CmdShowMint.cpp

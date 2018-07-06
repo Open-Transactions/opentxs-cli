@@ -163,6 +163,7 @@
 #include "commands/CmdShowCredential.hpp"
 #include "commands/CmdShowCredentials.hpp"
 #include "commands/CmdShowExpired.hpp"
+#include "commands/CmdShowIssuers.hpp"
 #include "commands/CmdShowMarkets.hpp"
 #include "commands/CmdShowMessagable.hpp"
 #include "commands/CmdShowMint.hpp"
@@ -354,6 +355,7 @@ Opentxs::Opentxs()
             new CmdShowCredential,
             new CmdShowCredentials,
             new CmdShowExpired,
+            new CmdShowIssuers,
             new CmdShowMarkets,
             new CmdShowMessagable,
             new CmdShowMint,

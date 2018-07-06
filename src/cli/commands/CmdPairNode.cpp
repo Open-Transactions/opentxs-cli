@@ -63,15 +63,11 @@ std::int32_t CmdPairNode::run(
     std::string hisnym,
     std::string password)
 {
-    if (!checkNym("mynym", mynym)) {
-        return -1;
-    }
+    if (!checkNym("mynym", mynym)) { return -1; }
 
     auto result = SwigWrap::Pair_Node(mynym, hisnym, password);
 
-    if (result) {
-        return 1;
-    }
+    if (result) { return 1; }
 
     return 0;
 }

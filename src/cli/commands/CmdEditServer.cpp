@@ -65,13 +65,9 @@ int32_t CmdEditServer::runWithOptions()
 
 int32_t CmdEditServer::run(string server, string label)
 {
-    if (!checkServer("server", server)) {
-        return -1;
-    }
+    if (!checkServer("server", server)) { return -1; }
 
-    if (!checkMandatory("label", label)) {
-        return -1;
-    }
+    if (!checkMandatory("label", label)) { return -1; }
 
     if (!SwigWrap::SetServer_Name(server, label)) {
         otOut << "Error: cannot set server label.\n";

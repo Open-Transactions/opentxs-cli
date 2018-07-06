@@ -67,17 +67,11 @@ int32_t CmdShowPurse::runWithOptions()
 int32_t CmdShowPurse::run(string server, string mynym, string mypurse)
 {
 #if OT_CASH
-    if (!checkServer("server", server)) {
-        return -1;
-    }
+    if (!checkServer("server", server)) { return -1; }
 
-    if (!checkNym("mynym", mynym)) {
-        return -1;
-    }
+    if (!checkNym("mynym", mynym)) { return -1; }
 
-    if (!checkPurse("mypurse", mypurse)) {
-        return -1;
-    }
+    if (!checkPurse("mypurse", mypurse)) { return -1; }
 
     string purse = SwigWrap::LoadPurse(server, mypurse, mynym);
     if ("" == purse) {

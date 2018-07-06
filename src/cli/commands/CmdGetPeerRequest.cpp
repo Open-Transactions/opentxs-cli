@@ -59,13 +59,9 @@ std::int32_t CmdGetPeerRequest::runWithOptions()
 
 std::int32_t CmdGetPeerRequest::run(std::string mynym, std::string request)
 {
-    if (!checkNym("mynym", mynym)) {
-        return -1;
-    }
+    if (!checkNym("mynym", mynym)) { return -1; }
 
-    if (request.empty()) {
-        return -1;
-    }
+    if (request.empty()) { return -1; }
 
     const auto text = SwigWrap::getRequest_Base64(mynym, request);
 

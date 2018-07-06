@@ -58,10 +58,7 @@ std::int32_t CmdImportOtherNym::run()
 {
     std::string input = inputText("an exported nym");
 
-    if ("" == input) {
-
-        return -1;
-    }
+    if ("" == input) { return -1; }
 
     std::string outNym = SwigWrap::Import_Nym(input);
 

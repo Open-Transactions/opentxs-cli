@@ -87,8 +87,8 @@ int32_t CmdIssueAsset::run(
                        .API()
                        .ServerAction()
                        .IssueUnitDefinition(
-                           Identifier(mynym),
-                           Identifier(server),
+                           Identifier::Factory(mynym),
+                           Identifier::Factory(server),
                            contract->PublicContract())
                        ->Run();
     }

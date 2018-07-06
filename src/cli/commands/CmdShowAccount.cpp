@@ -62,25 +62,20 @@ void CmdShowAccount::display_row(const ui::BalanceItem& row) const
           << std::ctime(&time) << "\n " << row.Memo() << "\n";
 }
 
-std::int32_t CmdShowAccount::runWithOptions() {
+std::int32_t CmdShowAccount::runWithOptions()
+{
 
     return run(getOption("mynym"), getOption("myacct"));
 }
 
 std::int32_t CmdShowAccount::run(std::string mynym, std::string myacct)
 {
-    if (!checkNym("mynym", mynym)) {
+    if (!checkNym("mynym", mynym)) { return -1; }
 
-        return -1;
-    }
+    if (!checkAccount("myacct", myacct)) { return -1; }
 
-    if (!checkAccount("myacct", myacct)) {
-
-        return -1;
-    }
-
-    const auto nymID = Identifier::Factory(mynym);
-    const auto accountID = Identifier::Factory(myacct);
+    const OTIdentifier nymID = Identifier::Factory(mynym);
+    const OTIdentifier accountID = Identifier::Factory(myacct);
     auto& list = OT::App().UI().AccountActivity(nymID, accountID);
     otOut << "Account " << myacct << ":\n";
     dashLine();
@@ -101,4 +96,4 @@ std::int32_t CmdShowAccount::run(std::string mynym, std::string myacct)
 
     return 1;
 }
-} // namespace opentxs
+}  // namespace opentxs

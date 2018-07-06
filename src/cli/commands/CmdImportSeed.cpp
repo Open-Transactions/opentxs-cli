@@ -62,17 +62,12 @@ int32_t CmdImportSeed::runWithOptions()
 
 int32_t CmdImportSeed::run(const std::string& words, const std::string& phrase)
 {
-    if (words.empty()) {
-
-        return -1;
-    }
+    if (words.empty()) { return -1; }
 
     const std::string fingerprint = SwigWrap::Wallet_ImportSeed(words, phrase);
     const bool empty = fingerprint.empty();
 
-    if (!empty) {
-        std::cout << fingerprint << std::endl;
-    }
+    if (!empty) { std::cout << fingerprint << std::endl; }
 
     return empty ? -1 : 0;
 }

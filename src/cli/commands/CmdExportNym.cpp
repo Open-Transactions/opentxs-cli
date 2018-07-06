@@ -61,9 +61,7 @@ int32_t CmdExportNym::runWithOptions() { return run(getOption("mynym")); }
 
 int32_t CmdExportNym::run(string mynym)
 {
-    if (!checkNym("mynym", mynym)) {
-        return -1;
-    }
+    if (!checkNym("mynym", mynym)) { return -1; }
 
     string exportedNym = SwigWrap::Wallet_ExportNym(mynym);
     if ("" == exportedNym) {

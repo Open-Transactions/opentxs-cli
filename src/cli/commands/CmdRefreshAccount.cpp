@@ -61,9 +61,7 @@ int32_t CmdRefreshAccount::runWithOptions() { return run(getOption("myacct")); }
 
 int32_t CmdRefreshAccount::run(string myacct)
 {
-    if (!checkAccount("myacct", myacct)) {
-        return -1;
-    }
+    if (!checkAccount("myacct", myacct)) { return -1; }
 
     string server = SwigWrap::GetAccountWallet_NotaryID(myacct);
     if ("" == server) {
@@ -79,7 +77,10 @@ int32_t CmdRefreshAccount::run(string myacct)
 
     {
         if (!OT::App().API().ServerAction().DownloadAccount(
-                Identifier(mynym), Identifier(server), Identifier(myacct), true)) {
+                Identifier::Factory(mynym),
+                Identifier::Factory(server),
+                Identifier::Factory(myacct),
+                true)) {
             otOut << "Error retrieving intermediary files for myacct.\n";
             return -1;
         }

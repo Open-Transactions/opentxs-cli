@@ -57,12 +57,10 @@ std::int32_t CmdContactName::runWithOptions()
 
 std::int32_t CmdContactName::run(const std::string& id)
 {
-    if (id.empty()) {
+    if (id.empty()) { return -1; }
 
-        return -1;
-    }
-
-    const auto pContact = OT::App().Contact().Contact(opentxs::Identifier{id});
+    const auto pContact =
+        OT::App().Contact().Contact(opentxs::Identifier::Factory(id));
 
     if (pContact) {
         const auto label = pContact->Label();

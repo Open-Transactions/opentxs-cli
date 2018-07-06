@@ -69,24 +69,18 @@ int32_t CmdShowActive::runWithOptions()
 
 int32_t CmdShowActive::run(string server, string mynym, string id)
 {
-    if (!checkServer("server", server)) {
-        return -1;
-    }
+    if (!checkServer("server", server)) { return -1; }
 
     // optional, specific transaction id
     if ("" != id) {
         int64_t transNum = checkTransNum("id", id);
-        if (0 > transNum) {
-            return -1;
-        }
+        if (0 > transNum) { return -1; }
 
         // FIX: what about error reporting here?
         string item = SwigWrap::GetActiveCronItem(server, transNum);
         if ("" != item) {
             string type = SwigWrap::Instrmnt_GetType(item);
-            if ("" == type) {
-                type = "UNKNOWN";
-            }
+            if ("" == type) { type = "UNKNOWN"; }
 
             otOut << "Found an active transaction!\n"
                   << "ID: " << transNum << "  Type: " << type
@@ -96,9 +90,7 @@ int32_t CmdShowActive::run(string server, string mynym, string id)
         return 1;
     }
 
-    if (!checkNym("mynym", mynym)) {
-        return -1;
-    }
+    if (!checkNym("mynym", mynym)) { return -1; }
 
     string ids = SwigWrap::GetNym_ActiveCronItemIDs(mynym, server);
     if ("" == ids) {
@@ -118,9 +110,7 @@ int32_t CmdShowActive::run(string server, string mynym, string id)
             string item = SwigWrap::GetActiveCronItem(server, transNum);
             if ("" != item) {
                 string type = SwigWrap::Instrmnt_GetType(item);
-                if ("" == type) {
-                    type = "UNKNOWN";
-                }
+                if ("" == type) { type = "UNKNOWN"; }
                 cout << "ID: " << transNum << "  Type: " << type << "\n\n";
             }
         }

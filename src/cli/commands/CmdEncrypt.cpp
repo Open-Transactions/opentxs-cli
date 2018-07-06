@@ -61,14 +61,10 @@ int32_t CmdEncrypt::runWithOptions() { return run(getOption("hisnym")); }
 
 int32_t CmdEncrypt::run(string hisnym)
 {
-    if (!checkNym("hisnym", hisnym)) {
-        return -1;
-    }
+    if (!checkNym("hisnym", hisnym)) { return -1; }
 
     string input = inputText("the plaintext to be encrypted");
-    if ("" == input) {
-        return -1;
-    }
+    if ("" == input) { return -1; }
 
     string output = SwigWrap::Encrypt(hisnym, input);
     if ("" == output) {

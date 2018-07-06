@@ -78,18 +78,12 @@ int32_t CmdSendVoucher::run(
     string amount,
     string memo)
 {
-    if (!checkAccount("myacct", myacct)) {
-        return -1;
-    }
+    if (!checkAccount("myacct", myacct)) { return -1; }
 
-    if (!checkNym("hisnym", hisnym, false)) {
-        return -1;
-    }
+    if (!checkNym("hisnym", hisnym, false)) { return -1; }
 
     int64_t value = checkAmount("amount", amount, myacct);
-    if (OT_ERROR_AMOUNT == value) {
-        return -1;
-    }
+    if (OT_ERROR_AMOUNT == value) { return -1; }
 
     string voucher;
     CmdWithdrawVoucher withdrawVoucher;

@@ -61,9 +61,7 @@ int32_t CmdShowMarkets::runWithOptions() { return run(getOption("server")); }
 
 int32_t CmdShowMarkets::run(string server)
 {
-    if (!checkServer("server", server)) {
-        return -1;
-    }
+    if (!checkServer("server", server)) { return -1; }
 
     OTDB::MarketList* marketList = loadMarketList(server);
     if (nullptr == marketList) {

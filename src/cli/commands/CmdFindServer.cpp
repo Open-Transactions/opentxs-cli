@@ -57,11 +57,10 @@ std::int32_t CmdFindServer::runWithOptions()
 
 std::int32_t CmdFindServer::run(std::string server)
 {
-    const auto response = OT::App().API().Sync().FindServer(Identifier(server));
+    const auto response =
+        OT::App().API().Sync().FindServer(Identifier::Factory(server));
 
-    if (String(response).Exists()) {
-        return 1;
-    }
+    if (String(response).Exists()) { return 1; }
 
     return -1;
 }

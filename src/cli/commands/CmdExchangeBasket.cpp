@@ -67,18 +67,14 @@ int32_t CmdExchangeBasket::runWithOptions()
 
 int32_t CmdExchangeBasket::run(string myacct, string direction, string multiple)
 {
-    if (!checkAccount("myacct", myacct)) {
-        return -1;
-    }
+    if (!checkAccount("myacct", myacct)) { return -1; }
 
     if ("" != direction && "in" != direction && "out" != direction) {
         otOut << "Error: direction: expected 'in' or 'out'.\n";
         return -1;
     }
 
-    if ("" != multiple && !checkValue("multiple", multiple)) {
-        return -1;
-    }
+    if ("" != multiple && !checkValue("multiple", multiple)) { return -1; }
 
     int32_t multiplier = "" != multiple ? stol(multiple) : 1;
     if (1 > multiplier) {
@@ -99,9 +95,7 @@ int32_t CmdExchangeBasket::run(string myacct, string direction, string multiple)
     }
 
     string assetType = getAccountAssetType(myacct);
-    if ("" == assetType) {
-        return -1;
-    }
+    if ("" == assetType) { return -1; }
 
     if (!SwigWrap::IsBasketCurrency(assetType)) {
         otOut << "Error: account is not a basket currency.\n";
@@ -146,7 +140,7 @@ int32_t CmdExchangeBasket::run(string myacct, string direction, string multiple)
 
     {
         if (!OT::App().API().ServerAction().GetTransactionNumbers(
-                Identifier(mynym), Identifier(server), 20)) {
+                Identifier::Factory(mynym), Identifier::Factory(server), 20)) {
             otOut << "Error: cannot reserve transaction numbers.\n";
             return -1;
         }
@@ -241,26 +235,26 @@ int32_t CmdExchangeBasket::run(string myacct, string direction, string multiple)
         basket = newBasket;
     }
 
-    const Identifier theNotaryID{server}, theNymID{mynym}, theAcctID{myacct};
+    const OTIdentifier theNotaryID = Identifier::Factory({server}),
+                       theNymID = Identifier::Factory({mynym}),
+                       theAcctID = Identifier::Factory({myacct});
     std::string response;
     {
         response = OT::App()
-                          .API()
-                          .ServerAction()
-                          .ExchangeBasketCurrency(
-                              theNymID,
-                              theNotaryID,
-                              Identifier(assetType),
-                              theAcctID,
-                              Identifier(basket),
-                              bExchangingIn)
-                          ->Run();
+                       .API()
+                       .ServerAction()
+                       .ExchangeBasketCurrency(
+                           theNymID,
+                           theNotaryID,
+                           Identifier::Factory(assetType),
+                           theAcctID,
+                           Identifier::Factory(basket),
+                           bExchangingIn)
+                       ->Run();
     }
     int32_t reply =
         responseReply(response, server, mynym, myacct, "exchange_basket");
-    if (1 != reply) {
-        return reply;
-    }
+    if (1 != reply) { return reply; }
 
     {
         if (!OT::App().API().ServerAction().DownloadAccount(
@@ -313,9 +307,7 @@ int32_t CmdExchangeBasket::showBasketAccounts(
 
             if ("" == mynym || mynym == accountNym) {
                 string asset = getAccountAssetType(acct);
-                if ("" == asset) {
-                    return -1;
-                }
+                if ("" == asset) { return -1; }
 
                 if (("" == assetType && SwigWrap::IsBasketCurrency(asset)) ||
                     ("" != assetType && bFilter && assetType == asset) ||

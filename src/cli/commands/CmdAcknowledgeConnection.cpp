@@ -69,17 +69,11 @@ std::int32_t CmdAcknowledgeConnection::run(
     std::string hisnym,
     std::string mypurse)
 {
-    if (!checkServer("server", server)) {
-        return -1;
-    }
+    if (!checkServer("server", server)) { return -1; }
 
-    if (!checkNym("mynym", mynym)) {
-        return -1;
-    }
+    if (!checkNym("mynym", mynym)) { return -1; }
 
-    if (!checkNym("hisnym", hisnym)) {
-        return -1;
-    }
+    if (!checkNym("hisnym", hisnym)) { return -1; }
 
     std::string url = inputText("URL");
     std::string login = inputText("User name");
@@ -89,19 +83,19 @@ std::int32_t CmdAcknowledgeConnection::run(
     std::string response;
     {
         response = OT::App()
-                               .API()
-                               .ServerAction()
-                               .AcknowledgeConnection(
-                                   Identifier(mynym),
-                                   Identifier(server),
-                                   Identifier(hisnym),
-                                   Identifier(mypurse),
-                                   true,
-                                   url,
-                                   login,
-                                   password,
-                                   key)
-                               ->Run();
+                       .API()
+                       .ServerAction()
+                       .AcknowledgeConnection(
+                           Identifier::Factory(mynym),
+                           Identifier::Factory(server),
+                           Identifier::Factory(hisnym),
+                           Identifier::Factory(mypurse),
+                           true,
+                           url,
+                           login,
+                           password,
+                           key)
+                       ->Run();
     }
 
     return processResponse(response, "acknowledge connection");

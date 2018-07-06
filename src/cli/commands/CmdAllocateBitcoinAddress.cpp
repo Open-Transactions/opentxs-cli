@@ -70,14 +70,11 @@ std::int32_t CmdAllocateBitcoinAddress::run(
     const std::string& label,
     const std::string& chain)
 {
-    if (false == checkNym("mynym", mynym)) {
+    if (false == checkNym("mynym", mynym)) { return -1; }
 
-        return -1;
-    }
+    OTIdentifier accountID = Identifier::Factory(account);
 
-    Identifier accountID(account);
-
-    if (accountID.empty()) {
+    if (accountID->empty()) {
         otErr << OT_METHOD << __FUNCTION__ << ": Invalid account ID."
               << std::endl;
 
@@ -86,12 +83,10 @@ std::int32_t CmdAllocateBitcoinAddress::run(
 
     BIP44Chain change{EXTERNAL_CHAIN};
 
-    if ("internal" == chain) {
-        change = INTERNAL_CHAIN;
-    }
+    if ("internal" == chain) { change = INTERNAL_CHAIN; }
 
     const auto address = OT::App().Blockchain().AllocateAddress(
-        Identifier(mynym), accountID, label, change);
+        Identifier::Factory(mynym), accountID, label, change);
 
     if (false == bool(address)) {
         otErr << OT_METHOD << __FUNCTION__ << ": Failed to allocate address."

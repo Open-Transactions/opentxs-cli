@@ -60,10 +60,7 @@ std::int32_t CmdConvertPaymentCode::runWithOptions()
 
 std::int32_t CmdConvertPaymentCode::run(const std::string& code)
 {
-    if (!checkMandatory("code", code)) {
-
-        return -1;
-    }
+    if (!checkMandatory("code", code)) { return -1; }
 
     const std::string id = SwigWrap::NymIDFromPaymentCode(code);
 

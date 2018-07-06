@@ -63,14 +63,10 @@ int32_t CmdAddSignature::runWithOptions() { return run(getOption("mynym")); }
 // Signcontract erases all signatures and replaces them with the new one
 int32_t CmdAddSignature::run(string mynym)
 {
-    if (!checkNym("mynym", mynym)) {
-        return -1;
-    }
+    if (!checkNym("mynym", mynym)) { return -1; }
 
     string contract = inputText("a contract to sign");
-    if ("" == contract) {
-        return -1;
-    }
+    if ("" == contract) { return -1; }
 
     string output = SwigWrap::AddSignature(mynym, contract);
     if ("" == output) {

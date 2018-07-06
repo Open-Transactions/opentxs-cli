@@ -65,13 +65,9 @@ int32_t CmdShowOffers::runWithOptions()
 
 int32_t CmdShowOffers::run(string server, string market)
 {
-    if (!checkServer("server", server)) {
-        return -1;
-    }
+    if (!checkServer("server", server)) { return -1; }
 
-    if (!checkMandatory("market", market)) {
-        return -1;
-    }
+    if (!checkMandatory("market", market)) { return -1; }
 
     OTDB::OfferListMarket* offerList = loadMarketOffers(server, market);
     if (nullptr == offerList) {

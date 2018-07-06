@@ -65,25 +65,22 @@ std::int32_t CmdRequestAdmin::run(
     std::string mynym,
     std::string hisnym)
 {
-    if (!checkServer("server", server)) {
-        return -1;
-    }
+    if (!checkServer("server", server)) { return -1; }
 
-    if (!checkNym("mynym", mynym)) {
-        return -1;
-    }
+    if (!checkNym("mynym", mynym)) { return -1; }
 
-    if (hisnym.empty()) {
-        return -1;
-    }
+    if (hisnym.empty()) { return -1; }
 
     std::string response;
     {
         response = OT::App()
-            .API()
-            .ServerAction()
-            .RequestAdmin(Identifier(mynym), Identifier(server), hisnym)
-            ->Run();
+                       .API()
+                       .ServerAction()
+                       .RequestAdmin(
+                           Identifier::Factory(mynym),
+                           Identifier::Factory(server),
+                           hisnym)
+                       ->Run();
     }
 
     return processResponse(response, "request admin");

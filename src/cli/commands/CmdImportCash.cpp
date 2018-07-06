@@ -63,14 +63,10 @@ int32_t CmdImportCash::runWithOptions() { return run(getOption("mynym")); }
 int32_t CmdImportCash::run(string mynym)
 {
 #if OT_CASH
-    if ("" != mynym && !checkNym("mynym", mynym)) {
-        return -1;
-    }
+    if ("" != mynym && !checkNym("mynym", mynym)) { return -1; }
 
     string instrument = inputText("a cash purse");
-    if ("" == instrument) {
-        return -1;
-    }
+    if ("" == instrument) { return -1; }
 
     string type = SwigWrap::Instrmnt_GetType(instrument);
     if ("" == type) {

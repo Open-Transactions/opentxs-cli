@@ -80,18 +80,12 @@ int32_t CmdPayDividend::run(
     string amount,
     string memo)
 {
-    if (!checkAccount("myacct", myacct)) {
-        return -1;
-    }
+    if (!checkAccount("myacct", myacct)) { return -1; }
 
-    if (!checkPurse("hispurse", hispurse)) {
-        return -1;
-    }
+    if (!checkPurse("hispurse", hispurse)) { return -1; }
 
     int64_t value = checkAmount("amount", amount, myacct);
-    if (OT_ERROR_AMOUNT == value) {
-        return -1;
-    }
+    if (OT_ERROR_AMOUNT == value) { return -1; }
 
     string server = SwigWrap::GetAccountWallet_NotaryID(myacct);
     if ("" == server) {
@@ -108,26 +102,27 @@ int32_t CmdPayDividend::run(
     std::string response;
     {
         response = OT::App()
-                          .API()
-                          .ServerAction()
-                          .PayDividend(
-                              Identifier(mynym),
-                              Identifier(server),
-                              Identifier(hispurse),
-                              Identifier(myacct),
-                              memo,
-                              value)
-                          ->Run();
+                       .API()
+                       .ServerAction()
+                       .PayDividend(
+                           Identifier::Factory(mynym),
+                           Identifier::Factory(server),
+                           Identifier::Factory(hispurse),
+                           Identifier::Factory(myacct),
+                           memo,
+                           value)
+                       ->Run();
     }
     int32_t reply =
         responseReply(response, server, mynym, myacct, "pay_dividend");
-    if (1 == reply) {
-        return reply;
-    }
+    if (1 == reply) { return reply; }
 
     {
         if (!OT::App().API().ServerAction().DownloadAccount(
-                Identifier(mynym), Identifier(server), Identifier(myacct), true)) {
+                Identifier::Factory(mynym),
+                Identifier::Factory(server),
+                Identifier::Factory(myacct),
+                true)) {
             otOut << "Error retrieving intermediary files for account.\n";
             return -1;
         }

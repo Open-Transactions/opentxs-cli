@@ -84,34 +84,22 @@ int32_t CmdExportCash::run(
     string indices,
     string password)
 {
-    if (!checkServer("server", server)) {
-        return -1;
-    }
+    if (!checkServer("server", server)) { return -1; }
 
-    if (!checkNym("mynym", mynym)) {
-        return -1;
-    }
+    if (!checkNym("mynym", mynym)) { return -1; }
 
-    if (!checkPurse("mypurse", mypurse)) {
-        return -1;
-    }
+    if (!checkPurse("mypurse", mypurse)) { return -1; }
 
-    if ("" != password && !checkFlag("password", password)) {
-        return -1;
-    }
+    if ("" != password && !checkFlag("password", password)) { return -1; }
 
     // if password is true, hisnym becomes optional
     if (password != "true" && "" != hisnym && !checkNym("hisnym", hisnym)) {
         return -1;
     }
 
-    if ("" != indices && !checkIndices("indices", indices)) {
-        return -1;
-    }
+    if ("" != indices && !checkIndices("indices", indices)) { return -1; }
 
-    if (password != "true" && "" == hisnym) {
-        hisnym = mynym;
-    }
+    if (password != "true" && "" == hisnym) { hisnym = mynym; }
 
     string retainedCopy = "";
     string purse = exportCash(
@@ -122,9 +110,7 @@ int32_t CmdExportCash::run(
         indices,
         password == "true",
         retainedCopy);
-    if (purse.empty()) {
-        return -1;
-    }
+    if (purse.empty()) { return -1; }
 
     cout << purse << "\n";
 
@@ -184,13 +170,13 @@ string CmdExportCash::exportCash(
         std::string response;
         {
             response = OT::App()
-                                      .API()
-                                      .ServerAction()
-                                      .DownloadContract(
-                                          Identifier(mynym),
-                                          Identifier(server),
-                                          Identifier(assetType))
-                                      ->Run();
+                           .API()
+                           .ServerAction()
+                           .DownloadContract(
+                               Identifier::Factory(mynym),
+                               Identifier::Factory(server),
+                               Identifier::Factory(assetType))
+                           ->Run();
         }
 
         if (1 == VerifyMessageSuccess(response)) {

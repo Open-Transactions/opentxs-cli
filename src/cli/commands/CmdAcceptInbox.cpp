@@ -65,13 +65,9 @@ int32_t CmdAcceptInbox::runWithOptions()
 
 int32_t CmdAcceptInbox::run(string myacct, string indices)
 {
-    if (!checkAccount("myacct", myacct)) {
-        return -1;
-    }
+    if (!checkAccount("myacct", myacct)) { return -1; }
 
-    if ("" != indices && !checkIndices("indices", indices)) {
-        return -1;
-    }
+    if ("" != indices && !checkIndices("indices", indices)) { return -1; }
 
     return acceptFromInbox(myacct, indices, OTRecordList::typeBoth);
 }

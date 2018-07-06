@@ -77,52 +77,38 @@ std::int32_t CmdNotifyBailment::run(
     std::string request,
     std::string amount)
 {
-    if (!checkServer("server", server)) {
-        return -1;
-    }
+    if (!checkServer("server", server)) { return -1; }
 
-    if (!checkNym("mynym", mynym)) {
-        return -1;
-    }
+    if (!checkNym("mynym", mynym)) { return -1; }
 
-    if (!checkNym("hisnym", hisnym)) {
-        return -1;
-    }
+    if (!checkNym("hisnym", hisnym)) { return -1; }
 
-    if (!checkPurse("mypurse", mypurse)) {
-        return -1;
-    }
+    if (!checkPurse("mypurse", mypurse)) { return -1; }
 
-    if (request.empty()) {
-        return -1;
-    }
+    if (request.empty()) { return -1; }
 
     std::int64_t notifybailmentAmount =
         SwigWrap::StringToAmount(mypurse, amount);
-    if (OT_ERROR_AMOUNT == notifybailmentAmount) {
-        return -1;
-    }
+    if (OT_ERROR_AMOUNT == notifybailmentAmount) { return -1; }
 
     std::string txid = inputText("Blockchain transaction ID");
 
-    if (0 == txid.size()) {
-        return -1;
-    }
+    if (0 == txid.size()) { return -1; }
 
     std::string response;
     {
         response = OT::App()
-                               .API()
-                               .ServerAction()
-                               .NotifyBailment(
-                                   Identifier(mynym),
-                                   Identifier(server),
-                                   Identifier(hisnym),
-                                   Identifier(mypurse),
-                                   Identifier(request),
-                                   txid,
-                                   notifybailmentAmount)
-                               ->Run();
+                       .API()
+                       .ServerAction()
+                       .NotifyBailment(
+                           Identifier::Factory(mynym),
+                           Identifier::Factory(server),
+                           Identifier::Factory(hisnym),
+                           Identifier::Factory(mypurse),
+                           Identifier::Factory(request),
+                           txid,
+                           notifybailmentAmount)
+                       ->Run();
     }
     return processResponse(response, "notify bailment");
 }

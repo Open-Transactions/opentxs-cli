@@ -54,14 +54,12 @@ CmdAcceptInvoices::CmdAcceptInvoices()
     args[2] = "[--indices <indices|all>]";
     category = catAccounts;
     help = "Pay all invoices in myacct's Nym's payments inbox on Server."
-    " (Confused yet? New API fixes this kind of problem).";
+           " (Confused yet? New API fixes this kind of problem).";
     usage = "Omitting --indices is the same as specifying --indices all. "
-    "And FYI, it uses MyAcct's server if one is not provided.";
+            "And FYI, it uses MyAcct's server if one is not provided.";
 }
 
-CmdAcceptInvoices::~CmdAcceptInvoices()
-{
-}
+CmdAcceptInvoices::~CmdAcceptInvoices() {}
 
 std::int32_t CmdAcceptInvoices::runWithOptions()
 {
@@ -73,21 +71,15 @@ std::int32_t CmdAcceptInvoices::run(
     string myacct,
     string indices)
 {
-    if (!checkAccount("myacct", myacct)) {
-        return -1;
-    }
+    if (!checkAccount("myacct", myacct)) { return -1; }
 
     if (!checkServer("server", server)) {
         server = SwigWrap::GetAccountWallet_NotaryID(myacct);
     }
-    if (!checkServer("server", server)) {
-        return -1;
-    }
-    string & transport_notary = server;
+    if (!checkServer("server", server)) { return -1; }
+    string& transport_notary = server;
 
-    if ("" != indices && !checkIndices("indices", indices)) {
-        return -1;
-    }
+    if ("" != indices && !checkIndices("indices", indices)) { return -1; }
 
     return acceptFromPaymentbox(transport_notary, myacct, indices, "INVOICE");
 }

@@ -61,9 +61,7 @@ int32_t CmdInbox::runWithOptions() { return run(getOption("myacct")); }
 
 int32_t CmdInbox::run(string myacct)
 {
-    if (!checkAccount("myacct", myacct)) {
-        return -1;
-    }
+    if (!checkAccount("myacct", myacct)) { return -1; }
 
     string server = SwigWrap::GetAccountWallet_NotaryID(myacct);
     if ("" == server) {

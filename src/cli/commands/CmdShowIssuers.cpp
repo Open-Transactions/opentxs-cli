@@ -106,7 +106,7 @@ std::int32_t CmdShowIssuers::run(
     }
 
     const auto currencyType = proto::ContactItemType(std::stoi(currency));
-    const Identifier nymID{mynym};
+    const OTIdentifier nymID = Identifier::Factory(mynym);
     auto& list = OT::App().UI().AccountSummary(nymID, currencyType);
     otOut << "Issuers:\n";
     dashLine();

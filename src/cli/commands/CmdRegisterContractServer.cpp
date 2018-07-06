@@ -80,7 +80,7 @@ int32_t CmdRegisterContractServer::run(
                 .API()
                 .ServerAction()
                 .PublishServerContract(
-                    Identifier(mynym), Identifier(server), Identifier(contract))
+                    Identifier::Factory(mynym), Identifier::Factory(server), Identifier::Factory(contract))
                 ->Run();
     }
 

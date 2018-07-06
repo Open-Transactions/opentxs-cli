@@ -57,11 +57,9 @@ std::int32_t CmdStartIntroductionServer::runWithOptions()
 
 std::int32_t CmdStartIntroductionServer::run(std::string mynym)
 {
-    if (!checkNym("mynym", mynym)) {
-        return -1;
-    }
+    if (!checkNym("mynym", mynym)) { return -1; }
 
-    OT::App().API().Sync().StartIntroductionServer(Identifier(mynym));
+    OT::App().API().Sync().StartIntroductionServer(Identifier::Factory(mynym));
 
     return 1;
 }

@@ -76,37 +76,27 @@ int32_t CmdGetOffers::run(
     string market,
     string depth)
 {
-    if (!checkServer("server", server)) {
-        return -1;
-    }
+    if (!checkServer("server", server)) { return -1; }
 
-    if (!checkNym("mynym", mynym)) {
-        return -1;
-    }
+    if (!checkNym("mynym", mynym)) { return -1; }
 
-    if (!checkMandatory("market", market)) {
-        return -1;
-    }
+    if (!checkMandatory("market", market)) { return -1; }
 
-    if ("" == depth) {
-        depth = "50";
-    }
+    if ("" == depth) { depth = "50"; }
 
     std::string response;
     {
         response = OT::App()
-                          .API()
-                          .ServerAction()
-                          .DownloadMarketOffers(
-                              Identifier(mynym),
-                              Identifier(server),
-                              Identifier(market),
-                              stoll(depth))
-                          ->Run();
+                       .API()
+                       .ServerAction()
+                       .DownloadMarketOffers(
+                           Identifier::Factory(mynym),
+                           Identifier::Factory(server),
+                           Identifier::Factory(market),
+                           stoll(depth))
+                       ->Run();
     }
-    if (1 != processResponse(response, "get market offers")) {
-        return -1;
-    }
+    if (1 != processResponse(response, "get market offers")) { return -1; }
 
     CmdShowOffers showOffers;
     return showOffers.run(server, market);

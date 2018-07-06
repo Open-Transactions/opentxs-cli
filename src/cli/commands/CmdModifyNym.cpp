@@ -102,9 +102,7 @@ std::int32_t CmdModifyNym::run(
         data.SetScope(proto::CITEMTYPE_SERVER, server, true);
     }
 
-    if (false == opentxs.empty()) {
-        data.AddPreferredOTServer(opentxs, true);
-    }
+    if (false == opentxs.empty()) { data.AddPreferredOTServer(opentxs, true); }
 
     if (false == core.empty()) {
         data.AddPaymentCode(core, proto::CITEMTYPE_BTC, true, true);

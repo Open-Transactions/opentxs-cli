@@ -59,9 +59,7 @@ std::int32_t CmdArchivePeerReply::runWithOptions()
 
 std::int32_t CmdArchivePeerReply::run(std::string mynym, std::string mypurse)
 {
-    if (!checkNym("mynym", mynym)) {
-        return -1;
-    }
+    if (!checkNym("mynym", mynym)) { return -1; }
 
     return OT::App().API().Exec().completePeerRequest(mynym, mypurse);
 }

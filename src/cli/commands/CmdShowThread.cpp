@@ -62,8 +62,8 @@ std::int32_t CmdShowThread::run(std::string mynym, const std::string& threadID)
 {
     if (!checkNym("mynym", mynym)) { return -1; }
 
-    const auto& thread =
-        OT::App().UI().ActivityThread(Identifier(mynym), Identifier(threadID));
+    const auto& thread = OT::App().UI().ActivityThread(
+        Identifier::Factory(mynym), Identifier::Factory(threadID));
     const auto first = thread.First();
     otOut << thread.DisplayName() << "\n";
 

@@ -66,21 +66,19 @@ int32_t CmdGetMarkets::runWithOptions()
 
 int32_t CmdGetMarkets::run(string server, string mynym)
 {
-    if (!checkServer("server", server)) {
-        return -1;
-    }
+    if (!checkServer("server", server)) { return -1; }
 
-    if (!checkNym("mynym", mynym)) {
-        return -1;
-    }
+    if (!checkNym("mynym", mynym)) { return -1; }
 
     std::string response;
     {
-        response = OT::App()
-            .API()
-            .ServerAction()
-            .DownloadMarketList(Identifier(mynym), Identifier(server))
-            ->Run();
+        response =
+            OT::App()
+                .API()
+                .ServerAction()
+                .DownloadMarketList(
+                    Identifier::Factory(mynym), Identifier::Factory(server))
+                ->Run();
     }
     if (1 != responseStatus(response)) {
         otOut << "Error: cannot get market list.\n";

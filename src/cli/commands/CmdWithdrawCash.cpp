@@ -65,14 +65,10 @@ int32_t CmdWithdrawCash::runWithOptions()
 
 int32_t CmdWithdrawCash::run(string myacct, string amount)
 {
-    if (!checkAccount("myacct", myacct)) {
-        return -1;
-    }
+    if (!checkAccount("myacct", myacct)) { return -1; }
 
     int64_t value = checkAmount("amount", amount, myacct);
-    if (OT_ERROR_AMOUNT == value) {
-        return -1;
-    }
+    if (OT_ERROR_AMOUNT == value) { return -1; }
 
     return withdrawCash(myacct, value);
 }

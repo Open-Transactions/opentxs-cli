@@ -64,14 +64,10 @@ int32_t CmdVerifySignature::runWithOptions()
 
 int32_t CmdVerifySignature::run(string hisnym)
 {
-    if (!checkNym("hisnym", hisnym)) {
-        return -1;
-    }
+    if (!checkNym("hisnym", hisnym)) { return -1; }
 
     string contract = inputText("the contract to verify");
-    if ("" == contract) {
-        return -1;
-    }
+    if ("" == contract) { return -1; }
 
     if (!SwigWrap::VerifySignature(hisnym, contract)) {
         otOut << "Error: cannot verify signature.\n";

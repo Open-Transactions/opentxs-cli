@@ -73,21 +73,13 @@ std::int32_t CmdRequestConnection::run(
     std::string hisnym,
     std::string mypurse)
 {
-    if (!checkServer("server", server)) {
-        return -1;
-    }
+    if (!checkServer("server", server)) { return -1; }
 
-    if (!checkNym("mynym", mynym)) {
-        return -1;
-    }
+    if (!checkNym("mynym", mynym)) { return -1; }
 
-    if (!checkNym("hisnym", hisnym)) {
-        return -1;
-    }
+    if (!checkNym("hisnym", hisnym)) { return -1; }
 
-    if (mypurse.empty()) {
-        return -1;
-    }
+    if (mypurse.empty()) { return -1; }
 
     std::int64_t type{};
 
@@ -102,14 +94,14 @@ std::int32_t CmdRequestConnection::run(
     std::string response;
     {
         response = OT::App()
-                               .API()
-                               .ServerAction()
-                               .InitiateRequestConnection(
-                                   Identifier(mynym),
-                                   Identifier(server),
-                                   Identifier(hisnym),
-                                   proto::ConnectionInfoType(type))
-                               ->Run();
+                       .API()
+                       .ServerAction()
+                       .InitiateRequestConnection(
+                           Identifier::Factory(mynym),
+                           Identifier::Factory(server),
+                           Identifier::Factory(hisnym),
+                           proto::ConnectionInfoType(type))
+                       ->Run();
     }
 
     return processResponse(response, "request connection");

@@ -71,33 +71,25 @@ std::int32_t CmdRequestBailment::run(
     std::string hisnym,
     std::string mypurse)
 {
-    if (!checkServer("server", server)) {
-        return -1;
-    }
+    if (!checkServer("server", server)) { return -1; }
 
-    if (!checkNym("mynym", mynym)) {
-        return -1;
-    }
+    if (!checkNym("mynym", mynym)) { return -1; }
 
-    if (!checkNym("hisnym", hisnym)) {
-        return -1;
-    }
+    if (!checkNym("hisnym", hisnym)) { return -1; }
 
-    if (!checkPurse("mypurse", mypurse)) {
-        return -1;
-    }
+    if (!checkPurse("mypurse", mypurse)) { return -1; }
 
     std::string response;
     {
         response = OT::App()
-                               .API()
-                               .ServerAction()
-                               .InitiateBailment(
-                                   Identifier(mynym),
-                                   Identifier(server),
-                                   Identifier(hisnym),
-                                   Identifier(mypurse))
-                               ->Run();
+                       .API()
+                       .ServerAction()
+                       .InitiateBailment(
+                           Identifier::Factory(mynym),
+                           Identifier::Factory(server),
+                           Identifier::Factory(hisnym),
+                           Identifier::Factory(mypurse))
+                       ->Run();
     }
     return processResponse(response, "request bailment");
 }

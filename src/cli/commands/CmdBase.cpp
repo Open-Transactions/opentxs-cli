@@ -529,7 +529,9 @@ std::string CmdBase::check_nym(
     const std::string& targetNymID) const
 {
     auto action = OT::App().API().ServerAction().DownloadNym(
-        Identifier(nymID), Identifier(notaryID), Identifier(targetNymID));
+        Identifier::Factory(nymID),
+        Identifier::Factory(notaryID),
+        Identifier::Factory(targetNymID));
 
     return action->Run();
 }
@@ -560,6 +562,7 @@ int64_t CmdBase::checkAmount(
 
 bool CmdBase::checkBoolean(const char* name, const string& value) const
 {
+    if (!checkMandatory(name, value)) { return false; }
     if (value != "false" && value != "true") {
         otOut << "Error: " << name << ": expected 'false' or 'true'.\n";
         return false;
@@ -608,11 +611,11 @@ bool CmdBase::checkPurse(const char* name, string& purse) const
 {
     if (!checkMandatory(name, purse)) return false;
 
-    Identifier theID(purse);
+    OTIdentifier theID = Identifier::Factory(purse);
     ConstUnitDefinition pUnit;  // shared_ptr to const.
 
     // See if it's available using the full length ID.
-    if (!theID.empty()) pUnit = OT::App().Wallet().UnitDefinition(theID);
+    if (!theID->empty()) pUnit = OT::App().Wallet().UnitDefinition(theID);
 
     if (!pUnit) {
         const auto units = OT::App().Wallet().UnitDefinitionList();
@@ -620,7 +623,8 @@ bool CmdBase::checkPurse(const char* name, string& purse) const
         // See if it's available using the partial length ID.
         for (auto& it : units) {
             if (0 == it.first.compare(0, purse.length(), purse)) {
-                pUnit = OT::App().Wallet().UnitDefinition(Identifier(it.first));
+                pUnit = OT::App().Wallet().UnitDefinition(
+                    Identifier::Factory(it.first));
                 break;
             }
         }
@@ -628,8 +632,8 @@ bool CmdBase::checkPurse(const char* name, string& purse) const
             // See if it's available using the full length name.
             for (auto& it : units) {
                 if (0 == it.second.compare(0, it.second.length(), purse)) {
-                    pUnit =
-                        OT::App().Wallet().UnitDefinition(Identifier(it.first));
+                    pUnit = OT::App().Wallet().UnitDefinition(
+                        Identifier::Factory(it.first));
                     break;
                 }
             }
@@ -639,7 +643,7 @@ bool CmdBase::checkPurse(const char* name, string& purse) const
                 for (auto& it : units) {
                     if (0 == it.second.compare(0, purse.length(), purse)) {
                         pUnit = OT::App().Wallet().UnitDefinition(
-                            Identifier(it.first));
+                            Identifier::Factory(it.first));
                         break;
                     }
                 }

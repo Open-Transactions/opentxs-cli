@@ -68,20 +68,14 @@ int32_t CmdSignContract::runWithOptions()
 // Signcontract erases all signatures and replaces them with the new one
 int32_t CmdSignContract::run(string mynym, string type)
 {
-    if (!checkNym("mynym", mynym)) {
-        return -1;
-    }
+    if (!checkNym("mynym", mynym)) { return -1; }
 
     string contract = inputText("a contract to sign");
-    if ("" == contract) {
-        return -1;
-    }
+    if ("" == contract) { return -1; }
 
     string output = SwigWrap::SignContract(mynym, contract);
     if ("" == output) {
-        if (!checkMandatory("type", type)) {
-            return -1;
-        }
+        if (!checkMandatory("type", type)) { return -1; }
 
         output = SwigWrap::FlatSign(mynym, contract, type);
         if ("" == output) {

@@ -65,25 +65,21 @@ int32_t CmdGetMyOffers::runWithOptions()
 
 int32_t CmdGetMyOffers::run(string server, string mynym)
 {
-    if (!checkServer("server", server)) {
-        return -1;
-    }
+    if (!checkServer("server", server)) { return -1; }
 
-    if (!checkNym("mynym", mynym)) {
-        return -1;
-    }
+    if (!checkNym("mynym", mynym)) { return -1; }
 
     std::string response;
     {
-        response = OT::App()
-            .API()
-            .ServerAction()
-            .DownloadNymMarketOffers(Identifier(mynym), Identifier(server))
-            ->Run();
+        response =
+            OT::App()
+                .API()
+                .ServerAction()
+                .DownloadNymMarketOffers(
+                    Identifier::Factory(mynym), Identifier::Factory(server))
+                ->Run();
     }
-    if (1 != processResponse(response, "get market offers")) {
-        return -1;
-    }
+    if (1 != processResponse(response, "get market offers")) { return -1; }
 
     CmdShowMyOffers showMyOffers;
     return showMyOffers.run(server, mynym);

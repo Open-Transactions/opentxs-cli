@@ -65,40 +65,31 @@ std::int32_t CmdPeerStoreSecret::run(
     std::string mynym,
     std::string hisnym)
 {
-    if (!checkServer("server", server)) {
-        return -1;
-    }
+    if (!checkServer("server", server)) { return -1; }
 
-    if (!checkNym("mynym", mynym)) {
-        return -1;
-    }
+    if (!checkNym("mynym", mynym)) { return -1; }
 
-    if (!checkNym("hisnym", hisnym)) {
-        return -1;
-    }
+    if (!checkNym("hisnym", hisnym)) { return -1; }
 
     const std::string primary = inputText("Word list");
 
-    if (0 == primary.size()) {
-
-        return -1;
-    }
+    if (0 == primary.size()) { return -1; }
 
     const std::string secondary = inputText("Passphrase");
 
     std::string response;
     {
         response = OT::App()
-                                     .API()
-                                     .ServerAction()
-                                     .InitiateStoreSecret(
-                                         Identifier(mynym),
-                                         Identifier(server),
-                                         Identifier(hisnym),
-                                         proto::SecretType(1),
-                                         primary,
-                                         secondary)
-                                     ->Run();
+                       .API()
+                       .ServerAction()
+                       .InitiateStoreSecret(
+                           Identifier::Factory(mynym),
+                           Identifier::Factory(server),
+                           Identifier::Factory(hisnym),
+                           proto::SecretType(1),
+                           primary,
+                           secondary)
+                       ->Run();
     }
 
     return processResponse(response, "peer store secret");

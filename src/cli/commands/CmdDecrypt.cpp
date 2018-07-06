@@ -61,14 +61,10 @@ int32_t CmdDecrypt::runWithOptions() { return run(getOption("mynym")); }
 
 int32_t CmdDecrypt::run(string mynym)
 {
-    if (!checkNym("mynym", mynym)) {
-        return -1;
-    }
+    if (!checkNym("mynym", mynym)) { return -1; }
 
     string input = inputText("the encrypted text to be decrypted");
-    if ("" == input) {
-        return -1;
-    }
+    if ("" == input) { return -1; }
 
     string output = SwigWrap::Decrypt(mynym, input);
     if ("" == output) {

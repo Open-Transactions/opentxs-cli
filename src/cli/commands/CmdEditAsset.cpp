@@ -65,13 +65,9 @@ int32_t CmdEditAsset::runWithOptions()
 
 int32_t CmdEditAsset::run(string mypurse, string label)
 {
-    if (!checkPurse("mypurse", mypurse)) {
-        return -1;
-    }
+    if (!checkPurse("mypurse", mypurse)) { return -1; }
 
-    if (!checkMandatory("label", label)) {
-        return -1;
-    }
+    if (!checkMandatory("label", label)) { return -1; }
 
     if (!SwigWrap::SetAssetType_Name(mypurse, label)) {
         otOut << "Error: cannot set purse label.\n";

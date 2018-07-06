@@ -83,41 +83,31 @@ int32_t CmdTriggerClause::run(
     string clause,
     string param)
 {
-    if (!checkServer("server", server)) {
-        return -1;
-    }
+    if (!checkServer("server", server)) { return -1; }
 
-    if (!checkNym("mynym", mynym)) {
-        return -1;
-    }
+    if (!checkNym("mynym", mynym)) { return -1; }
 
-    if (!checkTransNum("id", id)) {
-        return -1;
-    }
+    if (!checkTransNum("id", id)) { return -1; }
 
-    if (!checkMandatory("clause", clause)) {
-        return -1;
-    }
+    if (!checkMandatory("clause", clause)) { return -1; }
 
     if ("" == param) {
         param = inputText("the clause parameter");
-        if ("" == param) {
-            return -1;
-        }
+        if ("" == param) { return -1; }
     }
 
     std::string response;
     {
         response = OT::App()
-                          .API()
-                          .ServerAction()
-                          .TriggerClause(
-                              Identifier(mynym),
-                              Identifier(server),
-                              std::stoi(id),
-                              clause,
-                              param)
-                          ->Run();
+                       .API()
+                       .ServerAction()
+                       .TriggerClause(
+                           Identifier::Factory(mynym),
+                           Identifier::Factory(server),
+                           std::stoi(id),
+                           clause,
+                           param)
+                       ->Run();
     }
     return processResponse(response, "trigger clause");
 }

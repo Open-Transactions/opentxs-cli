@@ -65,17 +65,11 @@ int32_t CmdCheckNym::runWithOptions()
 
 int32_t CmdCheckNym::run(string server, string mynym, string hisnym)
 {
-    if (!checkServer("server", server)) {
-        return -1;
-    }
+    if (!checkServer("server", server)) { return -1; }
 
-    if (!checkNym("mynym", mynym)) {
-        return -1;
-    }
+    if (!checkNym("mynym", mynym)) { return -1; }
 
-    if (!checkNym("hisnym", hisnym, false)) {
-        return -1;
-    }
+    if (!checkNym("hisnym", hisnym, false)) { return -1; }
 
     /*
      NOTE: This is a very strange case!
@@ -111,11 +105,13 @@ int32_t CmdCheckNym::run(string server, string mynym, string hisnym)
     std::string response;
     {
         response = OT::App()
-            .API()
-            .ServerAction()
-            .DownloadNym(
-                Identifier(mynym), Identifier(server), Identifier(hisnym))
-            ->Run();
+                       .API()
+                       .ServerAction()
+                       .DownloadNym(
+                           Identifier::Factory(mynym),
+                           Identifier::Factory(server),
+                           Identifier::Factory(hisnym))
+                       ->Run();
     }
     return processResponse(response, "check nym");
 }

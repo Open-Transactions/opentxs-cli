@@ -60,25 +60,17 @@ std::int32_t CmdAcceptIncoming::runWithOptions()
 
 std::int32_t CmdAcceptIncoming::run(std::string myacct)
 {
-    if (!checkAccount("myacct", myacct)) {
-        return -1;
-    }
+    if (!checkAccount("myacct", myacct)) { return -1; }
 
     const auto& storage = OT::App().DB();
     const auto accountID = Identifier::Factory(myacct);
     const auto nymID = storage.AccountOwner(accountID);
 
-    if (nymID->empty()) {
-
-        return -1;
-    }
+    if (nymID->empty()) { return -1; }
 
     const auto serverID = storage.AccountServer(accountID);
 
-    if (serverID->empty()) {
-
-        return -1;
-    }
+    if (serverID->empty()) { return -1; }
 
     const auto output =
         OT::App().API().Sync().AcceptIncoming(nymID, accountID, serverID);

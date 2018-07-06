@@ -61,56 +61,40 @@ std::int32_t CmdServerAddClaim::runWithOptions()
 
 std::int32_t CmdServerAddClaim::run(std::string server, std::string mynym)
 {
-    if (!checkServer("server", server)) {
-        return -1;
-    }
+    if (!checkServer("server", server)) { return -1; }
 
-    if (!checkNym("mynym", mynym)) {
-        return -1;
-    }
+    if (!checkNym("mynym", mynym)) { return -1; }
 
     const std::string section = inputText("Section");
 
-    if (0 == section.size()) {
-
-        return -1;
-    }
+    if (0 == section.size()) { return -1; }
 
     const std::string type = inputText("Type");
 
-    if (0 == type.size()) {
-
-        return -1;
-    }
+    if (0 == type.size()) { return -1; }
 
     const std::string value = inputText("Value");
 
-    if (0 == section.size()) {
-
-        return -1;
-    }
+    if (0 == section.size()) { return -1; }
 
     const std::string strPrimary = inputText("Primary? (true or false)");
     bool primary = true;
 
-    if ("false" == strPrimary) {
-
-        primary = false;
-    }
+    if ("false" == strPrimary) { primary = false; }
 
     std::string response;
     {
         response = OT::App()
-            .API()
-            .ServerAction()
-            .AddServerClaim(
-                Identifier(mynym),
-                Identifier(server),
-                proto::ContactSectionName(std::stoi(section)),
-                proto::ContactItemType(std::stoi(type)),
-                value,
-                primary)
-            ->Run();
+                       .API()
+                       .ServerAction()
+                       .AddServerClaim(
+                           Identifier::Factory(mynym),
+                           Identifier::Factory(server),
+                           proto::ContactSectionName(std::stoi(section)),
+                           proto::ContactItemType(std::stoi(type)),
+                           value,
+                           primary)
+                       ->Run();
     }
 
     return processResponse(response, "server add claim");

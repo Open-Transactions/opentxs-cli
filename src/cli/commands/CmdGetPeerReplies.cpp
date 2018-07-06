@@ -60,9 +60,7 @@ std::int32_t CmdGetPeerReplies::runWithOptions()
 
 std::int32_t CmdGetPeerReplies::run(std::string mynym)
 {
-    if (!checkNym("mynym", mynym)) {
-        return -1;
-    }
+    if (!checkNym("mynym", mynym)) { return -1; }
 
     auto sent = SwigWrap::getSentReplies(mynym);
     auto incoming = SwigWrap::getIncomingReplies(mynym);

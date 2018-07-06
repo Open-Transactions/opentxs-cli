@@ -76,11 +76,13 @@ int32_t CmdRegisterContractUnit::run(
     {
         response =
             OT::App()
-                .API()
-                .ServerAction()
-                .PublishUnitDefinition(
-                    Identifier(mynym), Identifier(server), Identifier(hispurse))
-                ->Run();
+                       .API()
+                       .ServerAction()
+                       .PublishUnitDefinition(
+                           Identifier::Factory(mynym),
+                           Identifier::Factory(server),
+                           Identifier::Factory(hispurse))
+                       ->Run();
     }
 
     return processResponse(response, "register contract");

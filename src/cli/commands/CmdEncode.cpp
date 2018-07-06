@@ -61,9 +61,7 @@ int32_t CmdEncode::runWithOptions() { return run(); }
 int32_t CmdEncode::run()
 {
     string input = inputText("the plaintext to be encoded");
-    if ("" == input) {
-        return -1;
-    }
+    if ("" == input) { return -1; }
 
     string output = SwigWrap::Encode(input, true);
     if ("" == output) {

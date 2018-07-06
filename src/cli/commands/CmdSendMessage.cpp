@@ -59,8 +59,8 @@ std::int32_t CmdSendMessage::contact(
     const std::string& hisnym,
     const std::string& message)
 {
-    const Identifier nymID(mynym);
-    const Identifier contactID(hisnym);
+    const OTIdentifier nymID = Identifier::Factory(mynym);
+    const OTIdentifier contactID = Identifier::Factory(hisnym);
     auto& thread = OT::App().UI().ActivityThread(nymID, contactID);
     const auto loaded = thread.SetDraft(message);
 
@@ -97,9 +97,9 @@ std::int32_t CmdSendMessage::nym(
                        .API()
                        .ServerAction()
                        .SendMessage(
-                           Identifier(mynym),
-                           Identifier(server),
-                           Identifier(hisnym),
+                           Identifier::Factory(mynym),
+                           Identifier::Factory(server),
+                           Identifier::Factory(hisnym),
                            message)
                        ->Run();
     }

@@ -92,34 +92,22 @@ int32_t CmdNewOffer::run(
     string price,
     string lifespan)
 {
-    if (!checkAccount("myacct", myacct)) {
-        return -1;
-    }
+    if (!checkAccount("myacct", myacct)) { return -1; }
 
-    if (!checkAccount("hisacct", hisacct)) {
-        return -1;
-    }
+    if (!checkAccount("hisacct", hisacct)) { return -1; }
 
     if (type != "ask" && type != "bid") {
         otOut << "Error: type: mandatory ask/bid parameter not specified.\n";
         return -1;
     }
 
-    if (!checkValue("scale", scale)) {
-        return -1;
-    }
+    if (!checkValue("scale", scale)) { return -1; }
 
-    if (!checkValue("quantity", quantity)) {
-        return -1;
-    }
+    if (!checkValue("quantity", quantity)) { return -1; }
 
-    if (!checkValue("price", price)) {
-        return -1;
-    }
+    if (!checkValue("price", price)) { return -1; }
 
-    if ("" != lifespan && !checkValue("lifespan", lifespan)) {
-        return -1;
-    }
+    if ("" != lifespan && !checkValue("lifespan", lifespan)) { return -1; }
 
     string server = SwigWrap::GetAccountWallet_NotaryID(myacct);
     if ("" == server) {
@@ -177,20 +165,20 @@ int32_t CmdNewOffer::run(
     std::string response;
     {
         response = OT::App()
-                          .API()
-                          .ServerAction()
-                          .CreateMarketOffer(
-                              Identifier(myacct),
-                              Identifier(hisacct),
-                              Amount(s),
-                              Amount(m),
-                              Amount(q),
-                              Amount(p),
-                              type == "ask",
-                              std::chrono::seconds(l),
-                              "",
-                              Amount(0))
-                          ->Run();
+                       .API()
+                       .ServerAction()
+                       .CreateMarketOffer(
+                           Identifier::Factory(myacct),
+                           Identifier::Factory(hisacct),
+                           Amount(s),
+                           Amount(m),
+                           Amount(q),
+                           Amount(p),
+                           type == "ask",
+                           std::chrono::seconds(l),
+                           "",
+                           Amount(0))
+                       ->Run();
     }
     return responseReply(
         response, server, mynym, myacct, "create_market_offer");
@@ -300,14 +288,14 @@ int32_t CmdNewOffer::cleanMarketOfferList(
         std::string response;
         {
             response = OT::App()
-                              .API()
-                              .ServerAction()
-                              .KillMarketOffer(
-                                  Identifier(mynym),
-                                  Identifier(server),
-                                  Identifier(myacct),
-                                  j)
-                              ->Run();
+                           .API()
+                           .ServerAction()
+                           .KillMarketOffer(
+                               Identifier::Factory(mynym),
+                               Identifier::Factory(server),
+                               Identifier::Factory(myacct),
+                               j)
+                           ->Run();
         }
         if (0 > processTxResponse(
                     server, mynym, myacct, response, "kill market offer")) {

@@ -59,27 +59,20 @@ std::int32_t CmdShowPayable::runWithOptions()
 
 std::int32_t CmdShowPayable::run(std::string mynym, std::string currency)
 {
-    if (!checkNym("mynym", mynym)) {
-        return -1;
-    }
+    if (!checkNym("mynym", mynym)) { return -1; }
 
-    if (!checkMandatory("currency", currency)) {
-        return -1;
-    }
+    if (!checkMandatory("currency", currency)) { return -1; }
 
     auto currencyType = proto::ContactItemType(std::stoi(currency));
 
-    const Identifier nymID{mynym};
+    const OTIdentifier nymID = Identifier::Factory({mynym});
     auto& list = OT::App().UI().PayableList(nymID, currencyType);
     otOut << "Contacts:\n";
     dashLine();
     auto line = list.First();
     auto last = line->Last();
 
-    if (false == line->Valid()) {
-
-        return 1;
-    }
+    if (false == line->Valid()) { return 1; }
 
     otOut << " " << line->Section() << " " << line->DisplayName() << " ("
           << line->ContactID() << ")\n";
@@ -88,10 +81,7 @@ std::int32_t CmdShowPayable::run(std::string mynym, std::string currency)
         line = list.Next();
         last = line->Last();
 
-        if (false == line->Valid()) {
-
-            return 1;
-        }
+        if (false == line->Valid()) { return 1; }
         otOut << " " << line->Section() << "  " << line->DisplayName() << " ("
               << line->ContactID() << ")\n";
     }

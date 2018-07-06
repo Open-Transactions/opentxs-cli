@@ -83,9 +83,7 @@ int32_t CmdShowBasket::run(string index)
             if ("" != assetType && SwigWrap::IsBasketCurrency(assetType)) {
                 cout << i << ": " << assetType;
                 string assetName = SwigWrap::GetAssetType_Name(assetType);
-                if ("" != assetName) {
-                    cout << " : " + assetName;
-                }
+                if ("" != assetName) { cout << " : " + assetName; }
                 cout << "\n";
             }
         }
@@ -94,9 +92,7 @@ int32_t CmdShowBasket::run(string index)
     }
 
     int32_t messageNr = checkIndex("index", index, items);
-    if (0 > messageNr) {
-        return -1;
-    }
+    if (0 > messageNr) { return -1; }
 
     string assetType = SwigWrap::GetAssetType_ID(messageNr);
     if ("" == assetType) {

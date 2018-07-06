@@ -106,31 +106,19 @@ int32_t CmdProposePlan::run(
     string paymentplan,
     string planexpiry)
 {
-    if (!checkServer("server", server)) {
-        return -1;
-    }
+    if (!checkServer("server", server)) { return -1; }
 
-    if (!checkNym("mynym", mynym)) {
-        return -1;
-    }
+    if (!checkNym("mynym", mynym)) { return -1; }
 
-    if (!checkNym("hisnym", hisnym)) {
-        return -1;
-    }
+    if (!checkNym("hisnym", hisnym)) { return -1; }
 
-    if (!checkAccount("myacct", myacct)) {
-        return -1;
-    }
+    if (!checkAccount("myacct", myacct)) { return -1; }
 
-    if (!checkAccount("hisacct", hisacct)) {
-        return -1;
-    }
+    if (!checkAccount("hisacct", hisacct)) { return -1; }
 
     if ("" == memo) {
         memo = inputText("a consideration");
-        if ("" == memo) {
-            return -1;
-        }
+        if ("" == memo) { return -1; }
     }
 
     otOut << "date_range (from,to): " << daterange << "\n";
@@ -141,7 +129,7 @@ int32_t CmdProposePlan::run(
 
     {
         if (!OT::App().API().ServerAction().GetTransactionNumbers(
-                Identifier(mynym), Identifier(server), 2)) {
+                Identifier::Factory(mynym), Identifier::Factory(server), 2)) {
             otOut << "Error: cannot reserve transaction numbers.\n";
             return -1;
         }
@@ -179,14 +167,14 @@ int32_t CmdProposePlan::run(
     std::string response;
     {
         response = OT::App()
-                          .API()
-                          .ServerAction()
-                          .SendPayment(
-                              Identifier(mynym),
-                              Identifier(server),
-                              Identifier(hisnym),
-                              payment)
-                          ->Run();
+                       .API()
+                       .ServerAction()
+                       .SendPayment(
+                           Identifier::Factory(mynym),
+                           Identifier::Factory(server),
+                           Identifier::Factory(hisnym),
+                           payment)
+                       ->Run();
     }
     if (1 != responseStatus(response)) {
         otOut << "Error: cannot send payment plan.\n";

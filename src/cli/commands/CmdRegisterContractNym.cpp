@@ -65,26 +65,22 @@ int32_t CmdRegisterContractNym::runWithOptions()
 
 int32_t CmdRegisterContractNym::run(string server, string mynym, string hisnym)
 {
-    if (!checkServer("server", server)) {
-        return -1;
-    }
+    if (!checkServer("server", server)) { return -1; }
 
-    if (!checkNym("mynym", mynym)) {
-        return -1;
-    }
+    if (!checkNym("mynym", mynym)) { return -1; }
 
-    if (!checkNym("hisnym", hisnym, true)) {
-        return -1;
-    }
+    if (!checkNym("hisnym", hisnym, true)) { return -1; }
 
     std::string response;
     {
         response = OT::App()
-            .API()
-            .ServerAction()
-            .PublishNym(
-                Identifier(mynym), Identifier(server), Identifier(hisnym))
-            ->Run();
+                       .API()
+                       .ServerAction()
+                       .PublishNym(
+                           Identifier::Factory(mynym),
+                           Identifier::Factory(server),
+                           Identifier::Factory(hisnym))
+                       ->Run();
     }
 
     return processResponse(response, "register contract");

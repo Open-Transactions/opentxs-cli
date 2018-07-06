@@ -82,14 +82,14 @@ int32_t CmdBaseInstrument::sendPayment(
     std::string response;
     {
         response = OT::App()
-                          .API()
-                          .ServerAction()
-                          .SendPayment(
-                              Identifier(sender),
-                              Identifier(server),
-                              Identifier(recipient),
-                              payment)
-                          ->Run();
+                       .API()
+                       .ServerAction()
+                       .SendPayment(
+                           Identifier::Factory(sender),
+                           Identifier::Factory(server),
+                           Identifier::Factory(recipient),
+                           payment)
+                       ->Run();
     }
     return processResponse(response, what);
 }
@@ -102,22 +102,14 @@ string CmdBaseInstrument::writeCheque(
     string validfor,
     bool isInvoice) const
 {
-    if (!checkAccount("myacct", myacct)) {
-        return "";
-    }
+    if (!checkAccount("myacct", myacct)) { return ""; }
 
-    if ("" != hisnym && !checkNym("hisnym", hisnym)) {
-        return "";
-    }
+    if ("" != hisnym && !checkNym("hisnym", hisnym)) { return ""; }
 
     int64_t value = checkAmount("amount", amount, myacct);
-    if (OT_ERROR_AMOUNT == value) {
-        return "";
-    }
+    if (OT_ERROR_AMOUNT == value) { return ""; }
 
-    if ("" != validfor && !checkValue("validfor", validfor)) {
-        return "";
-    }
+    if ("" != validfor && !checkValue("validfor", validfor)) { return ""; }
 
     string server = SwigWrap::GetAccountWallet_NotaryID(myacct);
     if ("" == server) {
@@ -133,7 +125,7 @@ string CmdBaseInstrument::writeCheque(
 
     {
         if (!OT::App().API().ServerAction().GetTransactionNumbers(
-                Identifier(mynym), Identifier(server), 10)) {
+                Identifier::Factory(mynym), Identifier::Factory(server), 10)) {
             otOut << "Error: cannot reserve transaction numbers.\n";
             return "";
         }

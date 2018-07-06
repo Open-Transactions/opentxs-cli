@@ -65,13 +65,9 @@ int32_t CmdInpayments::runWithOptions()
 
 int32_t CmdInpayments::run(string server, string mynym)
 {
-    if (!checkServer("server", server)) {
-        return -1;
-    }
+    if (!checkServer("server", server)) { return -1; }
 
-    if (!checkNym("mynym", mynym)) {
-        return -1;
-    }
+    if (!checkNym("mynym", mynym)) { return -1; }
 
     string inbox = SwigWrap::LoadPaymentInbox(server, mynym);
     if ("" == inbox) {

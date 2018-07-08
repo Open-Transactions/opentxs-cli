@@ -1,3 +1,5 @@
+include_directories(${OPENSSL_INCLUDE_DIR})
+
 set(cxx-sources
   commands/CmdAcceptAll.cpp
   commands/CmdAcceptInbox.cpp
@@ -185,6 +187,7 @@ target_link_libraries(${MODULE_NAME}
   ${OPENTXS_LIBRARIES}
   ${OPENTXS_PROTO_LIBRARIES}
   ${PROTOBUF_LITE_LIBRARIES}
+  ${OPENSSL_LIBRARIES}
   anyoption
 )
 

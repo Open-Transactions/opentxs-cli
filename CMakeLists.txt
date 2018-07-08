@@ -120,6 +120,13 @@ find_package(opentxs REQUIRED)
 find_package(opentxs-proto REQUIRED)
 find_package(Protobuf REQUIRED)
 
+if(APPLE)
+  message(STATUS "On Apple, you may have to use: brew install openssl ; brew link --force openssl")
+  find_package(OpenSSL 1.0.1 REQUIRED)
+else()
+  find_package(OpenSSL 1.0.1 REQUIRED)
+endif()
+
 #-----------------------------------------------------------------------------
 # System libraries used for linking.
 

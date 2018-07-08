@@ -39,6 +39,8 @@
 #ifndef __OPENTXS_HPP__
 #define __OPENTXS_HPP__
 
+#include <opentxs/opentxs.hpp>
+
 #include <string>
 #include <vector>
 #include <deque>
@@ -53,6 +55,18 @@ class CmdBase;
 class Opentxs
 {
 public:
+    class PasswordCallback : virtual public OTCallback
+    {
+    public:
+        void runOne(const char* prompt, OTPassword& output) const override;
+        void runTwo(const char* prompt, OTPassword& output) const override;
+
+    private:
+        bool get_password(OTPassword& output, const char* prompt) const;
+        bool get_password_from_console(OTPassword& output, bool repeat) const;
+        void run(const char* prompt, OTPassword& output, bool repeat) const;
+    };
+
     Opentxs();
     virtual ~Opentxs();
 
@@ -77,7 +91,7 @@ private:
     char** newArgv{nullptr};
     bool expectFailure{false};
     std::vector<CmdBase*> cmds_;
-    
+
     struct Command {
         Command(int32_t optArgc, char ** optArgv) {
             for (int32_t i = 0; i < optArgc; ++i) {

@@ -200,6 +200,10 @@
 #include <anyoption/anyoption.hpp>
 #include <opentxs/opentxs.hpp>
 
+extern "C" {
+#include <openssl/ui.h>
+}
+
 #include <stddef.h>
 #include <stdint.h>
 #include <algorithm>
@@ -214,6 +218,149 @@
 
 using namespace opentxs;
 using namespace std;
+
+#ifndef _PASSWORD_LEN
+#define _PASSWORD_LEN 128
+#endif
+
+bool Opentxs::PasswordCallback::get_password(
+    OTPassword& output,
+    const char* prompt) const
+{
+    OT_ASSERT(nullptr != prompt);
+
+#ifdef _WIN32
+    {
+        std::cout << prompt;
+
+        {
+            std::string strPassword = "";
+
+#ifdef UNICODE
+
+            const wchar_t enter[] = {L'\x000D', L'\x0000'};  // carrage return
+            const std::wstring wstrENTER = enter;
+
+            std::wstring wstrPass = L"";
+
+            for (;;) {
+                const wchar_t ch[] = {_getwch(), L'\x0000'};
+                const std::wstring wstrCH = ch;
+                if (wstrENTER == wstrCH) break;
+                wstrPass.append(wstrCH);
+            }
+            strPassword = String::ws2s(wstrPass);
+
+#else
+
+            const char enter[] = {'\x0D', '\x00'};  // carrage return
+            const std::string strENTER = enter;
+
+            std::string strPass = "";
+
+            for (;;) {
+                const char ch[] = {_getch(), '\x00'};
+                const std::string strCH = ch;
+                if (strENTER == strCH) break;
+                strPass.append(strCH);
+            }
+            strPassword = strPass;
+
+#endif
+            output.setPassword(
+                strPassword.c_str(),
+                static_cast<std::int32_t>(strPassword.length() - 1));
+        }
+
+        std::cout << std::endl;  // new line.
+        return true;
+    }
+#else
+    // TODO security: might want to allow to set OTPassword's size and copy
+    // directly into it, so that we aren't using this temp buf in between,
+    // which, although we're zeroing it, could technically end up getting
+    // swapped to disk.
+    {
+        char buf[_PASSWORD_LEN + 10] = "", buff[_PASSWORD_LEN + 10] = "";
+
+        if (UI_UTIL_read_pw(buf, buff, _PASSWORD_LEN, prompt, 0) == 0) {
+            size_t nPassLength = String::safe_strlen(buf, _PASSWORD_LEN);
+            output.setPassword_uint8(
+                reinterpret_cast<std::uint8_t*>(buf), nPassLength);
+            OTPassword::zeroMemory(buf, nPassLength);
+            OTPassword::zeroMemory(buff, nPassLength);
+            return true;
+        } else
+            return false;
+    }
+#endif
+}
+
+bool Opentxs::PasswordCallback::get_password_from_console(
+    OTPassword& output,
+    bool repeat) const
+{
+    std::int32_t nAttempts = 0;
+
+    for (int i = 0; i < 5; i++) {
+        output.zeroMemory();
+
+        if (get_password(output, "(OT) passphrase: ")) {
+            if (!repeat) {
+                std::cout << std::endl;
+                return true;
+            }
+        } else {
+            std::cout << "Sorry." << std::endl;
+            return false;
+        }
+
+        OTPassword tempPassword;
+
+        if (!get_password(tempPassword, "(Verifying) passphrase again: ")) {
+            std::cout << "Sorry." << std::endl;
+            return false;
+        }
+
+        if (!tempPassword.Compare(output)) {
+            if (++nAttempts >= 3) break;
+
+            std::cout << "(Mismatch, try again.)\n" << std::endl;
+        } else {
+            std::cout << std::endl;
+            return true;
+        }
+    }
+
+    std::cout << "Sorry." << std::endl;
+
+    return false;
+}
+
+void Opentxs::PasswordCallback::run(
+    const char* prompt,
+    OTPassword& output,
+    bool repeat) const
+{
+    std::cout << prompt << std::endl;
+    const bool success = get_password_from_console(output, repeat);
+
+    if (false == success) {
+        output.zeroMemory();
+    }
+}
+
+void Opentxs::PasswordCallback::runOne(
+    const char* prompt, OTPassword& output) const
+{
+    run(prompt, output, false);
+}
+
+void Opentxs::PasswordCallback::runTwo(
+    const char* prompt, OTPassword& output) const
+{
+    run(prompt, output, true);
+}
 
 const char* categoryName[] = {"Category Error",
                               "Advanced utilities",
@@ -485,27 +632,6 @@ void Opentxs::loadOptions(AnyOption& opt)
     opt.processFile(iniFileExact.Get());
 }
 
-class DummyPassphraseCallback : public OTCallback
-{
-private:
-    const std::string dummy_;
-
-public:
-    DummyPassphraseCallback(const std::string dummy)
-        : dummy_(dummy)
-    {
-    }
-    void runOne(const char*, OTPassword& password) const
-    {
-        password.setPassword(dummy_.c_str(), dummy_.size());
-    }
-
-    void runTwo(const char*, OTPassword& password) const
-    {
-        password.setPassword(dummy_.c_str(), dummy_.size());
-    }
-};
-
 int Opentxs::processCommand(AnyOption& opt)
 {
     string command = opt.getArgv(0);
@@ -526,15 +652,6 @@ int Opentxs::processCommand(AnyOption& opt)
             opt.processCommandArgs(newArgc, newArgv);
             command = newArgv[1];
         }
-    }
-
-    if (opt.getFlag("dummy-passphrase")) {
-        // For automatic testing, set the password callback to
-        // always return "test" as the password, not prompting the user.
-        OTCaller* caller = new OTCaller;
-        DummyPassphraseCallback* callback = new DummyPassphraseCallback("test");
-        caller->setCallback(callback);
-        SwigWrap::SetPasswordCaller(*caller);
     }
 
     if ("version" == command) {

@@ -57,6 +57,22 @@ std::int32_t CmdShowIssuers::runWithOptions()
     return run(getOption("mynym"), getOption("currency"));
 }
 
+void CmdShowIssuers::print_accounts(const opentxs::ui::IssuerItem& issuer) const
+{
+    auto account = issuer.First();
+    auto lastAccount = account->Last();
+
+    if (false == account->Valid()) { return; }
+
+    print_line(account.get());
+
+    while (false == lastAccount) {
+        account = issuer.Next();
+        lastAccount = account->Last();
+        print_line(account.get());
+    }
+}
+
 void CmdShowIssuers::print_line(const opentxs::ui::IssuerItem& line) const
 {
     otOut << "* " << line.Name() << " [";
@@ -68,6 +84,7 @@ void CmdShowIssuers::print_line(const opentxs::ui::IssuerItem& line) const
     }
 
     otOut << "]\n";
+    print_accounts(line);
 }
 
 void CmdShowIssuers::print_line(
@@ -107,18 +124,6 @@ std::int32_t CmdShowIssuers::run(
         issuer = list.Next();
         lastIssuer = issuer->Last();
         print_line(issuer.get());
-        auto account = issuer->First();
-        auto lastAccount = account->Last();
-
-        if (false == account->Valid()) { break; }
-
-        print_line(account.get());
-
-        while (false == lastAccount) {
-            account = issuer->Next();
-            lastAccount = account->Last();
-            print_line(account.get());
-        }
     }
 
     otOut << std::endl;

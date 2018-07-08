@@ -36,20 +36,38 @@
  *
  ************************************************************/
 
-#include "opentxs.hpp"
-#include "opentxs/OT.hpp"
+#include <opentxs/opentxs.hpp>
 
-using namespace opentxs;
+#include "opentxs.hpp"
+
+opentxs::Opentxs::PasswordCallback* callback_{nullptr};
+opentxs::OTCaller* password_caller_{nullptr};
 
 int main(int argc, char* argv[])
 {
-    OT::ClientFactory({});
+    callback_ = new opentxs::Opentxs::PasswordCallback;
 
-    int returnValue = 0;
+    OT_ASSERT(nullptr != callback_)
+
+    password_caller_ = new opentxs::OTCaller;
+
+    OT_ASSERT(nullptr != password_caller_)
+
+    password_caller_->setCallback(callback_);
+
+    OT_ASSERT(password_caller_->isCallbackSet())
+
+    opentxs::OT::ClientFactory({}, {}, password_caller_);
+
+    int returnValue{0};
     {
-        Opentxs opentxsCLI;
+        opentxs::Opentxs opentxsCLI;
         returnValue = opentxsCLI.run(argc, argv);
     }
-    OT::Cleanup();
+
+    opentxs::OT::Cleanup();
+    delete password_caller_;
+    delete callback_;
+
     return returnValue;
 }

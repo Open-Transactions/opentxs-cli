@@ -56,6 +56,7 @@ public:
     EXPORT ~CmdShowIssuers() = default;
 
 private:
+    void print_accounts(const opentxs::ui::IssuerItem& line) const;
     void print_line(const opentxs::ui::IssuerItem& line) const;
     void print_line(const opentxs::ui::AccountSummaryItem& line) const;
 

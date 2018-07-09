@@ -62,39 +62,35 @@ int32_t CmdIssueAsset::runWithOptions()
     return run(getOption("server"), getOption("mynym"), getOption("mypurse"));
 }
 
-int32_t CmdIssueAsset::run(std::string server, std::string mynym, std::string mypurse)
+int32_t CmdIssueAsset::run(
+    std::string server,
+    std::string mynym,
+    std::string mypurse)
 {
-    if (!checkServer("server", server)) {
-        return -1;
-    }
+    if (!checkServer("server", server)) { return -1; }
 
-    if (!checkNym("mynym", mynym)) {
-        return -1;
-    }
+    if (!checkNym("mynym", mynym)) { return -1; }
 
     if (!SwigWrap::IsNym_RegisteredAtServer(mynym, server)) {
         CmdRegisterNym registerNym;
-        registerNym.run(server, mynym);
+        registerNym.run(server, mynym, "true", "false");
     }
 
     const auto contract =
         OT::App().Wallet().UnitDefinition(Identifier::Factory(mypurse));
 
-    if (false == bool(contract)) {
-
-        return -1;
-    }
+    if (false == bool(contract)) { return -1; }
 
     std::string response;
     {
         response = OT::App()
-                          .API()
-                          .ServerAction()
-                          .IssueUnitDefinition(
-                              Identifier(mynym),
-                              Identifier(server),
-                              contract->PublicContract())
-                          ->Run();
+                       .API()
+                       .ServerAction()
+                       .IssueUnitDefinition(
+                           Identifier(mynym),
+                           Identifier(server),
+                           contract->PublicContract())
+                       ->Run();
     }
     return processResponse(response, "issue asset contract");
 }

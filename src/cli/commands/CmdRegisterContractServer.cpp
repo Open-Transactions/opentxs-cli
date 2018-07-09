@@ -51,39 +51,37 @@ CmdRegisterContractServer::CmdRegisterContractServer()
     command = "registercontractserver";
     args[0] = "--server <server>";
     args[1] = "--mynym <nym>";
-    args[2] = "--hispurse <nym>";
+    args[2] = "--contract <nym>";
     category = catMisc;
     help = "Upload a server contract to a server.";
+    usage = "Specify the id of the server to be registered in --contract.";
 }
 
 CmdRegisterContractServer::~CmdRegisterContractServer() {}
 
 int32_t CmdRegisterContractServer::runWithOptions()
 {
-    return run(getOption("server"), getOption("mynym"), getOption("hispurse"));
+    return run(getOption("server"), getOption("mynym"), getOption("contract"));
 }
 
 int32_t CmdRegisterContractServer::run(
     string server,
     string mynym,
-    string hispurse)
+    string contract)
 {
-    if (!checkServer("server", server)) {
-        return -1;
-    }
+    if (!checkServer("server", server)) { return -1; }
 
-    if (!checkNym("mynym", mynym)) {
-        return -1;
-    }
+    if (!checkNym("mynym", mynym)) { return -1; }
 
     std::string response;
     {
-        response = OT::App()
-            .API()
-            .ServerAction()
-            .PublishServerContract(
-                Identifier(mynym), Identifier(server), Identifier(hispurse))
-            ->Run();
+        response =
+            OT::App()
+                .API()
+                .ServerAction()
+                .PublishServerContract(
+                    Identifier(mynym), Identifier(server), Identifier(contract))
+                ->Run();
     }
 
     return processResponse(response, "register contract");

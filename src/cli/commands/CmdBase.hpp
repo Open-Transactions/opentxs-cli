@@ -174,6 +174,7 @@ protected:
         const char* name,
         const std::string& amount,
         const std::string& myacct) const;
+    bool checkBoolean(const char* name, const std::string& value) const;
     bool checkFlag(const char* name, const std::string& value) const;
     int32_t checkIndex(
         const char* name,

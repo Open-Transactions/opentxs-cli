@@ -57,9 +57,7 @@ std::int32_t CmdShowThreads::runWithOptions()
 
 std::int32_t CmdShowThreads::run(std::string mynym)
 {
-    if (!checkNym("mynym", mynym)) {
-        return -1;
-    }
+    if (!checkNym("mynym", mynym)) { return -1; }
 
     const auto& ot = OT::App();
     const auto& activity = ot.Activity();
@@ -69,7 +67,8 @@ std::int32_t CmdShowThreads::run(std::string mynym)
 
     for (const auto& thread : threads) {
         const auto& threadID = thread.first;
-        otOut << "    * " << threadID << "\n";
+        const auto& label = thread.second;
+        otOut << "    * " << threadID << " (" << label << ")\n";
     }
 
     otOut << std::endl;

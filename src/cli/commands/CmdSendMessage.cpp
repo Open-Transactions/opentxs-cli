@@ -49,7 +49,9 @@ CmdSendMessage::CmdSendMessage()
     args[1] = "--hisnym <nym>";
     args[2] = "--server [<server>]";
     category = catOtherUsers;
-    help = "Send a message to hisnym's in-mail.";
+    help = "Send a message to hisnym's in-mail (using nym or contact id).";
+    usage = "If server is specified, hisnym must be a nym.  If server is "
+            "not specified, hisnym must be a contact id.";
 }
 
 std::int32_t CmdSendMessage::contact(
@@ -62,11 +64,17 @@ std::int32_t CmdSendMessage::contact(
     auto& thread = OT::App().UI().ActivityThread(nymID, contactID);
     const auto loaded = thread.SetDraft(message);
 
-    OT_ASSERT(loaded)
+    if (false == loaded) {
+        otErr << "Failed to load message." << std::endl;
+        return -1;
+    }
 
     const auto sent = thread.SendDraft();
 
-    OT_ASSERT(sent)
+    if (false == sent) {
+        otErr << "Error sending message." << std::endl;
+        return -1;
+    }
 
     return 0;
 }
@@ -86,12 +94,14 @@ std::int32_t CmdSendMessage::nym(
     std::string response;
     {
         response = OT::App()
-                            .API().ServerAction().SendMessage(
-                                 Identifier(mynym),
-                                 Identifier(server),
-                                 Identifier(hisnym),
-                                 message)
-                               ->Run();
+                       .API()
+                       .ServerAction()
+                       .SendMessage(
+                           Identifier(mynym),
+                           Identifier(server),
+                           Identifier(hisnym),
+                           message)
+                       ->Run();
     }
 
     return processResponse(response, "send message");

@@ -53,12 +53,16 @@ public:
     EXPORT CmdRegisterNym();
     EXPORT ~CmdRegisterNym() = default;
 
-    EXPORT std::int32_t run(std::string server, std::string mynym);
+    EXPORT std::int32_t run(
+        std::string server,
+        std::string mynym,
+        std::string publish,
+        std::string primary);
 
 protected:
     std::int32_t runWithOptions() override;
 };
 
-} // namespace opentxs
+}  // namespace opentxs
 
-#endif // OPENTXS_CLIENT_CMDREGISTERNYM_HPP
+#endif  // OPENTXS_CLIENT_CMDREGISTERNYM_HPP

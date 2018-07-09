@@ -66,31 +66,26 @@ int32_t CmdNewAccount::runWithOptions()
 
 int32_t CmdNewAccount::run(string server, string mynym, string mypurse)
 {
-    if (!checkServer("server", server)) {
-        return -1;
-    }
+    if (!checkServer("server", server)) { return -1; }
 
-    if (!checkNym("mynym", mynym)) {
-        return -1;
-    }
+    if (!checkNym("mynym", mynym)) { return -1; }
 
-    if (!checkPurse("mypurse", mypurse)) {
-        return -1;
-    }
+    if (!checkPurse("mypurse", mypurse)) { return -1; }
 
     if (!SwigWrap::IsNym_RegisteredAtServer(mynym, server)) {
         CmdRegisterNym registerNym;
-        registerNym.run(server, mynym);
+        registerNym.run(server, mynym, "true", "false");
     }
 
     std::string response;
     {
-        response = OT::App()
-            .API()
-            .ServerAction()
-            .RegisterAccount(
-                Identifier(mynym), Identifier(server), Identifier(mypurse))
-            ->Run();
+        response =
+            OT::App()
+                .API()
+                .ServerAction()
+                .RegisterAccount(
+                    Identifier(mynym), Identifier(server), Identifier(mypurse))
+                ->Run();
     }
     return processResponse(response, "create asset account");
 }

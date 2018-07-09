@@ -128,9 +128,7 @@ MapOfMaps* convert_offerlist_to_maps(OTDB::OfferListNym& offerList)
                 sub_map = new SubMap;
                 (*sub_map)[strTransactionID] = &offerData;
 
-                if (nullptr == map_of_maps) {
-                    map_of_maps = new MapOfMaps;
-                }
+                if (nullptr == map_of_maps) { map_of_maps = new MapOfMaps; }
 
                 (*map_of_maps)[strMapKey] = sub_map;
             }
@@ -512,18 +510,13 @@ std::int32_t output_nymoffer_data(
     return 1;
 }
 
-
-
-
 CmdBase::CmdBase()
     : category(catError)
     , command(nullptr)
     , help(nullptr)
     , usage(nullptr)
 {
-    for (int i = 0; i < MAX_ARGS; i++) {
-        args[i] = nullptr;
-    }
+    for (int i = 0; i < MAX_ARGS; i++) { args[i] = nullptr; }
 }
 
 CmdBase::~CmdBase() {}
@@ -551,14 +544,10 @@ int64_t CmdBase::checkAmount(
     const string& amount,
     const string& myacct) const
 {
-    if (!checkMandatory(name, amount)) {
-        return OT_ERROR_AMOUNT;
-    }
+    if (!checkMandatory(name, amount)) { return OT_ERROR_AMOUNT; }
 
     string assetType = getAccountAssetType(myacct);
-    if ("" == assetType) {
-        return OT_ERROR_AMOUNT;
-    }
+    if ("" == assetType) { return OT_ERROR_AMOUNT; }
 
     int64_t value = SwigWrap::StringToAmount(assetType, amount);
     if (OT_ERROR_AMOUNT == value) {
@@ -569,16 +558,21 @@ int64_t CmdBase::checkAmount(
     return value;
 }
 
-bool CmdBase::checkFlag(const char* name, const string& value) const
+bool CmdBase::checkBoolean(const char* name, const string& value) const
 {
-    if (!checkMandatory(name, value)) {
-        return false;
-    }
-
     if (value != "false" && value != "true") {
         otOut << "Error: " << name << ": expected 'false' or 'true'.\n";
         return false;
     }
+
+    return true;
+}
+
+bool CmdBase::checkFlag(const char* name, const string& value) const
+{
+    if (!checkMandatory(name, value)) { return false; }
+
+    if (!checkBoolean(name, value)) { return false; }
 
     return true;
 }
@@ -588,13 +582,9 @@ int32_t CmdBase::checkIndex(
     const string& index,
     int32_t items) const
 {
-    if (!checkValue(name, index)) {
-        return -1;
-    }
+    if (!checkValue(name, index)) { return -1; }
 
-    if (!OTRecordList::checkIndicesRange(name, index, items)) {
-        return -1;
-    }
+    if (!OTRecordList::checkIndicesRange(name, index, items)) { return -1; }
 
     return stoi(index);
 }
@@ -675,9 +665,7 @@ bool CmdBase::checkServer(const char* name, string& server) const
 
 int64_t CmdBase::checkTransNum(const char* name, const string& id) const
 {
-    if (!checkMandatory(name, id)) {
-        return -1;
-    }
+    if (!checkMandatory(name, id)) { return -1; }
 
     for (string::size_type i = 0; i < id.length(); i++) {
         if (!isdigit(id[i])) {
@@ -697,9 +685,7 @@ int64_t CmdBase::checkTransNum(const char* name, const string& id) const
 
 bool CmdBase::checkValue(const char* name, const string& value) const
 {
-    if (!checkMandatory(name, value)) {
-        return false;
-    }
+    if (!checkMandatory(name, value)) { return false; }
 
     for (string::size_type i = 0; i < value.length(); i++) {
         if (!isdigit(value[i])) {
@@ -721,20 +707,14 @@ void CmdBase::dashLine() const
 const vector<string>& CmdBase::extractArgumentNames()
 {
     // only do this once
-    if (0 != argNames.size()) {
-        return argNames;
-    }
+    if (0 != argNames.size()) { return argNames; }
 
     // extract argument names from usage help text
     for (int i = 0; i < MAX_ARGS && args[i] != nullptr; i++) {
         const char* arg = args[i];
-        while ('[' == *arg || '-' == *arg) {
-            arg++;
-        }
+        while ('[' == *arg || '-' == *arg) { arg++; }
         string argName = "";
-        for (; isalpha(*arg); arg++) {
-            argName += *arg;
-        }
+        for (; isalpha(*arg); arg++) { argName += *arg; }
         argNames.push_back(argName);
     }
 
@@ -794,9 +774,7 @@ string CmdBase::getUsage() const
         ss << " " << args[i];
     }
     ss << "\n\n" << help << "\n\n";
-    if (usage != nullptr) {
-        ss << usage << "\n\n";
-    }
+    if (usage != nullptr) { ss << usage << "\n\n"; }
 
     return ss.str();
 }
@@ -823,9 +801,7 @@ string CmdBase::inputText(const char* what)
          << "followed by an EOF or a ~ on a line by itself:\n";
 
     string input = OT_CLI_ReadUntilEOF();
-    if ("" == input) {
-        otOut << "Error: you did not paste " << what << ".\n";
-    }
+    if ("" == input) { otOut << "Error: you did not paste " << what << ".\n"; }
     return input;
 }
 
@@ -958,15 +934,11 @@ vector<string> CmdBase::tokenize(const string& str, char delim, bool noEmpty)
     int begin = 0;
     while (true) {
         int next = begin;
-        while (p[next] != delim && '\0' != p[next]) {
-            next++;
-        }
+        while (p[next] != delim && '\0' != p[next]) { next++; }
         if (next != begin || !noEmpty) {
             tokens.push_back(str.substr(begin, next - begin));
         }
-        if ('\0' == p[next]) {
-            break;
-        }
+        if ('\0' == p[next]) { break; }
         begin = next + 1;
     }
 

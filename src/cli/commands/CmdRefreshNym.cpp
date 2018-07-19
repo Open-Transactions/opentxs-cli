@@ -67,13 +67,9 @@ int32_t CmdRefreshNym::runWithOptions()
 
 int32_t CmdRefreshNym::run(string server, string mynym)
 {
-    if (!checkServer("server", server)) {
-        return -1;
-    }
+    if (!checkServer("server", server)) { return -1; }
 
-    if (!checkNym("mynym", mynym)) {
-        return -1;
-    }
+    if (!checkNym("mynym", mynym)) { return -1; }
 
     bool msgWasSent = false;
     auto nymBox = retrieve_nym(server, mynym, msgWasSent, true);
@@ -112,7 +108,7 @@ std::int32_t CmdRefreshNym::retrieve_nym(
     bool bForceDownload) const
 {
     auto context = OT::App().Wallet().mutable_ServerContext(
-        Identifier(strMyNymID), Identifier(strNotaryID));
+        Identifier::Factory(strMyNymID), Identifier::Factory(strNotaryID));
     Utility MsgUtil(context.It(), OT::App().API().OTAPI());
 
     if (0 >= context.It().UpdateRequestNumber()) {

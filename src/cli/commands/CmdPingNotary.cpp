@@ -64,16 +64,12 @@ int32_t CmdPingNotary::runWithOptions()
 
 int32_t CmdPingNotary::run(string server, string mynym)
 {
-    if (!checkServer("server", server)) {
-        return -1;
-    }
+    if (!checkServer("server", server)) { return -1; }
 
-    if (!checkNym("mynym", mynym)) {
-        return -1;
-    }
+    if (!checkNym("mynym", mynym)) { return -1; }
 
     auto context = OT::App().Wallet().mutable_ServerContext(
-        Identifier(mynym), Identifier(server));
+        Identifier::Factory(mynym), Identifier::Factory(server));
     const auto response = context.It().PingNotary();
     const auto& reply = response.second;
     return processResponse(String(*reply).Get(), "ping notary");

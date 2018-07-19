@@ -70,7 +70,7 @@ std::int32_t CmdSetProfileValue::run(
 {
     if (!checkNym("mynym", mynym)) { return -1; }
 
-    const Identifier nymID{mynym};
+    const OTIdentifier nymID = Identifier::Factory({mynym});
     auto& profile = OT::App().UI().Profile(nymID);
 
     const auto sectionType =
@@ -90,12 +90,8 @@ std::int32_t CmdSetProfileValue::run(
         return -1;
     }
 
-    const auto isSet = profile.AddClaim(
-        sectionType,
-        itemType,
-        value,
-        true,
-        true);
+    const auto isSet =
+        profile.AddClaim(sectionType, itemType, value, true, true);
 
     if (isSet) {
         otErr << "Success" << std::endl;

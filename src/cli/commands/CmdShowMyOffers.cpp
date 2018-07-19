@@ -65,13 +65,9 @@ int32_t CmdShowMyOffers::runWithOptions()
 
 int32_t CmdShowMyOffers::run(string server, string mynym)
 {
-    if (!checkServer("server", server)) {
-        return -1;
-    }
+    if (!checkServer("server", server)) { return -1; }
 
-    if (!checkNym("mynym", mynym)) {
-        return -1;
-    }
+    if (!checkNym("mynym", mynym)) { return -1; }
 
     OTDB::OfferListNym* offerList = loadNymOffers(server, mynym);
     if (nullptr == offerList) {

@@ -90,9 +90,7 @@ int32_t CmdSendCash::run(
     string password)
 {
     if ("" != myacct) {
-        if (!checkAccount("myacct", myacct)) {
-            return -1;
-        }
+        if (!checkAccount("myacct", myacct)) { return -1; }
 
         // myacct specified: server and mynym are implied
         server = SwigWrap::GetAccountWallet_NotaryID(myacct);
@@ -108,9 +106,7 @@ int32_t CmdSendCash::run(
         }
 
         string assetType = getAccountAssetType(myacct);
-        if ("" == assetType) {
-            return -1;
-        }
+        if ("" == assetType) { return -1; }
 
         if ("" != mypurse && mypurse != assetType) {
             otOut << "Error: myacct instrument definition does not match "
@@ -121,36 +117,22 @@ int32_t CmdSendCash::run(
         mypurse = assetType;
     } else {
         // we want either ONE OF myacct OR mypurse to be specified
-        if (!checkMandatory("myacct or mypurse", mypurse)) {
-            return -1;
-        }
+        if (!checkMandatory("myacct or mypurse", mypurse)) { return -1; }
 
-        if (!checkPurse("mypurse", mypurse)) {
-            return -1;
-        }
+        if (!checkPurse("mypurse", mypurse)) { return -1; }
 
         // mypurse specified: server and mynym are mandatory
-        if (!checkServer("server", server)) {
-            return -1;
-        }
+        if (!checkServer("server", server)) { return -1; }
 
-        if (!checkNym("mynym", mynym)) {
-            return -1;
-        }
+        if (!checkNym("mynym", mynym)) { return -1; }
     }
 
-    if (!checkNym("hisnym", hisnym)) {
-        return -1;
-    }
+    if (!checkNym("hisnym", hisnym)) { return -1; }
 
-    if ("" != password && !checkFlag("password", password)) {
-        return -1;
-    }
+    if ("" != password && !checkFlag("password", password)) { return -1; }
 
     int64_t value = checkAmount("amount", amount, myacct);
-    if (OT_ERROR_AMOUNT == value) {
-        return -1;
-    }
+    if (OT_ERROR_AMOUNT == value) { return -1; }
 
     // Below this point we can just try to pay it from the purse, and if unable
     // to, try to get the remaining funds from the account, IF that's available.

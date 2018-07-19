@@ -77,9 +77,7 @@ int32_t CmdWithdrawVoucher::run(
     string memo)
 {
     string voucher;
-    if (1 > run(myacct, hisnym, amount, memo, voucher)) {
-        return -1;
-    }
+    if (1 > run(myacct, hisnym, amount, memo, voucher)) { return -1; }
 
     cout << voucher << "\n";
 
@@ -93,18 +91,12 @@ int32_t CmdWithdrawVoucher::run(
     string memo,
     string& voucher)
 {
-    if (!checkAccount("myacct", myacct)) {
-        return -1;
-    }
+    if (!checkAccount("myacct", myacct)) { return -1; }
 
-    if (!checkNym("hisnym", hisnym, false)) {
-        return -1;
-    }
+    if (!checkNym("hisnym", hisnym, false)) { return -1; }
 
     int64_t value = checkAmount("amount", amount, myacct);
-    if (OT_ERROR_AMOUNT == value) {
-        return -1;
-    }
+    if (OT_ERROR_AMOUNT == value) { return -1; }
 
     string server = SwigWrap::GetAccountWallet_NotaryID(myacct);
     if ("" == server) {
@@ -118,27 +110,27 @@ int32_t CmdWithdrawVoucher::run(
         return -1;
     }
 
-    const Identifier theNotaryID{server}, theNymID{mynym}, theAcctID{myacct};
+    const OTIdentifier theNotaryID = Identifier::Factory({server}),
+                       theNymID = Identifier::Factory({mynym}),
+                       theAcctID = Identifier::Factory({myacct});
 
     std::string response;
     {
         response = OT::App()
-                          .API()
-                          .ServerAction()
-                          .WithdrawVoucher(
-                              theNymID,
-                              theNotaryID,
-                              theAcctID,
-                              Identifier(hisnym),
-                              value,
-                              memo)
-                          ->Run();
+                       .API()
+                       .ServerAction()
+                       .WithdrawVoucher(
+                           theNymID,
+                           theNotaryID,
+                           theAcctID,
+                           Identifier::Factory(hisnym),
+                           value,
+                           memo)
+                       ->Run();
     }
     int32_t reply =
         responseReply(response, server, mynym, myacct, "withdraw_voucher");
-    if (1 != reply) {
-        return reply;
-    }
+    if (1 != reply) { return reply; }
 
     string ledger = SwigWrap::Message_GetLedger(response);
     if ("" == ledger) {

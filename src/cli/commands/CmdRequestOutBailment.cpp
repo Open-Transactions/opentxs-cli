@@ -74,45 +74,33 @@ std::int32_t CmdRequestOutBailment::run(
     std::string mypurse,
     std::string amount)
 {
-    if (!checkServer("server", server)) {
-        return -1;
-    }
+    if (!checkServer("server", server)) { return -1; }
 
-    if (!checkNym("mynym", mynym)) {
-        return -1;
-    }
+    if (!checkNym("mynym", mynym)) { return -1; }
 
-    if (!checkNym("hisnym", hisnym)) {
-        return -1;
-    }
+    if (!checkNym("hisnym", hisnym)) { return -1; }
 
-    if (!checkPurse("mypurse", mypurse)) {
-        return -1;
-    }
+    if (!checkPurse("mypurse", mypurse)) { return -1; }
 
     std::string terms = inputText("Withdrawal instructions");
-    if (0 == terms.size()) {
-        return -1;
-    }
+    if (0 == terms.size()) { return -1; }
 
     std::int64_t outbailmentAmount = SwigWrap::StringToAmount(mypurse, amount);
-    if (OT_ERROR_AMOUNT == outbailmentAmount) {
-        return -1;
-    }
+    if (OT_ERROR_AMOUNT == outbailmentAmount) { return -1; }
 
     std::string response;
     {
         response = OT::App()
-                               .API()
-                               .ServerAction()
-                               .InitiateOutbailment(
-                                   Identifier(mynym),
-                                   Identifier(server),
-                                   Identifier(hisnym),
-                                   Identifier(mypurse),
-                                   outbailmentAmount,
-                                   terms)
-                               ->Run();
+                       .API()
+                       .ServerAction()
+                       .InitiateOutbailment(
+                           Identifier::Factory(mynym),
+                           Identifier::Factory(server),
+                           Identifier::Factory(hisnym),
+                           Identifier::Factory(mypurse),
+                           outbailmentAmount,
+                           terms)
+                       ->Run();
     }
     return processResponse(response, "request outbailment");
 }

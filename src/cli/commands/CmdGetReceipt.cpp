@@ -82,29 +82,19 @@ int32_t CmdGetReceipt::run(
     string id,
     string boxtype)
 {
-    if (!checkServer("server", server)) {
-        return -1;
-    }
+    if (!checkServer("server", server)) { return -1; }
 
-    if (!checkNym("mynym", mynym)) {
-        return -1;
-    }
+    if (!checkNym("mynym", mynym)) { return -1; }
 
-    if (!checkTransNum("id", id)) {
-        return -1;
-    }
+    if (!checkTransNum("id", id)) { return -1; }
 
     int32_t type = "" == boxtype ? 1 : checkIndex("boxtype", boxtype, 3);
-    if (0 > type) {
-        return -1;
-    }
+    if (0 > type) { return -1; }
 
     if (0 == type) {
         myacct = mynym;
     } else {
-        if (!checkAccount("myacct", myacct)) {
-            return -1;
-        }
+        if (!checkAccount("myacct", myacct)) { return -1; }
 
         server = SwigWrap::GetAccountWallet_NotaryID(myacct);
         if ("" == server) {
@@ -124,15 +114,15 @@ int32_t CmdGetReceipt::run(
     std::string response;
     {
         response = OT::App()
-                          .API()
-                          .ServerAction()
-                          .DownloadBoxReceipt(
-                              Identifier(mynym),
-                              Identifier(server),
-                              Identifier(myacct),
-                              RemoteBoxType(type),
-                              TransactionNumber(i))
-                          ->Run();
+                       .API()
+                       .ServerAction()
+                       .DownloadBoxReceipt(
+                           Identifier::Factory(mynym),
+                           Identifier::Factory(server),
+                           Identifier::Factory(myacct),
+                           RemoteBoxType(type),
+                           TransactionNumber(i))
+                       ->Run();
     }
     return processResponse(response, "get box receipt");
 }

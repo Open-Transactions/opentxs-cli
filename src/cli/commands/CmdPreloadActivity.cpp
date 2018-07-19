@@ -60,9 +60,7 @@ std::int32_t CmdPreloadActivity::run(
     std::string mynym,
     const std::string& items)
 {
-    if (!checkNym("mynym", mynym)) {
-        return -1;
-    }
+    if (!checkNym("mynym", mynym)) { return -1; }
 
     std::size_t count{0};
 
@@ -74,7 +72,7 @@ std::int32_t CmdPreloadActivity::run(
         count = 1;
     }
 
-    OT::App().Activity().PreloadActivity(Identifier(mynym), count);
+    OT::App().Activity().PreloadActivity(Identifier::Factory(mynym), count);
 
     return 0;
 }

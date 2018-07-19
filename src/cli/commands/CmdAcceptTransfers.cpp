@@ -65,13 +65,9 @@ int32_t CmdAcceptTransfers::runWithOptions()
 
 int32_t CmdAcceptTransfers::run(string myacct, string indices)
 {
-    if (!checkAccount("myacct", myacct)) {
-        return -1;
-    }
+    if (!checkAccount("myacct", myacct)) { return -1; }
 
-    if ("" != indices && !checkIndices("indices", indices)) {
-        return -1;
-    }
+    if ("" != indices && !checkIndices("indices", indices)) { return -1; }
 
     return acceptFromInbox(myacct, indices, OTRecordList::typeTransfers);
 }

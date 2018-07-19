@@ -60,13 +60,10 @@ std::int32_t CmdMergeContact::run(
     const std::string& parent,
     const std::string& child)
 {
-    auto contact =
-        OT::App().Contact().Merge(Identifier(parent), Identifier(child));
+    auto contact = OT::App().Contact().Merge(
+        Identifier::Factory(parent), Identifier::Factory(child));
 
-    if (false == bool(contact)) {
-
-        return -1;
-    }
+    if (false == bool(contact)) { return -1; }
 
     otOut << contact->Print();
 

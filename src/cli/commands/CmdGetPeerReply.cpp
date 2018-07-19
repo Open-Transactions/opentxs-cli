@@ -59,13 +59,9 @@ std::int32_t CmdGetPeerReply::runWithOptions()
 
 std::int32_t CmdGetPeerReply::run(std::string mynym, std::string reply)
 {
-    if (!checkNym("mynym", mynym)) {
-        return -1;
-    }
+    if (!checkNym("mynym", mynym)) { return -1; }
 
-    if (reply.empty()) {
-        return -1;
-    }
+    if (reply.empty()) { return -1; }
 
     const auto text = SwigWrap::getReply_Base64(mynym, reply);
 

@@ -54,10 +54,11 @@ CmdAcceptPayments::CmdAcceptPayments()
     args[2] = "[--indices <indices|all>]";
     category = catAccounts;
     help = "Accept all incoming payments in myacct's Nym's payments inbox on "
-    "Server. Confused yet?";
+           "Server. Confused yet?";
     usage = "Omitting --indices is the same as specifying --indices all. "
-    "Server defaults to myacct's NotaryId. (Better commands coming soon based "
-    "on the new API).";
+            "Server defaults to myacct's NotaryId. (Better commands coming "
+            "soon based "
+            "on the new API).";
 }
 
 CmdAcceptPayments::~CmdAcceptPayments() {}
@@ -72,27 +73,21 @@ std::int32_t CmdAcceptPayments::run(
     string myacct,
     string indices)
 {
-    if (!checkAccount("myacct", myacct)) {
-        return -1;
-    }
+    if (!checkAccount("myacct", myacct)) { return -1; }
 
     if (!checkServer("server", server)) {
         server = SwigWrap::GetAccountWallet_NotaryID(myacct);
     }
-    if (!checkServer("server", server)) {
-        return -1;
-    }
-    string & transport_notary = server;
+    if (!checkServer("server", server)) { return -1; }
+    string& transport_notary = server;
 
-    if ("" != indices && !checkIndices("indices", indices)) {
-        return -1;
-    }
+    if ("" != indices && !checkIndices("indices", indices)) { return -1; }
 
     // Note: Do NOT process invoices.
     // FIX: this OR should become AND so we can detect any failure
-    bool success = 0 <= acceptFromPaymentbox(transport_notary, myacct, indices,
-                                             "PURSE");
-    success |= 0 <= acceptFromPaymentbox(transport_notary, myacct, indices,
-                                         "CHEQUE");
+    bool success =
+        0 <= acceptFromPaymentbox(transport_notary, myacct, indices, "PURSE");
+    success |=
+        0 <= acceptFromPaymentbox(transport_notary, myacct, indices, "CHEQUE");
     return success ? 1 : -1;
 }

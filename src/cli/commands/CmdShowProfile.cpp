@@ -54,21 +54,16 @@ void CmdShowProfile::display_groups(const ui::ProfileSection& section) const
 {
     auto group = section.First();
 
-    if (false == group->Valid()) {
-
-        return;
-    }
+    if (false == group->Valid()) { return; }
 
     auto lastGroup = group->Last();
-    otOut << "** " << group->Name("en") <<  " (" << group->Type()
-          << ")\n";
+    otOut << "** " << group->Name("en") << " (" << group->Type() << ")\n";
     display_items(group);
 
     while (false == lastGroup) {
         group = section.Next();
         lastGroup = group->Last();
-        otOut << "** " << group->Name("en") <<  " (" << group->Type()
-              << ")\n";
+        otOut << "** " << group->Name("en") << " (" << group->Type() << ")\n";
         display_items(group);
     }
 }
@@ -77,22 +72,19 @@ void CmdShowProfile::display_items(const ui::ProfileSubsection& group) const
 {
     auto item = group.First();
 
-    if (false == item->Valid()) {
-
-        return;
-    }
+    if (false == item->Valid()) { return; }
 
     auto lastItem = item->Last();
     otOut << "  * ID: " << item->ClaimID() << " Value: " << item->Value()
-          <<  " Primary: " << item->IsPrimary() << " Active: "
-          << item->IsActive() << "\n";
+          << " Primary: " << item->IsPrimary()
+          << " Active: " << item->IsActive() << "\n";
 
     while (false == lastItem) {
         item = group.Next();
         lastItem = item->Last();
         otOut << "  * ID: " << item->ClaimID() << " Value: " << item->Value()
-              <<  " Primary: " << item->IsPrimary() << " Active: "
-              << item->IsActive() << "\n";
+              << " Primary: " << item->IsPrimary()
+              << " Active: " << item->IsActive() << "\n";
     }
 }
 
@@ -103,31 +95,25 @@ std::int32_t CmdShowProfile::runWithOptions()
 
 std::int32_t CmdShowProfile::run(std::string mynym)
 {
-    if (!checkNym("mynym", mynym)) {
-        return -1;
-    }
+    if (!checkNym("mynym", mynym)) { return -1; }
 
-    const Identifier nymID{mynym};
+    const OTIdentifier nymID = Identifier::Factory({mynym});
     auto& profile = OT::App().UI().Profile(nymID);
     otOut << profile.DisplayName() << ": (" << profile.ID()
           << ")\nPayment Code: " << profile.PaymentCode() << "\n\n";
     dashLine();
     auto section = profile.First();
 
-    if (false == section->Valid()) {
-
-        return 1;
-    }
+    if (false == section->Valid()) { return 1; }
 
     auto lastSection = section->Last();
-    otOut << "* " << section->Name("en") <<  " (" << section->Type()
-          << ")\n";
-          display_groups(section);
+    otOut << "* " << section->Name("en") << " (" << section->Type() << ")\n";
+    display_groups(section);
 
     while (false == lastSection) {
         section = profile.Next();
         lastSection = section->Last();
-        otOut << "* " << section->Name("en") <<  " (" << section->Type()
+        otOut << "* " << section->Name("en") << " (" << section->Type()
               << ")\n";
         display_groups(section);
     }

@@ -60,20 +60,15 @@ std::int32_t CmdActivitySummary::runWithOptions()
 
 std::int32_t CmdActivitySummary::run(std::string mynym)
 {
-    if (!checkNym("mynym", mynym)) {
-        return -1;
-    }
+    if (!checkNym("mynym", mynym)) { return -1; }
 
-    const Identifier nymID{mynym};
+    const OTIdentifier nymID = Identifier::Factory(mynym);
     auto& activity = OT::App().UI().ActivitySummary(nymID);
     otOut << "Activity:\n";
     dashLine();
     auto line = activity.First();
 
-    if (false == line->Valid()) {
-
-        return 1;
-    }
+    if (false == line->Valid()) { return 1; }
 
     auto last = line->Last();
     otOut << "* " << line->DisplayName() << " (" << line->ThreadID()

@@ -63,10 +63,10 @@ std::int32_t CmdAddContact::run(
 {
     if (hisnym.empty()) { return -1; }
 
-    Identifier nymID(String(hisnym.c_str()));
+    OTIdentifier nymID = Identifier::Factory(String(hisnym.c_str()));
     auto code = PaymentCode::Factory(hisnym);
 
-    if (nymID.empty()) {
+    if (nymID->empty()) {
         otErr << "Provided ID was not a nymID." << std::endl;
     } else {
         otErr << "Provided ID was a nymID." << std::endl;
@@ -78,7 +78,7 @@ std::int32_t CmdAddContact::run(
         otErr << "Provided ID was a payment code." << std::endl;
     }
 
-    if (nymID.empty() && code->VerifyInternally()) {
+    if (nymID->empty() && code->VerifyInternally()) {
         nymID = code->ID();
         otErr << "Derived nymID: " << String(nymID) << std::endl;
     }

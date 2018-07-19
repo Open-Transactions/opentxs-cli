@@ -68,17 +68,11 @@ int32_t CmdShowRecords::runWithOptions()
 int32_t CmdShowRecords::run(string server, string mynym, string myacct)
 {
     if ("" == myacct) {
-        if (!checkServer("server", server)) {
-            return -1;
-        }
+        if (!checkServer("server", server)) { return -1; }
 
-        if (!checkNym("mynym", mynym)) {
-            return -1;
-        }
+        if (!checkNym("mynym", mynym)) { return -1; }
     } else {
-        if (!checkAccount("myacct", myacct)) {
-            return -1;
-        }
+        if (!checkAccount("myacct", myacct)) { return -1; }
 
         server = SwigWrap::GetAccountWallet_NotaryID(myacct);
         if ("" == server) {

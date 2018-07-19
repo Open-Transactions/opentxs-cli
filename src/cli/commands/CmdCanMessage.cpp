@@ -60,16 +60,12 @@ int32_t CmdCanMessage::run(
     const std::string& sender,
     const std::string& recipient)
 {
-    if (sender.empty()) {
-        return -1;
-    }
+    if (sender.empty()) { return -1; }
 
-    if (recipient.empty()) {
-        return -1;
-    }
+    if (recipient.empty()) { return -1; }
 
     const auto response = OT::App().API().Sync().CanMessage(
-        Identifier(sender), Identifier(recipient));
+        Identifier::Factory(sender), Identifier::Factory(recipient));
     otOut << std::to_string(static_cast<std::int8_t>(response)) << std::endl;
 
     return 0;

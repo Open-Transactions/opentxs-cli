@@ -68,9 +68,7 @@ std::int32_t CmdPreloadThread::run(
     const std::string& start,
     const std::string& items)
 {
-    if (!checkNym("mynym", mynym)) {
-        return -1;
-    }
+    if (!checkNym("mynym", mynym)) { return -1; }
 
     std::size_t begin{0};
     std::size_t count{0};
@@ -92,7 +90,7 @@ std::int32_t CmdPreloadThread::run(
     }
 
     OT::App().Activity().PreloadThread(
-        Identifier(mynym), Identifier(thread), begin, count);
+        Identifier::Factory(mynym), Identifier::Factory(thread), begin, count);
 
     return 0;
 }

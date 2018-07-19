@@ -61,10 +61,7 @@ std::int32_t CmdPairStatus::run(
     std::string localNym,
     const std::string& issuerNym)
 {
-    if (!checkNym("mynym", localNym)) {
-
-        return -1;
-    }
+    if (!checkNym("mynym", localNym)) { return -1; }
 
     std::cout << SwigWrap::Pair_Status(localNym, issuerNym);
 

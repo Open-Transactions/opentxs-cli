@@ -85,17 +85,11 @@ int32_t CmdNewBasket::run(
     std::string symbol,
     std::string weight)
 {
-    if (!checkServer("server", server)) {
-        return -1;
-    }
+    if (!checkServer("server", server)) { return -1; }
 
-    if (!checkNym("mynym", mynym)) {
-        return -1;
-    }
+    if (!checkNym("mynym", mynym)) { return -1; }
 
-    if (!checkValue("assets", assets)) {
-        return -1;
-    }
+    if (!checkValue("assets", assets)) { return -1; }
 
     int32_t assetCount = stol(assets);
     if (assetCount < 2) {
@@ -103,9 +97,7 @@ int32_t CmdNewBasket::run(
         return -1;
     }
 
-    if (!checkValue("weight", weight)) {
-        return -1;
-    }
+    if (!checkValue("weight", weight)) { return -1; }
 
     int64_t minTransfer = stoll(weight);
 
@@ -116,9 +108,7 @@ int32_t CmdNewBasket::run(
     uint64_t intWeight = minTransfer;
     string str_terms = "basket";  // No terms are allowed for basket currencies.
 
-    if ("" == str_terms) {
-        return -1;
-    }
+    if ("" == str_terms) { return -1; }
 
     string basket = SwigWrap::GenerateBasketCreation(
         server, shortname, name, symbol, str_terms, intWeight);
@@ -182,14 +172,14 @@ int32_t CmdNewBasket::run(
     std::string response;
     {
         response = OT::App()
-                          .API()
-                          .ServerAction()
-                          .IssueBasketCurrency(
-                              Identifier(mynym),
-                              Identifier(server),
-                              proto::StringToProto<proto::UnitDefinition>(
-                                  String(basket.c_str())))
-                          ->Run();
+                       .API()
+                       .ServerAction()
+                       .IssueBasketCurrency(
+                           Identifier::Factory(mynym),
+                           Identifier::Factory(server),
+                           proto::StringToProto<proto::UnitDefinition>(
+                               String(basket.c_str())))
+                       ->Run();
     }
     int32_t status = responseStatus(response);
     switch (status) {
@@ -207,19 +197,17 @@ int32_t CmdNewBasket::run(
             if (bGotNewID) {
                 {
                     response = OT::App()
-                               .API()
-                               .ServerAction()
-                               .DownloadContract(
-                                   Identifier(mynym),
-                                   Identifier(server),
-                                   Identifier(strNewID))
-                               ->Run();
+                                   .API()
+                                   .ServerAction()
+                                   .DownloadContract(
+                                       Identifier::Factory(mynym),
+                                       Identifier::Factory(server),
+                                       Identifier::Factory(strNewID))
+                                   ->Run();
                 }
                 strEnding = ": " + strNewID;
 
-                if (1 == responseStatus(response)) {
-                    bRetrieved = true;
-                }
+                if (1 == responseStatus(response)) { bRetrieved = true; }
             }
             otOut << "Server response: SUCCESS in issue_basket_currency!\n";
             otOut << (bRetrieved ? "Success" : "Failed")

@@ -61,9 +61,7 @@ int32_t CmdAddServer::runWithOptions() { return run(); }
 int32_t CmdAddServer::run()
 {
     string contract = inputText("a server contract");
-    if ("" == contract) {
-        return -1;
-    }
+    if ("" == contract) { return -1; }
 
     if ("" == SwigWrap::AddServerContract(contract)) {
         otOut << "Error: cannot add server contract.\n";

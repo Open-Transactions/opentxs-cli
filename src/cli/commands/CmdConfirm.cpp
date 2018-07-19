@@ -82,23 +82,15 @@ int32_t CmdConfirm::run(
     string hisnym,
     string index)
 {
-    if (!checkServer("server", server)) {
-        return -1;
-    }
+    if (!checkServer("server", server)) { return -1; }
 
-    if (!checkNym("mynym", mynym)) {
-        return -1;
-    }
+    if (!checkNym("mynym", mynym)) { return -1; }
 
-    if ("" != myacct && !checkAccount("myacct", myacct)) {
-        return -1;
-    }
+    if ("" != myacct && !checkAccount("myacct", myacct)) { return -1; }
 
     if ("" == index) {
         string instrument = inputText("a smart contract or payment plan");
-        if ("" == instrument) {
-            return -1;
-        }
+        if ("" == instrument) { return -1; }
 
         return confirmInstrument(server, mynym, myacct, hisnym, instrument, -1);
     }
@@ -121,9 +113,7 @@ int32_t CmdConfirm::run(
     }
 
     int32_t messageNr = checkIndex("index", index, items);
-    if (0 > messageNr) {
-        return -1;
-    }
+    if (0 > messageNr) { return -1; }
 
     // use specified payment instrument from inpayments
     string instrument =
@@ -265,9 +255,7 @@ int32_t CmdConfirm::confirmSmartContract(
 
     cout << "\nWhich party are you? Enter the number, from the list above: ";
     int32_t party = checkIndex("party number", inputLine(), parties);
-    if (0 > party) {
-        return -1;
-    }
+    if (0 > party) { return -1; }
 
     string name = SwigWrap::Smart_GetPartyByIndex(contract, party);
     if ("" == name) {
@@ -345,9 +333,7 @@ int32_t CmdConfirm::confirmSmartContract(
     // (Unless you are the LAST PARTY to confirm, in which case YOU are the
     // activator.)
     int32_t success = sendToNextParty(server, mynym, hisnym, confirmed);
-    if (1 != success) {
-        return success;
-    }
+    if (1 != success) { return success; }
 
     if (-1 != index) {
         // not a pasted contract
@@ -386,9 +372,7 @@ int32_t CmdConfirm::activateContract(
                  "smart contract: ";
 
         int32_t acctIndex = checkIndex("account index", inputLine(), accounts);
-        if (0 > acctIndex) {
-            return harvestTxNumbers(contract, mynym);
-        }
+        if (0 > acctIndex) { return harvestTxNumbers(contract, mynym); }
 
         string acctName =
             SwigWrap::Party_GetAcctNameByIndex(contract, name, acctIndex);
@@ -411,7 +395,9 @@ int32_t CmdConfirm::activateContract(
         }
     }
 
-    const Identifier theNotaryID{server}, theNymID{mynym}, theAcctID{myAcctID};
+    const OTIdentifier theNotaryID = Identifier::Factory(server),
+                       theNymID = Identifier::Factory(mynym),
+                       theAcctID = Identifier::Factory(myAcctID);
 
     std::unique_ptr<OTSmartContract> smartContract =
         std::make_unique<OTSmartContract>();
@@ -423,15 +409,15 @@ int32_t CmdConfirm::activateContract(
     std::string response;
     {
         response = OT::App()
-                          .API()
-                          .ServerAction()
-                          .ActivateSmartContract(
-                              theNymID,
-                              theNotaryID,
-                              theAcctID,
-                              myAcctAgentName,
-                              smartContract)
-                          ->Run();
+                       .API()
+                       .ServerAction()
+                       .ActivateSmartContract(
+                           theNymID,
+                           theNotaryID,
+                           theAcctID,
+                           myAcctAgentName,
+                           smartContract)
+                       ->Run();
     }
     if (1 != responseStatus(response)) {
         otOut << "Error: cannot activate smart contract.\n";
@@ -442,9 +428,7 @@ int32_t CmdConfirm::activateContract(
     // BELOW THIS POINT, the transaction has definitely processed.
     int32_t reply = responseReply(
         response, server, mynym, myAcctID, "activate_smart_contract");
-    if (1 != reply) {
-        return reply;
-    }
+    if (1 != reply) { return reply; }
 
     {
         if (!OT::App().API().ServerAction().DownloadAccount(
@@ -490,9 +474,7 @@ int32_t CmdConfirm::sendToNextParty(
         // replace the partial with the full version. (Otherwise we assume
         // it's already a full ID and we don't mess with it.)
         hisNymID = SwigWrap::Wallet_GetNymIDFromPartial(recipientNymID);
-        if ("" == hisNymID) {
-            hisNymID = recipientNymID;
-        }
+        if ("" == hisNymID) { hisNymID = recipientNymID; }
 
         if (hisNymID == mynym) {
             otOut << "\nSorry, but YOU cannot simultaneously be the SENDER "
@@ -506,17 +488,18 @@ int32_t CmdConfirm::sendToNextParty(
     std::string response;
     {
         response = OT::App()
-                          .API()
-                          .ServerAction()
-                          .SendPayment(
-                              Identifier(mynym),
-                              Identifier(server),
-                              Identifier(hisNymID),
-                              payment)
-                          ->Run();
+                       .API()
+                       .ServerAction()
+                       .SendPayment(
+                           Identifier::Factory(mynym),
+                           Identifier::Factory(server),
+                           Identifier::Factory(hisNymID),
+                           payment)
+                       ->Run();
         if (1 != responseStatus(response)) {
-            otOut << "\nFor whatever reason, our attempt to send the instrument on "
-            "to the next user has failed.\n";
+            otOut << "\nFor whatever reason, our attempt to send the "
+                     "instrument on "
+                     "to the next user has failed.\n";
             return harvestTxNumbers(contract, mynym);
         }
     }
@@ -580,9 +563,7 @@ int32_t CmdConfirm::confirmAccounts(
                  "for an UNconfirmed account: ";
 
         int32_t acctIndex = checkIndex("account index", inputLine(), accounts);
-        if (0 > acctIndex) {
-            return -1;
-        }
+        if (0 > acctIndex) { return -1; }
 
         string acctName =
             SwigWrap::Party_GetAcctNameByIndex(contract, name, acctIndex);
@@ -699,9 +680,7 @@ int32_t CmdConfirm::confirmAccounts(
         otOut << "\nChoose an account by index (for '" << acctName << "'): ";
 
         string selectedAcctIndex = inputLine();
-        if ("" == selectedAcctIndex) {
-            return -1;
-        }
+        if ("" == selectedAcctIndex) { return -1; }
 
         const auto selectedIndex = stol(selectedAcctIndex);
         if (0 > selectedIndex || selectedIndex >= accountCount) {
@@ -769,9 +748,7 @@ int32_t CmdConfirm::confirmAccounts(
                                      "account: ";
 
                             string strAgentIndex = inputLine();
-                            if ("" == strAgentIndex) {
-                                return -1;
-                            }
+                            if ("" == strAgentIndex) { return -1; }
 
                             int32_t nAgentIndex = stol(strAgentIndex);
                             if (0 > nAgentIndex) {
@@ -814,7 +791,9 @@ int32_t CmdConfirm::confirmAccounts(
             contract, mapAgents[x->first]);
 
         if (!OT::App().API().ServerAction().GetTransactionNumbers(
-                Identifier(mynym), Identifier(server), needed + 1)) {
+                Identifier::Factory(mynym),
+                Identifier::Factory(server),
+                needed + 1)) {
             otOut << "Error: cannot reserve transaction numbers.\n";
             return -1;
         }

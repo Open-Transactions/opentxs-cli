@@ -58,10 +58,7 @@ std::int32_t CmdImportPublicNym::run()
 {
     const auto input = inputText("An armored public nym");
 
-    if (input.empty()) {
-
-        return -1;
-    }
+    if (input.empty()) { return -1; }
 
     const auto nymID = SwigWrap::Import_Nym(input);
 

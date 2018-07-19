@@ -58,21 +58,16 @@ std::int32_t CmdShowMessagable::runWithOptions()
 
 std::int32_t CmdShowMessagable::run(std::string mynym)
 {
-    if (!checkNym("mynym", mynym)) {
-        return -1;
-    }
+    if (!checkNym("mynym", mynym)) { return -1; }
 
-    const Identifier nymID{mynym};
+    const OTIdentifier nymID = Identifier::Factory({mynym});
     auto& list = OT::App().UI().MessagableList(nymID);
     otOut << "Contacts:\n";
     dashLine();
     auto line = list.First();
     auto last = line->Last();
 
-    if (false == line->Valid()) {
-
-        return 1;
-    }
+    if (false == line->Valid()) { return 1; }
 
     otOut << " " << line->Section() << " " << line->DisplayName() << " ("
           << line->ContactID() << ")\n";
@@ -81,10 +76,7 @@ std::int32_t CmdShowMessagable::run(std::string mynym)
         line = list.Next();
         last = line->Last();
 
-        if (false == line->Valid()) {
-
-            return 1;
-        }
+        if (false == line->Valid()) { return 1; }
         otOut << " " << line->Section() << "  " << line->DisplayName() << " ("
               << line->ContactID() << ")\n";
     }

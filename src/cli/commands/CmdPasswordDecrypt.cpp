@@ -61,14 +61,10 @@ int32_t CmdPasswordDecrypt::runWithOptions() { return run(); }
 int32_t CmdPasswordDecrypt::run()
 {
     string key = inputText("a symmetric key");
-    if ("" == key) {
-        return -1;
-    }
+    if ("" == key) { return -1; }
 
     string input = inputText("the encrypted text");
-    if ("" == input) {
-        return -1;
-    }
+    if ("" == input) { return -1; }
 
     string encrypted = SwigWrap::SymmetricDecrypt(key, input);
     if ("" == encrypted) {

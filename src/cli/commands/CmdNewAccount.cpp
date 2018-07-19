@@ -81,11 +81,13 @@ int32_t CmdNewAccount::run(string server, string mynym, string mypurse)
     {
         response =
             OT::App()
-                .API()
-                .ServerAction()
-                .RegisterAccount(
-                    Identifier(mynym), Identifier(server), Identifier(mypurse))
-                ->Run();
+                       .API()
+                       .ServerAction()
+                       .RegisterAccount(
+                           Identifier::Factory(mynym),
+                           Identifier::Factory(server),
+                           Identifier::Factory(mypurse))
+                       ->Run();
     }
     return processResponse(response, "create asset account");
 }

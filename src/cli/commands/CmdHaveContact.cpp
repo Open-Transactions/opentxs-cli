@@ -57,12 +57,10 @@ std::int32_t CmdHaveContact::runWithOptions()
 
 std::int32_t CmdHaveContact::run(const std::string& id)
 {
-    if (id.empty()) {
-        return -1;
-    }
+    if (id.empty()) { return -1; }
 
     const auto contact =
-        OT::App().Contact().Contact(Identifier(String(id.c_str())));
+        OT::App().Contact().Contact(Identifier::Factory(String(id.c_str())));
 
     if (contact) {
         otOut << "true" << std::endl;

@@ -89,9 +89,7 @@ int32_t CmdDeposit::runWithOptions()
 
 int32_t CmdDeposit::run(string mynym, string myacct, string indices)
 {
-    if (!checkAccount("myacct", myacct)) {
-        return -1;
-    }
+    if (!checkAccount("myacct", myacct)) { return -1; }
 
     string server = SwigWrap::GetAccountWallet_NotaryID(myacct);
     if ("" == server) {
@@ -111,9 +109,7 @@ int32_t CmdDeposit::run(string mynym, string myacct, string indices)
         // "to" Nym and a "from" Nym even though they will often be the same.
         string fromNym = toNym;
         if (!mynym.empty()) {
-            if (!checkNym("mynym", mynym)) {
-                return -1;
-            }
+            if (!checkNym("mynym", mynym)) { return -1; }
             fromNym = mynym;
         }
 
@@ -127,9 +123,7 @@ int32_t CmdDeposit::run(string mynym, string myacct, string indices)
              "a CHEQUE / INVOICE / VOUCHER.\n";
 
     string instrument = inputText("your financial instrument");
-    if ("" == instrument) {
-        return -1;
-    }
+    if ("" == instrument) { return -1; }
 
     string type = SwigWrap::Instrmnt_GetType(instrument);
     if ("PURSE" == type) {

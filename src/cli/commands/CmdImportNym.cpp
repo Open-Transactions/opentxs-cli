@@ -61,9 +61,7 @@ int32_t CmdImportNym::runWithOptions() { return run(); }
 int32_t CmdImportNym::run()
 {
     string input = inputText("an exported nym");
-    if ("" == input) {
-        return -1;
-    }
+    if ("" == input) { return -1; }
 
     string outNym = SwigWrap::Wallet_ImportNym(input);
     if ("" == outNym) {

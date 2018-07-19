@@ -55,11 +55,13 @@ CmdPayInvoice::CmdPayInvoice()
     args[2] = "[--index <index>]";
     category = catOtherUsers;
     help = "Pay an invoice.";
-    usage = "If --index is omitted you must paste an invoice. Also, 'server' "
-    "should be the 'transport notary' aka where myacct's Nym receives "
-    "messages/payments. Default Server will be myacct's Notary ID. This whole "
-    "command and CLI tool needs a revamp to take transport notaries into "
-    "account. Coming soon.";
+    usage =
+        "If --index is omitted you must paste an invoice. Also, 'server' "
+        "should be the 'transport notary' aka where myacct's Nym receives "
+        "messages/payments. Default Server will be myacct's Notary ID. This "
+        "whole "
+        "command and CLI tool needs a revamp to take transport notaries into "
+        "account. Coming soon.";
 }
 
 CmdPayInvoice::~CmdPayInvoice() {}
@@ -154,20 +156,14 @@ int32_t CmdPayInvoice::runWithOptions()
 
 int32_t CmdPayInvoice::run(string server, string myacct, string index)
 {
-    if (!checkAccount("myacct", myacct)) {
-        return -1;
-    }
+    if (!checkAccount("myacct", myacct)) { return -1; }
 
     if (!checkServer("server", server)) {
         server = SwigWrap::GetAccountWallet_NotaryID(myacct);
     }
-    if (!checkServer("server", server)) {
-        return -1;
-    }
+    if (!checkServer("server", server)) { return -1; }
 
-    if ("" != index && !checkValue("index", index)) {
-        return -1;
-    }
+    if ("" != index && !checkValue("index", index)) { return -1; }
 
     return processPayment(
         server, myacct, "INVOICE", "", "" == index ? -1 : stoi(index));

@@ -68,26 +68,22 @@ int32_t CmdGetInstrumentDefinition::run(
     string mynym,
     string contract)
 {
-    if (!checkServer("server", server)) {
-        return -1;
-    }
+    if (!checkServer("server", server)) { return -1; }
 
-    if (!checkNym("mynym", mynym)) {
-        return -1;
-    }
+    if (!checkNym("mynym", mynym)) { return -1; }
 
-    if (!checkMandatory("contract", contract)) {
-        return -1;
-    }
+    if (!checkMandatory("contract", contract)) { return -1; }
 
     std::string response;
     {
         response = OT::App()
-            .API()
-            .ServerAction()
-            .DownloadContract(
-                Identifier(mynym), Identifier(server), Identifier(contract))
-            ->Run();
+                       .API()
+                       .ServerAction()
+                       .DownloadContract(
+                           Identifier::Factory(mynym),
+                           Identifier::Factory(server),
+                           Identifier::Factory(contract))
+                       ->Run();
     }
     return processResponse(response, "retrieve contract");
 }

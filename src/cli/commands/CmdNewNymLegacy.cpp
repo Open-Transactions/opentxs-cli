@@ -79,13 +79,9 @@ int32_t CmdNewNymLegacy::runWithOptions()
 
 int32_t CmdNewNymLegacy::run(string keybits, string label, string source)
 {
-    if (!checkMandatory("label", label)) {
-        return -1;
-    }
+    if (!checkMandatory("label", label)) { return -1; }
 
-    if ("" != keybits && !checkValue("keybits", keybits)) {
-        return -1;
-    }
+    if ("" != keybits && !checkValue("keybits", keybits)) { return -1; }
 
     int32_t bits = "" == keybits ? 1024 : stoi(keybits);
     if (1024 != bits && 2048 != bits && 4096 != bits && 8192 != bits) {

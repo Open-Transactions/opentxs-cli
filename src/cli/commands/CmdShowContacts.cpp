@@ -58,11 +58,9 @@ std::int32_t CmdShowContacts::runWithOptions()
 
 std::int32_t CmdShowContacts::run(std::string mynym)
 {
-    if (!checkNym("mynym", mynym)) {
-        return -1;
-    }
+    if (!checkNym("mynym", mynym)) { return -1; }
 
-    const Identifier nymID{mynym};
+    const OTIdentifier nymID = Identifier::Factory({mynym});
     auto& list = OT::App().UI().ContactList(nymID);
     otOut << "Contacts:\n";
     dashLine();

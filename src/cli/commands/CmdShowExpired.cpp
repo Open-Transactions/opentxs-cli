@@ -73,13 +73,9 @@ int32_t CmdShowExpired::runWithOptions()
 
 int32_t CmdShowExpired::run(string server, string mynym)
 {
-    if (!checkServer("server", server)) {
-        return -1;
-    }
+    if (!checkServer("server", server)) { return -1; }
 
-    if (!checkNym("mynym", mynym)) {
-        return -1;
-    }
+    if (!checkNym("mynym", mynym)) { return -1; }
 
     string expired = SwigWrap::LoadExpiredBox(server, mynym);
     if ("" == expired) {

@@ -71,30 +71,24 @@ std::int32_t CmdAcknowledgeNotice::run(
     std::string hisnym,
     std::string mypurse)
 {
-    if (!checkServer("server", server)) {
-        return -1;
-    }
+    if (!checkServer("server", server)) { return -1; }
 
-    if (!checkNym("mynym", mynym)) {
-        return -1;
-    }
+    if (!checkNym("mynym", mynym)) { return -1; }
 
-    if (!checkNym("hisnym", hisnym)) {
-        return -1;
-    }
+    if (!checkNym("hisnym", hisnym)) { return -1; }
 
     std::string response;
     {
         response = OT::App()
-                               .API()
-                               .ServerAction()
-                               .AcknowledgeNotice(
-                                   Identifier(mynym),
-                                   Identifier(server),
-                                   Identifier(hisnym),
-                                   Identifier(mypurse),
-                                   true)
-                               ->Run();
+                       .API()
+                       .ServerAction()
+                       .AcknowledgeNotice(
+                           Identifier::Factory(mynym),
+                           Identifier::Factory(server),
+                           Identifier::Factory(hisnym),
+                           Identifier::Factory(mypurse),
+                           true)
+                       ->Run();
     }
     return processResponse(response, "acknowledge notice");
 }

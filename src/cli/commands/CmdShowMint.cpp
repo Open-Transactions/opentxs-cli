@@ -65,7 +65,6 @@ int32_t CmdShowMint::runWithOptions()
     return run(getOption("server"), getOption("mynym"), getOption("mypurse"));
 }
 
-
 std::string CmdShowMint::load_or_retrieve_mint(
     const std::string& notaryID,
     const std::string& nymID,
@@ -98,13 +97,13 @@ std::string CmdShowMint::load_or_retrieve_mint(
         std::string response;
         {
             response = OT::App()
-                       .API()
-                       .ServerAction()
-                       .DownloadMint(
-                           Identifier(nymID),
-                           Identifier(notaryID),
-                           Identifier(unitTypeID))
-                       ->Run();
+                           .API()
+                           .ServerAction()
+                           .DownloadMint(
+                               Identifier::Factory(nymID),
+                               Identifier::Factory(notaryID),
+                               Identifier::Factory(unitTypeID))
+                           ->Run();
         }
 
         if (1 != VerifyMessageSuccess(response)) {
@@ -150,17 +149,11 @@ std::string CmdShowMint::load_or_retrieve_mint(
 int32_t CmdShowMint::run(string server, string mynym, string mypurse)
 {
 #if OT_CASH
-    if (!checkServer("server", server)) {
-        return -1;
-    }
+    if (!checkServer("server", server)) { return -1; }
 
-    if (!checkNym("mynym", mynym)) {
-        return -1;
-    }
+    if (!checkNym("mynym", mynym)) { return -1; }
 
-    if (!checkPurse("mypurse", mypurse)) {
-        return -1;
-    }
+    if (!checkPurse("mypurse", mypurse)) { return -1; }
 
     string mint = load_or_retrieve_mint(server, mynym, mypurse);
     if ("" == mint) {

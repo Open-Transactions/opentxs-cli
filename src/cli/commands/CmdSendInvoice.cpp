@@ -78,9 +78,7 @@ int32_t CmdSendInvoice::run(
     string validfor)
 {
     string cheque = writeCheque(myacct, hisnym, amount, memo, validfor, true);
-    if ("" == cheque) {
-        return -1;
-    }
+    if ("" == cheque) { return -1; }
 
     cout << cheque << "\n";
 

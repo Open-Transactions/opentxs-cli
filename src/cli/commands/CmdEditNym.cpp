@@ -65,13 +65,9 @@ int32_t CmdEditNym::runWithOptions()
 
 int32_t CmdEditNym::run(string mynym, string label)
 {
-    if (!checkNym("mynym", mynym)) {
-        return -1;
-    }
+    if (!checkNym("mynym", mynym)) { return -1; }
 
-    if (!checkMandatory("label", label)) {
-        return -1;
-    }
+    if (!checkMandatory("label", label)) { return -1; }
 
     if (!SwigWrap::SetNym_Alias(mynym, mynym, label)) {
         otOut << "Error: cannot set nym label.\n";

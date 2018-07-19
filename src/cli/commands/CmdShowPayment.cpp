@@ -56,7 +56,8 @@ CmdShowPayment::CmdShowPayment()
     args[3] = "[--showmemo <true|FALSE>]";
     category = catOtherUsers;
     help = "Show details of an incoming payment in the payments inbox.";
-    usage = "Server is an Opentxs Notary where you receive incoming messages (including payments). Default index is 0.";
+    usage = "Server is an Opentxs Notary where you receive incoming messages "
+            "(including payments). Default index is 0.";
 }
 
 CmdShowPayment::~CmdShowPayment() {}
@@ -76,17 +77,11 @@ int32_t CmdShowPayment::run(
     string index,
     string showmemo)
 {
-    if (!checkServer("server", server)) {
-        return -1;
-    }
+    if (!checkServer("server", server)) { return -1; }
 
-    if (!checkNym("mynym", mynym)) {
-        return -1;
-    }
+    if (!checkNym("mynym", mynym)) { return -1; }
 
-    if ("" != showmemo && !checkFlag("showmemo", showmemo)) {
-        return -1;
-    }
+    if ("" != showmemo && !checkFlag("showmemo", showmemo)) { return -1; }
 
     string inbox = SwigWrap::LoadPaymentInbox(server, mynym);
     if ("" == inbox) {
@@ -101,9 +96,7 @@ int32_t CmdShowPayment::run(
     }
 
     int32_t messageNr = "" == index ? 0 : checkIndex("index", index, items);
-    if (0 > messageNr) {
-        return -1;
-    }
+    if (0 > messageNr) { return -1; }
 
     if (0 == items) {
         otOut << "The payment inbox is empty.\n";

@@ -58,13 +58,11 @@ std::int32_t CmdShowUnreadThreads::runWithOptions()
 
 std::int32_t CmdShowUnreadThreads::run(std::string mynym)
 {
-    if (!checkNym("mynym", mynym)) {
-        return -1;
-    }
+    if (!checkNym("mynym", mynym)) { return -1; }
 
     const auto& ot = OT::App();
     const auto& activity = ot.Activity();
-    const auto threads = activity.Threads(Identifier(mynym), true);
+    const auto threads = activity.Threads(Identifier::Factory(mynym), true);
 
     otOut << "Activity threads for: " << mynym << "\n";
 

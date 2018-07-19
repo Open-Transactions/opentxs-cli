@@ -61,9 +61,7 @@ int32_t CmdDecode::runWithOptions() { return run(); }
 int32_t CmdDecode::run()
 {
     string input = inputText("the OT-armored text to be decoded");
-    if ("" == input) {
-        return -1;
-    }
+    if ("" == input) { return -1; }
 
     string output = SwigWrap::Decode(input, true);
     if ("" == output) {

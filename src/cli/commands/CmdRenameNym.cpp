@@ -63,13 +63,9 @@ std::int32_t CmdRenameNym::runWithOptions()
 
 std::int32_t CmdRenameNym::run(std::string mynym, std::string label)
 {
-    if (!checkNym("mynym", mynym)) {
-        return -1;
-    }
+    if (!checkNym("mynym", mynym)) { return -1; }
 
-    if (!checkMandatory("label", label)) {
-        return -1;
-    }
+    if (!checkMandatory("label", label)) { return -1; }
 
     if (!SwigWrap::Rename_Nym(mynym, label, 1)) {
         otOut << "Error: cannot rename nym.\n";

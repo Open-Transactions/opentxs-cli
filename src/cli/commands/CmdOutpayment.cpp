@@ -66,9 +66,7 @@ int32_t CmdOutpayment::runWithOptions()
 
 int32_t CmdOutpayment::run(string mynym, string index)
 {
-    if (!checkNym("mynym", mynym)) {
-        return -1;
-    }
+    if (!checkNym("mynym", mynym)) { return -1; }
 
     int32_t items = SwigWrap::GetNym_OutpaymentsCount(mynym);
     if (0 > items) {
@@ -97,9 +95,7 @@ int32_t CmdOutpayment::run(string mynym, string index)
     }
 
     int32_t messageNr = checkIndex("index", index, items);
-    if (0 > messageNr) {
-        return -1;
-    }
+    if (0 > messageNr) { return -1; }
 
     if (!showOutpayment(mynym, messageNr, true)) {
         otOut << "Error: cannot retrieve outpayment " << messageNr << ".\n";
@@ -141,9 +137,7 @@ bool CmdOutpayment::showOutpayment(
         cout << "UNKNOWN_PAYMENT_AMOUNT\n";
     } else {
         cout << amount;
-        if ("" == type) {
-            type = "UNKNOWN_PAYMENT_TYPE";
-        }
+        if ("" == type) { type = "UNKNOWN_PAYMENT_TYPE"; }
         cout << "  (" << type << ": "
              << SwigWrap::FormatAmount(instrumentDefinitionID, amount) << ")";
         cout << "\n";
@@ -168,9 +162,7 @@ bool CmdOutpayment::showOutpayment(
     }
     cout << "\n";
 
-    if (showMessage) {
-        cout << "     Instrument: \n" << payment << "\n";
-    }
+    if (showMessage) { cout << "     Instrument: \n" << payment << "\n"; }
 
     return true;
 }

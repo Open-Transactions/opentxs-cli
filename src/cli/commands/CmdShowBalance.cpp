@@ -61,14 +61,10 @@ int32_t CmdShowBalance::runWithOptions() { return run(getOption("myacct")); }
 
 int32_t CmdShowBalance::run(string myacct)
 {
-    if (!checkAccount("myacct", myacct)) {
-        return -1;
-    }
+    if (!checkAccount("myacct", myacct)) { return -1; }
 
     string assetType = getAccountAssetType(myacct);
-    if ("" == assetType) {
-        return -1;
-    }
+    if ("" == assetType) { return -1; }
 
     int64_t balance = SwigWrap::GetAccountWallet_Balance(myacct);
     if (OT_ERROR_AMOUNT == balance) {

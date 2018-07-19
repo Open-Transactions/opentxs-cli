@@ -68,8 +68,7 @@ int32_t CmdShowCredentials::run(string mynym)
 
     if (0 == masterCredentialIDs.size()) {
         otOut << "The credential list is empty.\n";
-    }
-    else {
+    } else {
         otOut << "Idx     Credential ID\n"
                  "---------------------------\n";
 
@@ -98,8 +97,7 @@ int32_t CmdShowCredentials::run(string mynym)
 
     if (0 == revokedCredentialIDs.size()) {
         cout << "The revoked credential list is empty.\n";
-    }
-    else {
+    } else {
         otOut << "Idx     Revoked Credential ID\n"
                  "---------------------------\n";
 

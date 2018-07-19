@@ -72,32 +72,27 @@ int32_t CmdKillOffer::runWithOptions()
 
 int32_t CmdKillOffer::run(string server, string mynym, string myacct, string id)
 {
-    if (!checkServer("server", server)) {
-        return -1;
-    }
+    if (!checkServer("server", server)) { return -1; }
 
-    if (!checkNym("mynym", mynym)) {
-        return -1;
-    }
+    if (!checkNym("mynym", mynym)) { return -1; }
 
-    if (!checkAccount("myacct", myacct)) {
-        return -1;
-    }
+    if (!checkAccount("myacct", myacct)) { return -1; }
 
-    if (!checkTransNum("id", id)) {
-        return -1;
-    }
+    if (!checkTransNum("id", id)) { return -1; }
 
     int64_t i;
     sscanf(id.c_str(), "%" SCNd64, &i);
     std::string response;
     {
         response = OT::App()
-            .API()
-            .ServerAction()
-            .KillMarketOffer(
-                Identifier(mynym), Identifier(server), Identifier(myacct), i)
-            ->Run();
+                       .API()
+                       .ServerAction()
+                       .KillMarketOffer(
+                           Identifier::Factory(mynym),
+                           Identifier::Factory(server),
+                           Identifier::Factory(myacct),
+                           i)
+                       ->Run();
     }
     return processTxResponse(
         server, mynym, myacct, response, "kill market offer");

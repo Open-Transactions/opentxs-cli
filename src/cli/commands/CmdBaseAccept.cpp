@@ -122,6 +122,5 @@ int32_t CmdBaseAccept::acceptFromPaymentbox(
 {
 
     return OTRecordList::accept_from_paymentbox(
-        transport_notary,
-        myacct, indices, paymentType, pOptionalOutput);
+        transport_notary, myacct, indices, paymentType, pOptionalOutput);
 }

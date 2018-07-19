@@ -56,9 +56,7 @@ std::int32_t CmdShowNym::runWithOptions() { return run(getOption("mynym")); }
 
 std::int32_t CmdShowNym::run(std::string mynym)
 {
-    if (!checkNym("mynym", mynym)) {
-        return -1;
-    }
+    if (!checkNym("mynym", mynym)) { return -1; }
 
     std::string nymStats = SwigWrap::GetNym_Stats(mynym);
 
@@ -68,7 +66,7 @@ std::int32_t CmdShowNym::run(std::string mynym)
 
     std::string claims = SwigWrap::DumpContactData(mynym);
     std::cout << nymStats << std::endl << claims;
-    auto nym = OT::App().Wallet().Nym(Identifier(mynym));
+    auto nym = OT::App().Wallet().Nym(Identifier::Factory(mynym));
 
     if (nym) {
         const auto armored =

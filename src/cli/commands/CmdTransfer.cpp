@@ -76,18 +76,12 @@ int32_t CmdTransfer::run(
     string memo)
 {
 
-    if (!checkAccount("myacct", myacct)) {
-        return -1;
-    }
+    if (!checkAccount("myacct", myacct)) { return -1; }
 
-    if (!checkAccount("hisacct", hisacct)) {
-        return -1;
-    }
+    if (!checkAccount("hisacct", hisacct)) { return -1; }
 
     int64_t value = checkAmount("amount", amount, myacct);
-    if (OT_ERROR_AMOUNT == value) {
-        return -1;
-    }
+    if (OT_ERROR_AMOUNT == value) { return -1; }
 
     string server = SwigWrap::GetAccountWallet_NotaryID(myacct);
     if ("" == server) {
@@ -113,11 +107,11 @@ int32_t CmdTransfer::run(
 
     auto& sync = OT::App().API().Sync();
 
-    Identifier taskID = sync.SendTransfer(
-        Identifier(mynym),
-        Identifier(server),
-        Identifier(myacct),
-        Identifier(hisacct),
+    OTIdentifier taskID = sync.SendTransfer(
+        Identifier::Factory(mynym),
+        Identifier::Factory(server),
+        Identifier::Factory(myacct),
+        Identifier::Factory(hisacct),
         value,
         memo);
 
@@ -144,7 +138,10 @@ int32_t CmdTransfer::run(
 
     {
         if (!OT::App().API().ServerAction().DownloadAccount(
-                Identifier(mynym), Identifier(server), Identifier(myacct), true)) {
+                Identifier::Factory(mynym),
+                Identifier::Factory(server),
+                Identifier::Factory(myacct),
+                true)) {
             otOut << "Error retrieving intermediary files for account.\n";
             return -1;
         }

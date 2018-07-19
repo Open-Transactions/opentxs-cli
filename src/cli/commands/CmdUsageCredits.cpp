@@ -76,38 +76,28 @@ int32_t CmdUsageCredits::run(
     string hisnym,
     string adjust)
 {
-    if (!checkServer("server", server)) {
-        return -1;
-    }
+    if (!checkServer("server", server)) { return -1; }
 
-    if (!checkNym("mynym", mynym)) {
-        return -1;
-    }
+    if (!checkNym("mynym", mynym)) { return -1; }
 
-    if (!checkNym("hisnym", hisnym)) {
-        return -1;
-    }
+    if (!checkNym("hisnym", hisnym)) { return -1; }
 
     string positiveAdjust = '-' == adjust[0] ? adjust.substr(1) : adjust;
-    if (!checkValue("adjust", positiveAdjust)) {
-        return -1;
-    }
+    if (!checkValue("adjust", positiveAdjust)) { return -1; }
 
     std::string response;
     {
         response = OT::App()
-                          .API()
-                          .ServerAction()
-                          .AdjustUsageCredits(
-                              Identifier(mynym),
-                              Identifier(server),
-                              Identifier(hisnym),
-                              std::stoll(adjust))
-                          ->Run();
+                       .API()
+                       .ServerAction()
+                       .AdjustUsageCredits(
+                           Identifier::Factory(mynym),
+                           Identifier::Factory(server),
+                           Identifier::Factory(hisnym),
+                           std::stoll(adjust))
+                       ->Run();
     }
-    if (1 != processResponse(response, "adjust usage credits")) {
-        return -1;
-    }
+    if (1 != processResponse(response, "adjust usage credits")) { return -1; }
 
     int64_t balance = SwigWrap::Message_GetUsageCredits(response);
     if (-1 > balance) {

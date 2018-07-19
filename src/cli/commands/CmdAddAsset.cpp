@@ -61,9 +61,7 @@ int32_t CmdAddAsset::runWithOptions() { return run(); }
 int32_t CmdAddAsset::run()
 {
     string contract = inputText("an asset contract");
-    if ("" == contract) {
-        return -1;
-    }
+    if ("" == contract) { return -1; }
 
     if (SwigWrap::AddUnitDefinition(contract).empty()) {
         otOut << "Error: cannot add asset contract.\n";

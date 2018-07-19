@@ -84,14 +84,10 @@ int32_t CmdNewAsset::run(
     std::string power,
     std::string fraction)
 {
-    if (!checkNym("mynym", mynym)) {
-        return -1;
-    }
+    if (!checkNym("mynym", mynym)) { return -1; }
 
     string input = inputText("an unit definition");
-    if ("" == input) {
-        return -1;
-    }
+    if ("" == input) { return -1; }
 
     string unitDefinitionID = SwigWrap::CreateCurrencyContract(
         mynym, shortname, input, name, symbol, tla, stoi(power), fraction);

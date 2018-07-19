@@ -65,13 +65,9 @@ int32_t CmdClearExpired::runWithOptions()
 
 int32_t CmdClearExpired::run(string server, string mynym)
 {
-    if (!checkServer("server", server)) {
-        return -1;
-    }
+    if (!checkServer("server", server)) { return -1; }
 
-    if (!checkNym("mynym", mynym)) {
-        return -1;
-    }
+    if (!checkNym("mynym", mynym)) { return -1; }
 
     if (!SwigWrap::ClearExpired(server, mynym, 0, true)) {
         otOut << "Error: cannot clear expired records.\n";

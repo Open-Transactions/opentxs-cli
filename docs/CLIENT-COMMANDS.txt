@@ -1,4 +1,7 @@
-
+# Copyright (c) 2018 The Open-Transactions developers
+# This Source Code Form is subject to the terms of the Mozilla Public
+# License, v. 2.0. If a copy of the MPL was not distributed with this
+# file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
 
 
@@ -23,7 +26,7 @@ For the (old, low-level) OT PROMPT:
 
 The result:
 
-   OT> 
+   OT>
 
 ----------------------------------------------------
 COMMANDS:
@@ -32,15 +35,15 @@ stat         -- Display wallet contents.
 
 (Yes, that's just a 'c' by itself down there.)
 
-c            -- Sends a checkServerID command. This is OTLib's "Ping". 
+c            -- Sends a checkServerID command. This is OTLib's "Ping".
                 It's the wallet pinging the notary, and verifying to
                 both sides that each can encrypt/verify with the other.
- 
+
 r            -- Register a new user account (using first Nym in wallet.)
                 (Register will fail for you because I already registered
                 with this Nym. So you can just START USING IT, since it's
                 already registered. Ignore this command, in other words.)
- 
+
 u            -- Sends a checkNym command (retrieves public key based on
                 userID)
 
@@ -51,7 +54,7 @@ g            -- Ask the server to send me the current request number.
 
 issue        -- Issue new currency. (It will ask for the currency contract.)
                 The wallet will ask you for the currency contract and then
-                create an issuer account. The public key in the currency 
+                create an issuer account. The public key in the currency
                 contract must be the same as the Nym's public key, AND the
                 signature on the contract must verify with that same key.
 
@@ -72,7 +75,7 @@ get          -- Get latest copy of one of my asset accounts (by account ID).
 n            -- Ask the server to send me a new transaction number.
                 (If you ever get an error related to being out of transaction
                 numbers, just use this. Sometimes you just run out of them,
-                and you need more from the server.) As a utility tool, if you 
+                and you need more from the server.) As a utility tool, if you
                 append a long integer as the first parameter, then OT will add
                 that number to the Nym as if it were a signed-for transaction number.
 
@@ -84,7 +87,7 @@ py           -- Usually whenever downloading your Nymbox, you want to just do th
                 order to accept and sign-for new transaction numbers.)
 
 t            -- Initiate transfer from my account into another account's
-                inbox (with a pending notice being put into my outbox). 
+                inbox (with a pending notice being put into my outbox).
 
 i            -- getInbox from the server so I can decide what to do with
                 it. (There will be pending notices, cheque receipts, etc.
@@ -104,7 +107,7 @@ o           -- getOutbox from the server so my balance statements don't fail.
 
 w            -- Withdraw cash and save to a purse. (It will ask for Account ID and amount.)
 
-Note on token format: the individual notes are stored with the internal Lucre data *encrypted* to the user's Nym.  So even if the tokens were stolen in plaintext, they still could not be used--because the internal Lucre data member is still encrypted. As long as you keep backups of your financial data, they cannot be lost, nor can they be stolen simply by the files becoming compromised.  
+Note on token format: the individual notes are stored with the internal Lucre data *encrypted* to the user's Nym.  So even if the tokens were stolen in plaintext, they still could not be used--because the internal Lucre data member is still encrypted. As long as you keep backups of your financial data, they cannot be lost, nor can they be stolen simply by the files becoming compromised.
 
 v            -- Withdraw voucher. (This is like a cashier's cheque. The
                 server removes funds from your account, then issues you a
@@ -125,7 +128,7 @@ cheque       -- Write a cheque. You can do this offline but you need to have
 basket       -- Create a basket currency. (It will ask for the basket
                 details, and lead you through the process.)
 
-NOTE: The wallet will ask for the number of asset types in the basket, then the *minimum transfer amount* for the basket itself, then it will ask for each asset type ID followed by the minimum transfer amount for that asset type. For example: I might create a new basket currency called the Rand, defined as, 10 Rand = [$50, 2 gold g, and 10 silver oz]. Those numbers would serve as the *minimum transfer amount* for each asset type, with all transfers being a multiple of those numbers. 
+NOTE: The wallet will ask for the number of asset types in the basket, then the *minimum transfer amount* for the basket itself, then it will ask for each asset type ID followed by the minimum transfer amount for that asset type. For example: I might create a new basket currency called the Rand, defined as, 10 Rand = [$50, 2 gold g, and 10 silver oz]. Those numbers would serve as the *minimum transfer amount* for each asset type, with all transfers being a multiple of those numbers.
 
 Normally when you issue a currency, you are given an issuer account by the server. This account is allowed to go negative, and you can transfer to whoever you wish based on the terms of your currency contract. And with a basket currency, an issuer account is also created. But.. instead of handing control of that issuer account over to the user who defined the basket, the server manages it internally. Each basket account has its own internal asset accounts to store the reserves for the basket. Whenever users exchange in or out of a basket, the various assets are moved in or out of those internal asset accounts. After this point, an asset account storing a basket currency is no different than any other asset account, as far as the server is concerned.  It's just another asset type ID.  Due to this, baskets also support infinite nesting yet with no additional system resource usage.
 

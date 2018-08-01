@@ -77,7 +77,8 @@ int32_t CmdBaseAccept::acceptFromInbox(
     const std::string& indices,
     const std::int32_t itemTypeFilter) const
 {
-    return opentxs::cli::RecordList::acceptFromInbox(myacct, indices, itemTypeFilter);
+    return opentxs::cli::RecordList::acceptFromInbox(
+        myacct, indices, itemTypeFilter);
 }
 
 int32_t CmdBaseAccept::acceptFromPaymentbox(
@@ -89,5 +90,10 @@ int32_t CmdBaseAccept::acceptFromPaymentbox(
 {
 
     return opentxs::cli::RecordList::accept_from_paymentbox(
-        transport_notary, myacct, indices, paymentType, pOptionalOutput);
+        OT::App().Legacy().ClientDataFolder(),
+        transport_notary,
+        myacct,
+        indices,
+        paymentType,
+        pOptionalOutput);
 }

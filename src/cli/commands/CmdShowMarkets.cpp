@@ -67,7 +67,12 @@ int32_t CmdShowMarkets::run(string server)
 
 OTDB::MarketList* CmdShowMarkets::loadMarketList(const string& server)
 {
-    if (!OTDB::Exists("markets", server, "market_data.bin", "")) {
+    if (!OTDB::Exists(
+            OT::App().Legacy().ClientDataFolder(),
+            "markets",
+            server,
+            "market_data.bin",
+            "")) {
         otOut << "The market list file doesn't exist.\n";
         return nullptr;
     }
@@ -75,7 +80,12 @@ OTDB::MarketList* CmdShowMarkets::loadMarketList(const string& server)
     otWarn << "Markets file exists...Querying list of markets...\n";
 
     OTDB::Storable* storable = OTDB::QueryObject(
-        OTDB::STORED_OBJ_MARKET_LIST, "markets", server, "market_data.bin", "");
+        OTDB::STORED_OBJ_MARKET_LIST,
+        OT::App().Legacy().ClientDataFolder(),
+        "markets",
+        server,
+        "market_data.bin",
+        "");
     if (nullptr == storable) {
         otOut << "Failed to verify storable object. Probably doesn't exist.\n";
         return nullptr;

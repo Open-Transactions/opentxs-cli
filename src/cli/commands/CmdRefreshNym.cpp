@@ -76,7 +76,7 @@ std::int32_t CmdRefreshNym::retrieve_nym(
 {
     auto context = OT::App().Wallet().mutable_ServerContext(
         Identifier::Factory(strMyNymID), Identifier::Factory(strNotaryID));
-    Utility MsgUtil(context.It(), OT::App().API().OTAPI());
+    Utility MsgUtil(context.It(), OT::App().API().OTAPI(), OT::App().Legacy());
 
     if (0 >= context.It().UpdateRequestNumber()) {
         otErr << OT_METHOD << __FUNCTION__

@@ -410,10 +410,16 @@ OTDB::OfferListNym* loadNymOffers(
 {
     OTDB::OfferListNym* offerList = nullptr;
 
-    if (OTDB::Exists("nyms", notaryID, "offers", nymID + ".bin")) {
+    if (OTDB::Exists(
+            OT::App().Legacy().ClientDataFolder(),
+            "nyms",
+            notaryID,
+            "offers",
+            nymID + ".bin")) {
         otWarn << "Offers file exists... Querying nyms...\n";
         OTDB::Storable* storable = OTDB::QueryObject(
             OTDB::STORED_OBJ_OFFER_LIST_NYM,
+            OT::App().Legacy().ClientDataFolder(),
             "nyms",
             notaryID,
             "offers",
@@ -554,7 +560,9 @@ int32_t CmdBase::checkIndex(
 {
     if (!checkValue(name, index)) { return -1; }
 
-    if (!opentxs::cli::RecordList::checkIndicesRange(name, index, items)) { return -1; }
+    if (!opentxs::cli::RecordList::checkIndicesRange(name, index, items)) {
+        return -1;
+    }
 
     return stoi(index);
 }

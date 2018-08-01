@@ -58,5 +58,6 @@ int32_t CmdCancel::runWithOptions()
 
 int32_t CmdCancel::run(string mynym, string myacct, string indices)
 {
-    return opentxs::cli::RecordList::cancel_outgoing_payments(mynym, myacct, indices);
+    return opentxs::cli::RecordList::cancel_outgoing_payments(
+        OT::App().Legacy().ClientDataFolder(), mynym, myacct, indices);
 }

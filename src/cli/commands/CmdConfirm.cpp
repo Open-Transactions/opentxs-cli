@@ -83,8 +83,8 @@ int32_t CmdConfirm::run(
     if (0 > messageNr) { return -1; }
 
     // use specified payment instrument from inpayments
-    string instrument =
-        opentxs::cli::RecordList::get_payment_instrument(server, mynym, messageNr, "");
+    string instrument = opentxs::cli::RecordList::get_payment_instrument(
+        server, mynym, messageNr, "");
     if (instrument.empty()) {
         otOut << "Error: cannot load payment instrument.\n";
         return -1;
@@ -366,8 +366,8 @@ int32_t CmdConfirm::activateContract(
                        theNymID = Identifier::Factory(mynym),
                        theAcctID = Identifier::Factory(myAcctID);
 
-    std::unique_ptr<OTSmartContract> smartContract =
-        std::make_unique<OTSmartContract>();
+    auto smartContract = std::make_unique<opentxs::OTSmartContract>(
+        OT::App().Legacy().ClientDataFolder());
 
     OT_ASSERT(smartContract)
 
@@ -451,7 +451,8 @@ int32_t CmdConfirm::sendToNextParty(
         }
     }
 
-    auto payment = std::make_shared<const OTPayment>(String(contract.c_str()));
+    auto payment = std::make_shared<const OTPayment>(
+        OT::App().Legacy().ClientDataFolder(), String(contract.c_str()));
     std::string response;
     {
         response = OT::App()

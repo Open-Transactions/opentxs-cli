@@ -84,7 +84,7 @@ int32_t CmdConfirm::run(
 
     // use specified payment instrument from inpayments
     string instrument =
-        OTRecordList::get_payment_instrument(server, mynym, messageNr, "");
+        opentxs::cli::RecordList::get_payment_instrument(server, mynym, messageNr, "");
     if (instrument.empty()) {
         otOut << "Error: cannot load payment instrument.\n";
         return -1;
@@ -156,7 +156,7 @@ int32_t CmdConfirm::confirmPaymentPlan(
     const std::string& plan,
     std::string* pOptionalOutput /*=nullptr*/)
 {
-    return OTRecordList::confirmPaymentPlan_lowLevel(
+    return opentxs::cli::RecordList::confirmPaymentPlan_lowLevel(
         mynym, myacct, plan, pOptionalOutput);
 }
 

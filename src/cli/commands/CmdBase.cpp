@@ -505,7 +505,7 @@ std::string CmdBase::check_nym(
 
 bool CmdBase::checkAccount(const char* name, string& account) const
 {
-    return OTRecordList::checkAccount(name, account);
+    return opentxs::cli::RecordList::checkAccount(name, account);
 }
 
 int64_t CmdBase::checkAmount(
@@ -554,24 +554,24 @@ int32_t CmdBase::checkIndex(
 {
     if (!checkValue(name, index)) { return -1; }
 
-    if (!OTRecordList::checkIndicesRange(name, index, items)) { return -1; }
+    if (!opentxs::cli::RecordList::checkIndicesRange(name, index, items)) { return -1; }
 
     return stoi(index);
 }
 
 bool CmdBase::checkIndices(const char* name, const string& indices) const
 {
-    return OTRecordList::checkIndices(name, indices);
+    return opentxs::cli::RecordList::checkIndices(name, indices);
 }
 
 bool CmdBase::checkMandatory(const char* name, const string& value) const
 {
-    return OTRecordList::checkMandatory(name, value);
+    return opentxs::cli::RecordList::checkMandatory(name, value);
 }
 
 bool CmdBase::checkNym(const char* name, string& nym, bool checkExistance) const
 {
-    return OTRecordList::checkNym(name, nym, checkExistance);
+    return opentxs::cli::RecordList::checkNym(name, nym, checkExistance);
 }
 
 bool CmdBase::checkPurse(const char* name, string& purse) const
@@ -631,7 +631,7 @@ bool CmdBase::checkPurse(const char* name, string& purse) const
 
 bool CmdBase::checkServer(const char* name, string& server) const
 {
-    return OTRecordList::checkServer(name, server);
+    return opentxs::cli::RecordList::checkServer(name, server);
 }
 
 int64_t CmdBase::checkTransNum(const char* name, const string& id) const

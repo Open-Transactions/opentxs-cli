@@ -49,5 +49,5 @@ int32_t CmdDiscard::runWithOptions()
 
 int32_t CmdDiscard::run(string server, string mynym, string indices)
 {
-    return OTRecordList::discard_incoming_payments(server, mynym, indices);
+    return opentxs::cli::RecordList::discard_incoming_payments(server, mynym, indices);
 }

@@ -3,6 +3,9 @@
 # License, v. 2.0. If a copy of the MPL was not distributed with this
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
+set(MODULE_NAME opentxs)
+
+include_directories("${CMAKE_CURRENT_SOURCE_DIR}")
 include_directories(${OPENSSL_INCLUDE_DIR})
 
 set(cxx-sources
@@ -169,9 +172,10 @@ set(cxx-sources
   commands/CmdWriteInvoice.cpp
   opentxs.cpp
   main.cpp
+  Record.cpp
+  RecordList.cpp
 )
 
-set(MODULE_NAME opentxs)
 if (WIN32)
   configure_file(
     ${CMAKE_CURRENT_SOURCE_DIR}/../../cmake/winexe.rc.in

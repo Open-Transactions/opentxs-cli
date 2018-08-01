@@ -36,5 +36,5 @@ int32_t CmdAcceptTransfers::run(string myacct, string indices)
 
     if ("" != indices && !checkIndices("indices", indices)) { return -1; }
 
-    return acceptFromInbox(myacct, indices, OTRecordList::typeTransfers);
+    return acceptFromInbox(myacct, indices, opentxs::cli::RecordList::typeTransfers);
 }

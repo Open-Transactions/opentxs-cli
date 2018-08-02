@@ -8,6 +8,8 @@
 
 #include <opentxs/opentxs.hpp>
 
+#include "RecordList.hpp"
+
 #include <vector>
 #include <map>
 #include <mutex>

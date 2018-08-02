@@ -55,7 +55,7 @@ std::int32_t CmdAcceptAll::run(string server, string myacct)
     string& transport_notary = server;
 
     //  Incoming transfers and receipts (asset account inbox.)
-    bool success = 0 <= acceptFromInbox(myacct, "all", OTRecordList::typeBoth);
+    bool success = 0 <= acceptFromInbox(myacct, "all", opentxs::cli::RecordList::typeBoth);
 
     // Incoming payments -- cheques, purses, vouchers
     success &=

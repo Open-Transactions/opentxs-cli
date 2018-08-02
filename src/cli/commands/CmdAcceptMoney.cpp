@@ -43,7 +43,7 @@ std::int32_t CmdAcceptMoney::run(string server, string myacct)
 
     // FIX: these OR's should become AND's so we can detect any failure
     bool success =
-        0 <= acceptFromInbox(myacct, "all", OTRecordList::typeTransfers);
+        0 <= acceptFromInbox(myacct, "all", opentxs::cli::RecordList::typeTransfers);
     success |=
         0 <= acceptFromPaymentbox(transport_notary, myacct, "all", "PURSE");
     success |=

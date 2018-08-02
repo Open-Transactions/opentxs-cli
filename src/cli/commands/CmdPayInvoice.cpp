@@ -144,7 +144,8 @@ int32_t CmdPayInvoice::processPayment(
     const int32_t index,
     string* pOptionalOutput /*=nullptr*/)
 {
-    return OTRecordList::processPayment(
+    return opentxs::cli::RecordList::processPayment(
+        OT::App().Legacy().ClientDataFolder(),
         transport_notary,
         myacct,
         paymentType,

@@ -123,8 +123,13 @@ int32_t CmdDeposit::depositCheque(
     const string& instrument,
     string* pOptionalOutput /*=nullptr*/) const
 {
-    return OTRecordList::depositCheque(
-        server, myacct, mynym, instrument, pOptionalOutput);
+    return opentxs::cli::RecordList::depositCheque(
+        OT::App().Legacy().ClientDataFolder(),
+        server,
+        myacct,
+        mynym,
+        instrument,
+        pOptionalOutput);
 }
 
 int32_t CmdDeposit::depositPurse(

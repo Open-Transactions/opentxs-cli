@@ -141,7 +141,7 @@ int32_t CmdDeposit::depositPurse(
     string* pOptionalOutput /*=nullptr*/) const
 {
 #if OT_CASH
-    return OT::App().API().Cash().deposit_purse(
+    return OT::App().Client().Cash().deposit_purse(
         server, myacct, mynym, instrument, indices, pOptionalOutput);
 #else
     return -1;

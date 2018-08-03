@@ -41,7 +41,7 @@ int32_t CmdGetMarkets::run(string server, string mynym)
     {
         response =
             OT::App()
-                .API()
+                .Client()
                 .ServerAction()
                 .DownloadMarketList(
                     Identifier::Factory(mynym), Identifier::Factory(server))

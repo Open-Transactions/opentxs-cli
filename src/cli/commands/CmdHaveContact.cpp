@@ -26,8 +26,8 @@ std::int32_t CmdHaveContact::run(const std::string& id)
 {
     if (id.empty()) { return -1; }
 
-    const auto contact =
-        OT::App().Contact().Contact(Identifier::Factory(String(id.c_str())));
+    const auto contact = OT::App().Client().Contacts().Contact(
+        Identifier::Factory(String(id.c_str())));
 
     if (contact) {
         otOut << "true" << std::endl;

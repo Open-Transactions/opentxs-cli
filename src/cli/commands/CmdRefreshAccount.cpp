@@ -43,7 +43,7 @@ int32_t CmdRefreshAccount::run(string myacct)
     }
 
     {
-        if (!OT::App().API().ServerAction().DownloadAccount(
+        if (!OT::App().Client().ServerAction().DownloadAccount(
                 Identifier::Factory(mynym),
                 Identifier::Factory(server),
                 Identifier::Factory(myacct),

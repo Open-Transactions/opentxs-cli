@@ -49,7 +49,7 @@ std::int32_t CmdRequestBailment::run(
     std::string response;
     {
         response = OT::App()
-                       .API()
+                       .Client()
                        .ServerAction()
                        .InitiateBailment(
                            Identifier::Factory(mynym),

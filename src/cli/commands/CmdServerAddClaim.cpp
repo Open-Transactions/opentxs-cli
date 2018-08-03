@@ -52,7 +52,7 @@ std::int32_t CmdServerAddClaim::run(std::string server, std::string mynym)
     std::string response;
     {
         response = OT::App()
-                       .API()
+                       .Client()
                        .ServerAction()
                        .AddServerClaim(
                            Identifier::Factory(mynym),

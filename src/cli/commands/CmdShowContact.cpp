@@ -63,7 +63,7 @@ std::int32_t CmdShowContact::runWithOptions()
 std::int32_t CmdShowContact::run(const std::string& id)
 {
     const OTIdentifier contactID = Identifier::Factory(id);
-    auto& contact = OT::App().UI().Contact(contactID);
+    auto& contact = OT::App().Client().UI().Contact(contactID);
     otOut << contact.DisplayName() << ": (" << contact.ContactID()
           << ")\nPayment Code: " << contact.PaymentCode() << "\n\n";
     dashLine();

@@ -40,7 +40,7 @@ int32_t CmdGetMyOffers::run(string server, string mynym)
     {
         response =
             OT::App()
-                .API()
+                .Client()
                 .ServerAction()
                 .DownloadNymMarketOffers(
                     Identifier::Factory(mynym), Identifier::Factory(server))

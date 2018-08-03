@@ -65,7 +65,7 @@ std::int32_t CmdNotifyBailment::run(
     std::string response;
     {
         response = OT::App()
-                       .API()
+                       .Client()
                        .ServerAction()
                        .NotifyBailment(
                            Identifier::Factory(mynym),

@@ -16,7 +16,8 @@ CmdShowIssuers::CmdShowIssuers()
     args[0] = "--mynym <nym>";
     args[1] = "--currency <currency>";
     category = catAccounts;
-    help = "Show the issuer list and associated accounts for a nym in the wallet.";
+    help =
+        "Show the issuer list and associated accounts for a nym in the wallet.";
 }
 
 std::int32_t CmdShowIssuers::runWithOptions()
@@ -60,29 +61,20 @@ void CmdShowIssuers::print_line(
     otOut << " * " << line.Name() << " " << line.DisplayBalance() << "\n";
 }
 
-std::int32_t CmdShowIssuers::run(
-    std::string mynym,
-    std::string currency)
+std::int32_t CmdShowIssuers::run(std::string mynym, std::string currency)
 {
-    if (!checkNym("mynym", mynym)) {
-        return -1;
-    }
+    if (!checkNym("mynym", mynym)) { return -1; }
 
-    if (!checkMandatory("currency", currency)) {
-        return -1;
-    }
+    if (!checkMandatory("currency", currency)) { return -1; }
 
     const auto currencyType = proto::ContactItemType(std::stoi(currency));
     const OTIdentifier nymID = Identifier::Factory(mynym);
-    auto& list = OT::App().UI().AccountSummary(nymID, currencyType);
+    auto& list = OT::App().Client().UI().AccountSummary(nymID, currencyType);
     otOut << "Issuers:\n";
     dashLine();
     auto issuer = list.First();
 
-    if (false == issuer->Valid()) {
-
-        return 1;
-    }
+    if (false == issuer->Valid()) { return 1; }
 
     auto lastIssuer = issuer->Last();
     print_line(issuer.get());

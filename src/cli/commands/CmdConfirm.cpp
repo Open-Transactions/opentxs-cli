@@ -376,7 +376,8 @@ int32_t CmdConfirm::activateContract(
     std::string response;
     {
         response = OT::App()
-                       .API()
+                       .Client()
+
                        .ServerAction()
                        .ActivateSmartContract(
                            theNymID,
@@ -398,7 +399,7 @@ int32_t CmdConfirm::activateContract(
     if (1 != reply) { return reply; }
 
     {
-        if (!OT::App().API().ServerAction().DownloadAccount(
+        if (!OT::App().Client().ServerAction().DownloadAccount(
                 theNymID, theNotaryID, theAcctID, true)) {
             otOut << "Error retrieving intermediary files for account.\n";
         }
@@ -456,7 +457,8 @@ int32_t CmdConfirm::sendToNextParty(
     std::string response;
     {
         response = OT::App()
-                       .API()
+                       .Client()
+
                        .ServerAction()
                        .SendPayment(
                            Identifier::Factory(mynym),
@@ -587,7 +589,7 @@ int32_t CmdConfirm::confirmAccounts(
             "" != templateInstrumentDefinitionID;
 
         bool foundAccounts = false;
-        const auto accountList = OT::App().DB().AccountList();
+        const auto accountList = OT::App().Client().Storage().AccountList();
         const std::int32_t accountCount = accountList.size();
 
         otOut << "\nAccounts by index (filtered by notaryID and nymID):\n\n";
@@ -758,7 +760,7 @@ int32_t CmdConfirm::confirmAccounts(
         int32_t needed = SwigWrap::SmartContract_CountNumsNeeded(
             contract, mapAgents[x->first]);
 
-        if (!OT::App().API().ServerAction().GetTransactionNumbers(
+        if (!OT::App().Client().ServerAction().GetTransactionNumbers(
                 Identifier::Factory(mynym),
                 Identifier::Factory(server),
                 needed + 1)) {

@@ -26,7 +26,8 @@ std::int32_t CmdStartIntroductionServer::run(std::string mynym)
 {
     if (!checkNym("mynym", mynym)) { return -1; }
 
-    OT::App().API().Sync().StartIntroductionServer(Identifier::Factory(mynym));
+    OT::App().Client().Sync().StartIntroductionServer(
+        Identifier::Factory(mynym));
 
     return 1;
 }

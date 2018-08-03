@@ -50,7 +50,7 @@ int32_t CmdKillPlan::run(string server, string mynym, string myacct, string id)
     std::string response;
     {
         response = OT::App()
-                       .API()
+                       .Client()
                        .ServerAction()
                        .KillPaymentPlan(
                            Identifier::Factory(mynym),

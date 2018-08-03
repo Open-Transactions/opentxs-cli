@@ -31,7 +31,7 @@ std::int32_t CmdAddContact::run(
     if (hisnym.empty()) { return -1; }
 
     OTIdentifier nymID = Identifier::Factory(String(hisnym.c_str()));
-    auto code = PaymentCode::Factory(hisnym);
+    auto code = OT::App().Client().Factory().PaymentCode(hisnym);
 
     if (nymID->empty()) {
         otErr << "Provided ID was not a nymID." << std::endl;
@@ -50,7 +50,8 @@ std::int32_t CmdAddContact::run(
         otErr << "Derived nymID: " << String(nymID) << std::endl;
     }
 
-    const auto response = OT::App().Contact().NewContact(label, nymID, code);
+    const auto response =
+        OT::App().Client().Contacts().NewContact(label, nymID, code);
 
     if (response) { return 0; }
 

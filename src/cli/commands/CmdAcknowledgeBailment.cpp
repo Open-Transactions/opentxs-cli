@@ -50,7 +50,7 @@ std::int32_t CmdAcknowledgeBailment::run(
     std::string response;
     {
         response = OT::App()
-                       .API()
+                       .Client()
                        .ServerAction()
                        .AcknowledgeBailment(
                            Identifier::Factory(mynym),

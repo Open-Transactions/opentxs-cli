@@ -42,13 +42,14 @@ int32_t CmdRegisterContractServer::run(
 
     std::string response;
     {
-        response =
-            OT::App()
-                .API()
-                .ServerAction()
-                .PublishServerContract(
-                    Identifier::Factory(mynym), Identifier::Factory(server), Identifier::Factory(contract))
-                ->Run();
+        response = OT::App()
+                       .Client()
+                       .ServerAction()
+                       .PublishServerContract(
+                           Identifier::Factory(mynym),
+                           Identifier::Factory(server),
+                           Identifier::Factory(contract))
+                       ->Run();
     }
 
     return processResponse(response, "register contract");

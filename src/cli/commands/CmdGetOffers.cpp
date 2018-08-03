@@ -54,7 +54,7 @@ int32_t CmdGetOffers::run(
     std::string response;
     {
         response = OT::App()
-                       .API()
+                       .Client()
                        .ServerAction()
                        .DownloadMarketOffers(
                            Identifier::Factory(mynym),

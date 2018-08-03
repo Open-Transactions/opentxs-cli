@@ -41,7 +41,7 @@ std::int32_t CmdRequestAdmin::run(
     std::string response;
     {
         response = OT::App()
-                       .API()
+                       .Client()
                        .ServerAction()
                        .RequestAdmin(
                            Identifier::Factory(mynym),

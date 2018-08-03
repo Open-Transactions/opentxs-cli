@@ -47,7 +47,7 @@ std::int32_t CmdAcknowledgeNotice::run(
     std::string response;
     {
         response = OT::App()
-                       .API()
+                       .Client()
                        .ServerAction()
                        .AcknowledgeNotice(
                            Identifier::Factory(mynym),

@@ -113,7 +113,7 @@ int32_t CmdNewOffer::run(
     // NOTE: Removing this for now. It was a special feature for
     // knotwork and currently it's causing me some problems.
     //
-    //    OT::App().API().OTME().get_nym_market_offers(server, mynym);
+    //    OT::App().Client().OTME().get_nym_market_offers(server, mynym);
     //
     //    if (0 > cleanMarketOfferList(server, mynym, myacct, hisacct, type,
     //    scale,
@@ -132,7 +132,8 @@ int32_t CmdNewOffer::run(
     std::string response;
     {
         response = OT::App()
-                       .API()
+                       .Client()
+
                        .ServerAction()
                        .CreateMarketOffer(
                            Identifier::Factory(myacct),
@@ -255,7 +256,8 @@ int32_t CmdNewOffer::cleanMarketOfferList(
         std::string response;
         {
             response = OT::App()
-                           .API()
+                           .Client()
+
                            .ServerAction()
                            .KillMarketOffer(
                                Identifier::Factory(mynym),

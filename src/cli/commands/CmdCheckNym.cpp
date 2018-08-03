@@ -72,7 +72,7 @@ int32_t CmdCheckNym::run(string server, string mynym, string hisnym)
     std::string response;
     {
         response = OT::App()
-                       .API()
+                       .Client()
                        .ServerAction()
                        .DownloadNym(
                            Identifier::Factory(mynym),

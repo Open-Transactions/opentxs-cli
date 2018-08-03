@@ -38,7 +38,7 @@ std::int32_t CmdSetProfileValue::run(
     if (!checkNym("mynym", mynym)) { return -1; }
 
     const OTIdentifier nymID = Identifier::Factory({mynym});
-    auto& profile = OT::App().UI().Profile(nymID);
+    auto& profile = OT::App().Client().UI().Profile(nymID);
 
     const auto sectionType =
         static_cast<proto::ContactSectionName>(std::stoi(section));

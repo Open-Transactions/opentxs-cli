@@ -31,7 +31,7 @@ std::int32_t CmdMarkRead::run(
 {
     if (!checkNym("mynym", mynym)) { return -1; }
 
-    const auto output = OT::App().Activity().MarkRead(
+    const auto output = OT::App().Client().Activity().MarkRead(
         Identifier::Factory(mynym),
         Identifier::Factory(threadID),
         Identifier::Factory(itemID));

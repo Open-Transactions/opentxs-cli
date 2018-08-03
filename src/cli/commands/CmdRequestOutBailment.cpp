@@ -58,7 +58,7 @@ std::int32_t CmdRequestOutBailment::run(
     std::string response;
     {
         response = OT::App()
-                       .API()
+                       .Client()
                        .ServerAction()
                        .InitiateOutbailment(
                            Identifier::Factory(mynym),

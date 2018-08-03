@@ -39,7 +39,8 @@ std::int32_t CmdPreloadActivity::run(
         count = 1;
     }
 
-    OT::App().Activity().PreloadActivity(Identifier::Factory(mynym), count);
+    OT::App().Client().Activity().PreloadActivity(
+        Identifier::Factory(mynym), count);
 
     return 0;
 }

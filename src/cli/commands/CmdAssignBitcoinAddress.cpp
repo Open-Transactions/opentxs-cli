@@ -86,7 +86,7 @@ std::int32_t CmdAssignBitcoinAddress::run(
     }
 
     const OTIdentifier nymID = Identifier::Factory(mynym);
-    const auto assigned = OT::App().Blockchain().AssignAddress(
+    const auto assigned = OT::App().Client().Blockchain().AssignAddress(
         nymID, accountID, index, Identifier::Factory(contact), change);
 
     if (false == assigned) {
@@ -96,8 +96,8 @@ std::int32_t CmdAssignBitcoinAddress::run(
         return -1;
     }
 
-    const auto address =
-        OT::App().Blockchain().LoadAddress(nymID, accountID, index, change);
+    const auto address = OT::App().Client().Blockchain().LoadAddress(
+        nymID, accountID, index, change);
 
     if (false == bool(address)) {
         otErr << OT_METHOD << __FUNCTION__ << ": Failed to load address."

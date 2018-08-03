@@ -30,7 +30,7 @@ int32_t CmdShowCredentials::run(string mynym)
 {
     if (!checkNym("mynym", mynym)) { return -1; }
 
-    auto nym = OT::App().Wallet().Nym(Identifier::Factory(mynym));
+    auto nym = OT::App().Client().Wallet().Nym(Identifier::Factory(mynym));
     auto masterCredentialIDs = nym->GetMasterCredentialIDs();
 
     if (0 == masterCredentialIDs.size()) {

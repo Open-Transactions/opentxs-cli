@@ -28,8 +28,9 @@ bool Record::FormatAmount(std::string& str_output) const
         //            m_str_unit_type_id << "";
         return false;
     }
-    str_output = OT::App().API().Exec().FormatAmount(
-        m_str_unit_type_id, OT::App().API().Exec().StringToLong(m_str_amount));
+    str_output = OT::App().Client().Exec().FormatAmount(
+        m_str_unit_type_id,
+        OT::App().Client().Exec().StringToLong(m_str_amount));
     return (!str_output.empty());
 }
 
@@ -37,8 +38,9 @@ bool Record::FormatAmountWithoutSymbol(std::string& str_output)
 {
     if (m_str_amount.empty() || m_str_unit_type_id.empty()) { return false; }
 
-    str_output = OT::App().API().Exec().FormatAmountWithoutSymbol(
-        m_str_unit_type_id, OT::App().API().Exec().StringToLong(m_str_amount));
+    str_output = OT::App().Client().Exec().FormatAmountWithoutSymbol(
+        m_str_unit_type_id,
+        OT::App().Client().Exec().StringToLong(m_str_amount));
     return (!str_output.empty());
 }
 
@@ -56,9 +58,9 @@ bool Record::FormatAmountLocale(
         //            m_str_unit_type_id << "";
         return false;
     }
-    str_output = OT::App().API().Exec().FormatAmountLocale(
+    str_output = OT::App().Client().Exec().FormatAmountLocale(
         m_str_unit_type_id,
-        OT::App().API().Exec().StringToLong(m_str_amount),
+        OT::App().Client().Exec().StringToLong(m_str_amount),
         str_thousands,
         str_decimal);
     return (!str_output.empty());
@@ -71,9 +73,9 @@ bool Record::FormatAmountWithoutSymbolLocale(
 {
     if (m_str_amount.empty() || m_str_unit_type_id.empty()) { return false; }
 
-    str_output = OT::App().API().Exec().FormatAmountWithoutSymbolLocale(
+    str_output = OT::App().Client().Exec().FormatAmountWithoutSymbolLocale(
         m_str_unit_type_id,
-        OT::App().API().Exec().StringToLong(m_str_amount),
+        OT::App().Client().Exec().StringToLong(m_str_amount),
         str_thousands,
         str_decimal);
     return (!str_output.empty());
@@ -248,7 +250,7 @@ bool Record::FormatDescription(std::string& str_output) const
                 }
             } else if (0 == GetInstrumentType().compare("marketReceipt")) {
                 const Amount lAmount =
-                    OT::App().API().Exec().StringToLong(m_str_amount);
+                    OT::App().Client().Exec().StringToLong(m_str_amount);
 
                 // I *think* successful trades have a negative amount -- we'll
                 // find out!
@@ -260,7 +262,7 @@ bool Record::FormatDescription(std::string& str_output) const
                 }
             } else if (0 == GetInstrumentType().compare("chequeReceipt")) {
                 const Amount lAmount =
-                    OT::App().API().Exec().StringToLong(m_str_amount);
+                    OT::App().Client().Exec().StringToLong(m_str_amount);
 
                 // I paid OUT when this chequeReceipt came through. It must be a
                 // normal cheque that I wrote.
@@ -279,7 +281,7 @@ bool Record::FormatDescription(std::string& str_output) const
                 str_instrument_type = "payment";
             } else if (0 == GetInstrumentType().compare("paymentReceipt")) {
                 const Amount lAmount =
-                    OT::App().API().Exec().StringToLong(m_str_amount);
+                    OT::App().Client().Exec().StringToLong(m_str_amount);
 
                 if (!IsCanceled() && (lAmount > 0)) strKind.Set("received ");
 
@@ -352,7 +354,7 @@ bool Record::FormatDescription(std::string& str_output) const
                 }
             } else if (0 == GetInstrumentType().compare("marketReceipt")) {
                 const Amount lAmount =
-                    OT::App().API().Exec().StringToLong(m_str_amount);
+                    OT::App().Client().Exec().StringToLong(m_str_amount);
 
                 // I *think* marketReceipts have negative value. We'll just test
                 // for non-zero.
@@ -362,7 +364,7 @@ bool Record::FormatDescription(std::string& str_output) const
                     str_instrument_type = "market trade (receipt)";
             } else if (0 == GetInstrumentType().compare("chequeReceipt")) {
                 const Amount lAmount =
-                    OT::App().API().Exec().StringToLong(m_str_amount);
+                    OT::App().Client().Exec().StringToLong(m_str_amount);
 
                 // I paid OUT when this chequeReceipt came through. It must be a
                 // normal cheque that I wrote.
@@ -389,7 +391,7 @@ bool Record::FormatDescription(std::string& str_output) const
                     str_instrument_type = "payment (receipt)";
             } else if (0 == GetInstrumentType().compare("paymentReceipt")) {
                 const Amount lAmount =
-                    OT::App().API().Exec().StringToLong(m_str_amount);
+                    OT::App().Client().Exec().StringToLong(m_str_amount);
 
                 if (!IsCanceled() && (lAmount > 0)) strKind.Set("received ");
 
@@ -608,17 +610,17 @@ bool Record::CanDiscardIncoming() const
         return false;
 
     if (Record::Transfer == GetRecordType())  // All incoming, pending
-                                                // instruments EXCEPT
-                                                // transfer can be
-                                                // discarded.
+                                              // instruments EXCEPT
+                                              // transfer can be
+                                              // discarded.
         return false;
 
     return true;
 }
 bool Record::CanDiscardOutgoingCash() const  // For OUTgoing cash. (No way to
-                                               // see if it's been accepted, so
-                                               // this lets you erase the record
-                                               // of sending it.)
+                                             // see if it's been accepted, so
+                                             // this lets you erase the record
+                                             // of sending it.)
 {
     if (!IsOutgoing()) return false;
 
@@ -652,8 +654,8 @@ bool Record::CanCancelOutgoing() const
         return false;
 
     if (Record::Transfer == GetRecordType())  // All outgoing, pending
-                                                // instruments EXCEPT transfer
-                                                // can be canceled.
+                                              // instruments EXCEPT transfer
+                                              // can be canceled.
         return false;
 
     return true;
@@ -720,7 +722,7 @@ bool Record::DeleteRecord() const
             if (!m_bIsSpecialMail) {
                 if (m_bIsOutgoing)  // outgoing mail
                 {
-                    auto& exec = OT::App().API().Exec();
+                    auto& exec = OT::App().Client().Exec();
                     const auto list = exec.GetNym_OutmailCount(m_str_nym_id);
 
                     for (const auto& id : list) {
@@ -735,7 +737,7 @@ bool Record::DeleteRecord() const
                     }
                 } else  // incoming mail
                 {
-                    auto& exec = OT::App().API().Exec();
+                    auto& exec = OT::App().Client().Exec();
                     const auto list = exec.GetNym_MailCount(m_str_nym_id);
 
                     for (const auto& id : list) {
@@ -802,8 +804,8 @@ bool Record::DeleteRecord() const
                                                             // contains NymID
                                                             // (see above.)
 
-    Ledger* pRecordbox =
-        OT::App().API().OTAPI().LoadRecordBox(theNotaryID, theNymID, theAcctID);
+    Ledger* pRecordbox = OT::App().Client().OTAPI().LoadRecordBox(
+        theNotaryID, theNymID, theAcctID);
     std::unique_ptr<Ledger> theRecordBoxAngel(pRecordbox);
     if (!pRecordbox) {
         otErr << __FUNCTION__
@@ -925,7 +927,7 @@ bool Record::AcceptIncomingTransferOrReceipt() const
                        theAcctID = Identifier::Factory(m_str_account_id);
 
             // Open the Nym's asset account inbox.
-            Ledger* pInbox = OT::App().API().OTAPI().LoadInbox(
+            Ledger* pInbox = OT::App().Client().OTAPI().LoadInbox(
                 thePmntNotaryID, theNymID, theAcctID);
             std::unique_ptr<Ledger> theInboxAngel(pInbox);
             if (!pInbox) {
@@ -995,7 +997,7 @@ bool Record::AcceptIncomingInstrument(const std::string& str_into_acct) const
                        theNymID = Identifier::Factory(m_str_nym_id);
 
             // Open the Nym's payments inbox.
-            Ledger* pInbox = OT::App().API().OTAPI().LoadPaymentInbox(
+            Ledger* pInbox = OT::App().Client().OTAPI().LoadPaymentInbox(
                 theMsgNotaryID, theNymID);
             std::unique_ptr<Ledger> theInboxAngel(pInbox);
             if (!pInbox) {
@@ -1108,7 +1110,7 @@ bool Record::DiscardIncoming() const
                        theNymID = Identifier::Factory(m_str_nym_id);
 
             // Open the Nym's payments inbox.
-            Ledger* pInbox = OT::App().API().OTAPI().LoadPaymentInbox(
+            Ledger* pInbox = OT::App().Client().OTAPI().LoadPaymentInbox(
                 theMsgNotaryID, theNymID);
             std::unique_ptr<Ledger> theInboxAngel(pInbox);
             if (!pInbox) {
@@ -1151,10 +1153,7 @@ bool Record::DiscardIncoming() const
 
     return true;
 }
-bool Record::IsTransfer() const
-{
-    return (Record::Transfer == m_RecordType);
-}
+bool Record::IsTransfer() const { return (Record::Transfer == m_RecordType); }
 bool Record::IsCash() const { return m_bIsCash; }
 bool Record::IsNotice() const { return m_bIsNotice; }
 bool Record::IsInvoice() const { return m_bIsInvoice; }
@@ -1179,8 +1178,8 @@ bool Record::HasSuccess(bool& bIsSuccess) const
 // For outgoing, pending (not-yet-accepted) instruments.
 //
 bool Record::CancelOutgoing(std::string str_via_acct) const  // This can be
-                                                               // blank if it's
-                                                               // a cheque.
+                                                             // blank if it's
+                                                             // a cheque.
 {
     if (!CanCancelOutgoing()) return false;
 
@@ -1344,20 +1343,11 @@ const std::string& Record::GetPmntNotaryID() const
     return m_str_pmnt_notary_id;
 }
 
-const std::string& Record::GetUnitTypeID() const
-{
-    return m_str_unit_type_id;
-}
-const std::string& Record::GetCurrencyTLA() const
-{
-    return m_str_currency_tla;
-}
+const std::string& Record::GetUnitTypeID() const { return m_str_unit_type_id; }
+const std::string& Record::GetCurrencyTLA() const { return m_str_currency_tla; }
 const std::string& Record::GetNymID() const { return m_str_nym_id; }
 const std::string& Record::GetAccountID() const { return m_str_account_id; }
-const std::string& Record::GetOtherNymID() const
-{
-    return m_str_other_nym_id;
-}
+const std::string& Record::GetOtherNymID() const { return m_str_other_nym_id; }
 const std::string& Record::GetOtherAccountID() const
 {
     return m_str_other_account_id;
@@ -1381,10 +1371,7 @@ const std::string& Record::GetMsgTypeDisplay() const
 {
     return m_str_msg_type_display;
 }
-void Record::SetSpecialMail(bool bIsSpecial)
-{
-    m_bIsSpecialMail = bIsSpecial;
-}
+void Record::SetSpecialMail(bool bIsSpecial) { m_bIsSpecialMail = bIsSpecial; }
 void Record::SetMethodID(std::int32_t nMethodID) { m_nMethodID = nMethodID; }
 void Record::SetAddress(const std::string& str_Address)
 {
@@ -1405,10 +1392,7 @@ void Record::SetMsgTypeDisplay(const std::string& str_type)
 }
 std::int32_t Record::GetBoxIndex() const { return m_nBoxIndex; }
 void Record::SetBoxIndex(std::int32_t nBoxIndex) { m_nBoxIndex = nBoxIndex; }
-const std::string Record::GetThreadItemId() const
-{
-    return m_strThreadItemId;
-}
+const std::string Record::GetThreadItemId() const { return m_strThreadItemId; }
 void Record::SetThreadItemId(const std::string& strThreadItemId)
 {
     m_strThreadItemId = strThreadItemId;
@@ -1568,4 +1552,4 @@ Record::Record(
 {
 }
 
-}  // namespace opentxs
+}  // namespace opentxs::cli

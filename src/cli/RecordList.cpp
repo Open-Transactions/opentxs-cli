@@ -49,7 +49,7 @@ namespace opentxs::cli
 {
 RecordList::RecordList()
     : data_folder_{OT::App().Legacy().ClientDataFolder()}
-    , wallet_(OT::App().Wallet())
+    , wallet_(OT::App().Client().Wallet())
     , m_bRunFast(false)
     , m_bAutoAcceptCheques(false)
     , m_bAutoAcceptReceipts(false)
@@ -198,7 +198,7 @@ std::string RecordList::get_payment_instrument(  // static method
     std::string strInbox =
         VerifyStringVal(PRELOADED_INBOX)
             ? PRELOADED_INBOX
-            : OT::App().API().Exec().LoadPaymentInbox(
+            : OT::App().Client().Exec().LoadPaymentInbox(
                   notaryID, nymID);  // Returns nullptr, or an inbox.
 
     if (!VerifyStringVal(strInbox)) {
@@ -208,7 +208,7 @@ std::string RecordList::get_payment_instrument(  // static method
         return "";
     }
 
-    std::int32_t nCount = OT::App().API().Exec().Ledger_GetCount(
+    std::int32_t nCount = OT::App().Client().Exec().Ledger_GetCount(
         notaryID, nymID, nymID, strInbox);
     if (0 > nCount) {
         otOut
@@ -222,7 +222,7 @@ std::string RecordList::get_payment_instrument(  // static method
         return "";
     }
 
-    strInstrument = OT::App().API().Exec().Ledger_GetInstrument(
+    strInstrument = OT::App().Client().Exec().Ledger_GetInstrument(
         notaryID, nymID, nymID, strInbox, nIndex);
     if (!VerifyStringVal(strInstrument)) {
         otOut << "Failed trying to get payment instrument from payments box.\n";
@@ -664,7 +664,7 @@ std::int32_t RecordList::processPayment(  // a static method
     } else if (thePayment.IsPurse()) {
         std::int32_t success{-1};
 #if OT_CASH
-        success = OT::App().API().Cash().deposit_purse(
+        success = OT::App().Client().Cash().deposit_purse(
             acct_server, myacct, mynym, instrument, "", pOptionalOutput);
 #endif  // OT_CASH
         // if index != -1, go ahead and call RecordPayment on the purse at that
@@ -706,7 +706,8 @@ std::int32_t RecordList::depositCheque(  // a static method
     std::string response;
     {
         response = OT::App()
-                       .API()
+                       .Client()
+
                        .ServerAction()
                        .DepositCheque(
                            Identifier::Factory(mynym),
@@ -722,7 +723,7 @@ std::int32_t RecordList::depositCheque(  // a static method
     if (nullptr != pOptionalOutput) { *pOptionalOutput = response; }
 
     {
-        if (!OT::App().API().ServerAction().DownloadAccount(
+        if (!OT::App().Client().ServerAction().DownloadAccount(
                 Identifier::Factory(mynym),
                 Identifier::Factory(server),
                 Identifier::Factory(myacct),
@@ -834,7 +835,7 @@ std::int32_t RecordList::confirmPaymentPlan_lowLevel(  // a static method
     }
 
     {
-        if (!OT::App().API().ServerAction().GetTransactionNumbers(
+        if (!OT::App().Client().ServerAction().GetTransactionNumbers(
                 Identifier::Factory(senderUser),
                 Identifier::Factory(server),
                 2)) {
@@ -862,7 +863,8 @@ std::int32_t RecordList::confirmPaymentPlan_lowLevel(  // a static method
     std::string response;
     {
         response = OT::App()
-                       .API()
+                       .Client()
+
                        .ServerAction()
                        .DepositPaymentPlan(
                            Identifier::Factory(senderUser),
@@ -886,7 +888,7 @@ std::int32_t RecordList::confirmPaymentPlan_lowLevel(  // a static method
     if (nullptr != pOptionalOutput) { *pOptionalOutput = response; }
 
     {
-        if (!OT::App().API().ServerAction().DownloadAccount(
+        if (!OT::App().Client().ServerAction().DownloadAccount(
                 Identifier::Factory(senderUser),
                 Identifier::Factory(server),
                 Identifier::Factory(senderAcct),
@@ -959,7 +961,7 @@ bool RecordList::checkServer(const char* name, std::string& server)
 
     auto theID = Identifier::Factory(server);
     ConstServerContract pServer;  // shared_ptr to const.
-    const auto& wallet = OT::App().Wallet();
+    const auto& wallet = OT::App().Client().Wallet();
 
     // See if it's available using the full length ID.
     if (!theID->empty()) pServer = wallet.Server(theID);
@@ -1015,7 +1017,7 @@ bool RecordList::checkNym(
 
     ConstNym pNym = nullptr;
     const auto nymID = Identifier::Factory(nym);
-    const auto& wallet = OT::App().Wallet();
+    const auto& wallet = OT::App().Client().Wallet();
 
     if (!nymID->empty()) pNym = wallet.Nym(nymID);
 
@@ -1043,12 +1045,12 @@ bool RecordList::checkAccount(const char* name, std::string& accountID)
 
     if (theID->empty()) { return false; }
 
-    auto account = OT::App().Wallet().Account(
+    auto account = OT::App().Client().Wallet().Account(
         OT::App().Legacy().ClientDataFolder(), theID);
 
     if (false == bool(account)) {
         const auto converted =
-            OT::App().Wallet().AccountPartialMatch(accountID);
+            OT::App().Client().Wallet().AccountPartialMatch(accountID);
 
         if (converted->empty()) {
             otOut << "Error: " << name << ": unknown account: " << accountID
@@ -1056,7 +1058,7 @@ bool RecordList::checkAccount(const char* name, std::string& accountID)
             return false;
         }
 
-        account = OT::App().Wallet().Account(
+        account = OT::App().Client().Wallet().Account(
             OT::App().Legacy().ClientDataFolder(), converted);
     }
 
@@ -1254,7 +1256,8 @@ std::int32_t RecordList::cancel_outgoing_payments(
             std::string response;
             {
                 response = OT::App()
-                               .API()
+                               .Client()
+
                                .ServerAction()
                                .ActivateSmartContract(
                                    theNymID,
@@ -1298,7 +1301,8 @@ std::int32_t RecordList::cancel_outgoing_payments(
             std::string response;
             {
                 response = OT::App()
-                               .API()
+                               .Client()
+
                                .ServerAction()
                                .CancelPaymentPlan(theNymID, theNotaryID, plan)
                                ->Run();
@@ -1415,7 +1419,7 @@ std::int32_t RecordList::acceptFromInbox(  // a static method
     // have it fail and re-try, and at least be trying the actual intended
     // indices, and cut our account retrievals in half while we're at it!
     //
-    //    if (!OT::App().API().ME().retrieve_account(server, mynym, myacct,
+    //    if (!OT::App().Client().ME().retrieve_account(server, mynym, myacct,
     //    true)) {
     //        otOut << "Error retrieving intermediary files for account.\n";
     //        return -1;
@@ -1434,7 +1438,7 @@ std::int32_t RecordList::acceptFromInbox(  // a static method
                theAcctID = Identifier::Factory(myacct);
 
     {
-        if (!OT::App().API().ServerAction().GetTransactionNumbers(
+        if (!OT::App().Client().ServerAction().GetTransactionNumbers(
                 theNymID, theNotaryID, 10)) {
             otOut << "Error: cannot reserve transaction numbers.\n";
             return -1;
@@ -1442,7 +1446,7 @@ std::int32_t RecordList::acceptFromInbox(  // a static method
     }
     // -----------------------------------------------------------
     std::unique_ptr<Ledger> pInbox(
-        OT::App().API().OTAPI().LoadInbox(theNotaryID, theNymID, theAcctID));
+        OT::App().Client().OTAPI().LoadInbox(theNotaryID, theNymID, theAcctID));
     if (false == bool(pInbox)) {
         otOut << "Error: cannot load inbox.\n";
         return -1;
@@ -1492,8 +1496,9 @@ std::int32_t RecordList::acceptFromInbox(  // a static method
     // inside the inbox.
 
     // -------------------------------------------------------
-    OT_API::ProcessInbox response{OT::App().API().OTAPI().Ledger_CreateResponse(
-        theNotaryID, theNymID, theAcctID)};
+    OT_API::ProcessInbox response{
+        OT::App().Client().OTAPI().Ledger_CreateResponse(
+            theNotaryID, theNymID, theAcctID)};
     // -------------------------------------------------------
     auto& processInbox = std::get<0>(response);
     auto& inbox = std::get<1>(response);
@@ -1505,7 +1510,7 @@ std::int32_t RecordList::acceptFromInbox(  // a static method
     // -------------------------------------------------------
     for (const TransactionNumber& lReceiptId : receiptIds) {
         OTTransaction* pReceipt =
-            OT::App().API().OTAPI().Ledger_GetTransactionByID(
+            OT::App().Client().OTAPI().Ledger_GetTransactionByID(
                 *inbox, lReceiptId);
 
         if (nullptr == pReceipt) {
@@ -1535,7 +1540,7 @@ std::int32_t RecordList::acceptFromInbox(  // a static method
         }
         // ------------------------
         const bool bReceiptResponseCreated =
-            OT::App().API().OTAPI().Transaction_CreateResponse(
+            OT::App().Client().OTAPI().Transaction_CreateResponse(
                 theNotaryID,
                 theNymID,
                 theAcctID,
@@ -1558,7 +1563,7 @@ std::int32_t RecordList::acceptFromInbox(  // a static method
         return 0;
     }
     // ----------------------------------------------
-    const bool bFinalized = OT::App().API().OTAPI().Ledger_FinalizeResponse(
+    const bool bFinalized = OT::App().Client().OTAPI().Ledger_FinalizeResponse(
         theNotaryID, theNymID, theAcctID, *processInbox);
 
     if (!bFinalized) {
@@ -1570,7 +1575,8 @@ std::int32_t RecordList::acceptFromInbox(  // a static method
     {
         notary_response =
             OT::App()
-                .API()
+                .Client()
+
                 .ServerAction()
                 .ProcessInbox(theNymID, theNotaryID, theAcctID, processInbox)
                 ->Run();
@@ -1584,7 +1590,7 @@ std::int32_t RecordList::acceptFromInbox(  // a static method
     // the inbox. Might as well refresh our copy with the new changes.
     //
     {
-        if (!OT::App().API().ServerAction().DownloadAccount(
+        if (!OT::App().Client().ServerAction().DownloadAccount(
                 theNymID, theNotaryID, theAcctID, true)) {
             otOut << __FUNCTION__
                   << "Success processing inbox, but then failed "
@@ -1712,12 +1718,14 @@ bool RecordList::PerformAutoAccept()
                 Ledger* pInbox{nullptr};
 
                 if (false == theNymID->empty()) {
-                    pInbox =
-                        m_bRunFast
-                            ? OT::App().API().OTAPI().LoadPaymentInboxNoVerify(
-                                  theMsgNotaryID, theNymID)
-                            : OT::App().API().OTAPI().LoadPaymentInbox(
-                                  theMsgNotaryID, theNymID);
+                    pInbox = m_bRunFast
+                                 ? OT::App()
+                                       .Client()
+                                       .OTAPI()
+                                       .LoadPaymentInboxNoVerify(
+                                           theMsgNotaryID, theNymID)
+                                 : OT::App().Client().OTAPI().LoadPaymentInbox(
+                                       theMsgNotaryID, theNymID);
                 }
 
                 std::unique_ptr<Ledger> theInboxAngel(pInbox);
@@ -1737,8 +1745,8 @@ bool RecordList::PerformAutoAccept()
                             &RecordList::s_blank;  // <========== ASSET TYPE
                         const std::string* p_str_asset_name =
                             &RecordList::s_blank;  // instrument definition
-                                                     // display name.
-                        std::string str_type;        // Instrument type.
+                                                   // display name.
+                        std::string str_type;      // Instrument type.
                         OTPayment* pPayment = GetInstrumentByReceiptID(
                             data_folder_, *pNym, lPaymentBoxTransNum, *pInbox);
                         std::unique_ptr<OTPayment> thePaymentAngel(pPayment);
@@ -2125,10 +2133,11 @@ bool RecordList::PerformAutoAccept()
             Ledger* pInbox{nullptr};
 
             if (false == theNymID.empty()) {
-                pInbox = m_bRunFast ? OT::App().API().OTAPI().LoadInboxNoVerify(
-                                          theNotaryID, theNymID, theAccountID)
-                                    : OT::App().API().OTAPI().LoadInbox(
-                                          theNotaryID, theNymID, theAccountID);
+                pInbox = m_bRunFast
+                             ? OT::App().Client().OTAPI().LoadInboxNoVerify(
+                                   theNotaryID, theNymID, theAccountID)
+                             : OT::App().Client().OTAPI().LoadInbox(
+                                   theNotaryID, theNymID, theAccountID);
             }
 
             std::unique_ptr<Ledger> theInboxAngel(pInbox);
@@ -2178,7 +2187,8 @@ bool RecordList::PerformAutoAccept()
                                  // least 20 transaction numbers."
                         {
                             if (!OT::App()
-                                     .API()
+                                     .Client()
+
                                      .ServerAction()
                                      .GetTransactionNumbers(
                                          theNymID,
@@ -2193,7 +2203,7 @@ bool RecordList::PerformAutoAccept()
                             }
                         }
                         strResponseLedger =
-                            OT::App().API().Exec().Ledger_CreateResponse(
+                            OT::App().Client().Exec().Ledger_CreateResponse(
                                 str_notary_id, str_nym_id, str_account_id);
 
                         if (strResponseLedger.empty()) {
@@ -2208,7 +2218,7 @@ bool RecordList::PerformAutoAccept()
                     const String strTrans(*pBoxTrans);
                     const std::string str_trans(strTrans.Get());
                     std::string strNEW_ResponseLEDGER =
-                        OT::App().API().Exec().Transaction_CreateResponse(
+                        OT::App().Client().Exec().Transaction_CreateResponse(
                             str_notary_id,
                             str_nym_id,
                             str_account_id,
@@ -2233,7 +2243,7 @@ bool RecordList::PerformAutoAccept()
             //
             if (bFoundAnyToAccept && !strResponseLedger.empty()) {
                 std::string strFinalizedResponse =
-                    OT::App().API().Exec().Ledger_FinalizeResponse(
+                    OT::App().Client().Exec().Ledger_FinalizeResponse(
                         str_notary_id,
                         str_nym_id,
                         str_account_id,
@@ -2262,7 +2272,8 @@ bool RecordList::PerformAutoAccept()
                 {
                     strResponse =
                         OT::App()
-                            .API()
+                            .Client()
+
                             .ServerAction()
                             .ProcessInbox(
                                 theNymID, theNotaryID, theAccountID, ledger)
@@ -2283,7 +2294,7 @@ bool RecordList::PerformAutoAccept()
                     // since they have probably changed from this operation.
                     //
                     bool bRetrieved =
-                        OT::App().API().ServerAction().DownloadAccount(
+                        OT::App().Client().ServerAction().DownloadAccount(
                             theNymID,
                             theNotaryID,
                             theAccountID,
@@ -2311,7 +2322,7 @@ bool RecordList::Populate()
     // Loop through all the accounts.
     //
     // From Open-Transactions.h:
-    // OT::App().API().OTAPI().GetServerCount()
+    // OT::App().Client().OTAPI().GetServerCount()
     //
     // From OTAPI.h:
     // SwigWrap::GetServerCount()  // wraps the above call.
@@ -2447,7 +2458,7 @@ bool RecordList::Populate()
             // we care about.
             auto theAccountID = Identifier::Factory();
             const std::string* p_str_account =
-                &RecordList::s_blank;      // <========== ACCOUNT
+                &RecordList::s_blank;        // <========== ACCOUNT
             std::string str_outpmt_account;  // The accountID we found on the
                                              // payment (if we found anything.)
 
@@ -2653,7 +2664,7 @@ bool RecordList::Populate()
         // --------------------------------------------------
         if (!m_bIgnoreMail) {
             // For each Nym, loop through his MAIL box.
-            auto& exec = OT::App().API().Exec();
+            auto& exec = OT::App().Client().Exec();
             const auto mail = exec.GetNym_MailCount(str_nym_id);
             std::int32_t index = 0;
 
@@ -2667,7 +2678,7 @@ bool RecordList::Populate()
                     continue;
                 }
 
-                auto message = OT::App().Activity().Mail(
+                auto message = OT::App().Client().Activity().Mail(
                     nymID, Identifier::Factory(id), StorageBox::MAILINBOX);
 
                 if (!message) {
@@ -2714,7 +2725,7 @@ bool RecordList::Populate()
                         &RecordList::s_blank;  // <========== ASSET TYPE
                     const std::string* p_str_asset_name =
                         &RecordList::s_blank;  // instrument definition
-                                                 // display name.
+                                               // display name.
                     const std::string* p_str_account =
                         &RecordList::s_blank;  // <========== ACCOUNT
 
@@ -2731,7 +2742,7 @@ bool RecordList::Populate()
 
                     shared_ptr_Record sp_Record(new Record(
                         *this,
-                        *it_server,             // Transport Notary
+                        *it_server,           // Transport Notary
                         RecordList::s_blank,  // Payment notary blank (mail)
                         *p_str_asset_type,
                         *p_str_asset_name,
@@ -2787,7 +2798,7 @@ bool RecordList::Populate()
                     continue;
                 }
 
-                auto message = OT::App().Activity().Mail(
+                auto message = OT::App().Client().Activity().Mail(
                     nymID, Identifier::Factory(id), StorageBox::MAILOUTBOX);
 
                 if (!message) {
@@ -2834,7 +2845,7 @@ bool RecordList::Populate()
                         &RecordList::s_blank;  // <========== ASSET TYPE
                     const std::string* p_str_asset_name =
                         &RecordList::s_blank;  // instrument definition
-                                                 // display name.
+                                               // display name.
                     const std::string* p_str_account =
                         &RecordList::s_blank;  // <========== ACCOUNT
 
@@ -2851,7 +2862,7 @@ bool RecordList::Populate()
 
                     shared_ptr_Record sp_Record(new Record(
                         *this,
-                        *it_server,             // Transport Notary
+                        *it_server,           // Transport Notary
                         RecordList::s_blank,  // Payment notary blank (mail)
                         *p_str_asset_type,
                         *p_str_asset_name,
@@ -2923,11 +2934,12 @@ bool RecordList::Populate()
             Ledger* pInbox{nullptr};
 
             if (false == theNymID->empty()) {
-                pInbox = m_bRunFast
-                             ? OT::App().API().OTAPI().LoadPaymentInboxNoVerify(
-                                   theMsgNotaryID, theNymID)
-                             : OT::App().API().OTAPI().LoadPaymentInbox(
-                                   theMsgNotaryID, theNymID);
+                pInbox =
+                    m_bRunFast
+                        ? OT::App().Client().OTAPI().LoadPaymentInboxNoVerify(
+                              theMsgNotaryID, theNymID)
+                        : OT::App().Client().OTAPI().LoadPaymentInbox(
+                              theMsgNotaryID, theNymID);
             }
 
             std::unique_ptr<Ledger> theInboxAngel(pInbox);
@@ -2988,9 +3000,9 @@ bool RecordList::Populate()
                         &RecordList::s_blank;  // <========== ASSET TYPE
                     const std::string* p_str_asset_name =
                         &RecordList::s_blank;  // instrument definition
-                                                 // display name.
-                    std::string str_amount;      // <========== AMOUNT
-                    std::string str_type;        // Instrument type.
+                                               // display name.
+                    std::string str_amount;    // <========== AMOUNT
+                    std::string str_type;      // Instrument type.
                     std::string str_memo;
                     String strContents;  // Instrument contents.
 
@@ -3189,7 +3201,7 @@ bool RecordList::Populate()
                         *p_str_asset_name,
                         str_nym_id,  // This is the Nym WHOSE BOX IT IS.
                         RecordList::s_blank,  // This is the Nym's account
-                                                // for
+                                              // for
                         // this box. (Blank for payments
                         // inbox.)
                         // Everything above this line, it stores a reference
@@ -3260,9 +3272,9 @@ bool RecordList::Populate()
             if (false == theNymID->empty()) {
                 pRecordbox =
                     m_bRunFast
-                        ? OT::App().API().OTAPI().LoadRecordBoxNoVerify(
+                        ? OT::App().Client().OTAPI().LoadRecordBoxNoVerify(
                               theMsgNotaryID, theNymID, theNymID)  // twice.
-                        : OT::App().API().OTAPI().LoadRecordBox(
+                        : OT::App().Client().OTAPI().LoadRecordBox(
                               theMsgNotaryID, theNymID, theNymID);
             }
 
@@ -3507,11 +3519,11 @@ bool RecordList::Populate()
                         &RecordList::s_blank;  // <========== ASSET TYPE
                     const std::string* p_str_asset_name =
                         &RecordList::s_blank;  // instrument definition
-                                                 // display name.
+                                               // display name.
                     const std::string* p_str_account =
                         &RecordList::s_blank;  // <========== ACCOUNT
-                    std::string str_amount;      // <========== AMOUNT
-                    std::string str_type;        // Instrument type.
+                    std::string str_amount;    // <========== AMOUNT
+                    std::string str_type;      // Instrument type.
                     std::string str_memo;  // Instrument memo (if applicable.)
                     String strContents;    // Instrument contents.
 
@@ -3858,10 +3870,11 @@ bool RecordList::Populate()
 
             if (false == theNymID->empty()) {
                 pExpiredbox =
-                    m_bRunFast ? OT::App().API().OTAPI().LoadExpiredBoxNoVerify(
-                                     theMsgNotaryID, theNymID)
-                               : OT::App().API().OTAPI().LoadExpiredBox(
-                                     theMsgNotaryID, theNymID);
+                    m_bRunFast
+                        ? OT::App().Client().OTAPI().LoadExpiredBoxNoVerify(
+                              theMsgNotaryID, theNymID)
+                        : OT::App().Client().OTAPI().LoadExpiredBox(
+                              theMsgNotaryID, theNymID);
             }
 
             std::unique_ptr<Ledger> theExpiredBoxAngel(pExpiredbox);
@@ -4080,11 +4093,11 @@ bool RecordList::Populate()
                         &RecordList::s_blank;  // <========== ASSET TYPE
                     const std::string* p_str_asset_name =
                         &RecordList::s_blank;  // instrument definition
-                                                 // display name.
+                                               // display name.
                     const std::string* p_str_account =
                         &RecordList::s_blank;  // <========== ACCOUNT
-                    std::string str_amount;      // <========== AMOUNT
-                    std::string str_type;        // Instrument type.
+                    std::string str_amount;    // <========== AMOUNT
+                    std::string str_type;      // Instrument type.
                     std::string str_memo;  // Instrument memo (if applicable.)
                     String strContents;    // Instrument contents.
 
@@ -4446,8 +4459,7 @@ bool RecordList::Populate()
             strInstrumentDefinitionID.Get());
         const std::string* pstr_nym_id = &RecordList::s_blank;
         const std::string* pstr_notary_id = &RecordList::s_blank;
-        const std::string* pstr_instrument_definition_id =
-            &RecordList::s_blank;
+        const std::string* pstr_instrument_definition_id = &RecordList::s_blank;
         const std::string* pstr_asset_name = &RecordList::s_blank;
         // NOTE: Since this account is already on my "care about" list for
         // accounts,
@@ -4493,9 +4505,9 @@ bool RecordList::Populate()
         Ledger* pInbox{nullptr};
 
         if (false == theNymID.empty()) {
-            pInbox = m_bRunFast ? OT::App().API().OTAPI().LoadInboxNoVerify(
+            pInbox = m_bRunFast ? OT::App().Client().OTAPI().LoadInboxNoVerify(
                                       theNotaryID, theNymID, theAccountID)
-                                : OT::App().API().OTAPI().LoadInbox(
+                                : OT::App().Client().OTAPI().LoadInbox(
                                       theNotaryID, theNymID, theAccountID);
         }
 
@@ -4572,8 +4584,7 @@ bool RecordList::Populate()
                             const std::string str_sender_id(strSenderID.Get());
                             String strNameTemp;
                             strNameTemp.Format(
-                                RecordList::textFrom(),
-                                str_sender_id.c_str());
+                                RecordList::textFrom(), str_sender_id.c_str());
                             str_name = strNameTemp.Get();
                             str_other_nym_id = str_sender_id;
                         } else {
@@ -4732,10 +4743,11 @@ bool RecordList::Populate()
         Ledger* pOutbox{nullptr};
 
         if (false == theNymID.empty()) {
-            pOutbox = m_bRunFast ? OT::App().API().OTAPI().LoadOutboxNoVerify(
-                                       theNotaryID, theNymID, theAccountID)
-                                 : OT::App().API().OTAPI().LoadOutbox(
-                                       theNotaryID, theNymID, theAccountID);
+            pOutbox = m_bRunFast
+                          ? OT::App().Client().OTAPI().LoadOutboxNoVerify(
+                                theNotaryID, theNymID, theAccountID)
+                          : OT::App().Client().OTAPI().LoadOutbox(
+                                theNotaryID, theNymID, theAccountID);
         }
 
         std::unique_ptr<Ledger> theOutboxAngel(pOutbox);
@@ -4908,9 +4920,9 @@ bool RecordList::Populate()
 
         if (false == theNymID.empty()) {
             pRecordbox = m_bRunFast
-                             ? OT::App().API().OTAPI().LoadRecordBoxNoVerify(
+                             ? OT::App().Client().OTAPI().LoadRecordBoxNoVerify(
                                    theNotaryID, theNymID, theAccountID)
-                             : OT::App().API().OTAPI().LoadRecordBox(
+                             : OT::App().Client().OTAPI().LoadRecordBox(
                                    theNotaryID, theNymID, theAccountID);
         }
 
@@ -5135,8 +5147,7 @@ bool RecordList::Populate()
                             // already false.)
                             String strNameTemp;
                             strNameTemp.Format(
-                                RecordList::textFrom(),
-                                str_sender_id.c_str());
+                                RecordList::textFrom(), str_sender_id.c_str());
                             str_name = strNameTemp.Get();
                             str_other_nym_id = str_sender_id;
 
@@ -5167,8 +5178,7 @@ bool RecordList::Populate()
                             bOutgoing = true;
                             String strNameTemp;
                             strNameTemp.Format(
-                                RecordList::textTo(),
-                                str_recipient_id.c_str());
+                                RecordList::textTo(), str_recipient_id.c_str());
                             str_name = strNameTemp.Get();
                             str_other_nym_id = str_recipient_id;
 
@@ -5371,7 +5381,7 @@ void RecordList::AddSpecialMsg(
         bIsOutgoing ? RecordList::textTo() : RecordList::textFrom();
     const std::string* p_str_server =
         &RecordList::s_blank;  // <========== Bitmessage doesn't use OT
-                                 // servers.
+                               // servers.
     // TODO OPTIMIZE: instead of looking up the Nym's name every time, look it
     // up ONCE when first adding the NymID. Add it to a map, instead of a list,
     // and add the Nym's name as the second item in the map's pair.
@@ -5490,4 +5500,4 @@ Record RecordList::GetRecord(std::int32_t nIndex)
     return *(m_contents[nIndex]);
 }
 
-}  // namespace opentxs
+}  // namespace opentxs::cli

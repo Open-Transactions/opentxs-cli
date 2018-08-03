@@ -52,7 +52,7 @@ int32_t CmdKillOffer::run(string server, string mynym, string myacct, string id)
     std::string response;
     {
         response = OT::App()
-                       .API()
+                       .Client()
                        .ServerAction()
                        .KillMarketOffer(
                            Identifier::Factory(mynym),

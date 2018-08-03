@@ -27,7 +27,7 @@ std::int32_t CmdMergeContact::run(
     const std::string& parent,
     const std::string& child)
 {
-    auto contact = OT::App().Contact().Merge(
+    auto contact = OT::App().Client().Contacts().Merge(
         Identifier::Factory(parent), Identifier::Factory(child));
 
     if (false == bool(contact)) { return -1; }

@@ -312,19 +312,17 @@ void Opentxs::PasswordCallback::run(
     std::cout << prompt << std::endl;
     const bool success = get_password_from_console(output, repeat);
 
-    if (false == success) {
-        output.zeroMemory();
-    }
+    if (false == success) { output.zeroMemory(); }
 }
 
-void Opentxs::PasswordCallback::runOne(
-    const char* prompt, OTPassword& output) const
+void Opentxs::PasswordCallback::runOne(const char* prompt, OTPassword& output)
+    const
 {
     run(prompt, output, false);
 }
 
-void Opentxs::PasswordCallback::runTwo(
-    const char* prompt, OTPassword& output) const
+void Opentxs::PasswordCallback::runTwo(const char* prompt, OTPassword& output)
+    const
 {
     run(prompt, output, true);
 }
@@ -697,7 +695,7 @@ int Opentxs::processCommand(AnyOption& opt)
 
 int Opentxs::run(int argc, char* argv[])
 {
-    OT::App().API().OTAPI().LoadWallet();
+    OT::App().Client().OTAPI().LoadWallet();
 
     map<string, string> macros;
     vector<int> errorLineNumbers;

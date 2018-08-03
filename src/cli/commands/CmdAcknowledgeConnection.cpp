@@ -50,7 +50,7 @@ std::int32_t CmdAcknowledgeConnection::run(
     std::string response;
     {
         response = OT::App()
-                       .API()
+                       .Client()
                        .ServerAction()
                        .AcknowledgeConnection(
                            Identifier::Factory(mynym),

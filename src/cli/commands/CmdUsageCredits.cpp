@@ -55,7 +55,7 @@ int32_t CmdUsageCredits::run(
     std::string response;
     {
         response = OT::App()
-                       .API()
+                       .Client()
                        .ServerAction()
                        .AdjustUsageCredits(
                            Identifier::Factory(mynym),

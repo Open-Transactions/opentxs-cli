@@ -44,7 +44,7 @@ int32_t CmdWithdrawCash::withdrawCash(const string& myacct, int64_t amount)
     const
 {
 #if OT_CASH
-    return OT::App().API().Cash().easy_withdraw_cash(myacct, amount);
+    return OT::App().Client().Cash().easy_withdraw_cash(myacct, amount);
 #else
     return -1;
 #endif  // OT_CASH

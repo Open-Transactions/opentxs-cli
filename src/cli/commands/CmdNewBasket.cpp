@@ -139,7 +139,7 @@ int32_t CmdNewBasket::run(
     std::string response;
     {
         response = OT::App()
-                       .API()
+                       .Client()
                        .ServerAction()
                        .IssueBasketCurrency(
                            Identifier::Factory(mynym),
@@ -164,7 +164,7 @@ int32_t CmdNewBasket::run(
             if (bGotNewID) {
                 {
                     response = OT::App()
-                                   .API()
+                                   .Client()
                                    .ServerAction()
                                    .DownloadContract(
                                        Identifier::Factory(mynym),

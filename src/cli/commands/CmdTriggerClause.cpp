@@ -66,7 +66,7 @@ int32_t CmdTriggerClause::run(
     std::string response;
     {
         response = OT::App()
-                       .API()
+                       .Client()
                        .ServerAction()
                        .TriggerClause(
                            Identifier::Factory(mynym),

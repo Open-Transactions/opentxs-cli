@@ -50,7 +50,7 @@ int32_t CmdBaseInstrument::sendPayment(
     std::string response;
     {
         response = OT::App()
-                       .API()
+                       .Client()
                        .ServerAction()
                        .SendPayment(
                            Identifier::Factory(sender),
@@ -92,7 +92,7 @@ string CmdBaseInstrument::writeCheque(
     }
 
     {
-        if (!OT::App().API().ServerAction().GetTransactionNumbers(
+        if (!OT::App().Client().ServerAction().GetTransactionNumbers(
                 Identifier::Factory(mynym), Identifier::Factory(server), 10)) {
             otOut << "Error: cannot reserve transaction numbers.\n";
             return "";

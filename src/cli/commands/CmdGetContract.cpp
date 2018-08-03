@@ -44,7 +44,7 @@ int32_t CmdGetInstrumentDefinition::run(
     std::string response;
     {
         response = OT::App()
-                       .API()
+                       .Client()
                        .ServerAction()
                        .DownloadContract(
                            Identifier::Factory(mynym),

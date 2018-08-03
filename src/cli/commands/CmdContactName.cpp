@@ -27,7 +27,7 @@ std::int32_t CmdContactName::run(const std::string& id)
     if (id.empty()) { return -1; }
 
     const auto pContact =
-        OT::App().Contact().Contact(opentxs::Identifier::Factory(id));
+        OT::App().Client().Contacts().Contact(opentxs::Identifier::Factory(id));
 
     if (pContact) {
         const auto label = pContact->Label();

@@ -31,7 +31,7 @@ int32_t CmdCanMessage::run(
 
     if (recipient.empty()) { return -1; }
 
-    const auto response = OT::App().API().Sync().CanMessage(
+    const auto response = OT::App().Client().Sync().CanMessage(
         Identifier::Factory(sender), Identifier::Factory(recipient));
     otOut << std::to_string(static_cast<std::int8_t>(response)) << std::endl;
 

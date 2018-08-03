@@ -81,7 +81,7 @@ int32_t CmdGetReceipt::run(
     std::string response;
     {
         response = OT::App()
-                       .API()
+                       .Client()
                        .ServerAction()
                        .DownloadBoxReceipt(
                            Identifier::Factory(mynym),

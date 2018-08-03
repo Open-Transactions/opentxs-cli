@@ -137,7 +137,7 @@ string CmdExportCash::exportCash(
         std::string response;
         {
             response = OT::App()
-                           .API()
+                           .Client()
                            .ServerAction()
                            .DownloadContract(
                                Identifier::Factory(mynym),
@@ -188,7 +188,7 @@ string CmdExportCash::exportCash(
     // for the recipient.
     // (IF the exported purse isn't meant to be password-protected.)
     //
-    return OT::App().API().Cash().export_cash(
+    return OT::App().Client().Cash().export_cash(
         server, mynym, assetType, hisnym, indices, hasPassword, retainedCopy);
 #else
     return {};

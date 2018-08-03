@@ -61,7 +61,7 @@ std::int32_t CmdRequestConnection::run(
     std::string response;
     {
         response = OT::App()
-                       .API()
+                       .Client()
                        .ServerAction()
                        .InitiateRequestConnection(
                            Identifier::Factory(mynym),

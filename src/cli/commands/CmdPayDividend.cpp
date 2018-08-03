@@ -69,7 +69,7 @@ int32_t CmdPayDividend::run(
     std::string response;
     {
         response = OT::App()
-                       .API()
+                       .Client()
                        .ServerAction()
                        .PayDividend(
                            Identifier::Factory(mynym),
@@ -85,7 +85,7 @@ int32_t CmdPayDividend::run(
     if (1 == reply) { return reply; }
 
     {
-        if (!OT::App().API().ServerAction().DownloadAccount(
+        if (!OT::App().Client().ServerAction().DownloadAccount(
                 Identifier::Factory(mynym),
                 Identifier::Factory(server),
                 Identifier::Factory(myacct),

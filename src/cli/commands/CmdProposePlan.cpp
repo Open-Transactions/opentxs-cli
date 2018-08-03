@@ -95,7 +95,7 @@ int32_t CmdProposePlan::run(
     otOut << "plan_expiry (length,number): " << planexpiry << "\n";
 
     {
-        if (!OT::App().API().ServerAction().GetTransactionNumbers(
+        if (!OT::App().Client().ServerAction().GetTransactionNumbers(
                 Identifier::Factory(mynym), Identifier::Factory(server), 2)) {
             otOut << "Error: cannot reserve transaction numbers.\n";
             return -1;
@@ -135,7 +135,7 @@ int32_t CmdProposePlan::run(
     std::string response;
     {
         response = OT::App()
-                       .API()
+                       .Client()
                        .ServerAction()
                        .SendPayment(
                            Identifier::Factory(mynym),

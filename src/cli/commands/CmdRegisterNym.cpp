@@ -51,7 +51,7 @@ std::int32_t CmdRegisterNym::run(
     if (!checkNym("mynym", mynym)) { return -1; }
     bool isPrimary{false};
     if ("" != primary && !checkBoolean("primary", primary)) {
-         return -1;
+        return -1;
     } else {
         isPrimary = primary == "true";
     }
@@ -61,10 +61,13 @@ std::int32_t CmdRegisterNym::run(
         return -1;
     }
 
-    auto& sync = OT::App().API().Sync();
+    auto& sync = OT::App().Client().Sync();
 
     OTIdentifier taskID = sync.RegisterNym(
-        Identifier::Factory(mynym), Identifier::Factory(server), shouldPublish, isPrimary);
+        Identifier::Factory(mynym),
+        Identifier::Factory(server),
+        shouldPublish,
+        isPrimary);
 
     ThreadStatus status = sync.Status(taskID);
     while (status == ThreadStatus::RUNNING) {
@@ -89,4 +92,4 @@ std::int32_t CmdRegisterNym::run(
 
     return 0;
 }
-} // namespace opentxs
+}  // namespace opentxs

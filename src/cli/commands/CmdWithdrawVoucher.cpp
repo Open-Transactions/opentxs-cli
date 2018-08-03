@@ -84,7 +84,8 @@ int32_t CmdWithdrawVoucher::run(
     std::string response;
     {
         response = OT::App()
-                       .API()
+                       .Client()
+
                        .ServerAction()
                        .WithdrawVoucher(
                            theNymID,
@@ -130,11 +131,12 @@ int32_t CmdWithdrawVoucher::run(
         OT::App().Legacy().ClientDataFolder(), String(voucher.c_str()));
     {
         OT::App()
-            .API()
+            .Client()
+
             .ServerAction()
             .SendPayment(theNymID, theNotaryID, theNymID, payment)
             ->Run();
-        if (!OT::App().API().ServerAction().DownloadAccount(
+        if (!OT::App().Client().ServerAction().DownloadAccount(
                 theNymID, theNotaryID, theAcctID, true)) {
             otOut << "Error retrieving intermediary files for account.\n";
             return -1;

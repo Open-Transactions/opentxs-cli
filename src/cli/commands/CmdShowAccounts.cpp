@@ -27,7 +27,7 @@ int32_t CmdShowAccounts::runWithOptions() { return run(); }
 
 int32_t CmdShowAccounts::run()
 {
-    const auto& storage = OT::App().DB();
+    const auto& storage = OT::App().Client().Storage();
     cout << " ** ACCOUNTS:\n";
     dashLine();
 

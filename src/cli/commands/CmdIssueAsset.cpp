@@ -43,15 +43,15 @@ int32_t CmdIssueAsset::run(
         registerNym.run(server, mynym, "true", "false");
     }
 
-    const auto contract =
-        OT::App().Wallet().UnitDefinition(Identifier::Factory(mypurse));
+    const auto contract = OT::App().Client().Wallet().UnitDefinition(
+        Identifier::Factory(mypurse));
 
     if (false == bool(contract)) { return -1; }
 
     std::string response;
     {
         response = OT::App()
-                       .API()
+                       .Client()
                        .ServerAction()
                        .IssueUnitDefinition(
                            Identifier::Factory(mynym),

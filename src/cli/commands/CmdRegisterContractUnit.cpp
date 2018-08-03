@@ -41,9 +41,8 @@ int32_t CmdRegisterContractUnit::run(
 
     std::string response;
     {
-        response =
-            OT::App()
-                       .API()
+        response = OT::App()
+                       .Client()
                        .ServerAction()
                        .PublishUnitDefinition(
                            Identifier::Factory(mynym),

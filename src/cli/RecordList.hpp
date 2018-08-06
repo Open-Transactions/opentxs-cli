@@ -32,6 +32,7 @@ class RecordList
 public:
     enum ItemType { typeBoth = 0, typeTransfers = 1, typeReceipts = 2 };
 
+    const api::client::Manager& client_;
     const std::string data_folder_{""};
 
     EXPORT static bool accept_from_paymentbox(

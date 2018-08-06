@@ -131,6 +131,7 @@ int32_t CmdProposePlan::run(
     // of the proposal itself.)
 
     auto payment = std::make_shared<const OTPayment>(
+        OT::App().Client().Wallet(),
         OT::App().Legacy().ClientDataFolder(), String(plan.c_str()));
     std::string response;
     {

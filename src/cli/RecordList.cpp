@@ -48,8 +48,9 @@ const std::string& GetTypeString(int theType)
 namespace opentxs::cli
 {
 RecordList::RecordList()
-    : data_folder_{OT::App().Legacy().ClientDataFolder()}
-    , wallet_(OT::App().Client().Wallet())
+    : client_{OT::App().Client()}
+    , data_folder_{OT::App().Legacy().ClientDataFolder()}
+    , wallet_(client_.Wallet())
     , m_bRunFast(false)
     , m_bAutoAcceptCheques(false)
     , m_bAutoAcceptReceipts(false)
@@ -436,7 +437,7 @@ std::int32_t RecordList::processPayment(  // a static method
         }
     }
 
-    OTPayment thePayment(
+    OTPayment thePayment(OT::App().Client().Wallet(),
         OT::App().Legacy().ClientDataFolder(), String(instrument.c_str()));
     if (!thePayment.IsValid() || !thePayment.SetTempValues()) {
         otOut << "Error: Failed loading payment instrument from string.\n";
@@ -700,7 +701,7 @@ std::int32_t RecordList::depositCheque(  // a static method
         return -1;
     }
 
-    auto cheque = std::make_unique<Cheque>(dataFolder);
+    auto cheque = std::make_unique<Cheque>(OT::App().Client().Wallet(), dataFolder);
     cheque->LoadContractFromString(String(instrument.c_str()));
 
     std::string response;
@@ -854,7 +855,7 @@ std::int32_t RecordList::confirmPaymentPlan_lowLevel(  // a static method
     // NOTE: If we fail, then we need to harvest the transaction numbers
     // back from the payment plan that we confirmed.
     auto paymentPlan =
-        std::make_unique<OTPaymentPlan>(OT::App().Legacy().ClientDataFolder());
+        std::make_unique<OTPaymentPlan>(OT::App().Client().Wallet(), OT::App().Legacy().ClientDataFolder());
 
     OT_ASSERT(paymentPlan)
 
@@ -1247,7 +1248,7 @@ std::int32_t RecordList::cancel_outgoing_payments(
             // So while we expect this 'activation' to fail, it should have the
             // desired effect of cancelling the smart contract and sending
             // failure notices to all the parties.
-            auto contract = std::make_unique<OTSmartContract>(
+            auto contract = std::make_unique<OTSmartContract>(OT::App().Client().Wallet(),
                 OT::App().Legacy().ClientDataFolder());
 
             OT_ASSERT(contract)
@@ -1292,7 +1293,7 @@ std::int32_t RecordList::cancel_outgoing_payments(
             // propagated to the other party to the contract. (Which will result
             // in its automatic removal from the outpayment box.)
 
-            auto plan = std::make_unique<OTPaymentPlan>(
+            auto plan = std::make_unique<OTPaymentPlan>(OT::App().Client().Wallet(),
                 OT::App().Legacy().ClientDataFolder());
 
             OT_ASSERT(plan)
@@ -1748,7 +1749,7 @@ bool RecordList::PerformAutoAccept()
                                                    // display name.
                         std::string str_type;      // Instrument type.
                         OTPayment* pPayment = GetInstrumentByReceiptID(
-                            data_folder_, *pNym, lPaymentBoxTransNum, *pInbox);
+                            *pNym, lPaymentBoxTransNum, *pInbox);
                         std::unique_ptr<OTPayment> thePaymentAngel(pPayment);
                         if (!pPayment)  // then we treat it like it's
                                         // abbreviated.
@@ -2258,7 +2259,7 @@ bool RecordList::PerformAutoAccept()
                 }
                 // Server communications are handled here...
                 //
-                std::unique_ptr<Ledger> ledger(new Ledger(
+                std::unique_ptr<Ledger> ledger(new Ledger(wallet_,
                     data_folder_, theNymID, theAccountID, theNotaryID));
 
                 OT_ASSERT(ledger)
@@ -2363,7 +2364,7 @@ bool RecordList::Populate()
                 SwigWrap::GetNym_OutpaymentsContentsByIndex(
                     str_nym_id, nCurrentOutpayment));
             std::string str_memo;
-            OTPayment theOutPayment(data_folder_, strOutpayment);
+            OTPayment theOutPayment(wallet_, data_folder_, strOutpayment);
 
             if (!theOutPayment.IsValid() || !theOutPayment.SetTempValues()) {
                 otErr << __FUNCTION__
@@ -3023,7 +3024,7 @@ bool RecordList::Populate()
                             // loaded.)
                     {
                         OTPayment* pPayment = GetInstrumentByReceiptID(
-                            data_folder_, *pNym, lReceiptId, *pInbox);
+                            *pNym, lReceiptId, *pInbox);
                         std::unique_ptr<OTPayment> thePaymentAngel(pPayment);
                         if (!pPayment)  // then we treat it like it's
                                         // abbreviated.
@@ -3545,7 +3546,7 @@ bool RecordList::Populate()
                             // loaded.)
                     {
                         OTPayment* pPayment = GetInstrumentByReceiptID(
-                            data_folder_, *pNym, lReceiptId, *pRecordbox);
+                            *pNym, lReceiptId, *pRecordbox);
                         std::unique_ptr<OTPayment> thePaymentAngel(pPayment);
 
                         if (nullptr == pPayment)  // then we treat it like it's
@@ -4120,7 +4121,7 @@ bool RecordList::Populate()
                             // loaded.)
                     {
                         OTPayment* pPayment = GetInstrumentByReceiptID(
-                            data_folder_, *pNym, lReceiptId, *pExpiredbox);
+                            *pNym, lReceiptId, *pExpiredbox);
                         std::unique_ptr<OTPayment> thePaymentAngel(pPayment);
 
                         if (nullptr == pPayment)  // then we treat it like it's

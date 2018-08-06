@@ -45,6 +45,7 @@ int32_t CmdBaseInstrument::sendPayment(
     }
 
     auto payment = std::make_shared<const OTPayment>(
+        OT::App().Client().Wallet(),
         OT::App().Legacy().ClientDataFolder(), String(cheque.c_str()));
 
     std::string response;

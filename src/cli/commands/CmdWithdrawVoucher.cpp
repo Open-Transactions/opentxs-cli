@@ -127,7 +127,7 @@ int32_t CmdWithdrawVoucher::run(
     // Notice how I can send an instrument to myself. This doesn't actually
     // send anything -- it just puts a copy into my outpayments box for
     // safe-keeping.
-    auto payment = std::make_shared<const OTPayment>(
+    auto payment = std::make_shared<const OTPayment>(OT::App().Client().Wallet(),
         OT::App().Legacy().ClientDataFolder(), String(voucher.c_str()));
     {
         OT::App()

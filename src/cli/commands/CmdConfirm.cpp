@@ -367,6 +367,7 @@ int32_t CmdConfirm::activateContract(
                        theAcctID = Identifier::Factory(myAcctID);
 
     auto smartContract = std::make_unique<opentxs::OTSmartContract>(
+        OT::App().Client().Wallet(),
         OT::App().Legacy().ClientDataFolder());
 
     OT_ASSERT(smartContract)
@@ -453,6 +454,7 @@ int32_t CmdConfirm::sendToNextParty(
     }
 
     auto payment = std::make_shared<const OTPayment>(
+        OT::App().Client().Wallet(),
         OT::App().Legacy().ClientDataFolder(), String(contract.c_str()));
     std::string response;
     {

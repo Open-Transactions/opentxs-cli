@@ -1046,8 +1046,7 @@ bool RecordList::checkAccount(const char* name, std::string& accountID)
 
     if (theID->empty()) { return false; }
 
-    auto account = OT::App().Client().Wallet().Account(
-        OT::App().Legacy().ClientDataFolder(), theID);
+    auto account = OT::App().Client().Wallet().Account(theID);
 
     if (false == bool(account)) {
         const auto converted =
@@ -1059,8 +1058,7 @@ bool RecordList::checkAccount(const char* name, std::string& accountID)
             return false;
         }
 
-        account = OT::App().Client().Wallet().Account(
-            OT::App().Legacy().ClientDataFolder(), converted);
+        account = OT::App().Client().Wallet().Account(converted);
     }
 
     OT_ASSERT(account)
@@ -1939,8 +1937,7 @@ bool RecordList::PerformAutoAccept()
                             const std::string& str_account_id(it_acct);
                             const auto theAccountID =
                                 Identifier::Factory(str_account_id);
-                            auto account =
-                                wallet_.Account(data_folder_, theAccountID);
+                            auto account = wallet_.Account(theAccountID);
 
                             if (false == bool(account)) {
                                 // This can happen if the user erases the
@@ -2068,7 +2065,7 @@ bool RecordList::PerformAutoAccept()
             // For each account, loop through its inbox, outbox, and record box.
             const std::string& str_account_id(it_acct);
             const auto theAccountID = Identifier::Factory(str_account_id);
-            auto account = wallet_.Account(data_folder_, theAccountID);
+            auto account = wallet_.Account(theAccountID);
 
             if (false == bool(account)) {
                 // This can happen if the user erases the account.
@@ -4432,7 +4429,7 @@ bool RecordList::Populate()
         //
         const std::string& str_account_id(it_acct);
         const auto theAccountID = Identifier::Factory(str_account_id);
-        auto account = wallet_.Account(data_folder_, theAccountID);
+        auto account = wallet_.Account(theAccountID);
 
         if (false == bool(account)) {
             // This can happen if the user erases the account.

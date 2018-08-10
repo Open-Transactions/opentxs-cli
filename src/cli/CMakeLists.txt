@@ -161,6 +161,7 @@ set(cxx-sources
   commands/CmdSignContract.cpp
   commands/CmdShowWallet.cpp
   commands/CmdStartIntroductionServer.cpp
+  commands/CmdStartServer.cpp
   commands/CmdTransfer.cpp
   commands/CmdTriggerClause.cpp
   commands/CmdVerifyPassword.cpp

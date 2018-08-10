@@ -153,6 +153,7 @@
 #include "commands/CmdShowWords.hpp"
 #include "commands/CmdSignContract.hpp"
 #include "commands/CmdStartIntroductionServer.hpp"
+#include "commands/CmdStartServer.hpp"
 #include "commands/CmdTransfer.hpp"
 #include "commands/CmdTriggerClause.hpp"
 #include "commands/CmdUsageCredits.hpp"
@@ -490,6 +491,7 @@ Opentxs::Opentxs()
             new CmdShowWords,
             new CmdSignContract,
             new CmdStartIntroductionServer,
+            new CmdStartServer,
             new CmdTransfer,
             new CmdTriggerClause,
             new CmdUsageCredits,

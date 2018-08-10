@@ -28,8 +28,7 @@ std::int32_t CmdStartServer::runWithOptions()
 std::int32_t CmdStartServer::run(const std::string& instance)
 {
     const auto value = opentxs::String::Factory(instance)->ToLong();
-    auto& server =
-        OT::App().StartServer({{"inproc", {std::to_string(value)}}}, value);
+    auto& server = OT::App().StartServer({}, value, true);
     otErr << "Started server " << server.Instance() << std::endl;
 
     return 0;

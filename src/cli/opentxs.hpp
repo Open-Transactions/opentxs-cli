@@ -22,6 +22,8 @@ class CmdBase;
 class Opentxs
 {
 public:
+    static const opentxs::api::client::Manager& Client();
+
     class PasswordCallback : virtual public OTCallback
     {
     public:
@@ -34,7 +36,7 @@ public:
         void run(const char* prompt, OTPassword& output, bool repeat) const;
     };
 
-    Opentxs();
+    Opentxs(const opentxs::api::client::Manager& client);
     virtual ~Opentxs();
 
     int run(int argc, char* argv[]);
@@ -54,20 +56,21 @@ private:
 
     const std::string spaces24 = "                        ";
 
+    static const opentxs::api::client::Manager* client_;
+
     int newArgc{0};
     char** newArgv{nullptr};
     bool expectFailure{false};
     std::vector<CmdBase*> cmds_;
 
     struct Command {
-        Command(int32_t optArgc, char ** optArgv) {
+        Command(int32_t optArgc, char** optArgv)
+        {
             for (int32_t i = 0; i < optArgc; ++i) {
                 args.emplace_back(optArgv[i]);
             }
         }
-        Command(const Command& c) {
-            args = c.args;
-        }
+        Command(const Command& c) { args = c.args; }
         std::vector<std::string> args;
     };
     std::deque<Command> history;

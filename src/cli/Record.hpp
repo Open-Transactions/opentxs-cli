@@ -8,6 +8,8 @@
 
 #include <opentxs/opentxs.hpp>
 
+#include "opentxs.hpp"
+
 #include <cstdint>
 #include <string>
 
@@ -63,9 +65,9 @@ private:
     // type display string "Bitmessage", and the sender and recipient addresses.
     //
     bool m_bIsSpecialMail{false};  // Meaning a bitmessage vs an OT message.
-    std::int32_t m_nMethodID{
-        0};  // A Nym in Moneychanger might have 2 Bitmessage
-             // addresses, each used on different BM nodes with
+    std::int32_t m_nMethodID{0};   // A Nym in Moneychanger might have 2
+                                   // Bitmessage addresses, each used on
+                                   // different BM nodes with
     // different connection strings. The Method ID is used
     // to lookup the connection string.
     std::string m_str_my_address;     // My Bitmessage address.
@@ -316,5 +318,5 @@ public:
         bool bIsReceipt,
         RecordType eRecordType);
 };
-}  // namespace opentxs
+}  // namespace opentxs::cli
 #endif  // OPENTXS_CLI_SRC_CLI_RECORD_HPP

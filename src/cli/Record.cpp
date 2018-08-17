@@ -28,9 +28,9 @@ bool Record::FormatAmount(std::string& str_output) const
         //            m_str_unit_type_id << "";
         return false;
     }
-    str_output = OT::App().Client().Exec().FormatAmount(
+    str_output = Opentxs::Client().Exec().FormatAmount(
         m_str_unit_type_id,
-        OT::App().Client().Exec().StringToLong(m_str_amount));
+        Opentxs::Client().Exec().StringToLong(m_str_amount));
     return (!str_output.empty());
 }
 
@@ -38,9 +38,9 @@ bool Record::FormatAmountWithoutSymbol(std::string& str_output)
 {
     if (m_str_amount.empty() || m_str_unit_type_id.empty()) { return false; }
 
-    str_output = OT::App().Client().Exec().FormatAmountWithoutSymbol(
+    str_output = Opentxs::Client().Exec().FormatAmountWithoutSymbol(
         m_str_unit_type_id,
-        OT::App().Client().Exec().StringToLong(m_str_amount));
+        Opentxs::Client().Exec().StringToLong(m_str_amount));
     return (!str_output.empty());
 }
 
@@ -58,9 +58,9 @@ bool Record::FormatAmountLocale(
         //            m_str_unit_type_id << "";
         return false;
     }
-    str_output = OT::App().Client().Exec().FormatAmountLocale(
+    str_output = Opentxs::Client().Exec().FormatAmountLocale(
         m_str_unit_type_id,
-        OT::App().Client().Exec().StringToLong(m_str_amount),
+        Opentxs::Client().Exec().StringToLong(m_str_amount),
         str_thousands,
         str_decimal);
     return (!str_output.empty());
@@ -73,9 +73,9 @@ bool Record::FormatAmountWithoutSymbolLocale(
 {
     if (m_str_amount.empty() || m_str_unit_type_id.empty()) { return false; }
 
-    str_output = OT::App().Client().Exec().FormatAmountWithoutSymbolLocale(
+    str_output = Opentxs::Client().Exec().FormatAmountWithoutSymbolLocale(
         m_str_unit_type_id,
-        OT::App().Client().Exec().StringToLong(m_str_amount),
+        Opentxs::Client().Exec().StringToLong(m_str_amount),
         str_thousands,
         str_decimal);
     return (!str_output.empty());
@@ -250,7 +250,7 @@ bool Record::FormatDescription(std::string& str_output) const
                 }
             } else if (0 == GetInstrumentType().compare("marketReceipt")) {
                 const Amount lAmount =
-                    OT::App().Client().Exec().StringToLong(m_str_amount);
+                    Opentxs::Client().Exec().StringToLong(m_str_amount);
 
                 // I *think* successful trades have a negative amount -- we'll
                 // find out!
@@ -262,7 +262,7 @@ bool Record::FormatDescription(std::string& str_output) const
                 }
             } else if (0 == GetInstrumentType().compare("chequeReceipt")) {
                 const Amount lAmount =
-                    OT::App().Client().Exec().StringToLong(m_str_amount);
+                    Opentxs::Client().Exec().StringToLong(m_str_amount);
 
                 // I paid OUT when this chequeReceipt came through. It must be a
                 // normal cheque that I wrote.
@@ -281,7 +281,7 @@ bool Record::FormatDescription(std::string& str_output) const
                 str_instrument_type = "payment";
             } else if (0 == GetInstrumentType().compare("paymentReceipt")) {
                 const Amount lAmount =
-                    OT::App().Client().Exec().StringToLong(m_str_amount);
+                    Opentxs::Client().Exec().StringToLong(m_str_amount);
 
                 if (!IsCanceled() && (lAmount > 0)) strKind.Set("received ");
 
@@ -354,7 +354,7 @@ bool Record::FormatDescription(std::string& str_output) const
                 }
             } else if (0 == GetInstrumentType().compare("marketReceipt")) {
                 const Amount lAmount =
-                    OT::App().Client().Exec().StringToLong(m_str_amount);
+                    Opentxs::Client().Exec().StringToLong(m_str_amount);
 
                 // I *think* marketReceipts have negative value. We'll just test
                 // for non-zero.
@@ -364,7 +364,7 @@ bool Record::FormatDescription(std::string& str_output) const
                     str_instrument_type = "market trade (receipt)";
             } else if (0 == GetInstrumentType().compare("chequeReceipt")) {
                 const Amount lAmount =
-                    OT::App().Client().Exec().StringToLong(m_str_amount);
+                    Opentxs::Client().Exec().StringToLong(m_str_amount);
 
                 // I paid OUT when this chequeReceipt came through. It must be a
                 // normal cheque that I wrote.
@@ -391,7 +391,7 @@ bool Record::FormatDescription(std::string& str_output) const
                     str_instrument_type = "payment (receipt)";
             } else if (0 == GetInstrumentType().compare("paymentReceipt")) {
                 const Amount lAmount =
-                    OT::App().Client().Exec().StringToLong(m_str_amount);
+                    Opentxs::Client().Exec().StringToLong(m_str_amount);
 
                 if (!IsCanceled() && (lAmount > 0)) strKind.Set("received ");
 
@@ -431,10 +431,14 @@ bool Record::HasInitialPayment() const
 {
     if (!IsPaymentPlan()) return false;
 
-    OTPaymentPlan thePlan{backlink_.client_.Wallet(), backlink_.data_folder_};
+    auto thePlan{backlink_.client_.Factory().PaymentPlan(backlink_.client_)};
+
+    OT_ASSERT(false != bool(thePlan));
+
     const String strPlan(GetContents().c_str());
 
-    if (thePlan.LoadContractFromString(strPlan) && thePlan.HasInitialPayment())
+    if (thePlan->LoadContractFromString(strPlan) &&
+        thePlan->HasInitialPayment())
         return true;
     return false;
 }
@@ -443,10 +447,13 @@ bool Record::HasPaymentPlan() const
 {
     if (!IsPaymentPlan()) return false;
 
-    OTPaymentPlan thePlan{backlink_.client_.Wallet(), backlink_.data_folder_};
+    auto thePlan{backlink_.client_.Factory().PaymentPlan(backlink_.client_)};
+
+    OT_ASSERT(false != bool(thePlan));
+
     const String strPlan(GetContents().c_str());
 
-    if (thePlan.LoadContractFromString(strPlan) && thePlan.HasPaymentPlan())
+    if (thePlan->LoadContractFromString(strPlan) && thePlan->HasPaymentPlan())
         return true;
     return false;
 }
@@ -455,11 +462,15 @@ time64_t Record::GetInitialPaymentDate() const
 {
     if (!IsPaymentPlan()) return OT_TIME_ZERO;
 
-    OTPaymentPlan thePlan{backlink_.client_.Wallet(), backlink_.data_folder_};
+    auto thePlan{backlink_.client_.Factory().PaymentPlan(backlink_.client_)};
+
+    OT_ASSERT(false != bool(thePlan));
+
     const String strPlan(GetContents().c_str());
 
-    if (thePlan.LoadContractFromString(strPlan) && thePlan.HasInitialPayment())
-        return thePlan.GetInitialPaymentDate();
+    if (thePlan->LoadContractFromString(strPlan) &&
+        thePlan->HasInitialPayment())
+        return thePlan->GetInitialPaymentDate();
     return OT_TIME_ZERO;
 }
 
@@ -467,11 +478,15 @@ Amount Record::GetInitialPaymentAmount() const
 {
     if (!IsPaymentPlan()) return 0;
 
-    OTPaymentPlan thePlan{backlink_.client_.Wallet(), backlink_.data_folder_};
+    auto thePlan{backlink_.client_.Factory().PaymentPlan(backlink_.client_)};
+
+    OT_ASSERT(false != bool(thePlan));
+
     const String strPlan(GetContents().c_str());
 
-    if (thePlan.LoadContractFromString(strPlan) && thePlan.HasInitialPayment())
-        return thePlan.GetInitialPaymentAmount();
+    if (thePlan->LoadContractFromString(strPlan) &&
+        thePlan->HasInitialPayment())
+        return thePlan->GetInitialPaymentAmount();
     return 0;
 }
 
@@ -479,11 +494,14 @@ time64_t Record::GetPaymentPlanStartDate() const
 {
     if (!IsPaymentPlan()) return OT_TIME_ZERO;
 
-    OTPaymentPlan thePlan{backlink_.client_.Wallet(), backlink_.data_folder_};
+    auto thePlan{backlink_.client_.Factory().PaymentPlan(backlink_.client_)};
+
+    OT_ASSERT(false != bool(thePlan));
+
     const String strPlan(GetContents().c_str());
 
-    if (thePlan.LoadContractFromString(strPlan) && thePlan.HasPaymentPlan())
-        return thePlan.GetPaymentPlanStartDate();
+    if (thePlan->LoadContractFromString(strPlan) && thePlan->HasPaymentPlan())
+        return thePlan->GetPaymentPlanStartDate();
     return OT_TIME_ZERO;
 }
 
@@ -491,11 +509,14 @@ time64_t Record::GetTimeBetweenPayments() const
 {
     if (!IsPaymentPlan()) return OT_TIME_ZERO;
 
-    OTPaymentPlan thePlan{backlink_.client_.Wallet(), backlink_.data_folder_};
+    auto thePlan{backlink_.client_.Factory().PaymentPlan(backlink_.client_)};
+
+    OT_ASSERT(false != bool(thePlan));
+
     const String strPlan(GetContents().c_str());
 
-    if (thePlan.LoadContractFromString(strPlan) && thePlan.HasPaymentPlan())
-        return thePlan.GetTimeBetweenPayments();
+    if (thePlan->LoadContractFromString(strPlan) && thePlan->HasPaymentPlan())
+        return thePlan->GetTimeBetweenPayments();
     return OT_TIME_ZERO;
 }
 
@@ -503,11 +524,14 @@ Amount Record::GetPaymentPlanAmount() const
 {
     if (!IsPaymentPlan()) return 0;
 
-    OTPaymentPlan thePlan{backlink_.client_.Wallet(), backlink_.data_folder_};
+    auto thePlan{backlink_.client_.Factory().PaymentPlan(backlink_.client_)};
+
+    OT_ASSERT(false != bool(thePlan));
+
     const String strPlan(GetContents().c_str());
 
-    if (thePlan.LoadContractFromString(strPlan) && thePlan.HasPaymentPlan())
-        return thePlan.GetPaymentPlanAmount();
+    if (thePlan->LoadContractFromString(strPlan) && thePlan->HasPaymentPlan())
+        return thePlan->GetPaymentPlanAmount();
     return 0;
 }
 
@@ -515,11 +539,14 @@ std::int32_t Record::GetMaximumNoPayments() const
 {
     if (!IsPaymentPlan()) return 0;
 
-    OTPaymentPlan thePlan{backlink_.client_.Wallet(), backlink_.data_folder_};
+    auto thePlan{backlink_.client_.Factory().PaymentPlan(backlink_.client_)};
+
+    OT_ASSERT(false != bool(thePlan));
+
     const String strPlan(GetContents().c_str());
 
-    if (thePlan.LoadContractFromString(strPlan) && thePlan.HasPaymentPlan())
-        return thePlan.GetMaximumNoPayments();
+    if (thePlan->LoadContractFromString(strPlan) && thePlan->HasPaymentPlan())
+        return thePlan->GetMaximumNoPayments();
     return 0;
 }
 Record::RecordType Record::GetRecordType() const { return m_RecordType; }
@@ -722,7 +749,7 @@ bool Record::DeleteRecord() const
             if (!m_bIsSpecialMail) {
                 if (m_bIsOutgoing)  // outgoing mail
                 {
-                    auto& exec = OT::App().Client().Exec();
+                    auto& exec = Opentxs::Client().Exec();
                     const auto list = exec.GetNym_OutmailCount(m_str_nym_id);
 
                     for (const auto& id : list) {
@@ -737,7 +764,7 @@ bool Record::DeleteRecord() const
                     }
                 } else  // incoming mail
                 {
-                    auto& exec = OT::App().Client().Exec();
+                    auto& exec = Opentxs::Client().Exec();
                     const auto list = exec.GetNym_MailCount(m_str_nym_id);
 
                     for (const auto& id : list) {
@@ -804,10 +831,9 @@ bool Record::DeleteRecord() const
                                                             // contains NymID
                                                             // (see above.)
 
-    Ledger* pRecordbox = OT::App().Client().OTAPI().LoadRecordBox(
+    auto pRecordbox = Opentxs::Client().OTAPI().LoadRecordBox(
         theNotaryID, theNymID, theAcctID);
-    std::unique_ptr<Ledger> theRecordBoxAngel(pRecordbox);
-    if (!pRecordbox) {
+    if (false == bool(pRecordbox)) {
         otErr << __FUNCTION__
               << ": Failed loading record box for msg notary ID"
                  " ("
@@ -883,8 +909,8 @@ bool Record::cancel_outgoing_payments(
     const std::string& ACCOUNT_ID,
     const std::string& INDICES) const
 {
-    return 1 == RecordList::cancel_outgoing_payments(
-                    backlink_.data_folder_, nymID, ACCOUNT_ID, INDICES);
+    return 1 ==
+           RecordList::cancel_outgoing_payments(nymID, ACCOUNT_ID, INDICES);
 }
 
 bool Record::AcceptIncomingTransfer() const
@@ -927,10 +953,9 @@ bool Record::AcceptIncomingTransferOrReceipt() const
                        theAcctID = Identifier::Factory(m_str_account_id);
 
             // Open the Nym's asset account inbox.
-            Ledger* pInbox = OT::App().Client().OTAPI().LoadInbox(
+            auto pInbox = Opentxs::Client().OTAPI().LoadInbox(
                 thePmntNotaryID, theNymID, theAcctID);
-            std::unique_ptr<Ledger> theInboxAngel(pInbox);
-            if (!pInbox) {
+            if (false == bool(pInbox)) {
                 otErr << __FUNCTION__
                       << ": Error: Unable to load asset account inbox for "
                          "pmnt notary id ("
@@ -997,9 +1022,8 @@ bool Record::AcceptIncomingInstrument(const std::string& str_into_acct) const
                        theNymID = Identifier::Factory(m_str_nym_id);
 
             // Open the Nym's payments inbox.
-            Ledger* pInbox = OT::App().Client().OTAPI().LoadPaymentInbox(
+            auto pInbox = Opentxs::Client().OTAPI().LoadPaymentInbox(
                 theMsgNotaryID, theNymID);
-            std::unique_ptr<Ledger> theInboxAngel(pInbox);
             if (!pInbox) {
                 otErr << __FUNCTION__
                       << ": Error: Unable to load payment inbox for msg notary "
@@ -1054,7 +1078,6 @@ bool Record::AcceptIncomingInstrument(const std::string& str_into_acct) const
 
             std::string str_server_response;
             if (!RecordList::accept_from_paymentbox(
-                    backlink_.data_folder_,
                     m_str_msg_notary_id,
                     str_into_acct,
                     str_indices,
@@ -1110,9 +1133,8 @@ bool Record::DiscardIncoming() const
                        theNymID = Identifier::Factory(m_str_nym_id);
 
             // Open the Nym's payments inbox.
-            Ledger* pInbox = OT::App().Client().OTAPI().LoadPaymentInbox(
+            auto pInbox = Opentxs::Client().OTAPI().LoadPaymentInbox(
                 theMsgNotaryID, theNymID);
-            std::unique_ptr<Ledger> theInboxAngel(pInbox);
             if (!pInbox) {
                 otErr << __FUNCTION__
                       << ": Error: Unable to load payment inbox for transport "
@@ -1219,9 +1241,13 @@ bool Record::CancelOutgoing(std::string str_via_acct) const  // This can be
                         return false;
                     }
                     String strPayment(strOutpayment);
-                    OTPayment thePayment(backlink_.client_.Wallet(), backlink_.data_folder_, strPayment);
+                    auto thePayment{Opentxs::Client().Factory().Payment(
+                        Opentxs::Client(), strPayment)};
 
-                    if (!thePayment.IsValid() || !thePayment.SetTempValues()) {
+                    OT_ASSERT(false != bool(thePayment));
+
+                    if (!thePayment->IsValid() ||
+                        !thePayment->SetTempValues()) {
                         std::int32_t lIndex = GetBoxIndex();
                         otErr << __FUNCTION__
                               << ": Error: Invalid outpayment at index "
@@ -1229,7 +1255,7 @@ bool Record::CancelOutgoing(std::string str_via_acct) const  // This can be
                         return false;
                     }
                     TransactionNumber lTransNum = 0;
-                    thePayment.GetOpeningNum(lTransNum, theNymID);
+                    thePayment->GetOpeningNum(lTransNum, theNymID);
                     if (0 == lTransNum)  // Found it.
                     {
                         std::int32_t lIndex = GetBoxIndex();
@@ -1275,16 +1301,19 @@ bool Record::CancelOutgoing(std::string str_via_acct) const  // This can be
                     return false;
                 }
                 String strPayment(strOutpayment);
-                OTPayment thePayment(backlink_.client_.Wallet(), backlink_.data_folder_, strPayment);
+                auto thePayment{Opentxs::Client().Factory().Payment(
+                    Opentxs::Client(), strPayment)};
 
-                if (!thePayment.IsValid() || !thePayment.SetTempValues()) {
+                OT_ASSERT(false != bool(thePayment));
+
+                if (!thePayment->IsValid() || !thePayment->SetTempValues()) {
                     otErr << __FUNCTION__
                           << ": Error: Invalid outpayment at index " << nIndex
                           << "\n";
                     return false;
                 }
                 TransactionNumber lTransNum = 0;
-                thePayment.GetOpeningNum(lTransNum, theNymID);
+                thePayment->GetOpeningNum(lTransNum, theNymID);
                 if (lTransNum == m_lTransactionNum)  // Found it.
                 {
                     String strIndices;
@@ -1413,10 +1442,13 @@ void Record::SetContents(const std::string& str_contents)
     if (!m_str_contents.empty() && ((Record::Instrument == GetRecordType()) ||
                                     (Record::Notice == GetRecordType()))) {
         String strPayment(m_str_contents);
-        OTPayment thePayment(backlink_.client_.Wallet(), backlink_.data_folder_, strPayment);
+        auto thePayment{
+            Opentxs::Client().Factory().Payment(Opentxs::Client(), strPayment)};
 
-        if (thePayment.IsValid() && thePayment.SetTempValues()) {
-            switch (thePayment.GetType()) {
+        OT_ASSERT(false != bool(thePayment));
+
+        if (thePayment->IsValid() && thePayment->SetTempValues()) {
+            switch (thePayment->GetType()) {
                 case OTPayment::PURSE:
                     m_bIsCash = true;
                     break;

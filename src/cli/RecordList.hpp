@@ -33,10 +33,8 @@ public:
     enum ItemType { typeBoth = 0, typeTransfers = 1, typeReceipts = 2 };
 
     const api::client::Manager& client_;
-    const std::string data_folder_{""};
 
     EXPORT static bool accept_from_paymentbox(
-        const std::string& dataFolder,
         const std::string& transport_notary,
         const std::string& myacct,
         const std::string& indices,
@@ -70,7 +68,6 @@ public:
         std::string* pOptionalOutput = nullptr);
 
     EXPORT static std::int32_t processPayment(
-        const std::string& dataFolder,
         const std::string& transport_notary,
         const std::string& myacct,
         const std::string& paymentType,
@@ -80,7 +77,6 @@ public:
         bool CLI_input_allowed = false);
 
     EXPORT static std::int32_t depositCheque(
-        const std::string& dataFolder,
         const std::string& server,
         const std::string& myacct,
         const std::string& mynym,
@@ -113,7 +109,6 @@ public:
         const std::string& indices);
 
     EXPORT static std::int32_t cancel_outgoing_payments(
-        const std::string& dataFolder,
         const std::string& mynym,
         const std::string& myacct,
         const std::string& indices);

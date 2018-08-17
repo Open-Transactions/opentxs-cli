@@ -34,7 +34,8 @@ const std::string Instrument_TypeStrings[] = {
     "smart contract",  // An OTCronItem-derived OTSmartContract, related to a
                        // smart contract.
     "cash",  // An Contract-derived OTPurse containing a list of cash OTTokens.
-    "agreement",  // An OTTransaction::notice which could be a Payment Plan OR a
+    "agreement",  // An transactionType::notice which could be a Payment Plan OR
+                  // a
                   // Smart Contract.
     "ERROR_STATE"};
 
@@ -48,8 +49,7 @@ const std::string& GetTypeString(int theType)
 namespace opentxs::cli
 {
 RecordList::RecordList()
-    : client_{OT::App().Client()}
-    , data_folder_{OT::App().Legacy().ClientDataFolder()}
+    : client_{Opentxs::Client()}
     , wallet_(client_.Wallet())
     , m_bRunFast(false)
     , m_bAutoAcceptCheques(false)
@@ -199,7 +199,7 @@ std::string RecordList::get_payment_instrument(  // static method
     std::string strInbox =
         VerifyStringVal(PRELOADED_INBOX)
             ? PRELOADED_INBOX
-            : OT::App().Client().Exec().LoadPaymentInbox(
+            : Opentxs::Client().Exec().LoadPaymentInbox(
                   notaryID, nymID);  // Returns nullptr, or an inbox.
 
     if (!VerifyStringVal(strInbox)) {
@@ -209,7 +209,7 @@ std::string RecordList::get_payment_instrument(  // static method
         return "";
     }
 
-    std::int32_t nCount = OT::App().Client().Exec().Ledger_GetCount(
+    std::int32_t nCount = Opentxs::Client().Exec().Ledger_GetCount(
         notaryID, nymID, nymID, strInbox);
     if (0 > nCount) {
         otOut
@@ -223,7 +223,7 @@ std::string RecordList::get_payment_instrument(  // static method
         return "";
     }
 
-    strInstrument = OT::App().Client().Exec().Ledger_GetInstrument(
+    strInstrument = Opentxs::Client().Exec().Ledger_GetInstrument(
         notaryID, nymID, nymID, strInbox, nIndex);
     if (!VerifyStringVal(strInstrument)) {
         otOut << "Failed trying to get payment instrument from payments box.\n";
@@ -234,7 +234,6 @@ std::string RecordList::get_payment_instrument(  // static method
 }
 
 bool RecordList::accept_from_paymentbox(  // static function
-    const std::string& dataFolder,
     const std::string& transport_notary,
     const std::string& myacct,
     const std::string& indices,
@@ -363,7 +362,6 @@ bool RecordList::accept_from_paymentbox(  // static function
                 }
             } else {
                 std::int32_t nTemp = processPayment(
-                    dataFolder,
                     transport_notary,
                     myacct,
                     paymentType,
@@ -396,7 +394,6 @@ std::string RecordList::inputText(const char* what)  // static method
 }
 
 std::int32_t RecordList::processPayment(  // a static method
-    const std::string& dataFolder,
     const std::string& transport_notary,
     const std::string& myacct,
     const std::string& paymentType,
@@ -437,9 +434,12 @@ std::int32_t RecordList::processPayment(  // a static method
         }
     }
 
-    OTPayment thePayment(OT::App().Client().Wallet(),
-        OT::App().Legacy().ClientDataFolder(), String(instrument.c_str()));
-    if (!thePayment.IsValid() || !thePayment.SetTempValues()) {
+    auto thePayment{Opentxs::Client().Factory().Payment(
+        Opentxs::Client(), String(instrument.c_str()))};
+
+    OT_ASSERT(false != bool(thePayment));
+
+    if (!thePayment->IsValid() || !thePayment->SetTempValues()) {
         otOut << "Error: Failed loading payment instrument from string.\n";
         return -1;
     }
@@ -447,7 +447,7 @@ std::int32_t RecordList::processPayment(  // a static method
     // The Notary ID we found on the payment instrument itself.
     //
     auto paymentNotaryId = Identifier::Factory();
-    const bool bGotPaymentNotaryId = thePayment.GetNotaryID(paymentNotaryId);
+    const bool bGotPaymentNotaryId = thePayment->GetNotaryID(paymentNotaryId);
 
     if (!bGotPaymentNotaryId) {
         otOut << "Error: Failed getting Notary ID from payment instrument.\n";
@@ -456,7 +456,7 @@ std::int32_t RecordList::processPayment(  // a static method
 
     auto assetTypeId = Identifier::Factory();
     const bool bGotPaymentAssetTypeId =
-        thePayment.GetInstrumentDefinitionID(assetTypeId);
+        thePayment->GetInstrumentDefinitionID(assetTypeId);
 
     if (!bGotPaymentAssetTypeId) {
         // Allowed for now.
@@ -466,7 +466,7 @@ std::int32_t RecordList::processPayment(  // a static method
         ;
     }
     const std::string strPaymentAssetTypeId = assetTypeId->str();
-    std::string type = thePayment.GetTypeString();
+    std::string type = thePayment->GetTypeString();
 
     std::string strIndexErrorMsg = "";
     if (-1 != index) {
@@ -479,7 +479,7 @@ std::int32_t RecordList::processPayment(  // a static method
     {                            // Then skip this one.
         // Except:
         if (("CHEQUE" == paymentType || "VOUCHER" == paymentType) &&
-            (thePayment.IsCheque() || thePayment.IsVoucher())) {
+            (thePayment->IsCheque() || thePayment->IsVoucher())) {
             // in this case we allow it to drop through.
         } else {
             otOut << "Error: invalid instrument type.\n";
@@ -487,8 +487,8 @@ std::int32_t RecordList::processPayment(  // a static method
         }
     }
 
-    const bool bIsPaymentPlan = thePayment.IsPaymentPlan();
-    const bool bIsSmartContract = thePayment.IsSmartContract();
+    const bool bIsPaymentPlan = thePayment->IsPaymentPlan();
+    const bool bIsSmartContract = thePayment->IsSmartContract();
 
     if (bIsPaymentPlan) {
         otOut << "Error: Cannot process a payment plan here. You HAVE to "
@@ -528,8 +528,8 @@ std::int32_t RecordList::processPayment(  // a static method
          recipientNymId = Identifier::Factory();
     std::string sender, recipient;
 
-    if (thePayment.GetSenderNymID(senderNymId)) sender = senderNymId->str();
-    if (thePayment.GetRecipientNymID(recipientNymId))
+    if (thePayment->GetSenderNymID(senderNymId)) sender = senderNymId->str();
+    if (thePayment->GetRecipientNymID(recipientNymId))
         recipient = recipientNymId->str();
 
     std::string endorsee = bIsPaymentPlan ? sender : recipient;
@@ -609,9 +609,9 @@ std::int32_t RecordList::processPayment(  // a static method
     time64_t until{};
 
     bool bGotValidFrom{false};
-    bGotValidFrom = thePayment.GetValidFrom(from);
+    bGotValidFrom = thePayment->GetValidFrom(from);
     bool bGotValidTo{false};
-    bGotValidTo = thePayment.GetValidTo(until);
+    bGotValidTo = thePayment->GetValidTo(until);
 
     if (!bGotValidFrom) {
         ;  // TODO Maybe log here. But I think this case is allowed.
@@ -653,19 +653,14 @@ std::int32_t RecordList::processPayment(  // a static method
     // That's why you don't see me messing with the payments inbox even when
     // these are successful. They DO need to be removed from the payments inbox,
     // but just not here in the script. (Rather, internally by OT itself.)
-    if (thePayment.IsCheque() || thePayment.IsVoucher() ||
-        thePayment.IsInvoice()) {
+    if (thePayment->IsCheque() || thePayment->IsVoucher() ||
+        thePayment->IsInvoice()) {
         return depositCheque(
-            dataFolder,
-            acct_server,
-            myacct,
-            mynym,
-            instrument,
-            pOptionalOutput);
-    } else if (thePayment.IsPurse()) {
+            acct_server, myacct, mynym, instrument, pOptionalOutput);
+    } else if (thePayment->IsPurse()) {
         std::int32_t success{-1};
 #if OT_CASH
-        success = OT::App().Client().Cash().deposit_purse(
+        success = Opentxs::Client().Cash().deposit_purse(
             acct_server, myacct, mynym, instrument, "", pOptionalOutput);
 #endif  // OT_CASH
         // if index != -1, go ahead and call RecordPayment on the purse at that
@@ -684,7 +679,6 @@ std::int32_t RecordList::processPayment(  // a static method
 }
 
 std::int32_t RecordList::depositCheque(  // a static method
-    const std::string& dataFolder,
     const std::string& server,
     const std::string& myacct,
     const std::string& mynym,
@@ -701,14 +695,15 @@ std::int32_t RecordList::depositCheque(  // a static method
         return -1;
     }
 
-    auto cheque = std::make_unique<Cheque>(OT::App().Client().Wallet(), dataFolder);
+    auto cheque{Opentxs::Client().Factory().Cheque(Opentxs::Client())};
+
+    OT_ASSERT(false != bool(cheque));
+
     cheque->LoadContractFromString(String(instrument.c_str()));
 
     std::string response;
     {
-        response = OT::App()
-                       .Client()
-
+        response = Opentxs::Client()
                        .ServerAction()
                        .DepositCheque(
                            Identifier::Factory(mynym),
@@ -724,7 +719,7 @@ std::int32_t RecordList::depositCheque(  // a static method
     if (nullptr != pOptionalOutput) { *pOptionalOutput = response; }
 
     {
-        if (!OT::App().Client().ServerAction().DownloadAccount(
+        if (!Opentxs::Client().ServerAction().DownloadAccount(
                 Identifier::Factory(mynym),
                 Identifier::Factory(server),
                 Identifier::Factory(myacct),
@@ -836,7 +831,7 @@ std::int32_t RecordList::confirmPaymentPlan_lowLevel(  // a static method
     }
 
     {
-        if (!OT::App().Client().ServerAction().GetTransactionNumbers(
+        if (!Opentxs::Client().ServerAction().GetTransactionNumbers(
                 Identifier::Factory(senderUser),
                 Identifier::Factory(server),
                 2)) {
@@ -854,18 +849,16 @@ std::int32_t RecordList::confirmPaymentPlan_lowLevel(  // a static method
 
     // NOTE: If we fail, then we need to harvest the transaction numbers
     // back from the payment plan that we confirmed.
-    auto paymentPlan =
-        std::make_unique<OTPaymentPlan>(OT::App().Client().Wallet(), OT::App().Legacy().ClientDataFolder());
+    auto paymentPlan{
+        Opentxs::Client().Factory().PaymentPlan(Opentxs::Client())};
 
-    OT_ASSERT(paymentPlan)
+    OT_ASSERT(false != bool(paymentPlan));
 
     paymentPlan->LoadContractFromString(String(confirmed.c_str()));
 
     std::string response;
     {
-        response = OT::App()
-                       .Client()
-
+        response = Opentxs::Client()
                        .ServerAction()
                        .DepositPaymentPlan(
                            Identifier::Factory(senderUser),
@@ -889,7 +882,7 @@ std::int32_t RecordList::confirmPaymentPlan_lowLevel(  // a static method
     if (nullptr != pOptionalOutput) { *pOptionalOutput = response; }
 
     {
-        if (!OT::App().Client().ServerAction().DownloadAccount(
+        if (!Opentxs::Client().ServerAction().DownloadAccount(
                 Identifier::Factory(senderUser),
                 Identifier::Factory(server),
                 Identifier::Factory(senderAcct),
@@ -962,7 +955,7 @@ bool RecordList::checkServer(const char* name, std::string& server)
 
     auto theID = Identifier::Factory(server);
     ConstServerContract pServer;  // shared_ptr to const.
-    const auto& wallet = OT::App().Client().Wallet();
+    const auto& wallet = Opentxs::Client().Wallet();
 
     // See if it's available using the full length ID.
     if (!theID->empty()) pServer = wallet.Server(theID);
@@ -1018,7 +1011,7 @@ bool RecordList::checkNym(
 
     ConstNym pNym = nullptr;
     const auto nymID = Identifier::Factory(nym);
-    const auto& wallet = OT::App().Client().Wallet();
+    const auto& wallet = Opentxs::Client().Wallet();
 
     if (!nymID->empty()) pNym = wallet.Nym(nymID);
 
@@ -1046,11 +1039,11 @@ bool RecordList::checkAccount(const char* name, std::string& accountID)
 
     if (theID->empty()) { return false; }
 
-    auto account = OT::App().Client().Wallet().Account(theID);
+    auto account = Opentxs::Client().Wallet().Account(theID);
 
     if (false == bool(account)) {
         const auto converted =
-            OT::App().Client().Wallet().AccountPartialMatch(accountID);
+            Opentxs::Client().Wallet().AccountPartialMatch(accountID);
 
         if (converted->empty()) {
             otOut << "Error: " << name << ": unknown account: " << accountID
@@ -1058,7 +1051,7 @@ bool RecordList::checkAccount(const char* name, std::string& accountID)
             return false;
         }
 
-        account = OT::App().Client().Wallet().Account(converted);
+        account = Opentxs::Client().Wallet().Account(converted);
     }
 
     OT_ASSERT(account)
@@ -1125,7 +1118,6 @@ std::int32_t RecordList::discard_incoming_payments(
 
 // static
 std::int32_t RecordList::cancel_outgoing_payments(
-    const std::string& dataFolder,
     const std::string& mynym,
     const std::string& myacct,
     const std::string& indices)
@@ -1246,17 +1238,15 @@ std::int32_t RecordList::cancel_outgoing_payments(
             // So while we expect this 'activation' to fail, it should have the
             // desired effect of cancelling the smart contract and sending
             // failure notices to all the parties.
-            auto contract = std::make_unique<OTSmartContract>(OT::App().Client().Wallet(),
-                OT::App().Legacy().ClientDataFolder());
+            auto contract{
+                Opentxs::Client().Factory().SmartContract(Opentxs::Client())};
 
-            OT_ASSERT(contract)
+            OT_ASSERT(false != bool(contract));
 
             contract->LoadContractFromString(String(payment));
             std::string response;
             {
-                response = OT::App()
-                               .Client()
-
+                response = Opentxs::Client()
                                .ServerAction()
                                .ActivateSmartContract(
                                    theNymID,
@@ -1291,17 +1281,15 @@ std::int32_t RecordList::cancel_outgoing_payments(
             // propagated to the other party to the contract. (Which will result
             // in its automatic removal from the outpayment box.)
 
-            auto plan = std::make_unique<OTPaymentPlan>(OT::App().Client().Wallet(),
-                OT::App().Legacy().ClientDataFolder());
+            auto plan{
+                Opentxs::Client().Factory().PaymentPlan(Opentxs::Client())};
 
-            OT_ASSERT(plan)
+            OT_ASSERT(false != bool(plan));
 
             plan->LoadContractFromString(String(payment));
             std::string response;
             {
-                response = OT::App()
-                               .Client()
-
+                response = Opentxs::Client()
                                .ServerAction()
                                .CancelPaymentPlan(theNymID, theNotaryID, plan)
                                ->Run();
@@ -1379,7 +1367,7 @@ std::int32_t RecordList::cancel_outgoing_payments(
             continue;
         }
 
-        if (1 != depositCheque(dataFolder, server, acctID, nymID, payment)) {
+        if (1 != depositCheque(server, acctID, nymID, payment)) {
             otOut << "Error: cannot cancel " << type << ".\n";
             retVal = -1;
             continue;
@@ -1437,15 +1425,15 @@ std::int32_t RecordList::acceptFromInbox(  // a static method
                theAcctID = Identifier::Factory(myacct);
 
     {
-        if (!OT::App().Client().ServerAction().GetTransactionNumbers(
+        if (!Opentxs::Client().ServerAction().GetTransactionNumbers(
                 theNymID, theNotaryID, 10)) {
             otOut << "Error: cannot reserve transaction numbers.\n";
             return -1;
         }
     }
     // -----------------------------------------------------------
-    std::unique_ptr<Ledger> pInbox(
-        OT::App().Client().OTAPI().LoadInbox(theNotaryID, theNymID, theAcctID));
+    auto pInbox(
+        Opentxs::Client().OTAPI().LoadInbox(theNotaryID, theNymID, theAcctID));
     if (false == bool(pInbox)) {
         otOut << "Error: cannot load inbox.\n";
         return -1;
@@ -1496,7 +1484,7 @@ std::int32_t RecordList::acceptFromInbox(  // a static method
 
     // -------------------------------------------------------
     OT_API::ProcessInbox response{
-        OT::App().Client().OTAPI().Ledger_CreateResponse(
+        Opentxs::Client().OTAPI().Ledger_CreateResponse(
             theNotaryID, theNymID, theAcctID)};
     // -------------------------------------------------------
     auto& processInbox = std::get<0>(response);
@@ -1509,7 +1497,7 @@ std::int32_t RecordList::acceptFromInbox(  // a static method
     // -------------------------------------------------------
     for (const TransactionNumber& lReceiptId : receiptIds) {
         OTTransaction* pReceipt =
-            OT::App().Client().OTAPI().Ledger_GetTransactionByID(
+            Opentxs::Client().OTAPI().Ledger_GetTransactionByID(
                 *inbox, lReceiptId);
 
         if (nullptr == pReceipt) {
@@ -1523,10 +1511,9 @@ std::int32_t RecordList::acceptFromInbox(  // a static method
         // only.
         //
         if (0 != itemTypeFilter) {
-            const OTTransaction::transactionType receipt_type{
-                pReceipt->GetType()};
+            const transactionType receipt_type{pReceipt->GetType()};
 
-            const bool transfer = (OTTransaction::pending == receipt_type);
+            const bool transfer = (transactionType::pending == receipt_type);
 
             if ((1 == itemTypeFilter) && !transfer) {
                 // not a pending transfer.
@@ -1539,7 +1526,7 @@ std::int32_t RecordList::acceptFromInbox(  // a static method
         }
         // ------------------------
         const bool bReceiptResponseCreated =
-            OT::App().Client().OTAPI().Transaction_CreateResponse(
+            Opentxs::Client().OTAPI().Transaction_CreateResponse(
                 theNotaryID,
                 theNymID,
                 theAcctID,
@@ -1562,7 +1549,7 @@ std::int32_t RecordList::acceptFromInbox(  // a static method
         return 0;
     }
     // ----------------------------------------------
-    const bool bFinalized = OT::App().Client().OTAPI().Ledger_FinalizeResponse(
+    const bool bFinalized = Opentxs::Client().OTAPI().Ledger_FinalizeResponse(
         theNotaryID, theNymID, theAcctID, *processInbox);
 
     if (!bFinalized) {
@@ -1573,9 +1560,7 @@ std::int32_t RecordList::acceptFromInbox(  // a static method
     std::string notary_response;
     {
         notary_response =
-            OT::App()
-                .Client()
-
+            Opentxs::Client()
                 .ServerAction()
                 .ProcessInbox(theNymID, theNotaryID, theAcctID, processInbox)
                 ->Run();
@@ -1589,7 +1574,7 @@ std::int32_t RecordList::acceptFromInbox(  // a static method
     // the inbox. Might as well refresh our copy with the new changes.
     //
     {
-        if (!OT::App().Client().ServerAction().DownloadAccount(
+        if (!Opentxs::Client().ServerAction().DownloadAccount(
                 theNymID, theNotaryID, theAcctID, true)) {
             otOut << __FUNCTION__
                   << "Success processing inbox, but then failed "
@@ -1660,7 +1645,7 @@ void RecordList::notifyOfSuccessfulNotarization(
 {
 }
 
-typedef std::map<std::int32_t, OTPayment*> mapOfPayments;
+typedef std::map<std::int32_t, std::shared_ptr<OTPayment>> mapOfPayments;
 
 bool RecordList::PerformAutoAccept()
 {
@@ -1714,28 +1699,25 @@ bool RecordList::PerformAutoAccept()
                 // sender/recipient name from the receipts in the box. The code
                 // will, however, work
                 // either way.
-                Ledger* pInbox{nullptr};
+                std::shared_ptr<Ledger> pInbox{nullptr};
 
                 if (false == theNymID->empty()) {
                     pInbox = m_bRunFast
-                                 ? OT::App()
-                                       .Client()
+                                 ? Opentxs::Client()
                                        .OTAPI()
                                        .LoadPaymentInboxNoVerify(
                                            theMsgNotaryID, theNymID)
-                                 : OT::App().Client().OTAPI().LoadPaymentInbox(
+                                 : Opentxs::Client().OTAPI().LoadPaymentInbox(
                                        theMsgNotaryID, theNymID);
                 }
 
-                std::unique_ptr<Ledger> theInboxAngel(pInbox);
-
                 // It loaded up, so let's loop through it.
-                if (pInbox) {
+                if (false != bool(pInbox)) {
                     std::int32_t nIndex{-1};
                     for (auto& it : pInbox->GetTransactionMap()) {
                         TransactionNumber lPaymentBoxTransNum = it.first;
-                        OTTransaction* pBoxTrans = it.second;
-                        OT_ASSERT(nullptr != pBoxTrans);
+                        auto pBoxTrans = it.second;
+                        OT_ASSERT(false != bool(pBoxTrans));
                         ++nIndex;  // 0 on first iteration.
                         //                      otInfo << __FUNCTION__
                         //                             << ": Incoming payment: "
@@ -1746,11 +1728,10 @@ bool RecordList::PerformAutoAccept()
                             &RecordList::s_blank;  // instrument definition
                                                    // display name.
                         std::string str_type;      // Instrument type.
-                        OTPayment* pPayment = GetInstrumentByReceiptID(
+                        auto pPayment = GetInstrumentByReceiptID(
                             *pNym, lPaymentBoxTransNum, *pInbox);
-                        std::unique_ptr<OTPayment> thePaymentAngel(pPayment);
-                        if (!pPayment)  // then we treat it like it's
-                                        // abbreviated.
+                        if (false == bool(pPayment))  // then we treat it like
+                                                      // it's abbreviated.
                         {
                             otErr << __FUNCTION__
                                   << ": Payment retrieved from payments "
@@ -1841,8 +1822,10 @@ bool RecordList::PerformAutoAccept()
                                         nIndex, lPaymentBoxTransNum));
 
                                 thePaymentMap.insert(
-                                    std::pair<std::int32_t, OTPayment*>(
-                                        nIndex, thePaymentAngel.release()));
+                                    std::pair<
+                                        std::int32_t,
+                                        std::shared_ptr<OTPayment>>(
+                                        nIndex, pPayment));
                             } else
                                 otInfo << __FUNCTION__
                                        << ": Instrument type not enabled for "
@@ -1870,8 +1853,8 @@ bool RecordList::PerformAutoAccept()
                                 // payments by index.
                     {
                         std::int32_t lIndex = it->first;
-                        OTPayment* pPayment = it->second;
-                        if (nullptr == pPayment) {
+                        auto pPayment = it->second;
+                        if (false == bool(pPayment)) {
                             otErr << __FUNCTION__
                                   << ": Error: payment pointer was "
                                      "nullptr! (Should never happen.) "
@@ -1990,7 +1973,6 @@ bool RecordList::PerformAutoAccept()
                                 std::string str_server_response;
 
                                 if (!accept_from_paymentbox(
-                                        data_folder_,
                                         str_msg_notary_id,
                                         str_account_id,
                                         str_indices,
@@ -2037,12 +2019,6 @@ bool RecordList::PerformAutoAccept()
                            // into.
                     }      // Loop through payments to deposit.
                     // Empty the list and delete the payments inside.
-                    //
-                    for (auto& it : thePaymentMap) {
-                        OTPayment* pPayment = it.second;
-                        if (pPayment) delete pPayment;
-                        pPayment = nullptr;
-                    }
                     thePaymentMap.clear();
                 }  // if (!thePaymentMap.empty())
             }
@@ -2128,18 +2104,17 @@ bool RecordList::PerformAutoAccept()
             // return for FASTER PERFORMANCE, then call SetFastMode() before
             // Populating.
 
-            Ledger* pInbox{nullptr};
+            std::shared_ptr<Ledger> pInbox{nullptr};
 
             if (false == theNymID.empty()) {
                 pInbox = m_bRunFast
-                             ? OT::App().Client().OTAPI().LoadInboxNoVerify(
+                             ? Opentxs::Client().OTAPI().LoadInboxNoVerify(
                                    theNotaryID, theNymID, theAccountID)
-                             : OT::App().Client().OTAPI().LoadInbox(
+                             : Opentxs::Client().OTAPI().LoadInbox(
                                    theNotaryID, theNymID, theAccountID);
             }
 
-            std::unique_ptr<Ledger> theInboxAngel(pInbox);
-            if (!pInbox) {
+            if (false == bool(pInbox)) {
                 otInfo << __FUNCTION__ << ": Skipping an account ("
                        << str_account_id.c_str()
                        << ") since its "
@@ -2159,15 +2134,15 @@ bool RecordList::PerformAutoAccept()
                     otInfo
                         << __FUNCTION__
                         << ": Beginning loop through asset account INBOX...\n";
-                OTTransaction* pBoxTrans = it.second;
-                OT_ASSERT(nullptr != pBoxTrans);
+                auto pBoxTrans = it.second;
+                OT_ASSERT(false != bool(pBoxTrans));
                 otInfo << __FUNCTION__ << ": Inbox index: " << nInboxIndex
                        << "\n";
                 const std::string str_type(
                     pBoxTrans->GetTypeString());  // pending, chequeReceipt,
                                                   // etc.
                 const bool bIsTransfer =
-                    (OTTransaction::pending == pBoxTrans->GetType());
+                    (transactionType::pending == pBoxTrans->GetType());
                 const bool bIsReceipt = !bIsTransfer;
                 if ((m_bAutoAcceptReceipts && bIsReceipt) ||
                     (m_bAutoAcceptTransfers && bIsTransfer)) {
@@ -2184,9 +2159,7 @@ bool RecordList::PerformAutoAccept()
                             20;  // I'm just hardcoding: "Make sure I have at
                                  // least 20 transaction numbers."
                         {
-                            if (!OT::App()
-                                     .Client()
-
+                            if (!Opentxs::Client()
                                      .ServerAction()
                                      .GetTransactionNumbers(
                                          theNymID,
@@ -2201,7 +2174,7 @@ bool RecordList::PerformAutoAccept()
                             }
                         }
                         strResponseLedger =
-                            OT::App().Client().Exec().Ledger_CreateResponse(
+                            Opentxs::Client().Exec().Ledger_CreateResponse(
                                 str_notary_id, str_nym_id, str_account_id);
 
                         if (strResponseLedger.empty()) {
@@ -2216,7 +2189,7 @@ bool RecordList::PerformAutoAccept()
                     const String strTrans(*pBoxTrans);
                     const std::string str_trans(strTrans.Get());
                     std::string strNEW_ResponseLEDGER =
-                        OT::App().Client().Exec().Transaction_CreateResponse(
+                        Opentxs::Client().Exec().Transaction_CreateResponse(
                             str_notary_id,
                             str_nym_id,
                             str_account_id,
@@ -2241,7 +2214,7 @@ bool RecordList::PerformAutoAccept()
             //
             if (bFoundAnyToAccept && !strResponseLedger.empty()) {
                 std::string strFinalizedResponse =
-                    OT::App().Client().Exec().Ledger_FinalizeResponse(
+                    Opentxs::Client().Exec().Ledger_FinalizeResponse(
                         str_notary_id,
                         str_nym_id,
                         str_account_id,
@@ -2256,10 +2229,10 @@ bool RecordList::PerformAutoAccept()
                 }
                 // Server communications are handled here...
                 //
-                std::unique_ptr<Ledger> ledger(new Ledger(wallet_,
-                    data_folder_, theNymID, theAccountID, theNotaryID));
+                auto ledger{Opentxs::Client().Factory().Ledger(
+                    Opentxs::Client(), theNymID, theAccountID, theNotaryID)};
 
-                OT_ASSERT(ledger)
+                OT_ASSERT(false != bool(ledger));
 
                 const auto loaded =
                     ledger->LoadLedgerFromString(String(strFinalizedResponse));
@@ -2269,9 +2242,7 @@ bool RecordList::PerformAutoAccept()
                 std::string strResponse;
                 {
                     strResponse =
-                        OT::App()
-                            .Client()
-
+                        Opentxs::Client()
                             .ServerAction()
                             .ProcessInbox(
                                 theNymID, theNotaryID, theAccountID, ledger)
@@ -2292,7 +2263,7 @@ bool RecordList::PerformAutoAccept()
                     // since they have probably changed from this operation.
                     //
                     bool bRetrieved =
-                        OT::App().Client().ServerAction().DownloadAccount(
+                        Opentxs::Client().ServerAction().DownloadAccount(
                             theNymID,
                             theNotaryID,
                             theAccountID,
@@ -2320,7 +2291,7 @@ bool RecordList::Populate()
     // Loop through all the accounts.
     //
     // From Open-Transactions.h:
-    // OT::App().Client().OTAPI().GetServerCount()
+    // Opentxs::Client().OTAPI().GetServerCount()
     //
     // From OTAPI.h:
     // SwigWrap::GetServerCount()  // wraps the above call.
@@ -2361,9 +2332,12 @@ bool RecordList::Populate()
                 SwigWrap::GetNym_OutpaymentsContentsByIndex(
                     str_nym_id, nCurrentOutpayment));
             std::string str_memo;
-            OTPayment theOutPayment(wallet_, data_folder_, strOutpayment);
+            auto theOutPayment{Opentxs::Client().Factory().Payment(
+                Opentxs::Client(), strOutpayment)};
 
-            if (!theOutPayment.IsValid() || !theOutPayment.SetTempValues()) {
+            OT_ASSERT(false != bool(theOutPayment));
+
+            if (!theOutPayment->IsValid() || !theOutPayment->SetTempValues()) {
                 otErr << __FUNCTION__
                       << ": Skipping: Unable to load outpayments "
                          "instrument from string:\n"
@@ -2373,14 +2347,14 @@ bool RecordList::Populate()
             Amount lAmount = 0;
             std::string str_amount;  // <========== AMOUNT
 
-            if (theOutPayment.GetAmount(lAmount)) {
-                if (((OTPayment::CHEQUE == theOutPayment.GetType()) ||
-                     (OTPayment::PURSE == theOutPayment.GetType()) ||
-                     (OTPayment::VOUCHER == theOutPayment.GetType())) &&
+            if (theOutPayment->GetAmount(lAmount)) {
+                if (((OTPayment::CHEQUE == theOutPayment->GetType()) ||
+                     (OTPayment::PURSE == theOutPayment->GetType()) ||
+                     (OTPayment::VOUCHER == theOutPayment->GetType())) &&
                     (lAmount > 0))
                     lAmount *= (-1);
 
-                if ((OTPayment::INVOICE == theOutPayment.GetType()) &&
+                if ((OTPayment::INVOICE == theOutPayment->GetType()) &&
                     (lAmount < 0))
                     lAmount *= (-1);
 
@@ -2399,7 +2373,7 @@ bool RecordList::Populate()
             // --------------------------------------------------
             auto paymentNotaryId = Identifier::Factory();
             const bool bGotPaymentNotary =
-                theOutPayment.GetNotaryID(paymentNotaryId);
+                theOutPayment->GetNotaryID(paymentNotaryId);
 
             std::string str_outpayment_notary_id;
 
@@ -2413,7 +2387,7 @@ bool RecordList::Populate()
                 continue;
             }
             // --------------------------------------------------
-            if (theOutPayment.GetInstrumentDefinitionID(
+            if (theOutPayment->GetInstrumentDefinitionID(
                     theInstrumentDefinitionID)) {
                 String strTemp(theInstrumentDefinitionID);
                 str_outpmt_asset = strTemp.Get();
@@ -2469,13 +2443,13 @@ bool RecordList::Populate()
             // RecordList needs to handle this case so that the user can see
             // his outbox contents displayed properly.
             //
-            if ((theOutPayment.IsPaymentPlan() &&
-                 theOutPayment.GetRecipientAcctID(theAccountID)) ||
+            if ((theOutPayment->IsPaymentPlan() &&
+                 theOutPayment->GetRecipientAcctID(theAccountID)) ||
                 // Otherwise if it's not a payment plan then we're looking
                 // for the Sender (not Recipient) account. See above comment.
                 // Also: Since Nym is ME, the Account must be MY account.
                 //
-                theOutPayment.GetSenderAcctIDForDisplay(theAccountID)) {
+                theOutPayment->GetSenderAcctIDForDisplay(theAccountID)) {
                 str_outpmt_account = theAccountID->str();
                 auto it_acct = std::find(
                     m_accounts.begin(), m_accounts.end(), str_outpmt_account);
@@ -2489,7 +2463,7 @@ bool RecordList::Populate()
                 // so the voucher would end up getting skipped every single
                 // time.
                 //              else if (OTPayment::VOUCHER !=
-                //              theOutPayment.GetType())
+                //              theOutPayment->GetType())
                 else {
                     // There was definitely an account on the instrument, and it
                     // definitely did not match any of the accounts that we care
@@ -2568,7 +2542,7 @@ bool RecordList::Populate()
 
                 str_name = strNameTemp.Get();
                 String strMemo;
-                if (theOutPayment.GetMemo(strMemo)) {
+                if (theOutPayment->GetMemo(strMemo)) {
                     str_memo = strMemo.Get();
                 }
                 // For the "date" on this record we're using the "valid from"
@@ -2577,17 +2551,17 @@ bool RecordList::Populate()
                 time64_t tFrom = OT_TIME_ZERO;
                 time64_t tTo = OT_TIME_ZERO;
 
-                if (theOutPayment.GetValidFrom(tFrom)) {
+                if (theOutPayment->GetValidFrom(tFrom)) {
                     const std::uint64_t lFrom = OTTimeGetSecondsFromTime(tFrom);
                     String strFrom;
                     strFrom.Format("%" PRIu64 "", lFrom);
                     str_date = strFrom.Get();
                 }
-                theOutPayment.GetValidTo(tTo);
+                theOutPayment->GetValidTo(tTo);
                 // Instrument type (cheque, voucher, etc)
                 //
                 std::int32_t nType =
-                    static_cast<int32_t>(theOutPayment.GetType());
+                    static_cast<int32_t>(theOutPayment->GetType());
 
                 const std::string& str_type = GetTypeString(nType);
                 // CREATE A Record AND POPULATE IT...
@@ -2635,8 +2609,8 @@ bool RecordList::Populate()
                 sp_Record->SetBoxIndex(nCurrentOutpayment);
 
                 TransactionNumber lTransNum = 0, lTransNumDisplay = 0;
-                theOutPayment.GetOpeningNum(lTransNum, theNymID);
-                theOutPayment.GetTransNumDisplay(lTransNumDisplay);
+                theOutPayment->GetOpeningNum(lTransNum, theNymID);
+                theOutPayment->GetTransNumDisplay(lTransNumDisplay);
 
                 if (lTransNumDisplay <= 0) lTransNumDisplay = lTransNum;
 
@@ -2662,7 +2636,7 @@ bool RecordList::Populate()
         // --------------------------------------------------
         if (!m_bIgnoreMail) {
             // For each Nym, loop through his MAIL box.
-            auto& exec = OT::App().Client().Exec();
+            auto& exec = Opentxs::Client().Exec();
             const auto mail = exec.GetNym_MailCount(str_nym_id);
             std::int32_t index = 0;
 
@@ -2676,7 +2650,7 @@ bool RecordList::Populate()
                     continue;
                 }
 
-                auto message = OT::App().Client().Activity().Mail(
+                auto message = Opentxs::Client().Activity().Mail(
                     nymID, Identifier::Factory(id), StorageBox::MAILINBOX);
 
                 if (!message) {
@@ -2796,7 +2770,7 @@ bool RecordList::Populate()
                     continue;
                 }
 
-                auto message = OT::App().Client().Activity().Mail(
+                auto message = Opentxs::Client().Activity().Mail(
                     nymID, Identifier::Factory(id), StorageBox::MAILOUTBOX);
 
                 if (!message) {
@@ -2929,26 +2903,24 @@ bool RecordList::Populate()
             // sender/recipient name from the receipts in the box. The code
             // will, however, work
             // either way.
-            Ledger* pInbox{nullptr};
+            std::unique_ptr<Ledger> pInbox{nullptr};
 
             if (false == theNymID->empty()) {
                 pInbox =
                     m_bRunFast
-                        ? OT::App().Client().OTAPI().LoadPaymentInboxNoVerify(
+                        ? Opentxs::Client().OTAPI().LoadPaymentInboxNoVerify(
                               theMsgNotaryID, theNymID)
-                        : OT::App().Client().OTAPI().LoadPaymentInbox(
+                        : Opentxs::Client().OTAPI().LoadPaymentInbox(
                               theMsgNotaryID, theNymID);
             }
 
-            std::unique_ptr<Ledger> theInboxAngel(pInbox);
-
             std::int32_t nIndex = (-1);
             // It loaded up, so let's loop through it.
-            if (pInbox) {
+            if (false != bool(pInbox)) {
                 for (auto& it : pInbox->GetTransactionMap()) {
                     const TransactionNumber lReceiptId = it.first;
-                    OTTransaction* pBoxTrans = it.second;
-                    OT_ASSERT(nullptr != pBoxTrans);
+                    auto pBoxTrans = it.second;
+                    OT_ASSERT(false != bool(pBoxTrans));
                     ++nIndex;  // 0 on first iteration.
                     otInfo << __FUNCTION__ << ": Incoming payment: " << nIndex
                            << "\n";
@@ -3020,11 +2992,10 @@ bool RecordList::Populate()
                     } else  // NOT abbreviated. (Full box receipt is already
                             // loaded.)
                     {
-                        OTPayment* pPayment = GetInstrumentByReceiptID(
+                        auto pPayment = GetInstrumentByReceiptID(
                             *pNym, lReceiptId, *pInbox);
-                        std::unique_ptr<OTPayment> thePaymentAngel(pPayment);
-                        if (!pPayment)  // then we treat it like it's
-                                        // abbreviated.
+                        if (false == bool(pPayment))  // then we treat it like
+                                                      // it's abbreviated.
                         {
                             str_type =
                                 pBoxTrans
@@ -3265,25 +3236,23 @@ bool RecordList::Populate()
             // Also loop through its record box. For this record box, pass the
             // NYM_ID twice, since it's the recordbox for the Nym.
             // OPTIMIZE FYI: m_bRunFast impacts run speed here.
-            Ledger* pRecordbox{nullptr};
+            std::unique_ptr<Ledger> pRecordbox{nullptr};
 
             if (false == theNymID->empty()) {
                 pRecordbox =
                     m_bRunFast
-                        ? OT::App().Client().OTAPI().LoadRecordBoxNoVerify(
+                        ? Opentxs::Client().OTAPI().LoadRecordBoxNoVerify(
                               theMsgNotaryID, theNymID, theNymID)  // twice.
-                        : OT::App().Client().OTAPI().LoadRecordBox(
+                        : Opentxs::Client().OTAPI().LoadRecordBox(
                               theMsgNotaryID, theNymID, theNymID);
             }
 
-            std::unique_ptr<Ledger> theRecordBoxAngel(pRecordbox);
-
             // It loaded up, so let's loop through it.
-            if (pRecordbox) {
+            if (false != bool(pRecordbox)) {
                 for (auto& it : pRecordbox->GetTransactionMap()) {
                     const TransactionNumber lReceiptId = it.first;
-                    OTTransaction* pBoxTrans = it.second;
-                    OT_ASSERT(nullptr != pBoxTrans);
+                    auto pBoxTrans = it.second;
+                    OT_ASSERT(false != bool(pBoxTrans));
                     bool bOutgoing = false;
 
                     originType theOriginType = pBoxTrans->GetOriginType();
@@ -3307,7 +3276,7 @@ bool RecordList::Populate()
                     // in his inbox, so that needs to become an "activated" in
                     // his inbox! (Not outbox.)
                     //
-                    //                  if (OTTransaction::notice ==
+                    //                  if (transactionType::notice ==
                     //                  pBoxTrans->GetType())
                     //                     bOutgoing = true;
                     // -------------------------------------------
@@ -3347,7 +3316,7 @@ bool RecordList::Populate()
                         //
                         pBoxTrans->GetSuccess(&bHasSuccess, &bIsSuccess);
 
-                        if (OTTransaction::notice == pBoxTrans->GetType()) {
+                        if (transactionType::notice == pBoxTrans->GetType()) {
                             recordType = Record::Notice;
 
                             if (pBoxTrans->IsCancelled()) bCanceled = true;
@@ -3377,7 +3346,7 @@ bool RecordList::Populate()
                                                           // (Therefore we want
                                                           // recipient.)
                             {
-                                if (OTTransaction::notice ==
+                                if (transactionType::notice ==
                                     pBoxTrans->GetType()) {
                                     if (originType::origin_payment_plan ==
                                         theOriginType)
@@ -3422,7 +3391,7 @@ bool RecordList::Populate()
                                 // it must have been incoming.
                                 // (And bOutgoing is already false.)
 
-                                if (OTTransaction::notice ==
+                                if (transactionType::notice ==
                                     pBoxTrans->GetType()) {
                                     if (originType::origin_payment_plan ==
                                         theOriginType)
@@ -3472,7 +3441,7 @@ bool RecordList::Populate()
                                 // the sender.
                                 // (Therefore it must be outgoing.)
                                 //
-                                if (OTTransaction::notice ==
+                                if (transactionType::notice ==
                                     pBoxTrans->GetType())
                                     bOutgoing = false;  // Payment Plan "sender"
                                                         // of funds (payer) is
@@ -3542,12 +3511,11 @@ bool RecordList::Populate()
                     } else  // NOT abbreviated. (Full box receipt is already
                             // loaded.)
                     {
-                        OTPayment* pPayment = GetInstrumentByReceiptID(
+                        auto pPayment = GetInstrumentByReceiptID(
                             *pNym, lReceiptId, *pRecordbox);
-                        std::unique_ptr<OTPayment> thePaymentAngel(pPayment);
 
-                        if (nullptr == pPayment)  // then we treat it like it's
-                                                  // abbreviated.
+                        if (false == bool(pPayment))  // then we treat it like
+                                                      // it's abbreviated.
                         {
                             str_type =
                                 pBoxTrans
@@ -3864,25 +3832,23 @@ bool RecordList::Populate()
 
             // Also loop through its expired record box.
             // OPTIMIZE FYI: m_bRunFast impacts run speed here.
-            Ledger* pExpiredbox{nullptr};
+            std::unique_ptr<Ledger> pExpiredbox{nullptr};
 
             if (false == theNymID->empty()) {
                 pExpiredbox =
                     m_bRunFast
-                        ? OT::App().Client().OTAPI().LoadExpiredBoxNoVerify(
+                        ? Opentxs::Client().OTAPI().LoadExpiredBoxNoVerify(
                               theMsgNotaryID, theNymID)
-                        : OT::App().Client().OTAPI().LoadExpiredBox(
+                        : Opentxs::Client().OTAPI().LoadExpiredBox(
                               theMsgNotaryID, theNymID);
             }
-
-            std::unique_ptr<Ledger> theExpiredBoxAngel(pExpiredbox);
 
             // It loaded up, so let's loop through it.
             if (pExpiredbox) {
                 for (auto& it : pExpiredbox->GetTransactionMap()) {
                     const TransactionNumber lReceiptId = it.first;
-                    OTTransaction* pBoxTrans = it.second;
-                    OT_ASSERT(nullptr != pBoxTrans);
+                    auto pBoxTrans = it.second;
+                    OT_ASSERT(false != bool(pBoxTrans));
                     bool bOutgoing{false};
 
                     // Let's say Alice sends a payment plan to Bob, and then Bob
@@ -3896,7 +3862,7 @@ bool RecordList::Populate()
                     // to her SENT plan, not a received plan. It needs to show
                     // up as outgoing/sent, NOT incoming/received.
                     //
-                    //                  if (OTTransaction::notice ==
+                    //                  if (transactionType::notice ==
                     //                  pBoxTrans->GetType())
                     //                      bOutgoing = true;
                     // -------------------------------------------
@@ -3933,7 +3899,7 @@ bool RecordList::Populate()
                         //
                         pBoxTrans->GetSuccess(&bHasSuccess, &bIsSuccess);
 
-                        if (OTTransaction::notice == pBoxTrans->GetType()) {
+                        if (transactionType::notice == pBoxTrans->GetType()) {
                             recordType = Record::Notice;
 
                             if (pBoxTrans->IsCancelled()) bCanceled = true;
@@ -3963,7 +3929,7 @@ bool RecordList::Populate()
                                                           // (Therefore we want
                                                           // recipient.)
                             {
-                                if (OTTransaction::notice ==
+                                if (transactionType::notice ==
                                     pBoxTrans->GetType())
                                     bOutgoing = false;  // Payment Plan "sender"
                                                         // of funds (payer) is
@@ -4002,7 +3968,7 @@ bool RecordList::Populate()
                                 // it must have been incoming.
                                 // (And bOutgoing is already false.)
 
-                                if (OTTransaction::notice ==
+                                if (transactionType::notice ==
                                     pBoxTrans->GetType())
                                     bOutgoing = true;  // Payment Plan
                                                        // "recipient" of funds
@@ -4045,7 +4011,7 @@ bool RecordList::Populate()
                                 // the sender.
                                 // (Therefore it must be outgoing.)
 
-                                if (OTTransaction::notice ==
+                                if (transactionType::notice ==
                                     pBoxTrans->GetType())
                                     bOutgoing = false;  // Payment Plan "sender"
                                                         // of funds (payer) is
@@ -4117,12 +4083,11 @@ bool RecordList::Populate()
                     } else  // NOT abbreviated. (Full box receipt is already
                             // loaded.)
                     {
-                        OTPayment* pPayment = GetInstrumentByReceiptID(
+                        auto pPayment = GetInstrumentByReceiptID(
                             *pNym, lReceiptId, *pExpiredbox);
-                        std::unique_ptr<OTPayment> thePaymentAngel(pPayment);
 
-                        if (nullptr == pPayment)  // then we treat it like it's
-                                                  // abbreviated.
+                        if (false == bool(pPayment))  // then we treat it like
+                                                      // it's abbreviated.
                         {
                             str_type =
                                 pBoxTrans
@@ -4500,19 +4465,17 @@ bool RecordList::Populate()
         // return for FASTER PERFORMANCE, then call SetFastMode() before
         // Populating.
         //
-        Ledger* pInbox{nullptr};
+        std::unique_ptr<Ledger> pInbox{nullptr};
 
         if (false == theNymID.empty()) {
-            pInbox = m_bRunFast ? OT::App().Client().OTAPI().LoadInboxNoVerify(
+            pInbox = m_bRunFast ? Opentxs::Client().OTAPI().LoadInboxNoVerify(
                                       theNotaryID, theNymID, theAccountID)
-                                : OT::App().Client().OTAPI().LoadInbox(
+                                : Opentxs::Client().OTAPI().LoadInbox(
                                       theNotaryID, theNymID, theAccountID);
         }
 
-        std::unique_ptr<Ledger> theInboxAngel(pInbox);
-
         // It loaded up, so let's loop through it.
-        if (pInbox) {
+        if (false != bool(pInbox)) {
             std::int32_t nInboxIndex = -1;
             for (auto& it : pInbox->GetTransactionMap()) {
                 ++nInboxIndex;  // (0 on first iteration.)
@@ -4520,8 +4483,8 @@ bool RecordList::Populate()
                     otInfo
                         << __FUNCTION__
                         << ": Beginning loop through asset account INBOX...\n";
-                OTTransaction* pBoxTrans = it.second;
-                OT_ASSERT(nullptr != pBoxTrans);
+                auto pBoxTrans = it.second;
+                OT_ASSERT(false != bool(pBoxTrans));
                 otInfo << __FUNCTION__ << ": Inbox index: " << nInboxIndex
                        << "\n";
                 bool bCanceled = false;
@@ -4539,7 +4502,7 @@ bool RecordList::Populate()
 
                     if (pBoxTrans->GetMemo(strMemo)) str_memo = strMemo.Get();
 
-                    if (OTTransaction::pending == pBoxTrans->GetType()) {
+                    if (transactionType::pending == pBoxTrans->GetType()) {
                         // NOTE: REMOVE THE BELOW CODE. (Found a better way,
                         // above this block.)
                         //                      const OTString
@@ -4664,7 +4627,7 @@ bool RecordList::Populate()
                     pBoxTrans->GetTypeString());  // pending, chequeReceipt,
                                                   // etc.
                 otInfo << __FUNCTION__ << ": ADDED: incoming "
-                       << ((OTTransaction::pending == pBoxTrans->GetType())
+                       << ((transactionType::pending == pBoxTrans->GetType())
                                ? "pending transfer"
                                : "receipt")
                        << " (str_type: " << str_type.c_str() << ")\n";
@@ -4686,7 +4649,7 @@ bool RecordList::Populate()
                     str_date,  // the "valid from" date on the instrument.
                     str_amount,
                     str_type,  // pending, chequeReceipt, etc.
-                    (OTTransaction::pending ==
+                    (transactionType::pending ==
                      pBoxTrans->GetType()),  // Sometimes true, often false.
                     (lAmount < 0) ? true : false,  // bIsOutgoing (this is
                                                    // the inbox, but a
@@ -4697,9 +4660,9 @@ bool RecordList::Populate()
                     // is negative or not, to determine incoming /
                     // outgoing. We'll see how that works.)
                     false,  // IsRecord
-                    (OTTransaction::pending !=
+                    (transactionType::pending !=
                      pBoxTrans->GetType()),  // IsReceipt,
-                    (OTTransaction::pending == pBoxTrans->GetType())
+                    (transactionType::pending == pBoxTrans->GetType())
                         ? Record::Transfer
                         : Record::Receipt));
 
@@ -4738,20 +4701,17 @@ bool RecordList::Populate()
         // to GIVE UP the NAME, in return for FASTER PERFORMANCE, then call
         // SetFastMode() before running Populate.
         //
-        Ledger* pOutbox{nullptr};
+        std::unique_ptr<Ledger> pOutbox{nullptr};
 
         if (false == theNymID.empty()) {
-            pOutbox = m_bRunFast
-                          ? OT::App().Client().OTAPI().LoadOutboxNoVerify(
-                                theNotaryID, theNymID, theAccountID)
-                          : OT::App().Client().OTAPI().LoadOutbox(
-                                theNotaryID, theNymID, theAccountID);
+            pOutbox = m_bRunFast ? Opentxs::Client().OTAPI().LoadOutboxNoVerify(
+                                       theNotaryID, theNymID, theAccountID)
+                                 : Opentxs::Client().OTAPI().LoadOutbox(
+                                       theNotaryID, theNymID, theAccountID);
         }
 
-        std::unique_ptr<Ledger> theOutboxAngel(pOutbox);
-
         // It loaded up, so let's loop through it.
-        if (pOutbox) {
+        if (false != bool(pOutbox)) {
             std::int32_t nOutboxIndex{-1};
             for (auto& it : pOutbox->GetTransactionMap()) {
                 ++nOutboxIndex;  // (0 on first iteration.)
@@ -4759,8 +4719,8 @@ bool RecordList::Populate()
                     otInfo
                         << __FUNCTION__
                         << ": Beginning loop through asset account OUTBOX...\n";
-                OTTransaction* pBoxTrans = it.second;
-                OT_ASSERT(nullptr != pBoxTrans);
+                auto pBoxTrans = it.second;
+                OT_ASSERT(false != bool(pBoxTrans));
                 otInfo << __FUNCTION__ << ": Outbox index: " << nOutboxIndex
                        << "\n";
                 std::string str_name;  // name of recipient (since its in the
@@ -4800,7 +4760,7 @@ bool RecordList::Populate()
                         str_name = strNameTemp.Get();
                         str_other_acct_id = str_recipient_acct_id;
                     }
-                    if (OTTransaction::pending == pBoxTrans->GetType()) {
+                    if (transactionType::pending == pBoxTrans->GetType()) {
                         String strMemo;
 
                         if (pBoxTrans->GetMemo(strMemo))
@@ -4848,7 +4808,7 @@ bool RecordList::Populate()
                                                   // etc.
                 if (0 == str_type.compare("pending")) str_type = "transfer";
                 otInfo << __FUNCTION__ << ": ADDED: "
-                       << ((OTTransaction::pending == pBoxTrans->GetType())
+                       << ((transactionType::pending == pBoxTrans->GetType())
                                ? "pending"
                                : "ERROR")
                        << " outgoing transfer (str_type: " << str_type.c_str()
@@ -4871,7 +4831,7 @@ bool RecordList::Populate()
                     str_date,  // the "valid from" date on the instrument.
                     str_amount,
                     str_type,  // pending, chequeReceipt, etc.
-                    (OTTransaction::pending ==
+                    (transactionType::pending ==
                      pBoxTrans->GetType()),  // Basically always true, in
                                              // this case.
                     true,   // bIsOutgoing=true. (Since this is the
@@ -4914,25 +4874,23 @@ bool RecordList::Populate()
         // willing to GIVE UP the NAME, in return for FASTER PERFORMANCE, then
         // call SetFastMode() before Populating.
         //
-        Ledger* pRecordbox{nullptr};
+        std::unique_ptr<Ledger> pRecordbox{nullptr};
 
         if (false == theNymID.empty()) {
             pRecordbox = m_bRunFast
-                             ? OT::App().Client().OTAPI().LoadRecordBoxNoVerify(
+                             ? Opentxs::Client().OTAPI().LoadRecordBoxNoVerify(
                                    theNotaryID, theNymID, theAccountID)
-                             : OT::App().Client().OTAPI().LoadRecordBox(
+                             : Opentxs::Client().OTAPI().LoadRecordBox(
                                    theNotaryID, theNymID, theAccountID);
         }
 
-        std::unique_ptr<Ledger> theRecordBoxAngel(pRecordbox);
-
         // It loaded up, so let's loop through it.
-        if (pRecordbox) {
+        if (false != bool(pRecordbox)) {
             std::int32_t nRecordIndex{-1};
             for (auto& it : pRecordbox->GetTransactionMap()) {
                 ++nRecordIndex;
-                OTTransaction* pBoxTrans = it.second;
-                OT_ASSERT(nullptr != pBoxTrans);
+                auto pBoxTrans = it.second;
+                OT_ASSERT(false != bool(pBoxTrans));
                 otInfo << __FUNCTION__
                        << ": Account RECORD index: " << nRecordIndex << "\n";
                 bool bOutgoing{false};
@@ -4951,11 +4909,11 @@ bool RecordList::Populate()
                 originType theOriginType = pBoxTrans->GetOriginType();
 
                 const bool bIsFinalReceipt =
-                    (OTTransaction::finalReceipt == pBoxTrans->GetType());
+                    (transactionType::finalReceipt == pBoxTrans->GetType());
                 if (bIsFinalReceipt) lClosingNum = pBoxTrans->GetClosingNum();
 
                 if (!pBoxTrans->IsAbbreviated()) {
-                    if (pBoxTrans->GetType() != OTTransaction::pending)
+                    if (pBoxTrans->GetType() != transactionType::pending)
                         pBoxTrans->GetSuccess(&bHasSuccess, &bIsSuccess);
                     // ----------------------------------------
                     auto theSenderID = Identifier::Factory(),
@@ -5245,7 +5203,7 @@ bool RecordList::Populate()
                     str_amount = strTemp.Get();
                 }
                 otInfo << __FUNCTION__ << ": ADDED: "
-                       << ((pBoxTrans->GetType() != OTTransaction::pending)
+                       << ((pBoxTrans->GetType() != transactionType::pending)
                                ? ""
                                : (bOutgoing ? "sent" : "received"))
                        << " (asset account) record (str_type: "
@@ -5286,8 +5244,8 @@ bool RecordList::Populate()
                                 // outgoing, receipts.
                     true,       // IsRecord
                     pBoxTrans->GetType() !=
-                        OTTransaction::pending,  // IsReceipt
-                    pBoxTrans->GetType() == OTTransaction::pending
+                        transactionType::pending,  // IsReceipt
+                    pBoxTrans->GetType() == transactionType::pending
                         ? Record::Transfer
                         : Record::Receipt));
                 const String strContents(*pBoxTrans);

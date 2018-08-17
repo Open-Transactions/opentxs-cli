@@ -130,19 +130,21 @@ int32_t CmdProposePlan::run(
     // before sending it -- he already has done that by this point, just as part
     // of the proposal itself.)
 
-    auto payment = std::make_shared<const OTPayment>(
-        OT::App().Client().Wallet(),
-        OT::App().Legacy().ClientDataFolder(), String(plan.c_str()));
+    auto payment{Opentxs::Client().Factory().Payment(
+        Opentxs::Client(), String(plan.c_str()))};
+
+    OT_ASSERT(false != bool(payment));
+
     std::string response;
     {
-        response = OT::App()
-                       .Client()
+        std::shared_ptr<const OTPayment> ppayment{payment.release()};
+        response = Opentxs::Client()
                        .ServerAction()
                        .SendPayment(
                            Identifier::Factory(mynym),
                            Identifier::Factory(server),
                            Identifier::Factory(hisnym),
-                           payment)
+                           ppayment)
                        ->Run();
     }
     if (1 != responseStatus(response)) {

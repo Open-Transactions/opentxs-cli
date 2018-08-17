@@ -74,10 +74,9 @@ std::int32_t CmdRefreshNym::retrieve_nym(
     bool& bWasMsgSent,
     bool bForceDownload) const
 {
-    auto context = OT::App().Client().Wallet().mutable_ServerContext(
+    auto context = Opentxs::Client().Wallet().mutable_ServerContext(
         Identifier::Factory(strMyNymID), Identifier::Factory(strNotaryID));
-    Utility MsgUtil(
-        context.It(), OT::App().Client().OTAPI(), OT::App().Legacy());
+    Utility MsgUtil(context.It(), Opentxs::Client().OTAPI(), Opentxs::Client());
 
     if (0 >= context.It().UpdateRequestNumber()) {
         otErr << OT_METHOD << __FUNCTION__

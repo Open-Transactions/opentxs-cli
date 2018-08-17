@@ -366,19 +366,16 @@ int32_t CmdConfirm::activateContract(
                        theNymID = Identifier::Factory(mynym),
                        theAcctID = Identifier::Factory(myAcctID);
 
-    auto smartContract = std::make_unique<opentxs::OTSmartContract>(
-        OT::App().Client().Wallet(),
-        OT::App().Legacy().ClientDataFolder());
+    auto smartContract{
+        Opentxs::Client().Factory().SmartContract(Opentxs::Client())};
 
-    OT_ASSERT(smartContract)
+    OT_ASSERT(false != bool(smartContract));
 
     smartContract->LoadContractFromString(String(contract));
 
     std::string response;
     {
-        response = OT::App()
-                       .Client()
-
+        response = Opentxs::Client()
                        .ServerAction()
                        .ActivateSmartContract(
                            theNymID,
@@ -453,20 +450,21 @@ int32_t CmdConfirm::sendToNextParty(
         }
     }
 
-    auto payment = std::make_shared<const OTPayment>(
-        OT::App().Client().Wallet(),
-        OT::App().Legacy().ClientDataFolder(), String(contract.c_str()));
+    auto payment{Opentxs::Client().Factory().Payment(
+        Opentxs::Client(), String(contract.c_str()))};
+
+    OT_ASSERT(false != bool(payment));
+
     std::string response;
     {
-        response = OT::App()
-                       .Client()
-
+        std::shared_ptr<const OTPayment> ppayment{payment.release()};
+        response = Opentxs::Client()
                        .ServerAction()
                        .SendPayment(
                            Identifier::Factory(mynym),
                            Identifier::Factory(server),
                            Identifier::Factory(hisNymID),
-                           payment)
+                           ppayment)
                        ->Run();
         if (1 != responseStatus(response)) {
             otOut << "\nFor whatever reason, our attempt to send the "

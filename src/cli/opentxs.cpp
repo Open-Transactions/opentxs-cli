@@ -190,6 +190,14 @@ using namespace std;
 #ifndef _PASSWORD_LEN
 #define _PASSWORD_LEN 128
 #endif
+const opentxs::api::client::Manager* Opentxs::client_{nullptr};
+
+const opentxs::api::client::Manager& Opentxs::Client()
+{
+    OT_ASSERT(nullptr != client_);
+
+    return *client_;
+}
 
 bool Opentxs::PasswordCallback::get_password(
     OTPassword& output,
@@ -340,7 +348,7 @@ const char* categoryName[] = {"Category Error",
                               "Pseudonyms",
                               "Blockchain"};
 
-Opentxs::Opentxs()
+Opentxs::Opentxs(const opentxs::api::client::Manager& client)
     : newArgc(0)
     , newArgv(nullptr)
     , expectFailure(false)
@@ -503,6 +511,9 @@ Opentxs::Opentxs()
             new CmdWriteCheque,
             new CmdWriteInvoice}
 {
+    OT_ASSERT(nullptr == client_);
+
+    client_ = &client;
 }
 
 Opentxs::~Opentxs() {}

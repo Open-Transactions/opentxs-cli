@@ -28,7 +28,7 @@ int main(int argc, char* argv[])
 
     int returnValue{0};
     {
-        opentxs::Opentxs opentxsCLI;
+        opentxs::Opentxs opentxsCLI(opentxs::OT::App().Client());
         returnValue = opentxsCLI.run(argc, argv);
     }
 

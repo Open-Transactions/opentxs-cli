@@ -90,10 +90,5 @@ int32_t CmdBaseAccept::acceptFromPaymentbox(
 {
 
     return opentxs::cli::RecordList::accept_from_paymentbox(
-        OT::App().Legacy().ClientDataFolder(),
-        transport_notary,
-        myacct,
-        indices,
-        paymentType,
-        pOptionalOutput);
+        transport_notary, myacct, indices, paymentType, pOptionalOutput);
 }

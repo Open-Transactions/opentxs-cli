@@ -44,20 +44,21 @@ int32_t CmdBaseInstrument::sendPayment(
         return -1;
     }
 
-    auto payment = std::make_shared<const OTPayment>(
-        OT::App().Client().Wallet(),
-        OT::App().Legacy().ClientDataFolder(), String(cheque.c_str()));
+    auto payment{Opentxs::Client().Factory().Payment(
+        Opentxs::Client(), String(cheque.c_str()))};
+
+    OT_ASSERT(false != bool(payment));
 
     std::string response;
     {
-        response = OT::App()
-                       .Client()
+        std::shared_ptr<const OTPayment> ppayment{payment.release()};
+        response = Opentxs::Client()
                        .ServerAction()
                        .SendPayment(
                            Identifier::Factory(sender),
                            Identifier::Factory(server),
                            Identifier::Factory(recipient),
-                           payment)
+                           ppayment)
                        ->Run();
     }
     return processResponse(response, what);

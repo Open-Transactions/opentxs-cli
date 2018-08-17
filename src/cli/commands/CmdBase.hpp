@@ -8,6 +8,7 @@
 
 #include <opentxs/opentxs.hpp>
 
+#include "opentxs.hpp"
 #include "RecordList.hpp"
 
 #include <vector>

@@ -127,16 +127,18 @@ int32_t CmdWithdrawVoucher::run(
     // Notice how I can send an instrument to myself. This doesn't actually
     // send anything -- it just puts a copy into my outpayments box for
     // safe-keeping.
-    auto payment = std::make_shared<const OTPayment>(OT::App().Client().Wallet(),
-        OT::App().Legacy().ClientDataFolder(), String(voucher.c_str()));
-    {
-        OT::App()
-            .Client()
+    auto payment{Opentxs::Client().Factory().Payment(
+        Opentxs::Client(), String(voucher.c_str()))};
 
+    OT_ASSERT(false != bool(payment));
+
+    {
+        std::shared_ptr<const OTPayment> ppayment{payment.release()};
+        Opentxs::Client()
             .ServerAction()
-            .SendPayment(theNymID, theNotaryID, theNymID, payment)
+            .SendPayment(theNymID, theNotaryID, theNymID, ppayment)
             ->Run();
-        if (!OT::App().Client().ServerAction().DownloadAccount(
+        if (!Opentxs::Client().ServerAction().DownloadAccount(
                 theNymID, theNotaryID, theAcctID, true)) {
             otOut << "Error retrieving intermediary files for account.\n";
             return -1;

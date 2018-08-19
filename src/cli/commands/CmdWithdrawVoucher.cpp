@@ -83,8 +83,8 @@ int32_t CmdWithdrawVoucher::run(
 
     std::string response;
     {
-        response = OT::App()
-                       .Client()
+        response = Opentxs::
+                       Client()
 
                        .ServerAction()
                        .WithdrawVoucher(
@@ -128,7 +128,7 @@ int32_t CmdWithdrawVoucher::run(
     // send anything -- it just puts a copy into my outpayments box for
     // safe-keeping.
     auto payment{Opentxs::Client().Factory().Payment(
-        Opentxs::Client(), String(voucher.c_str()))};
+         String(voucher.c_str()))};
 
     OT_ASSERT(false != bool(payment));
 

@@ -64,8 +64,8 @@ std::int32_t CmdNotifyBailment::run(
 
     std::string response;
     {
-        response = OT::App()
-                       .Client()
+        response = Opentxs::
+                       Client()
                        .ServerAction()
                        .NotifyBailment(
                            Identifier::Factory(mynym),

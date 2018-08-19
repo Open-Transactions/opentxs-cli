@@ -431,7 +431,7 @@ bool Record::HasInitialPayment() const
 {
     if (!IsPaymentPlan()) return false;
 
-    auto thePlan{backlink_.client_.Factory().PaymentPlan(backlink_.client_)};
+    auto thePlan{backlink_.client_.Factory().PaymentPlan()};
 
     OT_ASSERT(false != bool(thePlan));
 
@@ -447,7 +447,7 @@ bool Record::HasPaymentPlan() const
 {
     if (!IsPaymentPlan()) return false;
 
-    auto thePlan{backlink_.client_.Factory().PaymentPlan(backlink_.client_)};
+    auto thePlan{backlink_.client_.Factory().PaymentPlan()};
 
     OT_ASSERT(false != bool(thePlan));
 
@@ -462,7 +462,7 @@ time64_t Record::GetInitialPaymentDate() const
 {
     if (!IsPaymentPlan()) return OT_TIME_ZERO;
 
-    auto thePlan{backlink_.client_.Factory().PaymentPlan(backlink_.client_)};
+    auto thePlan{backlink_.client_.Factory().PaymentPlan()};
 
     OT_ASSERT(false != bool(thePlan));
 
@@ -478,7 +478,7 @@ Amount Record::GetInitialPaymentAmount() const
 {
     if (!IsPaymentPlan()) return 0;
 
-    auto thePlan{backlink_.client_.Factory().PaymentPlan(backlink_.client_)};
+    auto thePlan{backlink_.client_.Factory().PaymentPlan()};
 
     OT_ASSERT(false != bool(thePlan));
 
@@ -494,7 +494,7 @@ time64_t Record::GetPaymentPlanStartDate() const
 {
     if (!IsPaymentPlan()) return OT_TIME_ZERO;
 
-    auto thePlan{backlink_.client_.Factory().PaymentPlan(backlink_.client_)};
+    auto thePlan{backlink_.client_.Factory().PaymentPlan()};
 
     OT_ASSERT(false != bool(thePlan));
 
@@ -509,7 +509,7 @@ time64_t Record::GetTimeBetweenPayments() const
 {
     if (!IsPaymentPlan()) return OT_TIME_ZERO;
 
-    auto thePlan{backlink_.client_.Factory().PaymentPlan(backlink_.client_)};
+    auto thePlan{backlink_.client_.Factory().PaymentPlan()};
 
     OT_ASSERT(false != bool(thePlan));
 
@@ -524,7 +524,7 @@ Amount Record::GetPaymentPlanAmount() const
 {
     if (!IsPaymentPlan()) return 0;
 
-    auto thePlan{backlink_.client_.Factory().PaymentPlan(backlink_.client_)};
+    auto thePlan{backlink_.client_.Factory().PaymentPlan()};
 
     OT_ASSERT(false != bool(thePlan));
 
@@ -539,7 +539,7 @@ std::int32_t Record::GetMaximumNoPayments() const
 {
     if (!IsPaymentPlan()) return 0;
 
-    auto thePlan{backlink_.client_.Factory().PaymentPlan(backlink_.client_)};
+    auto thePlan{backlink_.client_.Factory().PaymentPlan()};
 
     OT_ASSERT(false != bool(thePlan));
 
@@ -1242,7 +1242,7 @@ bool Record::CancelOutgoing(std::string str_via_acct) const  // This can be
                     }
                     String strPayment(strOutpayment);
                     auto thePayment{Opentxs::Client().Factory().Payment(
-                        Opentxs::Client(), strPayment)};
+                         strPayment)};
 
                     OT_ASSERT(false != bool(thePayment));
 
@@ -1302,7 +1302,7 @@ bool Record::CancelOutgoing(std::string str_via_acct) const  // This can be
                 }
                 String strPayment(strOutpayment);
                 auto thePayment{Opentxs::Client().Factory().Payment(
-                    Opentxs::Client(), strPayment)};
+                     strPayment)};
 
                 OT_ASSERT(false != bool(thePayment));
 
@@ -1443,7 +1443,7 @@ void Record::SetContents(const std::string& str_contents)
                                     (Record::Notice == GetRecordType()))) {
         String strPayment(m_str_contents);
         auto thePayment{
-            Opentxs::Client().Factory().Payment(Opentxs::Client(), strPayment)};
+            Opentxs::Client().Factory().Payment( strPayment)};
 
         OT_ASSERT(false != bool(thePayment));
 

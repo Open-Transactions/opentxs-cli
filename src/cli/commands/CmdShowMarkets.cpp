@@ -68,7 +68,7 @@ int32_t CmdShowMarkets::run(string server)
 OTDB::MarketList* CmdShowMarkets::loadMarketList(const string& server)
 {
     if (!OTDB::Exists(
-            OT::App().Legacy().ClientDataFolder(),
+            Opentxs::Client().DataFolder(),
             "markets",
             server,
             "market_data.bin",
@@ -81,7 +81,7 @@ OTDB::MarketList* CmdShowMarkets::loadMarketList(const string& server)
 
     OTDB::Storable* storable = OTDB::QueryObject(
         OTDB::STORED_OBJ_MARKET_LIST,
-        OT::App().Legacy().ClientDataFolder(),
+        Opentxs::Client().DataFolder(),
         "markets",
         server,
         "market_data.bin",

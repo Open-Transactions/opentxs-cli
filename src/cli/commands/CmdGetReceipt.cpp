@@ -80,8 +80,8 @@ int32_t CmdGetReceipt::run(
     sscanf(id.c_str(), "%" SCNd64, &i);
     std::string response;
     {
-        response = OT::App()
-                       .Client()
+        response = Opentxs::
+                       Client()
                        .ServerAction()
                        .DownloadBoxReceipt(
                            Identifier::Factory(mynym),

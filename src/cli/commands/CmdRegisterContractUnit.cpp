@@ -41,8 +41,8 @@ int32_t CmdRegisterContractUnit::run(
 
     std::string response;
     {
-        response = OT::App()
-                       .Client()
+        response = Opentxs::
+                       Client()
                        .ServerAction()
                        .PublishUnitDefinition(
                            Identifier::Factory(mynym),

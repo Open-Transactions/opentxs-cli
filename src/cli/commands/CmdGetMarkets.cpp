@@ -40,8 +40,8 @@ int32_t CmdGetMarkets::run(string server, string mynym)
     std::string response;
     {
         response =
-            OT::App()
-                .Client()
+            Opentxs::
+                Client()
                 .ServerAction()
                 .DownloadMarketList(
                     Identifier::Factory(mynym), Identifier::Factory(server))

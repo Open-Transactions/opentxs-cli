@@ -48,8 +48,8 @@ std::int32_t CmdRequestBailment::run(
 
     std::string response;
     {
-        response = OT::App()
-                       .Client()
+        response = Opentxs::
+                       Client()
                        .ServerAction()
                        .InitiateBailment(
                            Identifier::Factory(mynym),

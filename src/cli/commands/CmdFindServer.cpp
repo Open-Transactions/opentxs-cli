@@ -25,7 +25,7 @@ std::int32_t CmdFindServer::runWithOptions()
 std::int32_t CmdFindServer::run(std::string server)
 {
     const auto response =
-        OT::App().Client().Sync().FindServer(Identifier::Factory(server));
+        Opentxs::Client().Sync().FindServer(Identifier::Factory(server));
 
     if (String(response).Exists()) { return 1; }
 

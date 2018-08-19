@@ -113,7 +113,7 @@ int32_t CmdNewOffer::run(
     // NOTE: Removing this for now. It was a special feature for
     // knotwork and currently it's causing me some problems.
     //
-    //    OT::App().Client().OTME().get_nym_market_offers(server, mynym);
+    //    Opentxs::Client().OTME().get_nym_market_offers(server, mynym);
     //
     //    if (0 > cleanMarketOfferList(server, mynym, myacct, hisacct, type,
     //    scale,
@@ -131,8 +131,8 @@ int32_t CmdNewOffer::run(
     sscanf(lifespan.c_str(), "%" SCNd64, &l);
     std::string response;
     {
-        response = OT::App()
-                       .Client()
+        response = Opentxs::
+                       Client()
 
                        .ServerAction()
                        .CreateMarketOffer(
@@ -255,8 +255,8 @@ int32_t CmdNewOffer::cleanMarketOfferList(
         sscanf(id.c_str(), "%" SCNd64, &j);
         std::string response;
         {
-            response = OT::App()
-                           .Client()
+            response = Opentxs::
+                           Client()
 
                            .ServerAction()
                            .KillMarketOffer(

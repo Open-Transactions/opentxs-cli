@@ -135,7 +135,7 @@ int32_t CmdSendCash::sendCash(
     bool hasPassword) const
 {
 #if OT_CASH
-    return OT::App().Client().Cash().send_cash(
+    return Opentxs::Client().Cash().send_cash(
         response,
         server,
         mynym,

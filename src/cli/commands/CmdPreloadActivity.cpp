@@ -39,7 +39,7 @@ std::int32_t CmdPreloadActivity::run(
         count = 1;
     }
 
-    OT::App().Client().Activity().PreloadActivity(
+    Opentxs::Client().Activity().PreloadActivity(
         Identifier::Factory(mynym), count);
 
     return 0;

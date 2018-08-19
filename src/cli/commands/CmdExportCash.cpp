@@ -136,8 +136,8 @@ string CmdExportCash::exportCash(
     if (!VerifyStringVal(strContract)) {
         std::string response;
         {
-            response = OT::App()
-                           .Client()
+            response = Opentxs::
+                           Client()
                            .ServerAction()
                            .DownloadContract(
                                Identifier::Factory(mynym),
@@ -188,7 +188,7 @@ string CmdExportCash::exportCash(
     // for the recipient.
     // (IF the exported purse isn't meant to be password-protected.)
     //
-    return OT::App().Client().Cash().export_cash(
+    return Opentxs::Client().Cash().export_cash(
         server, mynym, assetType, hisnym, indices, hasPassword, retainedCopy);
 #else
     return {};

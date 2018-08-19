@@ -91,7 +91,7 @@ OTDB::OfferListMarket* CmdShowOffers::loadMarketOffers(
     const string& market)
 {
     if (!OTDB::Exists(
-            OT::App().Legacy().ClientDataFolder(),
+            Opentxs::Client().DataFolder(),
             "markets",
             server,
             "offers",
@@ -103,7 +103,7 @@ OTDB::OfferListMarket* CmdShowOffers::loadMarketOffers(
 
     OTDB::Storable* storable = OTDB::QueryObject(
         OTDB::STORED_OBJ_OFFER_LIST_MARKET,
-        OT::App().Legacy().ClientDataFolder(),
+        Opentxs::Client().DataFolder(),
         "markets",
         server,
         "offers",

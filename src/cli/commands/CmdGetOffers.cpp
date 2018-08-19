@@ -53,8 +53,8 @@ int32_t CmdGetOffers::run(
 
     std::string response;
     {
-        response = OT::App()
-                       .Client()
+        response = Opentxs::
+                       Client()
                        .ServerAction()
                        .DownloadMarketOffers(
                            Identifier::Factory(mynym),

@@ -69,7 +69,7 @@ std::int32_t CmdShowIssuers::run(std::string mynym, std::string currency)
 
     const auto currencyType = proto::ContactItemType(std::stoi(currency));
     const OTIdentifier nymID = Identifier::Factory(mynym);
-    auto& list = OT::App().Client().UI().AccountSummary(nymID, currencyType);
+    auto& list = Opentxs::Client().UI().AccountSummary(nymID, currencyType);
     otOut << "Issuers:\n";
     dashLine();
     auto issuer = list.First();

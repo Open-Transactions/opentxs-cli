@@ -29,7 +29,7 @@ std::int32_t CmdAcceptIncoming::run(std::string myacct)
 {
     if (!checkAccount("myacct", myacct)) { return -1; }
 
-    const auto& storage = OT::App().Client().Storage();
+    const auto& storage = Opentxs::Client().Storage();
     const auto accountID = Identifier::Factory(myacct);
     const auto nymID = storage.AccountOwner(accountID);
 
@@ -40,7 +40,7 @@ std::int32_t CmdAcceptIncoming::run(std::string myacct)
     if (serverID->empty()) { return -1; }
 
     const auto output =
-        OT::App().Client().Sync().AcceptIncoming(nymID, accountID, serverID);
+        Opentxs::Client().Sync().AcceptIncoming(nymID, accountID, serverID);
 
     if (!output) {
         otErr << "Failed to accept incoming payments." << std::endl;

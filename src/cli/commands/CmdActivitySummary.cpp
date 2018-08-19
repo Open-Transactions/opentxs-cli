@@ -30,7 +30,7 @@ std::int32_t CmdActivitySummary::run(std::string mynym)
     if (!checkNym("mynym", mynym)) { return -1; }
 
     const OTIdentifier nymID = Identifier::Factory(mynym);
-    auto& activity = OT::App().Client().UI().ActivitySummary(nymID);
+    auto& activity = Opentxs::Client().UI().ActivitySummary(nymID);
     otOut << "Activity:\n";
     dashLine();
     auto line = activity.First();

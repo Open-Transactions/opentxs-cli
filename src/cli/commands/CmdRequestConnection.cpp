@@ -60,8 +60,8 @@ std::int32_t CmdRequestConnection::run(
 
     std::string response;
     {
-        response = OT::App()
-                       .Client()
+        response = Opentxs::
+                       Client()
                        .ServerAction()
                        .InitiateRequestConnection(
                            Identifier::Factory(mynym),

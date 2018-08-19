@@ -46,8 +46,8 @@ int32_t CmdNewAccount::run(string server, string mynym, string mypurse)
 
     std::string response;
     {
-        response = OT::App()
-                       .Client()
+        response = Opentxs::
+                       Client()
                        .ServerAction()
                        .RegisterAccount(
                            Identifier::Factory(mynym),

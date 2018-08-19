@@ -76,7 +76,7 @@ std::int32_t CmdRefreshNym::retrieve_nym(
 {
     auto context = Opentxs::Client().Wallet().mutable_ServerContext(
         Identifier::Factory(strMyNymID), Identifier::Factory(strNotaryID));
-    Utility MsgUtil(context.It(), Opentxs::Client().OTAPI(), Opentxs::Client());
+    Utility MsgUtil(context.It(), Opentxs::Client());
 
     if (0 >= context.It().UpdateRequestNumber()) {
         otErr << OT_METHOD << __FUNCTION__

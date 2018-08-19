@@ -28,6 +28,6 @@ std::int32_t CmdArchivePeerReply::run(std::string mynym, std::string mypurse)
 {
     if (!checkNym("mynym", mynym)) { return -1; }
 
-    return OT::App().Client().Exec().completePeerRequest(mynym, mypurse);
+    return Opentxs::Client().Exec().completePeerRequest(mynym, mypurse);
 }
 }  // namespace opentxs

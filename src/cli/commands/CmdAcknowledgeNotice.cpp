@@ -46,8 +46,8 @@ std::int32_t CmdAcknowledgeNotice::run(
 
     std::string response;
     {
-        response = OT::App()
-                       .Client()
+        response = Opentxs::
+                       Client()
                        .ServerAction()
                        .AcknowledgeNotice(
                            Identifier::Factory(mynym),

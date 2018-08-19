@@ -52,7 +52,7 @@ std::int32_t CmdAllocateBitcoinAddress::run(
 
     if ("internal" == chain) { change = INTERNAL_CHAIN; }
 
-    const auto address = OT::App().Client().Blockchain().AllocateAddress(
+    const auto address = Opentxs::Client().Blockchain().AllocateAddress(
         Identifier::Factory(mynym), accountID, label, change);
 
     if (false == bool(address)) {

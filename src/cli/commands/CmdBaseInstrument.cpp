@@ -45,7 +45,7 @@ int32_t CmdBaseInstrument::sendPayment(
     }
 
     auto payment{Opentxs::Client().Factory().Payment(
-        Opentxs::Client(), String(cheque.c_str()))};
+        String(cheque.c_str()))};
 
     OT_ASSERT(false != bool(payment));
 
@@ -94,7 +94,7 @@ string CmdBaseInstrument::writeCheque(
     }
 
     {
-        if (!OT::App().Client().ServerAction().GetTransactionNumbers(
+        if (!Opentxs::Client().ServerAction().GetTransactionNumbers(
                 Identifier::Factory(mynym), Identifier::Factory(server), 10)) {
             otOut << "Error: cannot reserve transaction numbers.\n";
             return "";

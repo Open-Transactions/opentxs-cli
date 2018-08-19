@@ -42,8 +42,8 @@ int32_t CmdRegisterContractServer::run(
 
     std::string response;
     {
-        response = OT::App()
-                       .Client()
+        response = Opentxs::
+                       Client()
                        .ServerAction()
                        .PublishServerContract(
                            Identifier::Factory(mynym),

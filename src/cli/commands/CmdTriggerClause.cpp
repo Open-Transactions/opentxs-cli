@@ -65,8 +65,8 @@ int32_t CmdTriggerClause::run(
 
     std::string response;
     {
-        response = OT::App()
-                       .Client()
+        response = Opentxs::
+                       Client()
                        .ServerAction()
                        .TriggerClause(
                            Identifier::Factory(mynym),

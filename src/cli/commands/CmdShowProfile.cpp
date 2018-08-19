@@ -65,7 +65,7 @@ std::int32_t CmdShowProfile::run(std::string mynym)
     if (!checkNym("mynym", mynym)) { return -1; }
 
     const OTIdentifier nymID = Identifier::Factory({mynym});
-    auto& profile = OT::App().Client().UI().Profile(nymID);
+    auto& profile = Opentxs::Client().UI().Profile(nymID);
     otOut << profile.DisplayName() << ": (" << profile.ID()
           << ")\nPayment Code: " << profile.PaymentCode() << "\n\n";
     dashLine();

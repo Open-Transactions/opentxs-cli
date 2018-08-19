@@ -40,8 +40,8 @@ int32_t CmdRegisterContractNym::run(string server, string mynym, string hisnym)
 
     std::string response;
     {
-        response = OT::App()
-                       .Client()
+        response = Opentxs::
+                       Client()
                        .ServerAction()
                        .PublishNym(
                            Identifier::Factory(mynym),

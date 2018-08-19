@@ -49,8 +49,8 @@ std::int32_t CmdAcknowledgeOutBailment::run(
 
     std::string response;
     {
-        response = OT::App()
-                       .Client()
+        response = Opentxs::
+                       Client()
                        .ServerAction()
                        .AcknowledgeOutbailment(
                            Identifier::Factory(mynym),

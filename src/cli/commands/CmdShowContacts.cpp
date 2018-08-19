@@ -28,7 +28,7 @@ std::int32_t CmdShowContacts::run(std::string mynym)
     if (!checkNym("mynym", mynym)) { return -1; }
 
     const OTIdentifier nymID = Identifier::Factory({mynym});
-    auto& list = OT::App().Client().UI().ContactList(nymID);
+    auto& list = Opentxs::Client().UI().ContactList(nymID);
     otOut << "Contacts:\n";
     dashLine();
     auto line = list.First();

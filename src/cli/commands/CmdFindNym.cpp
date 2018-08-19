@@ -24,7 +24,7 @@ std::int32_t CmdFindNym::run(std::string hisnym)
     if (!checkNym("hisnym", hisnym, false)) { return -1; }
 
     const auto response =
-        OT::App().Client().Sync().FindNym(Identifier::Factory(hisnym));
+        Opentxs::Client().Sync().FindNym(Identifier::Factory(hisnym));
 
     if (String(response).Exists()) { return 1; }
 

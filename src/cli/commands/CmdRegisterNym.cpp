@@ -61,7 +61,7 @@ std::int32_t CmdRegisterNym::run(
         return -1;
     }
 
-    auto& sync = OT::App().Client().Sync();
+    auto& sync = Opentxs::Client().Sync();
 
     OTIdentifier taskID = sync.RegisterNym(
         Identifier::Factory(mynym),

@@ -435,7 +435,7 @@ std::int32_t RecordList::processPayment(  // a static method
     }
 
     auto thePayment{Opentxs::Client().Factory().Payment(
-        Opentxs::Client(), String(instrument.c_str()))};
+         String(instrument.c_str()))};
 
     OT_ASSERT(false != bool(thePayment));
 
@@ -695,7 +695,7 @@ std::int32_t RecordList::depositCheque(  // a static method
         return -1;
     }
 
-    auto cheque{Opentxs::Client().Factory().Cheque(Opentxs::Client())};
+    auto cheque{Opentxs::Client().Factory().Cheque()};
 
     OT_ASSERT(false != bool(cheque));
 
@@ -850,7 +850,7 @@ std::int32_t RecordList::confirmPaymentPlan_lowLevel(  // a static method
     // NOTE: If we fail, then we need to harvest the transaction numbers
     // back from the payment plan that we confirmed.
     auto paymentPlan{
-        Opentxs::Client().Factory().PaymentPlan(Opentxs::Client())};
+        Opentxs::Client().Factory().PaymentPlan()};
 
     OT_ASSERT(false != bool(paymentPlan));
 
@@ -1239,7 +1239,7 @@ std::int32_t RecordList::cancel_outgoing_payments(
             // desired effect of cancelling the smart contract and sending
             // failure notices to all the parties.
             auto contract{
-                Opentxs::Client().Factory().SmartContract(Opentxs::Client())};
+                Opentxs::Client().Factory().SmartContract()};
 
             OT_ASSERT(false != bool(contract));
 
@@ -1282,7 +1282,7 @@ std::int32_t RecordList::cancel_outgoing_payments(
             // in its automatic removal from the outpayment box.)
 
             auto plan{
-                Opentxs::Client().Factory().PaymentPlan(Opentxs::Client())};
+                Opentxs::Client().Factory().PaymentPlan()};
 
             OT_ASSERT(false != bool(plan));
 
@@ -1406,7 +1406,7 @@ std::int32_t RecordList::acceptFromInbox(  // a static method
     // have it fail and re-try, and at least be trying the actual intended
     // indices, and cut our account retrievals in half while we're at it!
     //
-    //    if (!OT::App().Client().ME().retrieve_account(server, mynym, myacct,
+    //    if (!Opentxs::Client().ME().retrieve_account(server, mynym, myacct,
     //    true)) {
     //        otOut << "Error retrieving intermediary files for account.\n";
     //        return -1;
@@ -2230,7 +2230,7 @@ bool RecordList::PerformAutoAccept()
                 // Server communications are handled here...
                 //
                 auto ledger{Opentxs::Client().Factory().Ledger(
-                    Opentxs::Client(), theNymID, theAccountID, theNotaryID)};
+                     theNymID, theAccountID, theNotaryID)};
 
                 OT_ASSERT(false != bool(ledger));
 
@@ -2333,7 +2333,7 @@ bool RecordList::Populate()
                     str_nym_id, nCurrentOutpayment));
             std::string str_memo;
             auto theOutPayment{Opentxs::Client().Factory().Payment(
-                Opentxs::Client(), strOutpayment)};
+                 strOutpayment)};
 
             OT_ASSERT(false != bool(theOutPayment));
 

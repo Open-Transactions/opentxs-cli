@@ -708,7 +708,7 @@ int Opentxs::processCommand(AnyOption& opt)
 
 int Opentxs::run(int argc, char* argv[])
 {
-    OT::App().Client().OTAPI().LoadWallet();
+    Opentxs::Client().OTAPI().LoadWallet();
 
     map<string, string> macros;
     vector<int> errorLineNumbers;

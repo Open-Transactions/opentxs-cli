@@ -35,7 +35,7 @@ int32_t CmdPingNotary::run(string server, string mynym)
 
     if (!checkNym("mynym", mynym)) { return -1; }
 
-    auto context = OT::App().Client().Wallet().mutable_ServerContext(
+    auto context = Opentxs::Client().Wallet().mutable_ServerContext(
         Identifier::Factory(mynym), Identifier::Factory(server));
     const auto response = context.It().PingNotary();
     const auto& reply = response.second;

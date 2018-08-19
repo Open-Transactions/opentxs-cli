@@ -26,7 +26,7 @@ std::int32_t CmdShowThreads::run(std::string mynym)
 {
     if (!checkNym("mynym", mynym)) { return -1; }
 
-    const auto& ot = OT::App().Client();
+    const auto& ot = Opentxs::Client();
     const auto& activity = ot.Activity();
     const auto threads = activity.Threads(Identifier::Factory(mynym), false);
 

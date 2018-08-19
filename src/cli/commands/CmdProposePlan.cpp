@@ -95,7 +95,7 @@ int32_t CmdProposePlan::run(
     otOut << "plan_expiry (length,number): " << planexpiry << "\n";
 
     {
-        if (!OT::App().Client().ServerAction().GetTransactionNumbers(
+        if (!Opentxs::Client().ServerAction().GetTransactionNumbers(
                 Identifier::Factory(mynym), Identifier::Factory(server), 2)) {
             otOut << "Error: cannot reserve transaction numbers.\n";
             return -1;
@@ -131,7 +131,7 @@ int32_t CmdProposePlan::run(
     // of the proposal itself.)
 
     auto payment{Opentxs::Client().Factory().Payment(
-        Opentxs::Client(), String(plan.c_str()))};
+        String(plan.c_str()))};
 
     OT_ASSERT(false != bool(payment));
 

@@ -56,7 +56,7 @@ std::int32_t CmdPreloadThread::run(
         count = 1;
     }
 
-    OT::App().Client().Activity().PreloadThread(
+    Opentxs::Client().Activity().PreloadThread(
         Identifier::Factory(mynym), Identifier::Factory(thread), begin, count);
 
     return 0;

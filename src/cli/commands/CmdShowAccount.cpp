@@ -43,7 +43,7 @@ std::int32_t CmdShowAccount::run(std::string mynym, std::string myacct)
 
     const OTIdentifier nymID = Identifier::Factory(mynym);
     const OTIdentifier accountID = Identifier::Factory(myacct);
-    auto& list = OT::App().Client().UI().AccountActivity(nymID, accountID);
+    auto& list = Opentxs::Client().UI().AccountActivity(nymID, accountID);
     otOut << "Account " << myacct << ":\n";
     dashLine();
     auto row = list.First();

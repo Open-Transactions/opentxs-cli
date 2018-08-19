@@ -106,7 +106,7 @@ int32_t CmdExchangeBasket::run(string myacct, string direction, string multiple)
     }
 
     {
-        if (!OT::App().Client().ServerAction().GetTransactionNumbers(
+        if (!Opentxs::Client().ServerAction().GetTransactionNumbers(
                 Identifier::Factory(mynym), Identifier::Factory(server), 20)) {
             otOut << "Error: cannot reserve transaction numbers.\n";
             return -1;
@@ -207,8 +207,8 @@ int32_t CmdExchangeBasket::run(string myacct, string direction, string multiple)
                        theAcctID = Identifier::Factory({myacct});
     std::string response;
     {
-        response = OT::App()
-                       .Client()
+        response = Opentxs::
+                       Client()
                        .ServerAction()
                        .ExchangeBasketCurrency(
                            theNymID,
@@ -224,7 +224,7 @@ int32_t CmdExchangeBasket::run(string myacct, string direction, string multiple)
     if (1 != reply) { return reply; }
 
     {
-        if (!OT::App().Client().ServerAction().DownloadAccount(
+        if (!Opentxs::Client().ServerAction().DownloadAccount(
                 theNymID, theNotaryID, theAcctID, true)) {
             otOut << "Error retrieving intermediary files for account.\n";
             return -1;
@@ -252,7 +252,7 @@ int32_t CmdExchangeBasket::showBasketAccounts(
     const string& assetType,
     bool bFilter)
 {
-    const auto& storage = OT::App().Client().Storage();
+    const auto& storage = Opentxs::Client().Storage();
     dashLine();
     cout << " ** ACCOUNTS:\n\n";
 

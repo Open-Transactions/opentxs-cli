@@ -40,8 +40,8 @@ std::int32_t CmdRequestAdmin::run(
 
     std::string response;
     {
-        response = OT::App()
-                       .Client()
+        response = Opentxs::
+                       Client()
                        .ServerAction()
                        .RequestAdmin(
                            Identifier::Factory(mynym),

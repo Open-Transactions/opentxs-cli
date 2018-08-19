@@ -31,7 +31,7 @@ std::int32_t CmdMarkUnRead::run(
 {
     if (!checkNym("mynym", mynym)) { return -1; }
 
-    const auto output = OT::App().Client().Activity().MarkUnread(
+    const auto output = Opentxs::Client().Activity().MarkUnread(
         Identifier::Factory(mynym),
         Identifier::Factory(threadID),
         Identifier::Factory(itemID));

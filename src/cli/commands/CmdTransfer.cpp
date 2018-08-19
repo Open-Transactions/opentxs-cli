@@ -72,7 +72,7 @@ int32_t CmdTransfer::run(
         otOut << "Assuming hisaccount is on the same server as myacct.\n";
     }
 
-    auto& sync = OT::App().Client().Sync();
+    auto& sync = Opentxs::Client().Sync();
 
     OTIdentifier taskID = sync.SendTransfer(
         Identifier::Factory(mynym),
@@ -104,7 +104,7 @@ int32_t CmdTransfer::run(
     }
 
     {
-        if (!OT::App().Client().ServerAction().DownloadAccount(
+        if (!Opentxs::Client().ServerAction().DownloadAccount(
                 Identifier::Factory(mynym),
                 Identifier::Factory(server),
                 Identifier::Factory(myacct),

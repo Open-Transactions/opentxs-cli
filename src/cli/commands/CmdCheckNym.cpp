@@ -71,8 +71,8 @@ int32_t CmdCheckNym::run(string server, string mynym, string hisnym)
 
     std::string response;
     {
-        response = OT::App()
-                       .Client()
+        response = Opentxs::
+                       Client()
                        .ServerAction()
                        .DownloadNym(
                            Identifier::Factory(mynym),

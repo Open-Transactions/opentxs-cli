@@ -46,8 +46,8 @@ std::int32_t CmdPeerStoreSecret::run(
 
     std::string response;
     {
-        response = OT::App()
-                       .Client()
+        response = Opentxs::
+                       Client()
                        .ServerAction()
                        .InitiateStoreSecret(
                            Identifier::Factory(mynym),

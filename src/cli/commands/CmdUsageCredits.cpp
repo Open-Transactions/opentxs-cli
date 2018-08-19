@@ -54,8 +54,8 @@ int32_t CmdUsageCredits::run(
 
     std::string response;
     {
-        response = OT::App()
-                       .Client()
+        response = Opentxs::
+                       Client()
                        .ServerAction()
                        .AdjustUsageCredits(
                            Identifier::Factory(mynym),

@@ -49,8 +49,8 @@ int32_t CmdKillPlan::run(string server, string mynym, string myacct, string id)
     sscanf(id.c_str(), "%" SCNd64, &i);
     std::string response;
     {
-        response = OT::App()
-                       .Client()
+        response = Opentxs::
+                       Client()
                        .ServerAction()
                        .KillPaymentPlan(
                            Identifier::Factory(mynym),

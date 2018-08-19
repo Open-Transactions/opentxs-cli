@@ -39,8 +39,8 @@ int32_t CmdGetMyOffers::run(string server, string mynym)
     std::string response;
     {
         response =
-            OT::App()
-                .Client()
+            Opentxs::
+                Client()
                 .ServerAction()
                 .DownloadNymMarketOffers(
                     Identifier::Factory(mynym), Identifier::Factory(server))

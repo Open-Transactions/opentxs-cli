@@ -26,6 +26,6 @@ std::int32_t CmdDepositCheques::run(std::string mynym)
 {
     if (!checkNym("mynym", mynym)) { return -1; }
 
-    return OT::App().Client().Sync().DepositCheques(Identifier::Factory(mynym));
+    return Opentxs::Client().Sync().DepositCheques(Identifier::Factory(mynym));
 }
 }  // namespace opentxs

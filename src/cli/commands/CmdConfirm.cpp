@@ -367,7 +367,7 @@ int32_t CmdConfirm::activateContract(
                        theAcctID = Identifier::Factory(myAcctID);
 
     auto smartContract{
-        Opentxs::Client().Factory().SmartContract(Opentxs::Client())};
+        Opentxs::Client().Factory().SmartContract()};
 
     OT_ASSERT(false != bool(smartContract));
 
@@ -397,7 +397,7 @@ int32_t CmdConfirm::activateContract(
     if (1 != reply) { return reply; }
 
     {
-        if (!OT::App().Client().ServerAction().DownloadAccount(
+        if (!Opentxs::Client().ServerAction().DownloadAccount(
                 theNymID, theNotaryID, theAcctID, true)) {
             otOut << "Error retrieving intermediary files for account.\n";
         }
@@ -451,7 +451,7 @@ int32_t CmdConfirm::sendToNextParty(
     }
 
     auto payment{Opentxs::Client().Factory().Payment(
-        Opentxs::Client(), String(contract.c_str()))};
+        String(contract.c_str()))};
 
     OT_ASSERT(false != bool(payment));
 
@@ -589,7 +589,7 @@ int32_t CmdConfirm::confirmAccounts(
             "" != templateInstrumentDefinitionID;
 
         bool foundAccounts = false;
-        const auto accountList = OT::App().Client().Storage().AccountList();
+        const auto accountList = Opentxs::Client().Storage().AccountList();
         const std::int32_t accountCount = accountList.size();
 
         otOut << "\nAccounts by index (filtered by notaryID and nymID):\n\n";
@@ -760,7 +760,7 @@ int32_t CmdConfirm::confirmAccounts(
         int32_t needed = SwigWrap::SmartContract_CountNumsNeeded(
             contract, mapAgents[x->first]);
 
-        if (!OT::App().Client().ServerAction().GetTransactionNumbers(
+        if (!Opentxs::Client().ServerAction().GetTransactionNumbers(
                 Identifier::Factory(mynym),
                 Identifier::Factory(server),
                 needed + 1)) {

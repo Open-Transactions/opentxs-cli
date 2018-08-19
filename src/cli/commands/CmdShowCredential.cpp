@@ -81,7 +81,7 @@ int32_t CmdShowCredential::run(string mynym, string id)
 
 string CmdShowCredential::findMaster(const string& mynym, const string& subID)
 {
-    auto nym = OT::App().Client().Wallet().Nym(Identifier::Factory(mynym));
+    auto nym = Opentxs::Client().Wallet().Nym(Identifier::Factory(mynym));
     auto masterCredentialIDs = nym->GetMasterCredentialIDs();
     for (auto masterCredentialID : masterCredentialIDs) {
         auto childCredentialIDs =
@@ -98,7 +98,7 @@ string CmdShowCredential::findMaster(const string& mynym, const string& subID)
 
 string CmdShowCredential::findRevoked(const string& mynym, const string& subID)
 {
-    auto nym = OT::App().Client().Wallet().Nym(Identifier::Factory(mynym));
+    auto nym = Opentxs::Client().Wallet().Nym(Identifier::Factory(mynym));
     auto revokedCredentialIDs = nym->GetRevokedCredentialIDs();
     for (auto revokedCredentialID : revokedCredentialIDs) {
         auto childCredentialIDs =

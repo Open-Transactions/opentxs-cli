@@ -47,7 +47,7 @@ int32_t CmdRefresh::run(string myacct)
     if (0 > refreshNym.run(server, mynym)) { return -1; }
 
     {
-        if (!OT::App().Client().ServerAction().DownloadAccount(
+        if (!Opentxs::Client().ServerAction().DownloadAccount(
                 Identifier::Factory(mynym),
                 Identifier::Factory(server),
                 Identifier::Factory(myacct),

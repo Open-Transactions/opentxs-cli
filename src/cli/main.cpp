@@ -24,11 +24,11 @@ int main(int argc, char* argv[])
 
     OT_ASSERT(password_caller_->isCallbackSet())
 
-    opentxs::OT::ClientFactory({}, {}, password_caller_);
+    opentxs::OT::Start({}, {}, password_caller_);
 
     int returnValue{0};
     {
-        opentxs::Opentxs opentxsCLI(opentxs::OT::App().Client());
+        opentxs::Opentxs opentxsCLI(opentxs::OT::App().StartClient({}, 0));
         returnValue = opentxsCLI.run(argc, argv);
     }
 

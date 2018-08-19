@@ -26,7 +26,7 @@ std::int32_t CmdAddBitcoinAccount::run(std::string mynym)
 {
     if (!checkNym("mynym", mynym)) { return -1; }
 
-    const auto account = OT::App().Client().Blockchain().NewAccount(
+    const auto account = Opentxs::Client().Blockchain().NewAccount(
         Identifier::Factory(mynym),
         BlockchainAccountType::BIP44,
         proto::CITEMTYPE_BTC);

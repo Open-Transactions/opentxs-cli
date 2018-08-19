@@ -51,8 +51,8 @@ std::int32_t CmdServerAddClaim::run(std::string server, std::string mynym)
 
     std::string response;
     {
-        response = OT::App()
-                       .Client()
+        response = Opentxs::
+                       Client()
                        .ServerAction()
                        .AddServerClaim(
                            Identifier::Factory(mynym),

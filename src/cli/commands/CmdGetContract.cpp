@@ -43,8 +43,8 @@ int32_t CmdGetInstrumentDefinition::run(
 
     std::string response;
     {
-        response = OT::App()
-                       .Client()
+        response = Opentxs::
+                       Client()
                        .ServerAction()
                        .DownloadContract(
                            Identifier::Factory(mynym),

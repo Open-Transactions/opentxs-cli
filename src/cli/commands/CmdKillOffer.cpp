@@ -51,8 +51,8 @@ int32_t CmdKillOffer::run(string server, string mynym, string myacct, string id)
     sscanf(id.c_str(), "%" SCNd64, &i);
     std::string response;
     {
-        response = OT::App()
-                       .Client()
+        response = Opentxs::
+                       Client()
                        .ServerAction()
                        .KillMarketOffer(
                            Identifier::Factory(mynym),

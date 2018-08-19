@@ -28,7 +28,7 @@ std::int32_t CmdSendMessage::contact(
 {
     const OTIdentifier nymID = Identifier::Factory(mynym);
     const OTIdentifier contactID = Identifier::Factory(hisnym);
-    auto& thread = OT::App().Client().UI().ActivityThread(nymID, contactID);
+    auto& thread = Opentxs::Client().UI().ActivityThread(nymID, contactID);
     const auto loaded = thread.SetDraft(message);
 
     if (false == loaded) {
@@ -60,8 +60,8 @@ std::int32_t CmdSendMessage::nym(
 
     std::string response;
     {
-        response = OT::App()
-                       .Client()
+        response = Opentxs::
+                       Client()
                        .ServerAction()
                        .SendMessage(
                            Identifier::Factory(mynym),

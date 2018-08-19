@@ -411,7 +411,7 @@ OTDB::OfferListNym* loadNymOffers(
     OTDB::OfferListNym* offerList = nullptr;
 
     if (OTDB::Exists(
-            OT::App().Legacy().ClientDataFolder(),
+            Opentxs::Client().DataFolder(),
             "nyms",
             notaryID,
             "offers",
@@ -419,7 +419,7 @@ OTDB::OfferListNym* loadNymOffers(
         otWarn << "Offers file exists... Querying nyms...\n";
         OTDB::Storable* storable = OTDB::QueryObject(
             OTDB::STORED_OBJ_OFFER_LIST_NYM,
-            OT::App().Legacy().ClientDataFolder(),
+            Opentxs::Client().DataFolder(),
             "nyms",
             notaryID,
             "offers",
@@ -501,7 +501,7 @@ std::string CmdBase::check_nym(
     const std::string& nymID,
     const std::string& targetNymID) const
 {
-    auto action = OT::App().Client().ServerAction().DownloadNym(
+    auto action = Opentxs::Client().ServerAction().DownloadNym(
         Identifier::Factory(nymID),
         Identifier::Factory(notaryID),
         Identifier::Factory(targetNymID));
@@ -591,15 +591,15 @@ bool CmdBase::checkPurse(const char* name, string& purse) const
 
     // See if it's available using the full length ID.
     if (!theID->empty())
-        pUnit = OT::App().Client().Wallet().UnitDefinition(theID);
+        pUnit = Opentxs::Client().Wallet().UnitDefinition(theID);
 
     if (!pUnit) {
-        const auto units = OT::App().Client().Wallet().UnitDefinitionList();
+        const auto units = Opentxs::Client().Wallet().UnitDefinitionList();
 
         // See if it's available using the partial length ID.
         for (auto& it : units) {
             if (0 == it.first.compare(0, purse.length(), purse)) {
-                pUnit = OT::App().Client().Wallet().UnitDefinition(
+                pUnit = Opentxs::Client().Wallet().UnitDefinition(
                     Identifier::Factory(it.first));
                 break;
             }
@@ -608,7 +608,7 @@ bool CmdBase::checkPurse(const char* name, string& purse) const
             // See if it's available using the full length name.
             for (auto& it : units) {
                 if (0 == it.second.compare(0, it.second.length(), purse)) {
-                    pUnit = OT::App().Client().Wallet().UnitDefinition(
+                    pUnit = Opentxs::Client().Wallet().UnitDefinition(
                         Identifier::Factory(it.first));
                     break;
                 }
@@ -618,7 +618,7 @@ bool CmdBase::checkPurse(const char* name, string& purse) const
                 // See if it's available using the partial name.
                 for (auto& it : units) {
                     if (0 == it.second.compare(0, purse.length(), purse)) {
-                        pUnit = OT::App().Client().Wallet().UnitDefinition(
+                        pUnit = Opentxs::Client().Wallet().UnitDefinition(
                             Identifier::Factory(it.first));
                         break;
                     }
@@ -761,7 +761,7 @@ string CmdBase::getUsage() const
 
 OTWallet* CmdBase::getWallet() const
 {
-    OTWallet* wallet = OT::App().Client().OTAPI().GetWallet();
+    OTWallet* wallet = Opentxs::Client().OTAPI().GetWallet();
     OT_ASSERT_MSG(wallet != nullptr, "Cannot load wallet->\n");
     return wallet;
 }

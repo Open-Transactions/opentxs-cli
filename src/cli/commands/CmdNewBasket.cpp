@@ -138,8 +138,8 @@ int32_t CmdNewBasket::run(
 
     std::string response;
     {
-        response = OT::App()
-                       .Client()
+        response = Opentxs::
+                       Client()
                        .ServerAction()
                        .IssueBasketCurrency(
                            Identifier::Factory(mynym),
@@ -163,8 +163,8 @@ int32_t CmdNewBasket::run(
 
             if (bGotNewID) {
                 {
-                    response = OT::App()
-                                   .Client()
+                    response = Opentxs::
+                                   Client()
                                    .ServerAction()
                                    .DownloadContract(
                                        Identifier::Factory(mynym),

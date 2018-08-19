@@ -63,8 +63,8 @@ std::string CmdShowMint::load_or_retrieve_mint(
 
         std::string response;
         {
-            response = OT::App()
-                           .Client()
+            response = Opentxs::
+                           Client()
                            .ServerAction()
                            .DownloadMint(
                                Identifier::Factory(nymID),

@@ -3,7 +3,7 @@
 # License, v. 2.0. If a copy of the MPL was not distributed with this
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
-set(MODULE_NAME opentxs)
+set(MODULE_NAME opentxs-cli)
 
 include_directories("${CMAKE_CURRENT_SOURCE_DIR}")
 include_directories(${OPENSSL_INCLUDE_DIR})
@@ -193,6 +193,8 @@ else()
   add_executable(${MODULE_NAME} ${cxx-sources})
 endif()
 
+set_target_properties(${MODULE_NAME} PROPERTIES OUTPUT_NAME "opentxs")
+
 target_link_libraries(${MODULE_NAME}
   ${OPENTXS_LIBRARIES}
   ${OPENTXS_PROTO_LIBRARIES}
@@ -201,6 +203,4 @@ target_link_libraries(${MODULE_NAME}
   anyoption
 )
 
-install(TARGETS ${MODULE_NAME}
-        DESTINATION bin
-        COMPONENT main)
+install(TARGETS ${MODULE_NAME} DESTINATION bin COMPONENT main)

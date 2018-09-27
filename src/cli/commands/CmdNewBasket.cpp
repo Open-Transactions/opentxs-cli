@@ -145,7 +145,7 @@ int32_t CmdNewBasket::run(
                            Identifier::Factory(mynym),
                            Identifier::Factory(server),
                            proto::StringToProto<proto::UnitDefinition>(
-                               String(basket.c_str())))
+                               String::Factory(basket.c_str())))
                        ->Run();
     }
     int32_t status = responseStatus(response);

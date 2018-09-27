@@ -37,7 +37,7 @@ std::int32_t CmdShowNym::run(std::string mynym)
 
     if (nym) {
         const auto armored =
-            proto::ProtoAsArmored(nym->asPublicNym(), "PUBLIC NYM");
+            proto::ProtoAsArmored(nym->asPublicNym(), String::Factory("PUBLIC NYM"));
         std::cout << armored << std::endl;
     }
 

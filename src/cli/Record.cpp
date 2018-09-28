@@ -115,11 +115,11 @@ bool Record::FormatMailSubject(std::string& str_output) const
 
 bool Record::FormatShortMailDescription(std::string& str_output) const
 {
-    String strDescription;
+    auto strDescription = String::Factory();
 
     if (IsMail()) {
         if (!HasContents())
-            strDescription.Set("(empty message)");
+            strDescription->Set("(empty message)");
         else {
             std::string str_temp_contents = GetContents();
             std::string str_contents = String::trim(str_temp_contents);
@@ -143,13 +143,13 @@ bool Record::FormatShortMailDescription(std::string& str_output) const
             // str_contents.end(), '\n'), str_contents.end());
             //          str_contents.erase(std::remove(str_contents.begin(),
             // str_contents.end(), '\r'), str_contents.end());
-            strDescription.Format(
+            strDescription->Format(
                 "%s%s",
                 String::trim(str_contents).c_str(),
                 bTruncated ? "..." : "");
         }
     }
-    str_output = strDescription.Get();
+    str_output = strDescription->Get();
     return (!str_output.empty());
 }
 
@@ -158,18 +158,18 @@ bool Record::FormatDescription(std::string& str_output) const
     bool bIsSuccess = false;
     const bool bHasSuccess = this->HasSuccess(bIsSuccess);
     // ----------------------------------------
-    String strDescription, strStatus, strKind;
+    auto strDescription = String::Factory(), strStatus = String::Factory(), strKind = String::Factory();
 
     if (IsRecord()) {
         if (IsExpired())
-            strStatus = "(EXPIRED)";  // How to tell difference between
+            strStatus = String::Factory("(EXPIRED)");  // How to tell difference between
                                       // instrument that processed successfully
                                       // and THEN expired, versus one that
                                       // expired before processing successfully?
                                       // (See next comment.)
         else if (IsInvoice())
-            strStatus =
-                "(payment sent)";  // TODO: need an "invalid records" box
+            strStatus = String::Factory(
+                "(payment sent)");  // TODO: need an "invalid records" box
                                    // for expired and canceled. Otherwise
                                    // we may falsely assume "payment
                                    // sent" when actually it expired. (We
@@ -179,56 +179,56 @@ bool Record::FormatDescription(std::string& str_output) const
         else if (IsNotice()) {
             if (bHasSuccess) {
                 if (bIsSuccess)
-                    strStatus = "(activated)";
+                    strStatus = String::Factory("(activated)");
                 else
-                    strStatus = "(failed activating)";
+                    strStatus = String::Factory("(failed activating)");
             }
         } else
-            strStatus = "";
+            strStatus = String::Factory();
         //          strStatus = "(record)";
     } else if (IsPending()) {
         if (IsExpired())
-            strStatus = "(EXPIRED)";
+            strStatus = String::Factory("(EXPIRED)");
         else if (IsInvoice())
-            strStatus = "(unpaid)";
+            strStatus = String::Factory("(unpaid)");
         else if (!IsCash())
-            strStatus = "(pending)";
+            strStatus = String::Factory("(pending)");
     }
     // ----------------------------------------
     if (IsCanceled()) {
-        strStatus = "(CANCELED)";
+        strStatus = String::Factory("(CANCELED)");
 
-        if (IsOutgoing() || IsReceipt()) strKind.Format("%s", "sent ");
+        if (IsOutgoing() || IsReceipt()) strKind->Format("%s", "sent ");
     } else {
         if (IsOutgoing())
-            strKind.Format(
+            strKind->Format(
                 "%s", ((IsPending() && !IsCash()) ? "outgoing " : "sent "));
         else  // Incoming.
-            strKind.Format(
+            strKind->Format(
                 "%s",
                 IsPending() ? "incoming " : (IsReceipt() ? "" : "received "));
     }
     // ----------------------------------------
-    String strTransNumForDisplay;
+    auto strTransNumForDisplay = String::Factory();
 
     if (!IsCash())
-        strTransNumForDisplay.Format(" #%" PRId64, GetTransNumForDisplay());
+        strTransNumForDisplay->Format(" #%" PRId64, GetTransNumForDisplay());
     // ----------------------------------------
     if (IsRecord()) {
         if (IsTransfer())
-            strDescription.Format(
+            strDescription->Format(
                 "%s%s%s %s",
-                strKind.Get(),
+                strKind->Get(),
                 "transfer",
-                strTransNumForDisplay.Get(),
-                strStatus.Get());
+                strTransNumForDisplay->Get(),
+                strStatus->Get());
         else if (IsVoucher())
-            strDescription.Format(
+            strDescription->Format(
                 "%s%s%s %s",
-                strKind.Get(),
+                strKind->Get(),
                 "payment",
-                strTransNumForDisplay.Get(),
-                strStatus.Get());
+                strTransNumForDisplay->Get(),
+                strStatus->Get());
         else if (IsReceipt()) {
             std::string str_instrument_type;
 
@@ -283,7 +283,7 @@ bool Record::FormatDescription(std::string& str_output) const
                 const Amount lAmount =
                     Opentxs::Client().Exec().StringToLong(m_str_amount);
 
-                if (!IsCanceled() && (lAmount > 0)) strKind.Set("received ");
+                if (!IsCanceled() && (lAmount > 0)) strKind->Set("received ");
 
                 if (HasOriginType()) {
                     if (IsOriginTypePaymentPlan()) {
@@ -298,37 +298,37 @@ bool Record::FormatDescription(std::string& str_output) const
                 }
             }
 
-            strDescription.Format(
+            strDescription->Format(
                 "%s%s%s %s",
-                strKind.Get(),
+                strKind->Get(),
                 str_instrument_type.c_str(),
-                strTransNumForDisplay.Get(),
-                strStatus.Get());
+                strTransNumForDisplay->Get(),
+                strStatus->Get());
         }  // IsReceipt
         else
-            strDescription.Format(
+            strDescription->Format(
                 "%s%s%s %s",
-                strKind.Get(),
+                strKind->Get(),
                 GetInstrumentType().c_str(),
-                strTransNumForDisplay.Get(),
-                strStatus.Get());
+                strTransNumForDisplay->Get(),
+                strStatus->Get());
     }  // IsRecord
     // ----------------------------------------
     else {
         if (IsTransfer())
-            strDescription.Format(
+            strDescription->Format(
                 "%s %s%s%s",
-                strStatus.Get(),
-                strKind.Get(),
+                strStatus->Get(),
+                strKind->Get(),
                 "transfer",
-                strTransNumForDisplay.Get());
+                strTransNumForDisplay->Get());
         else if (IsVoucher())
-            strDescription.Format(
+            strDescription->Format(
                 "%s %s%s%s",
-                strStatus.Get(),
-                strKind.Get(),
+                strStatus->Get(),
+                strKind->Get(),
                 "payment",
-                strTransNumForDisplay.Get());
+                strTransNumForDisplay->Get());
 
         else if (IsReceipt()) {
             std::string str_instrument_type;
@@ -393,7 +393,7 @@ bool Record::FormatDescription(std::string& str_output) const
                 const Amount lAmount =
                     Opentxs::Client().Exec().StringToLong(m_str_amount);
 
-                if (!IsCanceled() && (lAmount > 0)) strKind.Set("received ");
+                if (!IsCanceled() && (lAmount > 0)) strKind->Set("received ");
 
                 if (HasOriginType()) {
                     if (IsOriginTypePaymentPlan()) {
@@ -409,22 +409,22 @@ bool Record::FormatDescription(std::string& str_output) const
                 }
             }
 
-            strDescription.Format(
+            strDescription->Format(
                 "%s %s%s%s",
-                strStatus.Get(),
-                strKind.Get(),
+                strStatus->Get(),
+                strKind->Get(),
                 str_instrument_type.c_str(),
-                strTransNumForDisplay.Get());
+                strTransNumForDisplay->Get());
         } else
-            strDescription.Format(
+            strDescription->Format(
                 "%s %s%s%s",
-                strStatus.Get(),
-                strKind.Get(),
+                strStatus->Get(),
+                strKind->Get(),
                 GetInstrumentType().c_str(),
-                strTransNumForDisplay.Get());
+                strTransNumForDisplay->Get());
     }  // Not Record.
     // ----------------------------------------
-    str_output = strDescription.Get();
+    str_output = strDescription->Get();
     return (!str_output.empty());
 }
 bool Record::HasInitialPayment() const
@@ -435,7 +435,7 @@ bool Record::HasInitialPayment() const
 
     OT_ASSERT(false != bool(thePlan));
 
-    const String strPlan(GetContents().c_str());
+    const auto strPlan = String::Factory(GetContents().c_str());
 
     if (thePlan->LoadContractFromString(strPlan) &&
         thePlan->HasInitialPayment())
@@ -451,7 +451,7 @@ bool Record::HasPaymentPlan() const
 
     OT_ASSERT(false != bool(thePlan));
 
-    const String strPlan(GetContents().c_str());
+    const auto strPlan = String::Factory(GetContents().c_str());
 
     if (thePlan->LoadContractFromString(strPlan) && thePlan->HasPaymentPlan())
         return true;
@@ -466,7 +466,7 @@ time64_t Record::GetInitialPaymentDate() const
 
     OT_ASSERT(false != bool(thePlan));
 
-    const String strPlan(GetContents().c_str());
+    const auto strPlan = String::Factory(GetContents().c_str());
 
     if (thePlan->LoadContractFromString(strPlan) &&
         thePlan->HasInitialPayment())
@@ -482,7 +482,7 @@ Amount Record::GetInitialPaymentAmount() const
 
     OT_ASSERT(false != bool(thePlan));
 
-    const String strPlan(GetContents().c_str());
+    const auto strPlan = String::Factory(GetContents().c_str());
 
     if (thePlan->LoadContractFromString(strPlan) &&
         thePlan->HasInitialPayment())
@@ -498,7 +498,7 @@ time64_t Record::GetPaymentPlanStartDate() const
 
     OT_ASSERT(false != bool(thePlan));
 
-    const String strPlan(GetContents().c_str());
+    const auto strPlan = String::Factory(GetContents().c_str());
 
     if (thePlan->LoadContractFromString(strPlan) && thePlan->HasPaymentPlan())
         return thePlan->GetPaymentPlanStartDate();
@@ -513,7 +513,7 @@ time64_t Record::GetTimeBetweenPayments() const
 
     OT_ASSERT(false != bool(thePlan));
 
-    const String strPlan(GetContents().c_str());
+    const auto strPlan = String::Factory(GetContents().c_str());
 
     if (thePlan->LoadContractFromString(strPlan) && thePlan->HasPaymentPlan())
         return thePlan->GetTimeBetweenPayments();
@@ -528,7 +528,7 @@ Amount Record::GetPaymentPlanAmount() const
 
     OT_ASSERT(false != bool(thePlan));
 
-    const String strPlan(GetContents().c_str());
+    const auto strPlan = String::Factory(GetContents().c_str());
 
     if (thePlan->LoadContractFromString(strPlan) && thePlan->HasPaymentPlan())
         return thePlan->GetPaymentPlanAmount();
@@ -543,7 +543,7 @@ std::int32_t Record::GetMaximumNoPayments() const
 
     OT_ASSERT(false != bool(thePlan));
 
-    const String strPlan(GetContents().c_str());
+    const auto strPlan = String::Factory(GetContents().c_str());
 
     if (thePlan->LoadContractFromString(strPlan) && thePlan->HasPaymentPlan())
         return thePlan->GetMaximumNoPayments();
@@ -979,9 +979,9 @@ bool Record::AcceptIncomingTransferOrReceipt() const
             }
             // Accept it.
             //
-            String strIndices;
-            strIndices.Format("%d", nIndex);
-            const std::string str_indices(strIndices.Get());
+            auto strIndices = String::Factory();
+            strIndices->Format("%d", nIndex);
+            const std::string str_indices(strIndices->Get());
 
             return accept_inbox_items(m_str_account_id, 0, str_indices);
         } break;
@@ -1047,9 +1047,9 @@ bool Record::AcceptIncomingInstrument(const std::string& str_into_acct) const
             }
             // Accept it.
             //
-            String strIndices;
-            strIndices.Format("%d", nIndex);
-            const std::string str_indices(strIndices.Get());
+            auto strIndices = String::Factory();
+            strIndices->Format("%d", nIndex);
+            const std::string str_indices(strIndices->Get());
 
             const char* szPaymentType =
                 IsPaymentPlan() ? "PAYMENT PLAN" : "ANY";
@@ -1158,9 +1158,9 @@ bool Record::DiscardIncoming() const
             }
             // Accept it.
             //
-            String strIndices;
-            strIndices.Format("%d", nIndex);
-            const std::string str_indices(strIndices.Get());
+            auto strIndices = String::Factory();
+            strIndices->Format("%d", nIndex);
+            const std::string str_indices(strIndices->Get());
 
             return discard_incoming_payments(
                 m_str_msg_notary_id, m_str_nym_id, str_indices);
@@ -1240,7 +1240,7 @@ bool Record::CancelOutgoing(std::string str_via_acct) const  // This can be
                               << "\n";
                         return false;
                     }
-                    String strPayment(strOutpayment);
+                    auto strPayment = String::Factory(strOutpayment);
                     auto thePayment{Opentxs::Client().Factory().Payment(
                          strPayment)};
 
@@ -1259,9 +1259,9 @@ bool Record::CancelOutgoing(std::string str_via_acct) const  // This can be
                     if (0 == lTransNum)  // Found it.
                     {
                         std::int32_t lIndex = GetBoxIndex();
-                        String strIndices;
-                        strIndices.Format("%d", lIndex);
-                        const std::string str_indices(strIndices.Get());
+                        auto strIndices = String::Factory();
+                        strIndices->Format("%d", lIndex);
+                        const std::string str_indices(strIndices->Get());
 
                         return cancel_outgoing_payments(
                             m_str_nym_id, str_using_acct, str_indices);
@@ -1300,7 +1300,7 @@ bool Record::CancelOutgoing(std::string str_via_acct) const  // This can be
                           << "\n";
                     return false;
                 }
-                String strPayment(strOutpayment);
+                auto strPayment = String::Factory(strOutpayment);
                 auto thePayment{Opentxs::Client().Factory().Payment(
                      strPayment)};
 
@@ -1316,9 +1316,9 @@ bool Record::CancelOutgoing(std::string str_via_acct) const  // This can be
                 thePayment->GetOpeningNum(lTransNum, theNymID);
                 if (lTransNum == m_lTransactionNum)  // Found it.
                 {
-                    String strIndices;
-                    strIndices.Format("%d", nIndex);
-                    const std::string str_indices(strIndices.Get());
+                    auto strIndices = String::Factory();
+                    strIndices->Format("%d", nIndex);
+                    const std::string str_indices(strIndices->Get());
 
                     return cancel_outgoing_payments(
                         m_str_nym_id, str_using_acct, str_indices);
@@ -1441,7 +1441,7 @@ void Record::SetContents(const std::string& str_contents)
 
     if (!m_str_contents.empty() && ((Record::Instrument == GetRecordType()) ||
                                     (Record::Notice == GetRecordType()))) {
-        String strPayment(m_str_contents);
+        auto strPayment = String::Factory(m_str_contents);
         auto thePayment{
             Opentxs::Client().Factory().Payment( strPayment)};
 

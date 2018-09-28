@@ -128,7 +128,7 @@ int32_t CmdWithdrawVoucher::run(
     // send anything -- it just puts a copy into my outpayments box for
     // safe-keeping.
     auto payment{Opentxs::Client().Factory().Payment(
-         String(voucher.c_str()))};
+         String::Factory(voucher.c_str()))};
 
     OT_ASSERT(false != bool(payment));
 

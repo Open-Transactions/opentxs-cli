@@ -45,7 +45,7 @@ int32_t CmdBaseInstrument::sendPayment(
     }
 
     auto payment{Opentxs::Client().Factory().Payment(
-        String(cheque.c_str()))};
+        String::Factory(cheque.c_str()))};
 
     OT_ASSERT(false != bool(payment));
 

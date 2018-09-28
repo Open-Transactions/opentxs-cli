@@ -30,7 +30,7 @@ std::int32_t CmdAddContact::run(
 {
     if (hisnym.empty()) { return -1; }
 
-    OTIdentifier nymID = Identifier::Factory(String(hisnym.c_str()));
+    OTIdentifier nymID = Identifier::Factory(String::Factory(hisnym.c_str()));
     auto code = Opentxs::Client().Factory().PaymentCode(hisnym);
 
     if (nymID->empty()) {
@@ -47,7 +47,7 @@ std::int32_t CmdAddContact::run(
 
     if (nymID->empty() && code->VerifyInternally()) {
         nymID = code->ID();
-        otErr << "Derived nymID: " << String(nymID) << std::endl;
+        otErr << "Derived nymID: " << String::Factory(nymID) << std::endl;
     }
 
     const auto response =

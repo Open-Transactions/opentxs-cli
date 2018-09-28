@@ -371,7 +371,7 @@ int32_t CmdConfirm::activateContract(
 
     OT_ASSERT(false != bool(smartContract));
 
-    smartContract->LoadContractFromString(String(contract));
+    smartContract->LoadContractFromString(String::Factory(contract));
 
     std::string response;
     {
@@ -451,7 +451,7 @@ int32_t CmdConfirm::sendToNextParty(
     }
 
     auto payment{Opentxs::Client().Factory().Payment(
-        String(contract.c_str()))};
+        String::Factory(contract.c_str()))};
 
     OT_ASSERT(false != bool(payment));
 

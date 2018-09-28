@@ -39,5 +39,5 @@ int32_t CmdPingNotary::run(string server, string mynym)
         Identifier::Factory(mynym), Identifier::Factory(server));
     const auto response = context.It().PingNotary();
     const auto& reply = response.second;
-    return processResponse(String(*reply).Get(), "ping notary");
+    return processResponse(String::Factory(*reply)->Get(), "ping notary");
 }

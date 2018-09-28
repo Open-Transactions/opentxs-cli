@@ -131,7 +131,7 @@ int32_t CmdProposePlan::run(
     // of the proposal itself.)
 
     auto payment{Opentxs::Client().Factory().Payment(
-        String(plan.c_str()))};
+        String::Factory(plan.c_str()))};
 
     OT_ASSERT(false != bool(payment));
 

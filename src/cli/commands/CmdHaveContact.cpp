@@ -27,7 +27,7 @@ std::int32_t CmdHaveContact::run(const std::string& id)
     if (id.empty()) { return -1; }
 
     const auto contact = Opentxs::Client().Contacts().Contact(
-        Identifier::Factory(String(id.c_str())));
+        Identifier::Factory(String::Factory(id.c_str())));
 
     if (contact) {
         otOut << "true" << std::endl;

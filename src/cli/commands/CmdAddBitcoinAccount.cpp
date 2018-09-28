@@ -30,7 +30,7 @@ std::int32_t CmdAddBitcoinAccount::run(std::string mynym)
         Identifier::Factory(mynym),
         BlockchainAccountType::BIP44,
         proto::CITEMTYPE_BTC);
-    otOut << "BIP-44 account ID: " << String(account) << std::endl;
+    otOut << "BIP-44 account ID: " << String::Factory(account) << std::endl;
 
     return 0;
 }

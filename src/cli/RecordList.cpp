@@ -107,7 +107,7 @@ void RecordList::SetInstrumentDefinitionID(std::string str_id)
 
 void RecordList::AddInstrumentDefinitionID(std::string str_id)
 {
-    const String strInstrumentDefinitionID(str_id);
+    const auto strInstrumentDefinitionID = String::Factory(str_id);
     const auto theInstrumentDefinitionID =
         Identifier::Factory(strInstrumentDefinitionID);
     std::string str_asset_name;
@@ -435,7 +435,7 @@ std::int32_t RecordList::processPayment(  // a static method
     }
 
     auto thePayment{Opentxs::Client().Factory().Payment(
-         String(instrument.c_str()))};
+         String::Factory(instrument.c_str()))};
 
     OT_ASSERT(false != bool(thePayment));
 
@@ -699,7 +699,7 @@ std::int32_t RecordList::depositCheque(  // a static method
 
     OT_ASSERT(false != bool(cheque));
 
-    cheque->LoadContractFromString(String(instrument.c_str()));
+    cheque->LoadContractFromString(String::Factory(instrument.c_str()));
 
     std::string response;
     {
@@ -854,7 +854,7 @@ std::int32_t RecordList::confirmPaymentPlan_lowLevel(  // a static method
 
     OT_ASSERT(false != bool(paymentPlan));
 
-    paymentPlan->LoadContractFromString(String(confirmed.c_str()));
+    paymentPlan->LoadContractFromString(String::Factory(confirmed.c_str()));
 
     std::string response;
     {
@@ -1018,9 +1018,9 @@ bool RecordList::checkNym(
     if (!pNym) pNym = wallet.NymByIDPartialMatch(nym);
 
     if (pNym) {
-        String tmp;
+        auto tmp = String::Factory();
         pNym->GetIdentifier(tmp);
-        nym = tmp.Get();
+        nym = tmp->Get();
     } else if (checkExistance) {
         otOut << "Error: " << name << ": unknown nym: " << nym << "\n";
         return false;
@@ -1243,7 +1243,7 @@ std::int32_t RecordList::cancel_outgoing_payments(
 
             OT_ASSERT(false != bool(contract));
 
-            contract->LoadContractFromString(String(payment));
+            contract->LoadContractFromString(String::Factory(payment));
             std::string response;
             {
                 response = Opentxs::Client()
@@ -1286,7 +1286,7 @@ std::int32_t RecordList::cancel_outgoing_payments(
 
             OT_ASSERT(false != bool(plan));
 
-            plan->LoadContractFromString(String(payment));
+            plan->LoadContractFromString(String::Factory(payment));
             std::string response;
             {
                 response = Opentxs::Client()
@@ -1662,7 +1662,7 @@ bool RecordList::PerformAutoAccept()
                           "Nyms...\n";
             const std::string& str_nym_id(it_nym);
             const auto theNymID = Identifier::Factory(str_nym_id);
-            const String strNymID(theNymID);
+            const auto strNymID = String::Factory(theNymID);
             ConstNym pNym = wallet_.Nym(theNymID);
             if (!pNym) continue;
             // LOOP SERVERS
@@ -1685,9 +1685,9 @@ bool RecordList::PerformAutoAccept()
                               "wallet. (Probably deleted by the user.)\n";
                     continue;
                 }
-                const String strMsgNotaryID(theMsgNotaryID);
+                const auto strMsgNotaryID = String::Factory(theMsgNotaryID);
                 otInfo << __FUNCTION__ << ": Msg Notary " << nServerIndex
-                       << ", ID: " << strMsgNotaryID.Get() << "\n";
+                       << ", ID: " << strMsgNotaryID->Get() << "\n";
 
                 mapOfPayments thePaymentMap;
 
@@ -1748,9 +1748,9 @@ bool RecordList::PerformAutoAccept()
 
                             if (pPayment->GetInstrumentDefinitionID(
                                     theInstrumentDefinitionID)) {
-                                String strTemp(theInstrumentDefinitionID);
+                                auto strTemp = String::Factory(theInstrumentDefinitionID);
                                 const std::string str_inpmt_asset(
-                                    strTemp.Get());  // The instrument
+                                    strTemp->Get());  // The instrument
                                                      // definition
                                                      // we found
                                                      // on the payment (if we
@@ -1861,7 +1861,7 @@ bool RecordList::PerformAutoAccept()
                                      "Skipping.\n";
                             continue;
                         }
-                        String payment;
+                        auto payment = String::Factory();
                         if (!pPayment->GetPaymentContents(payment)) {
                             otErr << __FUNCTION__
                                   << ": Error: Failed while trying to "
@@ -1890,8 +1890,8 @@ bool RecordList::PerformAutoAccept()
                             str_payment_notary_id;
 
                         if (bGotPaymentNotary) {
-                            const String strPaymentNotaryId(paymentNotaryId);
-                            str_payment_notary_id = strPaymentNotaryId.Get();
+                            const auto strPaymentNotaryId = String::Factory(paymentNotaryId);
+                            str_payment_notary_id = strPaymentNotaryId->Get();
                         }
                         if (str_payment_notary_id.empty()) {
                             otErr
@@ -1902,10 +1902,10 @@ bool RecordList::PerformAutoAccept()
                         }
 
                         if (bGotAsset) {
-                            const String strInstrumentDefinitionID(
+                            const auto strInstrumentDefinitionID = String::Factory(
                                 paymentAssetType);
                             str_instrument_definition_id =
-                                strInstrumentDefinitionID.Get();
+                                strInstrumentDefinitionID->Get();
                         }
                         if (str_instrument_definition_id.empty()) {
                             otErr
@@ -1944,9 +1944,9 @@ bool RecordList::PerformAutoAccept()
                             const std::string str_acct_type =
                                 account.get().GetTypeString();
                             account.Release();
-                            const String strAcctNymID(theAcctNymID);
-                            const String strAcctNotaryID(theAcctNotaryID);
-                            const String strAcctInstrumentDefinitionID(
+                            const auto strAcctNymID = String::Factory(theAcctNymID);
+                            const auto strAcctNotaryID = String::Factory(theAcctNotaryID);
+                            const auto strAcctInstrumentDefinitionID = String::Factory(
                                 theAcctInstrumentDefinitionID);
                             // If the current account is owned by the Nym, AND
                             // it has the same instrument definition ID
@@ -1958,17 +1958,17 @@ bool RecordList::PerformAutoAccept()
                             // this loop in the first place.
                             //
                             if ((theNymID == theAcctNymID) &&
-                                (strAcctNotaryID.Compare(
+                                (strAcctNotaryID->Compare(
                                     str_payment_notary_id.c_str())) &&
-                                (strAcctInstrumentDefinitionID.Compare(
+                                (strAcctInstrumentDefinitionID->Compare(
                                     str_instrument_definition_id.c_str())) &&
                                 // No issuer accounts allowed here. User only.
                                 (0 == str_acct_type.compare("user"))) {
                                 // Accept it.
                                 //
-                                String strIndices;
-                                strIndices.Format("%d", lIndex);
-                                const std::string str_indices(strIndices.Get());
+                                auto strIndices = String::Factory();
+                                strIndices->Format("%d", lIndex);
+                                const std::string str_indices(strIndices->Get());
 
                                 std::string str_server_response;
 
@@ -2058,16 +2058,16 @@ bool RecordList::PerformAutoAccept()
             const Identifier& theInstrumentDefinitionID =
                 account.get().GetInstrumentDefinitionID();
             account.Release();
-            const String strNymID(theNymID);
-            const String strNotaryID(theNotaryID);
-            const String strInstrumentDefinitionID(theInstrumentDefinitionID);
+            const auto strNymID = String::Factory(theNymID);
+            const auto strNotaryID = String::Factory(theNotaryID);
+            const auto strInstrumentDefinitionID = String::Factory(theInstrumentDefinitionID);
             otInfo << "------------\n"
                    << __FUNCTION__ << ": Account: " << nAccountIndex
                    << ", ID: " << str_account_id.c_str() << "\n";
-            const std::string str_nym_id(strNymID.Get());
-            const std::string str_notary_id(strNotaryID.Get());
+            const std::string str_nym_id(strNymID->Get());
+            const std::string str_notary_id(strNotaryID->Get());
             const std::string str_instrument_definition_id(
-                strInstrumentDefinitionID.Get());
+                strInstrumentDefinitionID->Get());
             // NOTE: Since this account is already on my "care about" list for
             // accounts,
             // I wouldn't bother double-checking my "care about" lists for
@@ -2122,8 +2122,8 @@ bool RecordList::PerformAutoAccept()
                           "the latest one?)\n";
                 continue;
             }
-            const String strInbox(*pInbox);
-            const std::string str_inbox(strInbox.Get());
+            const auto strInbox = String::Factory(*pInbox);
+            const std::string str_inbox(strInbox->Get());
             bool bFoundAnyToAccept = false;
             std::string strResponseLedger;
             std::int32_t nInboxIndex = -1;
@@ -2186,8 +2186,8 @@ bool RecordList::PerformAutoAccept()
                             continue;
                         }
                     }
-                    const String strTrans(*pBoxTrans);
-                    const std::string str_trans(strTrans.Get());
+                    const auto strTrans = String::Factory(*pBoxTrans);
+                    const std::string str_trans(strTrans->Get());
                     std::string strNEW_ResponseLEDGER =
                         Opentxs::Client().Exec().Transaction_CreateResponse(
                             str_notary_id,
@@ -2235,7 +2235,7 @@ bool RecordList::PerformAutoAccept()
                 OT_ASSERT(false != bool(ledger));
 
                 const auto loaded =
-                    ledger->LoadLedgerFromString(String(strFinalizedResponse));
+                    ledger->LoadLedgerFromString(String::Factory(strFinalizedResponse));
 
                 OT_ASSERT(loaded);
 
@@ -2328,7 +2328,7 @@ bool RecordList::Populate()
              ++nCurrentOutpayment) {
             otInfo << __FUNCTION__
                    << ": Outpayment instrument: " << nCurrentOutpayment << "\n";
-            const String strOutpayment(
+            const auto strOutpayment = String::Factory(
                 SwigWrap::GetNym_OutpaymentsContentsByIndex(
                     str_nym_id, nCurrentOutpayment));
             std::string str_memo;
@@ -2341,7 +2341,7 @@ bool RecordList::Populate()
                 otErr << __FUNCTION__
                       << ": Skipping: Unable to load outpayments "
                          "instrument from string:\n"
-                      << strOutpayment.Get() << "\n";
+                      << strOutpayment->Get() << "\n";
                 continue;
             }
             Amount lAmount = 0;
@@ -2358,9 +2358,9 @@ bool RecordList::Populate()
                     (lAmount < 0))
                     lAmount *= (-1);
 
-                String strTemp;
-                strTemp.Format("%" PRId64 "", lAmount);
-                str_amount = strTemp.Get();
+                auto strTemp = String::Factory();
+                strTemp->Format("%" PRId64 "", lAmount);
+                str_amount = strTemp->Get();
             }
             auto theInstrumentDefinitionID = Identifier::Factory();
             const std::string* p_str_asset_type =
@@ -2389,8 +2389,8 @@ bool RecordList::Populate()
             // --------------------------------------------------
             if (theOutPayment->GetInstrumentDefinitionID(
                     theInstrumentDefinitionID)) {
-                String strTemp(theInstrumentDefinitionID);
-                str_outpmt_asset = strTemp.Get();
+                auto strTemp = String::Factory(theInstrumentDefinitionID);
+                str_outpmt_asset = strTemp->Get();
                 auto it_asset = m_assets.find(str_outpmt_asset);
                 if (it_asset != m_assets.end())  // Found it on the map of asset
                                                  // types we care about.
@@ -2535,15 +2535,15 @@ bool RecordList::Populate()
                 // second item in the map's pair. (Just like I already did with
                 // the instrument definition.)
                 //
-                String strNameTemp;
+                auto strNameTemp = String::Factory();
                 std::string str_name;
-                strNameTemp.Format(
+                strNameTemp->Format(
                     RecordList::textTo(), str_outpmt_recipientID.c_str());
 
-                str_name = strNameTemp.Get();
-                String strMemo;
+                str_name = strNameTemp->Get();
+                auto strMemo = String::Factory();
                 if (theOutPayment->GetMemo(strMemo)) {
-                    str_memo = strMemo.Get();
+                    str_memo = strMemo->Get();
                 }
                 // For the "date" on this record we're using the "valid from"
                 // date on the instrument.
@@ -2553,9 +2553,9 @@ bool RecordList::Populate()
 
                 if (theOutPayment->GetValidFrom(tFrom)) {
                     const std::uint64_t lFrom = OTTimeGetSecondsFromTime(tFrom);
-                    String strFrom;
-                    strFrom.Format("%" PRIu64 "", lFrom);
-                    str_date = strFrom.Get();
+                    auto strFrom = String::Factory();
+                    strFrom->Format("%" PRIu64 "", lFrom);
+                    str_date = strFrom->Get();
                 }
                 theOutPayment->GetValidTo(tTo);
                 // Instrument type (cheque, voucher, etc)
@@ -2602,7 +2602,7 @@ bool RecordList::Populate()
                     false,     // IsRecord
                     false,     // IsReceipt
                     Record::Instrument));
-                sp_Record->SetContents(strOutpayment.Get());
+                sp_Record->SetContents(strOutpayment->Get());
                 sp_Record->SetOtherNymID(str_outpmt_recipientID);
                 if (!str_memo.empty()) sp_Record->SetMemo(str_memo);
                 sp_Record->SetDateRange(tFrom, tTo);
@@ -2687,12 +2687,12 @@ bool RecordList::Populate()
                     // item in the map's pair. (Just like I already did with the
                     // instrument definition.)
                     //
-                    String strNameTemp;
+                    auto strNameTemp = String::Factory();
                     std::string str_name;
-                    strNameTemp.Format(
+                    strNameTemp->Format(
                         RecordList::textFrom(), str_mail_senderID.c_str());
 
-                    str_name = strNameTemp.Get();
+                    str_name = strNameTemp->Get();
                     const std::string* p_str_asset_type =
                         &RecordList::s_blank;  // <========== ASSET TYPE
                     const std::string* p_str_asset_name =
@@ -2705,9 +2705,9 @@ bool RecordList::Populate()
                                              // we leave this empty.)
 
                     std::uint64_t lDate = message->m_lTime;
-                    String strDate;
-                    strDate.Format("%" PRIu64 "", lDate);
-                    const std::string str_date(strDate.Get());
+                    auto strDate = String::Factory();
+                    strDate->Format("%" PRIu64 "", lDate);
+                    const std::string str_date(strDate->Get());
                     // CREATE A Record AND POPULATE IT...
                     //
                     otInfo << __FUNCTION__ << ": ADDED: incoming mail.\n";
@@ -2741,9 +2741,9 @@ bool RecordList::Populate()
                         false,  // IsRecord
                         false,  // IsReceipt
                         Record::Mail));
-                    const String strMail(
+                    const auto strMail = String::Factory(
                         SwigWrap::GetNym_MailContentsByIndex(str_nym_id, id));
-                    sp_Record->SetContents(strMail.Get());
+                    sp_Record->SetContents(strMail->Get());
                     sp_Record->SetOtherNymID(str_mail_senderID);
                     sp_Record->SetBoxIndex(index);
                     sp_Record->SetThreadItemId(id);
@@ -2807,12 +2807,12 @@ bool RecordList::Populate()
                     // item in the map's pair. (Just like I already did with the
                     // instrument definition.)
                     //
-                    String strNameTemp;
+                    auto strNameTemp = String::Factory();
                     std::string str_name;
-                    strNameTemp.Format(
+                    strNameTemp->Format(
                         RecordList::textTo(), str_mail_recipientID.c_str());
 
-                    str_name = strNameTemp.Get();
+                    str_name = strNameTemp->Get();
                     const std::string* p_str_asset_type =
                         &RecordList::s_blank;  // <========== ASSET TYPE
                     const std::string* p_str_asset_name =
@@ -2825,9 +2825,9 @@ bool RecordList::Populate()
                                              // we leave this empty.)
 
                     std::uint64_t lDate = message->m_lTime;
-                    String strDate;
-                    strDate.Format("%" PRIu64 "", lDate);
-                    const std::string str_date(strDate.Get());
+                    auto strDate = String::Factory();
+                    strDate->Format("%" PRIu64 "", lDate);
+                    const std::string str_date(strDate->Get());
                     // CREATE A Record AND POPULATE IT...
                     //
                     otInfo << __FUNCTION__ << ": ADDED: sent mail.\n";
@@ -2861,10 +2861,10 @@ bool RecordList::Populate()
                         false,  // IsRecord (it's not in the record box.)
                         false,  // IsReceipt
                         Record::Mail));
-                    const String strOutmail(
+                    const auto strOutmail = String::Factory(
                         SwigWrap::GetNym_OutmailContentsByIndex(
                             str_nym_id, id));
-                    sp_Record->SetContents(strOutmail.Get());
+                    sp_Record->SetContents(strOutmail->Get());
                     sp_Record->SetThreadItemId(id);
                     sp_Record->SetBoxIndex(index);
                     sp_Record->SetOtherNymID(str_mail_recipientID);
@@ -2894,9 +2894,9 @@ bool RecordList::Populate()
                           "wallet. (Probably deleted by the user.)\n";
                 continue;
             }
-            const String strMsgNotaryID(theMsgNotaryID);
+            const auto strMsgNotaryID = String::Factory(theMsgNotaryID);
             otInfo << __FUNCTION__ << ": Transport Notary " << nServerIndex
-                   << ", ID: " << strMsgNotaryID.Get() << "\n";
+                   << ", ID: " << strMsgNotaryID->Get() << "\n";
             // OPTIMIZE FYI:
             // The "NoVerify" version is much faster, but you will lose the
             // ability to get the
@@ -2931,26 +2931,26 @@ bool RecordList::Populate()
 
                     std::string str_payment_notary;
                     const std::string str_transport_notary =
-                        strMsgNotaryID.Get();
+                        strMsgNotaryID->Get();
 
                     if (!pBoxTrans->IsAbbreviated()) {
                         auto theSenderID = Identifier::Factory();
 
                         if (pBoxTrans->GetSenderNymIDForDisplay(theSenderID)) {
-                            const String strSenderID(theSenderID);
-                            str_sender_nym_id = strSenderID.Get();
-                            String strNameTemp;
-                            strNameTemp.Format(
+                            const auto strSenderID = String::Factory(theSenderID);
+                            str_sender_nym_id = strSenderID->Get();
+                            auto strNameTemp = String::Factory();
+                            strNameTemp->Format(
                                 RecordList::textFrom(),
                                 str_sender_nym_id.c_str());
-                            str_name = strNameTemp.Get();
+                            str_name = strNameTemp->Get();
                         }
 
                         theSenderID->Release();
 
                         if (pBoxTrans->GetSenderAcctIDForDisplay(theSenderID)) {
-                            const String strSenderID(theSenderID);
-                            str_sender_acct_id = strSenderID.Get();
+                            const auto strSenderID = String::Factory(theSenderID);
+                            str_sender_acct_id = strSenderID->Get();
                         }
                     }
                     time64_t tValidFrom = OT_TIME_ZERO, tValidTo = OT_TIME_ZERO;
@@ -2962,9 +2962,9 @@ bool RecordList::Populate()
                         tValidFrom = tDateSigned;
                         const std::uint64_t lDateSigned =
                             OTTimeGetSecondsFromTime(tDateSigned);
-                        String strDateSigned;
-                        strDateSigned.Format("%" PRIu64 "", lDateSigned);
-                        str_date = strDateSigned.Get();
+                        auto strDateSigned = String::Factory();
+                        strDateSigned->Format("%" PRIu64 "", lDateSigned);
+                        str_date = strDateSigned->Get();
                     }
                     const std::string* p_str_asset_type =
                         &RecordList::s_blank;  // <========== ASSET TYPE
@@ -2974,7 +2974,7 @@ bool RecordList::Populate()
                     std::string str_amount;    // <========== AMOUNT
                     std::string str_type;      // Instrument type.
                     std::string str_memo;
-                    String strContents;  // Instrument contents.
+                    auto strContents = String::Factory();  // Instrument contents.
 
                     TransactionNumber lPaymentInstrumentTransNumDisplay = 0;
 
@@ -2985,9 +2985,9 @@ bool RecordList::Populate()
                         Amount lAmount = pBoxTrans->GetAbbrevDisplayAmount();
 
                         if (0 != lAmount) {
-                            String strTemp;
-                            strTemp.Format("%" PRId64 "", lAmount);
-                            str_amount = strTemp.Get();
+                            auto strTemp = String::Factory();
+                            strTemp->Format("%" PRId64 "", lAmount);
+                            str_amount = strTemp->Get();
                         }
                     } else  // NOT abbreviated. (Full box receipt is already
                             // loaded.)
@@ -3007,9 +3007,9 @@ bool RecordList::Populate()
                             if (0 == lAmount)
                                 lAmount = pBoxTrans->GetReceiptAmount();
                             if (0 != lAmount) {
-                                String strTemp;
-                                strTemp.Format("%" PRId64 "", lAmount);
-                                str_amount = strTemp.Get();
+                                auto strTemp = String::Factory();
+                                strTemp->Format("%" PRId64 "", lAmount);
+                                str_amount = strTemp->Get();
                             }
                         }
                         // We have pPayment, the instrument accompanying the
@@ -3065,13 +3065,13 @@ bool RecordList::Populate()
                             if (tValidFrom > OT_TIME_ZERO) {
                                 const std::uint64_t lFrom =
                                     OTTimeGetSecondsFromTime(tValidFrom);
-                                String strFrom;
-                                strFrom.Format("%" PRIu64 "", lFrom);
-                                str_date = strFrom.Get();
+                                auto strFrom = String::Factory();
+                                strFrom->Format("%" PRIu64 "", lFrom);
+                                str_date = strFrom->Get();
                             }
-                            String strMemo;
+                            auto strMemo = String::Factory();
                             if (pPayment->GetMemo(strMemo)) {
-                                str_memo = strMemo.Get();
+                                str_memo = strMemo->Get();
                             }
 
                             auto paymentNotaryId = Identifier::Factory();
@@ -3089,9 +3089,9 @@ bool RecordList::Populate()
 
                             if (pPayment->GetInstrumentDefinitionID(
                                     theInstrumentDefinitionID)) {
-                                String strTemp(theInstrumentDefinitionID);
+                                auto strTemp = String::Factory(theInstrumentDefinitionID);
                                 const std::string str_inpmt_asset(
-                                    strTemp.Get());  // The instrument
+                                    strTemp->Get());  // The instrument
                                                      // definition we found
                                 // on the payment (if we found anything.)
                                 auto it_asset = m_assets.find(str_inpmt_asset);
@@ -3125,8 +3125,8 @@ bool RecordList::Populate()
                             if (str_sender_acct_id.empty() &&
                                 pPayment->GetSenderAcctIDForDisplay(
                                     theSenderAcctID)) {
-                                String strTemp(theSenderAcctID);
-                                str_sender_acct_id = strTemp.Get();
+                                auto strTemp = String::Factory(theSenderAcctID);
+                                str_sender_acct_id = strTemp->Get();
                             }
                             // By this point, p_str_asset_type and
                             // p_str_asset_name are definitely set.
@@ -3152,9 +3152,9 @@ bool RecordList::Populate()
                             Amount lAmount = 0;
 
                             if (pPayment->GetAmount(lAmount)) {
-                                String strTemp;
-                                strTemp.Format("%" PRId64 "", lAmount);
-                                str_amount = strTemp.Get();
+                                auto strTemp = String::Factory();
+                                strTemp->Format("%" PRId64 "", lAmount);
+                                str_amount = strTemp->Get();
                             }
                         }
                     }
@@ -3194,8 +3194,8 @@ bool RecordList::Populate()
                         false,  // bIsRecord
                         false,  // bIsReceipt
                         Record::Instrument));
-                    if (strContents.Exists())
-                        sp_Record->SetContents(strContents.Get());
+                    if (strContents->Exists())
+                        sp_Record->SetContents(strContents->Get());
                     sp_Record->SetDateRange(tValidFrom, tValidTo);
                     sp_Record->SetBoxIndex(nIndex);
                     if (!str_memo.empty()) sp_Record->SetMemo(str_memo);
@@ -3328,8 +3328,8 @@ bool RecordList::Populate()
                              theRecipientAcctID = Identifier::Factory();
 
                         if (pBoxTrans->GetSenderNymIDForDisplay(theSenderID)) {
-                            const String strSenderID(theSenderID);
-                            const std::string str_sender_id(strSenderID.Get());
+                            const auto strSenderID = String::Factory(theSenderID);
+                            const std::string str_sender_id(strSenderID->Get());
 
                             // Usually, Nym is the RECIPIENT. Sometimes he's the
                             // sender.
@@ -3366,23 +3366,23 @@ bool RecordList::Populate()
 
                                 if (pBoxTrans->GetRecipientNymIDForDisplay(
                                         theRecipientID)) {
-                                    const String strRecipientID(theRecipientID);
+                                    const auto strRecipientID = String::Factory(theRecipientID);
                                     const std::string str_recipient_id(
-                                        strRecipientID.Get());
+                                        strRecipientID->Get());
 
-                                    String strNameTemp;
-                                    strNameTemp.Format(
+                                    auto strNameTemp = String::Factory();
+                                    strNameTemp->Format(
                                         RecordList::textTo(),
                                         str_recipient_id.c_str());
-                                    str_name = strNameTemp.Get();
+                                    str_name = strNameTemp->Get();
                                     str_other_nym_id = str_recipient_id;
 
                                     if (pBoxTrans->GetRecipientAcctIDForDisplay(
                                             theRecipientAcctID)) {
-                                        const String strRecipientAcctID(
+                                        const auto strRecipientAcctID = String::Factory(
                                             theRecipientAcctID);
                                         str_other_acct_id =
-                                            strRecipientAcctID.Get();
+                                            strRecipientAcctID->Get();
                                     }
                                 }
                             } else  // str_nym_id IS NOT str_sender_id.
@@ -3406,18 +3406,18 @@ bool RecordList::Populate()
                                 } else
                                     bOutgoing = false;
 
-                                String strNameTemp;
-                                strNameTemp.Format(
+                                auto strNameTemp = String::Factory();
+                                strNameTemp->Format(
                                     RecordList::textFrom(),
                                     str_sender_id.c_str());
-                                str_name = strNameTemp.Get();
+                                str_name = strNameTemp->Get();
                                 str_other_nym_id = str_sender_id;
 
                                 if (pBoxTrans->GetSenderAcctIDForDisplay(
                                         theSenderAcctID)) {
-                                    const String strSenderAcctID(
+                                    const auto strSenderAcctID = String::Factory(
                                         theSenderAcctID);
-                                    str_other_acct_id = strSenderAcctID.Get();
+                                    str_other_acct_id = strSenderAcctID->Get();
                                 }
                             }
                         }
@@ -3426,9 +3426,9 @@ bool RecordList::Populate()
                         // (So it's "recipient or bust.")
                         else if (pBoxTrans->GetRecipientNymIDForDisplay(
                                      theRecipientID)) {
-                            const String strRecipientID(theRecipientID);
+                            const auto strRecipientID = String::Factory(theRecipientID);
                             const std::string str_recipient_id(
-                                strRecipientID.Get());
+                                strRecipientID->Get());
 
                             if (0 !=
                                 str_nym_id.compare(
@@ -3453,18 +3453,18 @@ bool RecordList::Populate()
                                                        // then it must have been
                                                        // outgoing.
 
-                                String strNameTemp;
-                                strNameTemp.Format(
+                                auto strNameTemp = String::Factory();
+                                strNameTemp->Format(
                                     RecordList::textTo(),
                                     str_recipient_id.c_str());
-                                str_name = strNameTemp.Get();
+                                str_name = strNameTemp->Get();
                                 str_other_nym_id = str_recipient_id;
                                 if (pBoxTrans->GetRecipientAcctIDForDisplay(
                                         theRecipientAcctID)) {
-                                    const String strRecipientAcctID(
+                                    const auto strRecipientAcctID = String::Factory(
                                         theRecipientAcctID);
                                     str_other_acct_id =
-                                        strRecipientAcctID.Get();
+                                        strRecipientAcctID->Get();
                                 }
                             }
                         }
@@ -3478,9 +3478,9 @@ bool RecordList::Populate()
                         tValidFrom = tDateSigned;
                         const std::uint64_t lDateSigned =
                             OTTimeGetSecondsFromTime(tDateSigned);
-                        String strDateSigned;
-                        strDateSigned.Format("%" PRIu64 "", lDateSigned);
-                        str_date = strDateSigned.Get();
+                        auto strDateSigned = String::Factory();
+                        strDateSigned->Format("%" PRIu64 "", lDateSigned);
+                        str_date = strDateSigned->Get();
                     }
                     const std::string* p_str_asset_type =
                         &RecordList::s_blank;  // <========== ASSET TYPE
@@ -3492,7 +3492,7 @@ bool RecordList::Populate()
                     std::string str_amount;    // <========== AMOUNT
                     std::string str_type;      // Instrument type.
                     std::string str_memo;  // Instrument memo (if applicable.)
-                    String strContents;    // Instrument contents.
+                    auto strContents = String::Factory();    // Instrument contents.
 
                     std::string str_payment_notary_id;
                     TransactionNumber lPaymentInstrumentTransNumDisplay = 0;
@@ -3504,9 +3504,9 @@ bool RecordList::Populate()
                         Amount lAmount = pBoxTrans->GetAbbrevDisplayAmount();
 
                         if (0 != lAmount) {
-                            String strTemp;
-                            strTemp.Format("%" PRId64 "", lAmount);
-                            str_amount = strTemp.Get();
+                            auto strTemp = String::Factory();
+                            strTemp->Format("%" PRId64 "", lAmount);
+                            str_amount = strTemp->Get();
                         }
                     } else  // NOT abbreviated. (Full box receipt is already
                             // loaded.)
@@ -3525,9 +3525,9 @@ bool RecordList::Populate()
                                 pBoxTrans->GetAbbrevDisplayAmount();
 
                             if (0 != lAmount) {
-                                String strTemp;
-                                strTemp.Format("%" PRId64 "", lAmount);
-                                str_amount = strTemp.Get();
+                                auto strTemp = String::Factory();
+                                strTemp->Format("%" PRId64 "", lAmount);
+                                str_amount = strTemp->Get();
                             }
                         }
                         // We have pPayment, the instrument accompanying the
@@ -3555,9 +3555,9 @@ bool RecordList::Populate()
                             if (tValidFrom > OT_TIME_ZERO) {
                                 const std::uint64_t lFrom =
                                     OTTimeGetSecondsFromTime(tValidFrom);
-                                String strFrom;
-                                strFrom.Format("%" PRIu64 "", lFrom);
-                                str_date = strFrom.Get();
+                                auto strFrom = String::Factory();
+                                strFrom->Format("%" PRIu64 "", lFrom);
+                                str_date = strFrom->Get();
                             }
                             pPayment->GetPaymentContents(strContents);
                             auto theAccountID = Identifier::Factory();
@@ -3593,9 +3593,9 @@ bool RecordList::Populate()
                                     // merchant is the "sender" of the proposal,
                                     // he's the
                                     // "recipient" on the instrument.
-                                    String strTemp(theAccountID);
+                                    auto strTemp = String::Factory(theAccountID);
                                     std::string str_outpmt_account =
-                                        strTemp.Get();  // The accountID we
+                                        strTemp->Get();  // The accountID we
                                                         // found on the payment
                                                         // (only applies to
                                                         // outgoing payments.)
@@ -3655,8 +3655,8 @@ bool RecordList::Populate()
                                           theAccountID)) ||
                                      pPayment->GetSenderAcctIDForDisplay(
                                          theAccountID))) {
-                                    String strTemp(theAccountID);
-                                    str_other_acct_id = strTemp.Get();
+                                    auto strTemp = String::Factory(theAccountID);
+                                    str_other_acct_id = strTemp->Get();
                                 }
                             }
                             // By this point, p_str_account is definitely set.
@@ -3672,9 +3672,9 @@ bool RecordList::Populate()
 
                             if (pPayment->GetInstrumentDefinitionID(
                                     theInstrumentDefinitionID)) {
-                                String strTemp(theInstrumentDefinitionID);
+                                auto strTemp = String::Factory(theInstrumentDefinitionID);
                                 const std::string str_inpmt_asset(
-                                    strTemp.Get());  // The instrument
+                                    strTemp->Get());  // The instrument
                                                      // definition we found on
                                                      // the payment (if we found
                                                      // anything.)
@@ -3722,9 +3722,9 @@ bool RecordList::Populate()
                             // types we care
                             // about.
 
-                            String strMemo;
+                            auto strMemo = String::Factory();
                             if (pPayment->GetMemo(strMemo)) {
-                                str_memo = strMemo.Get();
+                                str_memo = strMemo->Get();
                             }
                             // Instrument type (cheque, voucher, etc)
                             std::int32_t nType =
@@ -3734,9 +3734,9 @@ bool RecordList::Populate()
                             Amount lAmount = 0;
 
                             if (pPayment->GetAmount(lAmount)) {
-                                String strTemp;
-                                strTemp.Format("%" PRId64 "", lAmount);
-                                str_amount = strTemp.Get();
+                                auto strTemp = String::Factory();
+                                strTemp->Format("%" PRId64 "", lAmount);
+                                str_amount = strTemp->Get();
                             }
 
                             auto paymentNotaryId = Identifier::Factory();
@@ -3776,8 +3776,8 @@ bool RecordList::Populate()
                         false,      // IsReceipt,
                         recordType));
 
-                    if (strContents.Exists())
-                        sp_Record->SetContents(strContents.Get());
+                    if (strContents->Exists())
+                        sp_Record->SetContents(strContents->Get());
 
                     sp_Record->SetDateRange(tValidFrom, tValidTo);
                     sp_Record->SetBoxIndex(nIndex);
@@ -3911,8 +3911,8 @@ bool RecordList::Populate()
                              theRecipientAcctID = Identifier::Factory();
 
                         if (pBoxTrans->GetSenderNymIDForDisplay(theSenderID)) {
-                            const String strSenderID(theSenderID);
-                            const std::string str_sender_id(strSenderID.Get());
+                            const auto strSenderID = String::Factory(theSenderID);
+                            const std::string str_sender_id(strSenderID->Get());
 
                             // Usually, Nym is the RECIPIENT. Sometimes he's the
                             // sender.
@@ -3943,23 +3943,23 @@ bool RecordList::Populate()
 
                                 if (pBoxTrans->GetRecipientNymIDForDisplay(
                                         theRecipientID)) {
-                                    const String strRecipientID(theRecipientID);
+                                    const auto strRecipientID = String::Factory(theRecipientID);
                                     const std::string str_recipient_id(
-                                        strRecipientID.Get());
+                                        strRecipientID->Get());
 
-                                    String strNameTemp;
-                                    strNameTemp.Format(
+                                    auto strNameTemp = String::Factory();
+                                    strNameTemp->Format(
                                         RecordList::textTo(),
                                         str_recipient_id.c_str());
-                                    str_name = strNameTemp.Get();
+                                    str_name = strNameTemp->Get();
                                     str_other_nym_id = str_recipient_id;
 
                                     if (pBoxTrans->GetRecipientAcctIDForDisplay(
                                             theRecipientAcctID)) {
-                                        const String strRecipientAcctID(
+                                        const auto strRecipientAcctID = String::Factory(
                                             theRecipientAcctID);
                                         str_other_acct_id =
-                                            strRecipientAcctID.Get();
+                                            strRecipientAcctID->Get();
                                     }
                                 }
                             } else  // str_nym_id IS NOT str_sender_id.
@@ -3978,18 +3978,18 @@ bool RecordList::Populate()
                                 else
                                     bOutgoing = false;
 
-                                String strNameTemp;
-                                strNameTemp.Format(
+                                auto strNameTemp = String::Factory();
+                                strNameTemp->Format(
                                     RecordList::textFrom(),
                                     str_sender_id.c_str());
-                                str_name = strNameTemp.Get();
+                                str_name = strNameTemp->Get();
                                 str_other_nym_id = str_sender_id;
 
                                 if (pBoxTrans->GetSenderAcctIDForDisplay(
                                         theSenderAcctID)) {
-                                    const String strSenderAcctID(
+                                    const auto strSenderAcctID = String::Factory(
                                         theSenderAcctID);
-                                    str_other_acct_id = strSenderAcctID.Get();
+                                    str_other_acct_id = strSenderAcctID->Get();
                                 }
                             }
                         }
@@ -3998,9 +3998,9 @@ bool RecordList::Populate()
                         // (So it's "recipient or bust.")
                         else if (pBoxTrans->GetRecipientNymIDForDisplay(
                                      theRecipientID)) {
-                            const String strRecipientID(theRecipientID);
+                            const auto strRecipientID = String::Factory(theRecipientID);
                             const std::string str_recipient_id(
-                                strRecipientID.Get());
+                                strRecipientID->Get());
 
                             if (0 !=
                                 str_nym_id.compare(
@@ -4023,19 +4023,19 @@ bool RecordList::Populate()
                                                        // then it must have been
                                                        // outgoing.
 
-                                String strNameTemp;
-                                strNameTemp.Format(
+                                auto strNameTemp = String::Factory();
+                                strNameTemp->Format(
                                     RecordList::textTo(),
                                     str_recipient_id.c_str());
-                                str_name = strNameTemp.Get();
+                                str_name = strNameTemp->Get();
                                 str_other_nym_id = str_recipient_id;
 
                                 if (pBoxTrans->GetRecipientAcctIDForDisplay(
                                         theRecipientAcctID)) {
-                                    const String strRecipientAcctID(
+                                    const auto strRecipientAcctID = String::Factory(
                                         theRecipientAcctID);
                                     str_other_acct_id =
-                                        strRecipientAcctID.Get();
+                                        strRecipientAcctID->Get();
                                 }
                             }
                         }
@@ -4049,9 +4049,9 @@ bool RecordList::Populate()
                         tValidFrom = tDateSigned;
                         const std::uint64_t lDateSigned =
                             OTTimeGetSecondsFromTime(tDateSigned);
-                        String strDateSigned;
-                        strDateSigned.Format("%" PRIu64 "", lDateSigned);
-                        str_date = strDateSigned.Get();
+                        auto strDateSigned = String::Factory();
+                        strDateSigned->Format("%" PRIu64 "", lDateSigned);
+                        str_date = strDateSigned->Get();
                     }
                     const std::string* p_str_asset_type =
                         &RecordList::s_blank;  // <========== ASSET TYPE
@@ -4063,7 +4063,7 @@ bool RecordList::Populate()
                     std::string str_amount;    // <========== AMOUNT
                     std::string str_type;      // Instrument type.
                     std::string str_memo;  // Instrument memo (if applicable.)
-                    String strContents;    // Instrument contents.
+                    auto strContents = String::Factory();    // Instrument contents.
 
                     std::string str_payment_notary_id;
 
@@ -4076,9 +4076,9 @@ bool RecordList::Populate()
                         Amount lAmount = pBoxTrans->GetAbbrevDisplayAmount();
 
                         if (0 != lAmount) {
-                            String strTemp;
-                            strTemp.Format("%" PRId64 "", lAmount);
-                            str_amount = strTemp.Get();
+                            auto strTemp = String::Factory();
+                            strTemp->Format("%" PRId64 "", lAmount);
+                            str_amount = strTemp->Get();
                         }
                     } else  // NOT abbreviated. (Full box receipt is already
                             // loaded.)
@@ -4097,9 +4097,9 @@ bool RecordList::Populate()
                                 pBoxTrans->GetAbbrevDisplayAmount();
 
                             if (0 != lAmount) {
-                                String strTemp;
-                                strTemp.Format("%" PRId64 "", lAmount);
-                                str_amount = strTemp.Get();
+                                auto strTemp = String::Factory();
+                                strTemp->Format("%" PRId64 "", lAmount);
+                                str_amount = strTemp->Get();
                             }
                         }
                         // We have pPayment, the instrument accompanying the
@@ -4127,9 +4127,9 @@ bool RecordList::Populate()
                             if (tValidFrom > OT_TIME_ZERO) {
                                 const std::uint64_t lFrom =
                                     OTTimeGetSecondsFromTime(tValidFrom);
-                                String strFrom;
-                                strFrom.Format("%" PRIu64 "", lFrom);
-                                str_date = strFrom.Get();
+                                auto strFrom = String::Factory();
+                                strFrom->Format("%" PRIu64 "", lFrom);
+                                str_date = strFrom->Get();
                             }
                             pPayment->GetPaymentContents(strContents);
                             auto theAccountID = Identifier::Factory();
@@ -4169,9 +4169,9 @@ bool RecordList::Populate()
                                     // merchant is the "sender" of the proposal,
                                     // he's the
                                     // "recipient" on the instrument.
-                                    String strTemp(theAccountID);
+                                    auto strTemp = String::Factory(theAccountID);
                                     std::string str_outpmt_account =
-                                        strTemp.Get();  // The accountID we
+                                        strTemp->Get();  // The accountID we
                                                         // found on the payment
                                                         // (only applies to
                                                         // outgoing payments.)
@@ -4232,8 +4232,8 @@ bool RecordList::Populate()
                                           theAccountID)) ||
                                      pPayment->GetSenderAcctIDForDisplay(
                                          theAccountID))) {
-                                    String strTemp(theAccountID);
-                                    str_other_acct_id = strTemp.Get();
+                                    auto strTemp = String::Factory(theAccountID);
+                                    str_other_acct_id = strTemp->Get();
                                 }
                             }
                             // By this point, p_str_account is definitely set.
@@ -4249,9 +4249,9 @@ bool RecordList::Populate()
 
                             if (pPayment->GetInstrumentDefinitionID(
                                     theInstrumentDefinitionID)) {
-                                String strTemp(theInstrumentDefinitionID);
+                                auto strTemp = String::Factory(theInstrumentDefinitionID);
                                 const std::string str_inpmt_asset(
-                                    strTemp.Get());  // The instrument
+                                    strTemp->Get());  // The instrument
                                                      // definition we found on
                                                      // the payment (if we found
                                                      // anything.)
@@ -4298,9 +4298,9 @@ bool RecordList::Populate()
                             // the asset
                             // types we care
                             // about.
-                            String strMemo;
+                            auto strMemo = String::Factory();
                             if (pPayment->GetMemo(strMemo)) {
-                                str_memo = strMemo.Get();
+                                str_memo = strMemo->Get();
                             }
                             // Instrument type (cheque, voucher, etc)
                             std::int32_t nType =
@@ -4310,9 +4310,9 @@ bool RecordList::Populate()
                             Amount lAmount = 0;
 
                             if (pPayment->GetAmount(lAmount)) {
-                                String strTemp;
-                                strTemp.Format("%" PRId64 "", lAmount);
-                                str_amount = strTemp.Get();
+                                auto strTemp = String::Factory();
+                                strTemp->Format("%" PRId64 "", lAmount);
+                                str_amount = strTemp->Get();
                             }
                         }
                     }
@@ -4346,8 +4346,8 @@ bool RecordList::Populate()
                         true,       // IsRecord
                         false,      // IsReceipt,
                         recordType));
-                    if (strContents.Exists())
-                        sp_Record->SetContents(strContents.Get());
+                    if (strContents->Exists())
+                        sp_Record->SetContents(strContents->Get());
 
                     sp_Record->SetDateRange(tValidFrom, tValidTo);
                     sp_Record->SetExpired();
@@ -4410,16 +4410,16 @@ bool RecordList::Populate()
         const Identifier& theInstrumentDefinitionID =
             account.get().GetInstrumentDefinitionID();
         account.Release();
-        const String strNymID(theNymID);
-        const String strNotaryID(theNotaryID);
-        const String strInstrumentDefinitionID(theInstrumentDefinitionID);
+        const auto strNymID = String::Factory(theNymID);
+        const auto strNotaryID = String::Factory(theNotaryID);
+        const auto strInstrumentDefinitionID = String::Factory(theInstrumentDefinitionID);
         otInfo << "------------\n"
                << __FUNCTION__ << ": Account: " << nAccountIndex
                << ", ID: " << str_account_id.c_str() << "\n";
-        const std::string str_nym_id(strNymID.Get());
-        const std::string str_notary_id(strNotaryID.Get());
+        const std::string str_nym_id(strNymID->Get());
+        const std::string str_notary_id(strNotaryID->Get());
         const std::string str_instrument_definition_id(
-            strInstrumentDefinitionID.Get());
+            strInstrumentDefinitionID->Get());
         const std::string* pstr_nym_id = &RecordList::s_blank;
         const std::string* pstr_notary_id = &RecordList::s_blank;
         const std::string* pstr_instrument_definition_id = &RecordList::s_blank;
@@ -4498,9 +4498,9 @@ bool RecordList::Populate()
                 bool bIsSuccess = false;
 
                 if (!pBoxTrans->IsAbbreviated()) {
-                    String strMemo;
+                    auto strMemo = String::Factory();
 
-                    if (pBoxTrans->GetMemo(strMemo)) str_memo = strMemo.Get();
+                    if (pBoxTrans->GetMemo(strMemo)) str_memo = strMemo->Get();
 
                     if (transactionType::pending == pBoxTrans->GetType()) {
                         // NOTE: REMOVE THE BELOW CODE. (Found a better way,
@@ -4521,44 +4521,44 @@ bool RecordList::Populate()
                         {
                             if (pBoxTrans->GetSenderNymIDForDisplay(
                                     theSenderID)) {
-                                const String strSenderID(theSenderID);
-                                str_other_nym_id = strSenderID.Get();
+                                const auto strSenderID = String::Factory(theSenderID);
+                                str_other_nym_id = strSenderID->Get();
                             }
-                            const String strSenderAcctID(theSenderAcctID);
+                            const auto strSenderAcctID = String::Factory(theSenderAcctID);
                             const std::string str_sender_acct_id(
-                                strSenderAcctID.Get());
+                                strSenderAcctID->Get());
 
                             str_other_acct_id = str_sender_acct_id;
 
-                            String strNameTemp;
+                            auto strNameTemp = String::Factory();
 
                             if (str_name.empty()) {
-                                strNameTemp.Format(
+                                strNameTemp->Format(
                                     RecordList::textFrom(),
                                     str_sender_acct_id.c_str());
-                                str_name = strNameTemp.Get();
+                                str_name = strNameTemp->Get();
                             }
                         } else if (pBoxTrans->GetSenderNymIDForDisplay(
                                        theSenderID))  // NYM name.
                         {
-                            const String strSenderID(theSenderID);
-                            const std::string str_sender_id(strSenderID.Get());
-                            String strNameTemp;
-                            strNameTemp.Format(
+                            const auto strSenderID = String::Factory(theSenderID);
+                            const std::string str_sender_id(strSenderID->Get());
+                            auto strNameTemp = String::Factory();
+                            strNameTemp->Format(
                                 RecordList::textFrom(), str_sender_id.c_str());
-                            str_name = strNameTemp.Get();
+                            str_name = strNameTemp->Get();
                             str_other_nym_id = str_sender_id;
                         } else {
-                            String strName(SwigWrap::GetAccountWallet_Name(
+                            auto strName = String::Factory(SwigWrap::GetAccountWallet_Name(
                                 str_account_id)),
-                                strNameTemp;
+                                strNameTemp = String::Factory();
 
-                            if (strName.Exists())
+                            if (strName->Exists())
                                 strNameTemp = strName;
                             else
-                                strNameTemp = String(str_account_id);
+                                strNameTemp = String::Factory(str_account_id);
 
-                            str_name = strNameTemp.Get();
+                            str_name = strNameTemp->Get();
                         }
                     }     // end: (if pending)
                     else  // else it's a receipt.
@@ -4570,32 +4570,32 @@ bool RecordList::Populate()
 
                         if (pBoxTrans->GetRecipientNymIDForDisplay(
                                 theRecipientID)) {
-                            const String strRecipientID(theRecipientID);
+                            const auto strRecipientID = String::Factory(theRecipientID);
                             const std::string str_recipient_nym_id(
-                                strRecipientID.Get());
-                            String strNameTemp;
-                            strNameTemp.Format(
+                                strRecipientID->Get());
+                            auto strNameTemp = String::Factory();
+                            strNameTemp->Format(
                                 RecordList::textTo(),
                                 str_recipient_nym_id.c_str());
-                            str_name = strNameTemp.Get();
+                            str_name = strNameTemp->Get();
                             str_other_nym_id = str_recipient_nym_id;
 
                             if (pBoxTrans->GetRecipientAcctIDForDisplay(
                                     theRecipientAcctID)) {
-                                const String strRecipientAcctID(
+                                const auto strRecipientAcctID = String::Factory(
                                     theRecipientAcctID);
-                                str_other_acct_id = strRecipientAcctID.Get();
+                                str_other_acct_id = strRecipientAcctID->Get();
                             }
                         } else if (pBoxTrans->GetRecipientAcctIDForDisplay(
                                        theRecipientAcctID)) {
-                            const String strRecipientAcctID(theRecipientAcctID);
+                            const auto strRecipientAcctID = String::Factory(theRecipientAcctID);
                             const std::string str_recipient_acct_id(
-                                strRecipientAcctID.Get());
-                            String strNameTemp;
-                            strNameTemp.Format(
+                                strRecipientAcctID->Get());
+                            auto strNameTemp = String::Factory();
+                            strNameTemp->Format(
                                 RecordList::textTo(),
                                 str_recipient_acct_id.c_str());
-                            str_name = strNameTemp.Get();
+                            str_name = strNameTemp->Get();
                             str_other_acct_id = str_recipient_acct_id;
                         }
                     }  // end: (else it's a receipt.)
@@ -4610,18 +4610,18 @@ bool RecordList::Populate()
                     tValidFrom = tDateSigned;
                     const std::uint64_t lDateSigned =
                         OTTimeGetSecondsFromTime(tDateSigned);
-                    String strDateSigned;
-                    strDateSigned.Format("%" PRIu64 "", lDateSigned);
-                    str_date = strDateSigned.Get();
+                    auto strDateSigned = String::Factory();
+                    strDateSigned->Format("%" PRIu64 "", lDateSigned);
+                    str_date = strDateSigned->Get();
                 }
                 std::string str_amount;  // <========== AMOUNT
                 Amount lAmount = pBoxTrans->GetAbbrevDisplayAmount();
 
                 if (0 == lAmount) lAmount = pBoxTrans->GetReceiptAmount();
                 if (0 != lAmount) {
-                    String strTemp;
-                    strTemp.Format("%" PRId64 "", lAmount);
-                    str_amount = strTemp.Get();
+                    auto strTemp = String::Factory();
+                    strTemp->Format("%" PRId64 "", lAmount);
+                    str_amount = strTemp->Get();
                 }
                 const std::string str_type(
                     pBoxTrans->GetTypeString());  // pending, chequeReceipt,
@@ -4666,8 +4666,8 @@ bool RecordList::Populate()
                         ? Record::Transfer
                         : Record::Receipt));
 
-                const String strContents(*pBoxTrans);
-                sp_Record->SetContents(strContents.Get());
+                const auto strContents = String::Factory(*pBoxTrans);
+                sp_Record->SetContents(strContents->Get());
                 sp_Record->SetDateRange(tValidFrom, tValidTo);
                 sp_Record->SetBoxIndex(nInboxIndex);
 
@@ -4735,36 +4735,36 @@ bool RecordList::Populate()
 
                     if (pBoxTrans->GetRecipientNymIDForDisplay(
                             theRecipientID)) {
-                        const String strRecipientID(theRecipientID);
+                        const auto strRecipientID = String::Factory(theRecipientID);
                         const std::string str_recipient_id(
-                            strRecipientID.Get());
-                        String strNameTemp;
-                        strNameTemp.Format(
+                            strRecipientID->Get());
+                        auto strNameTemp = String::Factory();
+                        strNameTemp->Format(
                             RecordList::textTo(), str_recipient_id.c_str());
-                        str_name = strNameTemp.Get();
+                        str_name = strNameTemp->Get();
                         str_other_nym_id = str_recipient_id;
                         if (pBoxTrans->GetRecipientAcctIDForDisplay(
                                 theRecipientAcctID)) {
-                            const String strRecipientAcctID(theRecipientAcctID);
-                            str_other_acct_id = strRecipientAcctID.Get();
+                            const auto strRecipientAcctID = String::Factory(theRecipientAcctID);
+                            str_other_acct_id = strRecipientAcctID->Get();
                         }
                     } else if (pBoxTrans->GetRecipientAcctIDForDisplay(
                                    theRecipientAcctID)) {
-                        const String strRecipientAcctID(theRecipientAcctID);
+                        const auto strRecipientAcctID = String::Factory(theRecipientAcctID);
                         const std::string str_recipient_acct_id(
-                            strRecipientAcctID.Get());
-                        String strNameTemp;
-                        strNameTemp.Format(
+                            strRecipientAcctID->Get());
+                        auto strNameTemp = String::Factory();
+                        strNameTemp->Format(
                             RecordList::textTo(),
                             str_recipient_acct_id.c_str());
-                        str_name = strNameTemp.Get();
+                        str_name = strNameTemp->Get();
                         str_other_acct_id = str_recipient_acct_id;
                     }
                     if (transactionType::pending == pBoxTrans->GetType()) {
-                        String strMemo;
+                        auto strMemo = String::Factory();
 
                         if (pBoxTrans->GetMemo(strMemo))
-                            str_memo = strMemo.Get();
+                            str_memo = strMemo->Get();
 
                         // DELETE THE BELOW CODE (replaced by above code.)
                         //                    const OTString
@@ -4787,9 +4787,9 @@ bool RecordList::Populate()
                     tValidFrom = tDateSigned;
                     const std::uint64_t lDateSigned =
                         OTTimeGetSecondsFromTime(tDateSigned);
-                    String strDateSigned;
-                    strDateSigned.Format("%" PRIu64 "", lDateSigned);
-                    str_date = strDateSigned.Get();
+                    auto strDateSigned = String::Factory();
+                    strDateSigned->Format("%" PRIu64 "", lDateSigned);
+                    str_date = strDateSigned->Get();
                 }
                 std::string str_amount;  // <========== AMOUNT
                 Amount lAmount = pBoxTrans->GetAbbrevDisplayAmount();
@@ -4799,9 +4799,9 @@ bool RecordList::Populate()
                                   // negative amount
                     lAmount *= (-1);
                 if (0 != lAmount) {
-                    String strTemp;
-                    strTemp.Format("%" PRId64 "", lAmount);
-                    str_amount = strTemp.Get();
+                    auto strTemp = String::Factory();
+                    strTemp->Format("%" PRId64 "", lAmount);
+                    str_amount = strTemp->Get();
                 }
                 std::string str_type(
                     pBoxTrans->GetTypeString());  // pending, chequeReceipt,
@@ -4839,8 +4839,8 @@ bool RecordList::Populate()
                     false,  // IsRecord
                     false,  // IsReceipt
                     Record::Transfer));
-                const String strContents(*pBoxTrans);
-                sp_Record->SetContents(strContents.Get());
+                const auto strContents = String::Factory(*pBoxTrans);
+                sp_Record->SetContents(strContents->Get());
                 sp_Record->SetDateRange(tValidFrom, tValidTo);
                 sp_Record->SetBoxIndex(nOutboxIndex);
                 if (!str_memo.empty()) sp_Record->SetMemo(str_memo);
@@ -4922,9 +4922,9 @@ bool RecordList::Populate()
                          theRecipientAcctID = Identifier::Factory();
 
                     if (pBoxTrans->GetSenderAcctIDForDisplay(theSenderAcctID)) {
-                        const String strSenderAcctID(theSenderAcctID);
+                        const auto strSenderAcctID = String::Factory(theSenderAcctID);
                         const std::string str_sender_acct_id(
-                            strSenderAcctID.Get());
+                            strSenderAcctID->Get());
 
                         // Usually, Nym is the RECIPIENT. Sometimes he's the
                         // sender.
@@ -4950,18 +4950,18 @@ bool RecordList::Populate()
 
                             if (pBoxTrans->GetRecipientAcctIDForDisplay(
                                     theRecipientAcctID)) {
-                                const String strRecipientAcctID(
+                                const auto strRecipientAcctID = String::Factory(
                                     theRecipientAcctID);
                                 const std::string str_recip_acct_id(
-                                    strRecipientAcctID.Get());
+                                    strRecipientAcctID->Get());
 
-                                String strRecipientNymID("");
+                                auto strRecipientNymID = String::Factory();
                                 std::string str_recip_nym_id("");
 
                                 if (bGotRecipientNymIDForDisplay) {
                                     theRecipientID->GetString(
                                         strRecipientNymID);
-                                    str_recip_nym_id = strRecipientNymID.Get();
+                                    str_recip_nym_id = strRecipientNymID->Get();
                                 }
                                 // NOTE: We check for cancelled here so we don't
                                 // accidentally
@@ -4974,12 +4974,12 @@ bool RecordList::Populate()
                                 // by the recipient, obviously...)
                                 //
                                 if (!pBoxTrans->IsCancelled()) {
-                                    String strNameTemp;
-                                    strNameTemp.Format(
+                                    auto strNameTemp = String::Factory();
+                                    strNameTemp->Format(
                                         RecordList::textTo(),
                                         str_recip_acct_id.c_str());
                                     str_name =
-                                        strNameTemp.Get();  // We don't want to
+                                        strNameTemp->Get();  // We don't want to
                                                             // see our own name
                                                             // on cancelled
                                                             // cheques.
@@ -4987,18 +4987,18 @@ bool RecordList::Populate()
                                 str_other_acct_id = str_recip_acct_id;
                             }
                             if (bGotRecipientNymIDForDisplay) {
-                                const String strRecipientID(theRecipientID);
+                                const auto strRecipientID = String::Factory(theRecipientID);
                                 const std::string str_recipient_id(
-                                    strRecipientID.Get());
+                                    strRecipientID->Get());
 
                                 str_other_nym_id = str_recipient_id;
 
                                 if (str_name.empty()) {
-                                    String strNameTemp;
-                                    strNameTemp.Format(
+                                    auto strNameTemp = String::Factory();
+                                    strNameTemp->Format(
                                         RecordList::textTo(),
                                         str_recipient_id.c_str());
-                                    str_name = strNameTemp.Get();
+                                    str_name = strNameTemp->Get();
                                 }
                             }
                         } else  // str_account_id IS NOT str_sender_acct_id.
@@ -5009,14 +5009,14 @@ bool RecordList::Populate()
 
                             if (pBoxTrans->GetSenderNymIDForDisplay(
                                     theSenderID)) {
-                                const String strSenderNymID(theSenderID);
-                                str_other_nym_id = strSenderNymID.Get();
+                                const auto strSenderNymID = String::Factory(theSenderID);
+                                str_other_nym_id = strSenderNymID->Get();
                             }
-                            String strNameTemp;
-                            strNameTemp.Format(
+                            auto strNameTemp = String::Factory();
+                            strNameTemp->Format(
                                 RecordList::textFrom(),
                                 str_sender_acct_id.c_str());
-                            str_name = strNameTemp.Get();
+                            str_name = strNameTemp->Get();
                             str_other_acct_id = str_sender_acct_id;
                         }
                     }
@@ -5027,15 +5027,15 @@ bool RecordList::Populate()
                                  theRecipientAcctID)) {
                         if (pBoxTrans->GetRecipientNymIDForDisplay(
                                 theRecipientID)) {
-                            const String strRecipientID(theRecipientID);
+                            const auto strRecipientID = String::Factory(theRecipientID);
                             const std::string str_recipient_nym_id(
-                                strRecipientID.Get());
+                                strRecipientID->Get());
 
                             str_other_nym_id = str_recipient_nym_id;
                         }
-                        const String strRecipientAcctID(theRecipientAcctID);
+                        const auto strRecipientAcctID = String::Factory(theRecipientAcctID);
                         const std::string str_recipient_acct_id(
-                            strRecipientAcctID.Get());
+                            strRecipientAcctID->Get());
 
                         if (0 != str_account_id.compare(
                                      str_recipient_acct_id))  // str_account_id
@@ -5047,17 +5047,17 @@ bool RecordList::Populate()
                             // (Therefore it must be outgoing.)
                             bOutgoing = true;
 
-                            String strNameTemp;
-                            strNameTemp.Format(
+                            auto strNameTemp = String::Factory();
+                            strNameTemp->Format(
                                 RecordList::textTo(),
                                 str_recipient_acct_id.c_str());
-                            str_name = strNameTemp.Get();
+                            str_name = strNameTemp->Get();
                             str_other_acct_id = str_recipient_acct_id;
                         }
                     } else if (pBoxTrans->GetSenderNymIDForDisplay(
                                    theSenderID)) {
-                        const String strSenderID(theSenderID);
-                        const std::string str_sender_id(strSenderID.Get());
+                        const auto strSenderID = String::Factory(theSenderID);
+                        const std::string str_sender_id(strSenderID->Get());
 
                         // Usually, Nym is the RECIPIENT. Sometimes he's the
                         // sender.
@@ -5078,22 +5078,22 @@ bool RecordList::Populate()
 
                             if (pBoxTrans->GetRecipientNymIDForDisplay(
                                     theRecipientID)) {
-                                const String strRecipientID(theRecipientID);
+                                const auto strRecipientID = String::Factory(theRecipientID);
                                 const std::string str_recipient_id(
-                                    strRecipientID.Get());
-                                String strNameTemp;
-                                strNameTemp.Format(
+                                    strRecipientID->Get());
+                                auto strNameTemp = String::Factory();
+                                strNameTemp->Format(
                                     RecordList::textTo(),
                                     str_recipient_id.c_str());
-                                str_name = strNameTemp.Get();
+                                str_name = strNameTemp->Get();
                                 str_other_nym_id = str_recipient_id;
 
                                 if (pBoxTrans->GetRecipientAcctIDForDisplay(
                                         theRecipientAcctID)) {
-                                    const String strRecipientAcctID(
+                                    const auto strRecipientAcctID = String::Factory(
                                         theRecipientAcctID);
                                     str_other_acct_id =
-                                        strRecipientAcctID.Get();
+                                        strRecipientAcctID->Get();
                                 }
                             }
                         } else  // str_nym_id IS NOT str_sender_id. (Therefore
@@ -5101,16 +5101,16 @@ bool RecordList::Populate()
                         {  // In this case, some OTHER Nym is the sender, so it
                             // must have been incoming. (And bOutgoing is
                             // already false.)
-                            String strNameTemp;
-                            strNameTemp.Format(
+                            auto strNameTemp = String::Factory();
+                            strNameTemp->Format(
                                 RecordList::textFrom(), str_sender_id.c_str());
-                            str_name = strNameTemp.Get();
+                            str_name = strNameTemp->Get();
                             str_other_nym_id = str_sender_id;
 
                             if (pBoxTrans->GetSenderAcctIDForDisplay(
                                     theSenderAcctID)) {
-                                const String strSenderAcctID(theSenderAcctID);
-                                str_other_acct_id = strSenderAcctID.Get();
+                                const auto strSenderAcctID = String::Factory(theSenderAcctID);
+                                str_other_acct_id = strSenderAcctID->Get();
                             }
                         }
                     }
@@ -5119,9 +5119,9 @@ bool RecordList::Populate()
                     // (So it's "recipient or bust.")
                     else if (pBoxTrans->GetRecipientNymIDForDisplay(
                                  theRecipientID)) {
-                        const String strRecipientID(theRecipientID);
+                        const auto strRecipientID = String::Factory(theRecipientID);
                         const std::string str_recipient_id(
-                            strRecipientID.Get());
+                            strRecipientID->Get());
 
                         if (0 !=
                             str_nym_id.compare(str_recipient_id))  // str_nym_id
@@ -5132,26 +5132,26 @@ bool RecordList::Populate()
                             // sender.
                             // (Therefore it must be outgoing.)
                             bOutgoing = true;
-                            String strNameTemp;
-                            strNameTemp.Format(
+                            auto strNameTemp = String::Factory();
+                            strNameTemp->Format(
                                 RecordList::textTo(), str_recipient_id.c_str());
-                            str_name = strNameTemp.Get();
+                            str_name = strNameTemp->Get();
                             str_other_nym_id = str_recipient_id;
 
                             if (pBoxTrans->GetRecipientAcctIDForDisplay(
                                     theRecipientAcctID)) {
-                                const String strRecipientAcctID(
+                                const auto strRecipientAcctID = String::Factory(
                                     theRecipientAcctID);
-                                str_other_acct_id = strRecipientAcctID.Get();
+                                str_other_acct_id = strRecipientAcctID->Get();
                             }
                         }
                     }
                     // Get the Memo field for a transferReceipt and also for
                     // other receipts.
                     //
-                    String strMemo;
+                    auto strMemo = String::Factory();
 
-                    if (pBoxTrans->GetMemo(strMemo)) str_memo = strMemo.Get();
+                    if (pBoxTrans->GetMemo(strMemo)) str_memo = strMemo->Get();
 
                 }  // if not abbreviated.
                 bCanceled = pBoxTrans->IsCancelled();
@@ -5164,9 +5164,9 @@ bool RecordList::Populate()
                     tValidFrom = tDateSigned;
                     const std::uint64_t lDateSigned =
                         OTTimeGetSecondsFromTime(tDateSigned);
-                    String strDateSigned;
-                    strDateSigned.Format("%" PRIu64 "", lDateSigned);
-                    str_date = strDateSigned.Get();
+                    auto strDateSigned = String::Factory();
+                    strDateSigned->Format("%" PRIu64 "", lDateSigned);
+                    str_date = strDateSigned->Get();
                 }
                 std::string str_amount;  // <========== AMOUNT
                 Amount lAmount = pBoxTrans->GetAbbrevDisplayAmount();
@@ -5198,9 +5198,9 @@ bool RecordList::Populate()
                     //     (lAmount > 0))
                     //     lAmount *= (-1);
 
-                    String strTemp;
-                    strTemp.Format("%" PRId64 "", lAmount);
-                    str_amount = strTemp.Get();
+                    auto strTemp = String::Factory();
+                    strTemp->Format("%" PRId64 "", lAmount);
+                    str_amount = strTemp->Get();
                 }
                 otInfo << __FUNCTION__ << ": ADDED: "
                        << ((pBoxTrans->GetType() != transactionType::pending)
@@ -5248,8 +5248,8 @@ bool RecordList::Populate()
                     pBoxTrans->GetType() == transactionType::pending
                         ? Record::Transfer
                         : Record::Receipt));
-                const String strContents(*pBoxTrans);
-                sp_Record->SetContents(strContents.Get());
+                const auto strContents = String::Factory(*pBoxTrans);
+                sp_Record->SetContents(strContents->Get());
                 if (bCanceled) sp_Record->SetCanceled();
                 sp_Record->SetDateRange(tValidFrom, tValidTo);
                 sp_Record->SetBoxIndex(nRecordIndex);
@@ -5344,15 +5344,15 @@ void RecordList::AddSpecialMsg(
     // (Just like I already did with the instrument definition.)
     //
     std::string str_other_name;
-    String strNameTemp;
+    auto strNameTemp = String::Factory();
     std::string str_name("");
 
     if (!str_other_name.empty())
-        strNameTemp.Format(pToFrom, str_other_name.c_str());
+        strNameTemp->Format(pToFrom, str_other_name.c_str());
     else if (!str_other_address.empty())
-        strNameTemp.Format(pToFrom, str_other_address.c_str());
+        strNameTemp->Format(pToFrom, str_other_address.c_str());
 
-    str_name = strNameTemp.Get();
+    str_name = strNameTemp->Get();
     const std::string* p_str_nym_id =
         &RecordList::s_blank;  // <========== MY NYM ID
     const std::string* p_str_asset_type =
@@ -5366,9 +5366,9 @@ void RecordList::AddSpecialMsg(
                              // empty.)
     // ---------------------------------------------------
     std::uint64_t lDate = static_cast<uint64_t>(tDate);
-    String strDate;
-    strDate.Format("%" PRIu64 "", lDate);
-    const std::string str_date(strDate.Get());
+    auto strDate = String::Factory();
+    strDate->Format("%" PRIu64 "", lDate);
+    const std::string str_date(strDate->Get());
     // CREATE AN Record AND POPULATE IT...
     //
     // This loop is here because normally an Record's "nym id" is

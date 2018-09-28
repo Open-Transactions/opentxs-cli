@@ -566,8 +566,8 @@ const char* Opentxs::getOption(
 
 void Opentxs::loadOptions(AnyOption& opt)
 {
-    String configPath(OTPaths::AppDataFolder());
-    bool configPathFound = configPath.Exists() && 3 < configPath.GetLength();
+    auto configPath = String::Factory(OTPaths::AppDataFolder().Get());
+    bool configPathFound = configPath->Exists() && 3 < configPath->GetLength();
     OT_ASSERT_MSG(
         configPathFound,
         "RegisterAPIWithScript: Must set Config Path first!\n");
@@ -602,12 +602,12 @@ void Opentxs::loadOptions(AnyOption& opt)
     opt.setFileOption("defaulthisnym");
     opt.setFileOption("defaulthispurse");
 
-    String optionsFile("command-line-ot.opt"), iniFileExact;
+    auto optionsFile = String::Factory("command-line-ot.opt"), iniFileExact = String::Factory();
     bool buildFullPathSuccess =
         OTPaths::RelativeToCanonical(iniFileExact, configPath, optionsFile);
     OT_ASSERT_MSG(buildFullPathSuccess, "Unable to set Full Path");
 
-    opt.processFile(iniFileExact.Get());
+    opt.processFile(iniFileExact->Get());
 }
 
 int Opentxs::processCommand(AnyOption& opt)

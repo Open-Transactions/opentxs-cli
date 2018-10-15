@@ -17,6 +17,8 @@
 #include <string>
 #include <utility>
 
+#define OT_METHOD "opentxs::RecordList"
+
 namespace
 {
 
@@ -203,9 +205,9 @@ std::string RecordList::get_payment_instrument(  // static method
                   notaryID, nymID);  // Returns nullptr, or an inbox.
 
     if (!VerifyStringVal(strInbox)) {
-        otWarn << "\n\n get_payment_instrument:  "
-                  "OT_API_LoadPaymentInbox Failed. (Probably just "
-                  "doesn't exist yet.)\n\n";
+        LogDetail(OT_METHOD)(__FUNCTION__)(
+            ": OT_API_LoadPaymentInbox Failed. (Probably just "
+                  "doesn't exist yet).").Flush();
         return "";
     }
 
@@ -1063,7 +1065,8 @@ bool RecordList::checkAccount(const char* name, std::string& accountID)
     OT_ASSERT(account)
 
     accountID = account.get().GetPurportedAccountID().str();
-    otWarn << "Using " << name << ": " << accountID << "\n";
+    LogDetail(OT_METHOD)(__FUNCTION__)(
+        ": Using ")(name)(": ")(accountID).Flush();
 
     return true;
 }
@@ -1449,7 +1452,8 @@ std::int32_t RecordList::acceptFromInbox(  // a static method
         otErr << "Error: cannot load inbox item count.\n";
         return -1;
     } else if (0 == item_count) {
-        otWarn << "The inbox is empty.\n";
+        LogDetail(OT_METHOD)(__FUNCTION__)(
+            ": The inbox is empty.").Flush();
         return 0;
     }
 
@@ -1475,7 +1479,8 @@ std::int32_t RecordList::acceptFromInbox(  // a static method
         pInbox->GetTransactionNums(pOnlyForIndices)};
 
     if (receiptIds.size() < 1) {
-        otWarn << "There are no inbox receipts to process.\n";
+        LogDetail(OT_METHOD)(__FUNCTION__)(
+            ": There are no inbox receipts to process.").Flush();
         return 0;
     }
     // -----------------------------------------------------------
@@ -1495,7 +1500,8 @@ std::int32_t RecordList::acceptFromInbox(  // a static method
     auto& inbox = std::get<1>(response);
 
     if (!bool(processInbox) || !bool(inbox)) {
-        otWarn << __FUNCTION__ << "Ledger_CreateResponse somehow failed.\n";
+        LogDetail(OT_METHOD)(__FUNCTION__)(
+            ": Ledger_CreateResponse somehow failed.").Flush();
         return -1;
     }
     // -------------------------------------------------------
@@ -1850,9 +1856,9 @@ bool RecordList::PerformAutoAccept()
                     }
                 }  // looping through payments inbox.
                 else
-                    otWarn << __FUNCTION__
-                           << ": Failed loading payments inbox. "
-                              "(Probably just doesn't exist yet.)\n";
+                    LogDetail(OT_METHOD)(__FUNCTION__)(
+                           ": Failed loading payments inbox. "
+                              "(Probably just doesn't exist yet).").Flush();
                 // Above we compiled a list of purses, cheques / vouchers to
                 // accept.
                 // If there are any on that list, then ACCEPT them here.
@@ -3250,9 +3256,9 @@ bool RecordList::Populate()
 
                 }  // looping through inbox.
             } else
-                otWarn << __FUNCTION__
-                       << ": Failed loading payments inbox. "
-                          "(Probably just doesn't exist yet.)\n";
+                LogDetail(OT_METHOD)(__FUNCTION__)(
+                       ": Failed loading payments inbox. "
+                          "(Probably just doesn't exist yet).").Flush();
             nIndex = (-1);
 
             // Also loop through its record box. For this record box, pass the
@@ -3851,10 +3857,9 @@ bool RecordList::Populate()
 
                 }  // Loop through Recordbox
             } else
-                otWarn << __FUNCTION__
-                       << ": Failed loading payments record "
-                          "box. (Probably just doesn't exist "
-                          "yet.)\n";
+                LogDetail(OT_METHOD)(__FUNCTION__)(
+                       ": Failed loading payments record "
+                          "box. (Probably just doesn't exist yet).").Flush();
 
             // EXPIRED RECORDS:
             nIndex = (-1);
@@ -4412,9 +4417,9 @@ bool RecordList::Populate()
 
                 }  // Loop through ExpiredBox
             } else
-                otWarn << __FUNCTION__
-                       << ": Failed loading expired payments box. "
-                          "(Probably just doesn't exist yet.)\n";
+                LogDetail(OT_METHOD)(__FUNCTION__)(
+                       ": Failed loading expired payments box. "
+                          "(Probably just doesn't exist yet).").Flush();
 
         }  // Loop through servers for each Nym.
     }      // Loop through Nyms.
@@ -5477,9 +5482,9 @@ void RecordList::AddSpecialMsg(
     sp_Record->SetOtherAddress(str_other_address);
     sp_Record->SetMsgType(str_type);
     sp_Record->SetMsgTypeDisplay(str_type_display);
-    otWarn << __FUNCTION__
-           << ": ADDED: " << (bIsOutgoing ? "outgoing" : "incoming")
-           << " special mail.\n";
+    LogDetail(OT_METHOD)(__FUNCTION__)(
+           ": ADDED: ") (bIsOutgoing ? "outgoing" : "incoming")
+           (" special mail.").Flush();
 
     m_contents.push_back(sp_Record);
 }

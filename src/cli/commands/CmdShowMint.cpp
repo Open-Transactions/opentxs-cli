@@ -40,7 +40,7 @@ std::string CmdShowMint::load_or_retrieve_mint(
 #if OT_CASH
     std::string response = check_nym(notaryID, nymID, nymID);
 
-    if (1 != VerifyMessageSuccess(response)) {
+    if (1 != VerifyMessageSuccess(Opentxs::Client(), response)) {
         otOut << "load_or_retrieve_mint: Cannot verify nym for "
                  "IDs: \n";
         otOut << "   Notary ID: " << notaryID << "\n";
@@ -63,8 +63,7 @@ std::string CmdShowMint::load_or_retrieve_mint(
 
         std::string response;
         {
-            response = Opentxs::
-                           Client()
+            response = Opentxs::Client()
                            .ServerAction()
                            .DownloadMint(
                                Identifier::Factory(nymID),
@@ -73,7 +72,7 @@ std::string CmdShowMint::load_or_retrieve_mint(
                            ->Run();
         }
 
-        if (1 != VerifyMessageSuccess(response)) {
+        if (1 != VerifyMessageSuccess(Opentxs::Client(), response)) {
             otOut << "load_or_retrieve_mint: Unable to "
                      "retrieve mint for IDs: \n";
             otOut << "   Notary ID: " << notaryID << "\n";

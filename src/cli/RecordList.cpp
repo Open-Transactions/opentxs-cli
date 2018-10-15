@@ -435,7 +435,7 @@ std::int32_t RecordList::processPayment(  // a static method
     }
 
     auto thePayment{Opentxs::Client().Factory().Payment(
-         String::Factory(instrument.c_str()))};
+        String::Factory(instrument.c_str()))};
 
     OT_ASSERT(false != bool(thePayment));
 
@@ -713,7 +713,7 @@ std::int32_t RecordList::depositCheque(  // a static method
                        ->Run();
     }
     std::int32_t reply = InterpretTransactionMsgReply(
-        server, mynym, myacct, "deposit_cheque", response);
+        Opentxs::Client(), server, mynym, myacct, "deposit_cheque", response);
     if (1 != reply) { return reply; }
 
     if (nullptr != pOptionalOutput) { *pOptionalOutput = response; }
@@ -849,8 +849,7 @@ std::int32_t RecordList::confirmPaymentPlan_lowLevel(  // a static method
 
     // NOTE: If we fail, then we need to harvest the transaction numbers
     // back from the payment plan that we confirmed.
-    auto paymentPlan{
-        Opentxs::Client().Factory().PaymentPlan()};
+    auto paymentPlan{Opentxs::Client().Factory().PaymentPlan()};
 
     OT_ASSERT(false != bool(paymentPlan));
 
@@ -867,7 +866,7 @@ std::int32_t RecordList::confirmPaymentPlan_lowLevel(  // a static method
                        ->Run();
     }
 
-    std::int32_t success = VerifyMessageSuccess(response);
+    std::int32_t success = VerifyMessageSuccess(Opentxs::Client(), response);
     if (1 != success) {
         otOut << "Error: cannot deposit payment plan.\n";
         SwigWrap::Msg_HarvestTransactionNumbers(
@@ -876,7 +875,12 @@ std::int32_t RecordList::confirmPaymentPlan_lowLevel(  // a static method
     }
 
     std::int32_t reply = InterpretTransactionMsgReply(
-        server, senderUser, senderAcct, "deposit_payment_plan", response);
+        Opentxs::Client(),
+        server,
+        senderUser,
+        senderAcct,
+        "deposit_payment_plan",
+        response);
     if (1 != reply) { return reply; }
 
     if (nullptr != pOptionalOutput) { *pOptionalOutput = response; }
@@ -1238,8 +1242,7 @@ std::int32_t RecordList::cancel_outgoing_payments(
             // So while we expect this 'activation' to fail, it should have the
             // desired effect of cancelling the smart contract and sending
             // failure notices to all the parties.
-            auto contract{
-                Opentxs::Client().Factory().SmartContract()};
+            auto contract{Opentxs::Client().Factory().SmartContract()};
 
             OT_ASSERT(false != bool(contract));
 
@@ -1281,8 +1284,7 @@ std::int32_t RecordList::cancel_outgoing_payments(
             // propagated to the other party to the contract. (Which will result
             // in its automatic removal from the outpayment box.)
 
-            auto plan{
-                Opentxs::Client().Factory().PaymentPlan()};
+            auto plan{Opentxs::Client().Factory().PaymentPlan()};
 
             OT_ASSERT(false != bool(plan));
 
@@ -1566,7 +1568,12 @@ std::int32_t RecordList::acceptFromInbox(  // a static method
                 ->Run();
     }
     std::int32_t reply = InterpretTransactionMsgReply(
-        server, mynym, myacct, "process_inbox", notary_response);
+        Opentxs::Client(),
+        server,
+        mynym,
+        myacct,
+        "process_inbox",
+        notary_response);
 
     if (1 != reply) { return reply; }
 
@@ -1748,13 +1755,14 @@ bool RecordList::PerformAutoAccept()
 
                             if (pPayment->GetInstrumentDefinitionID(
                                     theInstrumentDefinitionID)) {
-                                auto strTemp = String::Factory(theInstrumentDefinitionID);
+                                auto strTemp =
+                                    String::Factory(theInstrumentDefinitionID);
                                 const std::string str_inpmt_asset(
                                     strTemp->Get());  // The instrument
-                                                     // definition
-                                                     // we found
-                                                     // on the payment (if we
-                                                     // found anything.)
+                                                      // definition
+                                                      // we found
+                                                      // on the payment (if we
+                                                      // found anything.)
                                 auto it_asset = m_assets.find(str_inpmt_asset);
                                 if (it_asset != m_assets.end())  // Found it on
                                                                  // the map of
@@ -1890,7 +1898,8 @@ bool RecordList::PerformAutoAccept()
                             str_payment_notary_id;
 
                         if (bGotPaymentNotary) {
-                            const auto strPaymentNotaryId = String::Factory(paymentNotaryId);
+                            const auto strPaymentNotaryId =
+                                String::Factory(paymentNotaryId);
                             str_payment_notary_id = strPaymentNotaryId->Get();
                         }
                         if (str_payment_notary_id.empty()) {
@@ -1902,8 +1911,8 @@ bool RecordList::PerformAutoAccept()
                         }
 
                         if (bGotAsset) {
-                            const auto strInstrumentDefinitionID = String::Factory(
-                                paymentAssetType);
+                            const auto strInstrumentDefinitionID =
+                                String::Factory(paymentAssetType);
                             str_instrument_definition_id =
                                 strInstrumentDefinitionID->Get();
                         }
@@ -1944,10 +1953,12 @@ bool RecordList::PerformAutoAccept()
                             const std::string str_acct_type =
                                 account.get().GetTypeString();
                             account.Release();
-                            const auto strAcctNymID = String::Factory(theAcctNymID);
-                            const auto strAcctNotaryID = String::Factory(theAcctNotaryID);
-                            const auto strAcctInstrumentDefinitionID = String::Factory(
-                                theAcctInstrumentDefinitionID);
+                            const auto strAcctNymID =
+                                String::Factory(theAcctNymID);
+                            const auto strAcctNotaryID =
+                                String::Factory(theAcctNotaryID);
+                            const auto strAcctInstrumentDefinitionID =
+                                String::Factory(theAcctInstrumentDefinitionID);
                             // If the current account is owned by the Nym, AND
                             // it has the same instrument definition ID
                             // as the cheque being deposited, then let's deposit
@@ -1968,7 +1979,8 @@ bool RecordList::PerformAutoAccept()
                                 //
                                 auto strIndices = String::Factory();
                                 strIndices->Format("%d", lIndex);
-                                const std::string str_indices(strIndices->Get());
+                                const std::string str_indices(
+                                    strIndices->Get());
 
                                 std::string str_server_response;
 
@@ -2060,7 +2072,8 @@ bool RecordList::PerformAutoAccept()
             account.Release();
             const auto strNymID = String::Factory(theNymID);
             const auto strNotaryID = String::Factory(theNotaryID);
-            const auto strInstrumentDefinitionID = String::Factory(theInstrumentDefinitionID);
+            const auto strInstrumentDefinitionID =
+                String::Factory(theInstrumentDefinitionID);
             otInfo << "------------\n"
                    << __FUNCTION__ << ": Account: " << nAccountIndex
                    << ", ID: " << str_account_id.c_str() << "\n";
@@ -2230,12 +2243,12 @@ bool RecordList::PerformAutoAccept()
                 // Server communications are handled here...
                 //
                 auto ledger{Opentxs::Client().Factory().Ledger(
-                     theNymID, theAccountID, theNotaryID)};
+                    theNymID, theAccountID, theNotaryID)};
 
                 OT_ASSERT(false != bool(ledger));
 
-                const auto loaded =
-                    ledger->LoadLedgerFromString(String::Factory(strFinalizedResponse));
+                const auto loaded = ledger->LoadLedgerFromString(
+                    String::Factory(strFinalizedResponse));
 
                 OT_ASSERT(loaded);
 
@@ -2251,6 +2264,7 @@ bool RecordList::PerformAutoAccept()
                 std::string strAttempt = "process_inbox";
 
                 std::int32_t nInterpretReply = InterpretTransactionMsgReply(
+                    Opentxs::Client(),
                     str_notary_id,
                     str_nym_id,
                     str_account_id,
@@ -2328,12 +2342,12 @@ bool RecordList::Populate()
              ++nCurrentOutpayment) {
             otInfo << __FUNCTION__
                    << ": Outpayment instrument: " << nCurrentOutpayment << "\n";
-            const auto strOutpayment = String::Factory(
-                SwigWrap::GetNym_OutpaymentsContentsByIndex(
+            const auto strOutpayment =
+                String::Factory(SwigWrap::GetNym_OutpaymentsContentsByIndex(
                     str_nym_id, nCurrentOutpayment));
             std::string str_memo;
-            auto theOutPayment{Opentxs::Client().Factory().Payment(
-                 strOutpayment)};
+            auto theOutPayment{
+                Opentxs::Client().Factory().Payment(strOutpayment)};
 
             OT_ASSERT(false != bool(theOutPayment));
 
@@ -2861,8 +2875,8 @@ bool RecordList::Populate()
                         false,  // IsRecord (it's not in the record box.)
                         false,  // IsReceipt
                         Record::Mail));
-                    const auto strOutmail = String::Factory(
-                        SwigWrap::GetNym_OutmailContentsByIndex(
+                    const auto strOutmail =
+                        String::Factory(SwigWrap::GetNym_OutmailContentsByIndex(
                             str_nym_id, id));
                     sp_Record->SetContents(strOutmail->Get());
                     sp_Record->SetThreadItemId(id);
@@ -2937,7 +2951,8 @@ bool RecordList::Populate()
                         auto theSenderID = Identifier::Factory();
 
                         if (pBoxTrans->GetSenderNymIDForDisplay(theSenderID)) {
-                            const auto strSenderID = String::Factory(theSenderID);
+                            const auto strSenderID =
+                                String::Factory(theSenderID);
                             str_sender_nym_id = strSenderID->Get();
                             auto strNameTemp = String::Factory();
                             strNameTemp->Format(
@@ -2949,7 +2964,8 @@ bool RecordList::Populate()
                         theSenderID->Release();
 
                         if (pBoxTrans->GetSenderAcctIDForDisplay(theSenderID)) {
-                            const auto strSenderID = String::Factory(theSenderID);
+                            const auto strSenderID =
+                                String::Factory(theSenderID);
                             str_sender_acct_id = strSenderID->Get();
                         }
                     }
@@ -2974,7 +2990,8 @@ bool RecordList::Populate()
                     std::string str_amount;    // <========== AMOUNT
                     std::string str_type;      // Instrument type.
                     std::string str_memo;
-                    auto strContents = String::Factory();  // Instrument contents.
+                    auto strContents =
+                        String::Factory();  // Instrument contents.
 
                     TransactionNumber lPaymentInstrumentTransNumDisplay = 0;
 
@@ -3089,10 +3106,11 @@ bool RecordList::Populate()
 
                             if (pPayment->GetInstrumentDefinitionID(
                                     theInstrumentDefinitionID)) {
-                                auto strTemp = String::Factory(theInstrumentDefinitionID);
+                                auto strTemp =
+                                    String::Factory(theInstrumentDefinitionID);
                                 const std::string str_inpmt_asset(
                                     strTemp->Get());  // The instrument
-                                                     // definition we found
+                                                      // definition we found
                                 // on the payment (if we found anything.)
                                 auto it_asset = m_assets.find(str_inpmt_asset);
                                 if (it_asset != m_assets.end())  // Found it on
@@ -3328,7 +3346,8 @@ bool RecordList::Populate()
                              theRecipientAcctID = Identifier::Factory();
 
                         if (pBoxTrans->GetSenderNymIDForDisplay(theSenderID)) {
-                            const auto strSenderID = String::Factory(theSenderID);
+                            const auto strSenderID =
+                                String::Factory(theSenderID);
                             const std::string str_sender_id(strSenderID->Get());
 
                             // Usually, Nym is the RECIPIENT. Sometimes he's the
@@ -3366,7 +3385,8 @@ bool RecordList::Populate()
 
                                 if (pBoxTrans->GetRecipientNymIDForDisplay(
                                         theRecipientID)) {
-                                    const auto strRecipientID = String::Factory(theRecipientID);
+                                    const auto strRecipientID =
+                                        String::Factory(theRecipientID);
                                     const std::string str_recipient_id(
                                         strRecipientID->Get());
 
@@ -3379,8 +3399,8 @@ bool RecordList::Populate()
 
                                     if (pBoxTrans->GetRecipientAcctIDForDisplay(
                                             theRecipientAcctID)) {
-                                        const auto strRecipientAcctID = String::Factory(
-                                            theRecipientAcctID);
+                                        const auto strRecipientAcctID =
+                                            String::Factory(theRecipientAcctID);
                                         str_other_acct_id =
                                             strRecipientAcctID->Get();
                                     }
@@ -3415,8 +3435,8 @@ bool RecordList::Populate()
 
                                 if (pBoxTrans->GetSenderAcctIDForDisplay(
                                         theSenderAcctID)) {
-                                    const auto strSenderAcctID = String::Factory(
-                                        theSenderAcctID);
+                                    const auto strSenderAcctID =
+                                        String::Factory(theSenderAcctID);
                                     str_other_acct_id = strSenderAcctID->Get();
                                 }
                             }
@@ -3426,7 +3446,8 @@ bool RecordList::Populate()
                         // (So it's "recipient or bust.")
                         else if (pBoxTrans->GetRecipientNymIDForDisplay(
                                      theRecipientID)) {
-                            const auto strRecipientID = String::Factory(theRecipientID);
+                            const auto strRecipientID =
+                                String::Factory(theRecipientID);
                             const std::string str_recipient_id(
                                 strRecipientID->Get());
 
@@ -3461,8 +3482,8 @@ bool RecordList::Populate()
                                 str_other_nym_id = str_recipient_id;
                                 if (pBoxTrans->GetRecipientAcctIDForDisplay(
                                         theRecipientAcctID)) {
-                                    const auto strRecipientAcctID = String::Factory(
-                                        theRecipientAcctID);
+                                    const auto strRecipientAcctID =
+                                        String::Factory(theRecipientAcctID);
                                     str_other_acct_id =
                                         strRecipientAcctID->Get();
                                 }
@@ -3492,7 +3513,8 @@ bool RecordList::Populate()
                     std::string str_amount;    // <========== AMOUNT
                     std::string str_type;      // Instrument type.
                     std::string str_memo;  // Instrument memo (if applicable.)
-                    auto strContents = String::Factory();    // Instrument contents.
+                    auto strContents =
+                        String::Factory();  // Instrument contents.
 
                     std::string str_payment_notary_id;
                     TransactionNumber lPaymentInstrumentTransNumDisplay = 0;
@@ -3593,12 +3615,13 @@ bool RecordList::Populate()
                                     // merchant is the "sender" of the proposal,
                                     // he's the
                                     // "recipient" on the instrument.
-                                    auto strTemp = String::Factory(theAccountID);
+                                    auto strTemp =
+                                        String::Factory(theAccountID);
                                     std::string str_outpmt_account =
                                         strTemp->Get();  // The accountID we
-                                                        // found on the payment
-                                                        // (only applies to
-                                                        // outgoing payments.)
+                                                         // found on the payment
+                                                         // (only applies to
+                                                         // outgoing payments.)
                                     auto it_acct = std::find(
                                         m_accounts.begin(),
                                         m_accounts.end(),
@@ -3655,7 +3678,8 @@ bool RecordList::Populate()
                                           theAccountID)) ||
                                      pPayment->GetSenderAcctIDForDisplay(
                                          theAccountID))) {
-                                    auto strTemp = String::Factory(theAccountID);
+                                    auto strTemp =
+                                        String::Factory(theAccountID);
                                     str_other_acct_id = strTemp->Get();
                                 }
                             }
@@ -3672,12 +3696,13 @@ bool RecordList::Populate()
 
                             if (pPayment->GetInstrumentDefinitionID(
                                     theInstrumentDefinitionID)) {
-                                auto strTemp = String::Factory(theInstrumentDefinitionID);
+                                auto strTemp =
+                                    String::Factory(theInstrumentDefinitionID);
                                 const std::string str_inpmt_asset(
                                     strTemp->Get());  // The instrument
-                                                     // definition we found on
-                                                     // the payment (if we found
-                                                     // anything.)
+                                                      // definition we found on
+                                                      // the payment (if we
+                                                      // found anything.)
                                 auto it_asset = m_assets.find(str_inpmt_asset);
                                 if (it_asset !=
                                     m_assets.end())  // Found it on the map of
@@ -3911,7 +3936,8 @@ bool RecordList::Populate()
                              theRecipientAcctID = Identifier::Factory();
 
                         if (pBoxTrans->GetSenderNymIDForDisplay(theSenderID)) {
-                            const auto strSenderID = String::Factory(theSenderID);
+                            const auto strSenderID =
+                                String::Factory(theSenderID);
                             const std::string str_sender_id(strSenderID->Get());
 
                             // Usually, Nym is the RECIPIENT. Sometimes he's the
@@ -3943,7 +3969,8 @@ bool RecordList::Populate()
 
                                 if (pBoxTrans->GetRecipientNymIDForDisplay(
                                         theRecipientID)) {
-                                    const auto strRecipientID = String::Factory(theRecipientID);
+                                    const auto strRecipientID =
+                                        String::Factory(theRecipientID);
                                     const std::string str_recipient_id(
                                         strRecipientID->Get());
 
@@ -3956,8 +3983,8 @@ bool RecordList::Populate()
 
                                     if (pBoxTrans->GetRecipientAcctIDForDisplay(
                                             theRecipientAcctID)) {
-                                        const auto strRecipientAcctID = String::Factory(
-                                            theRecipientAcctID);
+                                        const auto strRecipientAcctID =
+                                            String::Factory(theRecipientAcctID);
                                         str_other_acct_id =
                                             strRecipientAcctID->Get();
                                     }
@@ -3987,8 +4014,8 @@ bool RecordList::Populate()
 
                                 if (pBoxTrans->GetSenderAcctIDForDisplay(
                                         theSenderAcctID)) {
-                                    const auto strSenderAcctID = String::Factory(
-                                        theSenderAcctID);
+                                    const auto strSenderAcctID =
+                                        String::Factory(theSenderAcctID);
                                     str_other_acct_id = strSenderAcctID->Get();
                                 }
                             }
@@ -3998,7 +4025,8 @@ bool RecordList::Populate()
                         // (So it's "recipient or bust.")
                         else if (pBoxTrans->GetRecipientNymIDForDisplay(
                                      theRecipientID)) {
-                            const auto strRecipientID = String::Factory(theRecipientID);
+                            const auto strRecipientID =
+                                String::Factory(theRecipientID);
                             const std::string str_recipient_id(
                                 strRecipientID->Get());
 
@@ -4032,8 +4060,8 @@ bool RecordList::Populate()
 
                                 if (pBoxTrans->GetRecipientAcctIDForDisplay(
                                         theRecipientAcctID)) {
-                                    const auto strRecipientAcctID = String::Factory(
-                                        theRecipientAcctID);
+                                    const auto strRecipientAcctID =
+                                        String::Factory(theRecipientAcctID);
                                     str_other_acct_id =
                                         strRecipientAcctID->Get();
                                 }
@@ -4063,7 +4091,8 @@ bool RecordList::Populate()
                     std::string str_amount;    // <========== AMOUNT
                     std::string str_type;      // Instrument type.
                     std::string str_memo;  // Instrument memo (if applicable.)
-                    auto strContents = String::Factory();    // Instrument contents.
+                    auto strContents =
+                        String::Factory();  // Instrument contents.
 
                     std::string str_payment_notary_id;
 
@@ -4169,12 +4198,13 @@ bool RecordList::Populate()
                                     // merchant is the "sender" of the proposal,
                                     // he's the
                                     // "recipient" on the instrument.
-                                    auto strTemp = String::Factory(theAccountID);
+                                    auto strTemp =
+                                        String::Factory(theAccountID);
                                     std::string str_outpmt_account =
                                         strTemp->Get();  // The accountID we
-                                                        // found on the payment
-                                                        // (only applies to
-                                                        // outgoing payments.)
+                                                         // found on the payment
+                                                         // (only applies to
+                                                         // outgoing payments.)
                                     auto it_acct = std::find(
                                         m_accounts.begin(),
                                         m_accounts.end(),
@@ -4232,7 +4262,8 @@ bool RecordList::Populate()
                                           theAccountID)) ||
                                      pPayment->GetSenderAcctIDForDisplay(
                                          theAccountID))) {
-                                    auto strTemp = String::Factory(theAccountID);
+                                    auto strTemp =
+                                        String::Factory(theAccountID);
                                     str_other_acct_id = strTemp->Get();
                                 }
                             }
@@ -4249,12 +4280,13 @@ bool RecordList::Populate()
 
                             if (pPayment->GetInstrumentDefinitionID(
                                     theInstrumentDefinitionID)) {
-                                auto strTemp = String::Factory(theInstrumentDefinitionID);
+                                auto strTemp =
+                                    String::Factory(theInstrumentDefinitionID);
                                 const std::string str_inpmt_asset(
                                     strTemp->Get());  // The instrument
-                                                     // definition we found on
-                                                     // the payment (if we found
-                                                     // anything.)
+                                                      // definition we found on
+                                                      // the payment (if we
+                                                      // found anything.)
                                 auto it_asset = m_assets.find(str_inpmt_asset);
                                 if (it_asset !=
                                     m_assets.end())  // Found it on the map of
@@ -4412,7 +4444,8 @@ bool RecordList::Populate()
         account.Release();
         const auto strNymID = String::Factory(theNymID);
         const auto strNotaryID = String::Factory(theNotaryID);
-        const auto strInstrumentDefinitionID = String::Factory(theInstrumentDefinitionID);
+        const auto strInstrumentDefinitionID =
+            String::Factory(theInstrumentDefinitionID);
         otInfo << "------------\n"
                << __FUNCTION__ << ": Account: " << nAccountIndex
                << ", ID: " << str_account_id.c_str() << "\n";
@@ -4521,10 +4554,12 @@ bool RecordList::Populate()
                         {
                             if (pBoxTrans->GetSenderNymIDForDisplay(
                                     theSenderID)) {
-                                const auto strSenderID = String::Factory(theSenderID);
+                                const auto strSenderID =
+                                    String::Factory(theSenderID);
                                 str_other_nym_id = strSenderID->Get();
                             }
-                            const auto strSenderAcctID = String::Factory(theSenderAcctID);
+                            const auto strSenderAcctID =
+                                String::Factory(theSenderAcctID);
                             const std::string str_sender_acct_id(
                                 strSenderAcctID->Get());
 
@@ -4541,7 +4576,8 @@ bool RecordList::Populate()
                         } else if (pBoxTrans->GetSenderNymIDForDisplay(
                                        theSenderID))  // NYM name.
                         {
-                            const auto strSenderID = String::Factory(theSenderID);
+                            const auto strSenderID =
+                                String::Factory(theSenderID);
                             const std::string str_sender_id(strSenderID->Get());
                             auto strNameTemp = String::Factory();
                             strNameTemp->Format(
@@ -4549,9 +4585,10 @@ bool RecordList::Populate()
                             str_name = strNameTemp->Get();
                             str_other_nym_id = str_sender_id;
                         } else {
-                            auto strName = String::Factory(SwigWrap::GetAccountWallet_Name(
-                                str_account_id)),
-                                strNameTemp = String::Factory();
+                            auto strName = String::Factory(
+                                     SwigWrap::GetAccountWallet_Name(
+                                         str_account_id)),
+                                 strNameTemp = String::Factory();
 
                             if (strName->Exists())
                                 strNameTemp = strName;
@@ -4570,7 +4607,8 @@ bool RecordList::Populate()
 
                         if (pBoxTrans->GetRecipientNymIDForDisplay(
                                 theRecipientID)) {
-                            const auto strRecipientID = String::Factory(theRecipientID);
+                            const auto strRecipientID =
+                                String::Factory(theRecipientID);
                             const std::string str_recipient_nym_id(
                                 strRecipientID->Get());
                             auto strNameTemp = String::Factory();
@@ -4582,13 +4620,14 @@ bool RecordList::Populate()
 
                             if (pBoxTrans->GetRecipientAcctIDForDisplay(
                                     theRecipientAcctID)) {
-                                const auto strRecipientAcctID = String::Factory(
-                                    theRecipientAcctID);
+                                const auto strRecipientAcctID =
+                                    String::Factory(theRecipientAcctID);
                                 str_other_acct_id = strRecipientAcctID->Get();
                             }
                         } else if (pBoxTrans->GetRecipientAcctIDForDisplay(
                                        theRecipientAcctID)) {
-                            const auto strRecipientAcctID = String::Factory(theRecipientAcctID);
+                            const auto strRecipientAcctID =
+                                String::Factory(theRecipientAcctID);
                             const std::string str_recipient_acct_id(
                                 strRecipientAcctID->Get());
                             auto strNameTemp = String::Factory();
@@ -4735,7 +4774,8 @@ bool RecordList::Populate()
 
                     if (pBoxTrans->GetRecipientNymIDForDisplay(
                             theRecipientID)) {
-                        const auto strRecipientID = String::Factory(theRecipientID);
+                        const auto strRecipientID =
+                            String::Factory(theRecipientID);
                         const std::string str_recipient_id(
                             strRecipientID->Get());
                         auto strNameTemp = String::Factory();
@@ -4745,12 +4785,14 @@ bool RecordList::Populate()
                         str_other_nym_id = str_recipient_id;
                         if (pBoxTrans->GetRecipientAcctIDForDisplay(
                                 theRecipientAcctID)) {
-                            const auto strRecipientAcctID = String::Factory(theRecipientAcctID);
+                            const auto strRecipientAcctID =
+                                String::Factory(theRecipientAcctID);
                             str_other_acct_id = strRecipientAcctID->Get();
                         }
                     } else if (pBoxTrans->GetRecipientAcctIDForDisplay(
                                    theRecipientAcctID)) {
-                        const auto strRecipientAcctID = String::Factory(theRecipientAcctID);
+                        const auto strRecipientAcctID =
+                            String::Factory(theRecipientAcctID);
                         const std::string str_recipient_acct_id(
                             strRecipientAcctID->Get());
                         auto strNameTemp = String::Factory();
@@ -4922,7 +4964,8 @@ bool RecordList::Populate()
                          theRecipientAcctID = Identifier::Factory();
 
                     if (pBoxTrans->GetSenderAcctIDForDisplay(theSenderAcctID)) {
-                        const auto strSenderAcctID = String::Factory(theSenderAcctID);
+                        const auto strSenderAcctID =
+                            String::Factory(theSenderAcctID);
                         const std::string str_sender_acct_id(
                             strSenderAcctID->Get());
 
@@ -4950,8 +4993,8 @@ bool RecordList::Populate()
 
                             if (pBoxTrans->GetRecipientAcctIDForDisplay(
                                     theRecipientAcctID)) {
-                                const auto strRecipientAcctID = String::Factory(
-                                    theRecipientAcctID);
+                                const auto strRecipientAcctID =
+                                    String::Factory(theRecipientAcctID);
                                 const std::string str_recip_acct_id(
                                     strRecipientAcctID->Get());
 
@@ -4980,14 +5023,15 @@ bool RecordList::Populate()
                                         str_recip_acct_id.c_str());
                                     str_name =
                                         strNameTemp->Get();  // We don't want to
-                                                            // see our own name
-                                                            // on cancelled
-                                                            // cheques.
+                                                             // see our own name
+                                                             // on cancelled
+                                                             // cheques.
                                 }
                                 str_other_acct_id = str_recip_acct_id;
                             }
                             if (bGotRecipientNymIDForDisplay) {
-                                const auto strRecipientID = String::Factory(theRecipientID);
+                                const auto strRecipientID =
+                                    String::Factory(theRecipientID);
                                 const std::string str_recipient_id(
                                     strRecipientID->Get());
 
@@ -5009,7 +5053,8 @@ bool RecordList::Populate()
 
                             if (pBoxTrans->GetSenderNymIDForDisplay(
                                     theSenderID)) {
-                                const auto strSenderNymID = String::Factory(theSenderID);
+                                const auto strSenderNymID =
+                                    String::Factory(theSenderID);
                                 str_other_nym_id = strSenderNymID->Get();
                             }
                             auto strNameTemp = String::Factory();
@@ -5027,13 +5072,15 @@ bool RecordList::Populate()
                                  theRecipientAcctID)) {
                         if (pBoxTrans->GetRecipientNymIDForDisplay(
                                 theRecipientID)) {
-                            const auto strRecipientID = String::Factory(theRecipientID);
+                            const auto strRecipientID =
+                                String::Factory(theRecipientID);
                             const std::string str_recipient_nym_id(
                                 strRecipientID->Get());
 
                             str_other_nym_id = str_recipient_nym_id;
                         }
-                        const auto strRecipientAcctID = String::Factory(theRecipientAcctID);
+                        const auto strRecipientAcctID =
+                            String::Factory(theRecipientAcctID);
                         const std::string str_recipient_acct_id(
                             strRecipientAcctID->Get());
 
@@ -5078,7 +5125,8 @@ bool RecordList::Populate()
 
                             if (pBoxTrans->GetRecipientNymIDForDisplay(
                                     theRecipientID)) {
-                                const auto strRecipientID = String::Factory(theRecipientID);
+                                const auto strRecipientID =
+                                    String::Factory(theRecipientID);
                                 const std::string str_recipient_id(
                                     strRecipientID->Get());
                                 auto strNameTemp = String::Factory();
@@ -5090,8 +5138,8 @@ bool RecordList::Populate()
 
                                 if (pBoxTrans->GetRecipientAcctIDForDisplay(
                                         theRecipientAcctID)) {
-                                    const auto strRecipientAcctID = String::Factory(
-                                        theRecipientAcctID);
+                                    const auto strRecipientAcctID =
+                                        String::Factory(theRecipientAcctID);
                                     str_other_acct_id =
                                         strRecipientAcctID->Get();
                                 }
@@ -5109,7 +5157,8 @@ bool RecordList::Populate()
 
                             if (pBoxTrans->GetSenderAcctIDForDisplay(
                                     theSenderAcctID)) {
-                                const auto strSenderAcctID = String::Factory(theSenderAcctID);
+                                const auto strSenderAcctID =
+                                    String::Factory(theSenderAcctID);
                                 str_other_acct_id = strSenderAcctID->Get();
                             }
                         }
@@ -5119,7 +5168,8 @@ bool RecordList::Populate()
                     // (So it's "recipient or bust.")
                     else if (pBoxTrans->GetRecipientNymIDForDisplay(
                                  theRecipientID)) {
-                        const auto strRecipientID = String::Factory(theRecipientID);
+                        const auto strRecipientID =
+                            String::Factory(theRecipientID);
                         const std::string str_recipient_id(
                             strRecipientID->Get());
 
@@ -5140,8 +5190,8 @@ bool RecordList::Populate()
 
                             if (pBoxTrans->GetRecipientAcctIDForDisplay(
                                     theRecipientAcctID)) {
-                                const auto strRecipientAcctID = String::Factory(
-                                    theRecipientAcctID);
+                                const auto strRecipientAcctID =
+                                    String::Factory(theRecipientAcctID);
                                 str_other_acct_id = strRecipientAcctID->Get();
                             }
                         }

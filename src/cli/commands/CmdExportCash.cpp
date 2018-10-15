@@ -136,8 +136,7 @@ string CmdExportCash::exportCash(
     if (!VerifyStringVal(strContract)) {
         std::string response;
         {
-            response = Opentxs::
-                           Client()
+            response = Opentxs::Client()
                            .ServerAction()
                            .DownloadContract(
                                Identifier::Factory(mynym),
@@ -146,7 +145,7 @@ string CmdExportCash::exportCash(
                            ->Run();
         }
 
-        if (1 == VerifyMessageSuccess(response)) {
+        if (1 == VerifyMessageSuccess(Opentxs::Client(), response)) {
             strContract = SwigWrap::GetAssetType_Contract(assetType);
         }
     }
@@ -212,7 +211,7 @@ std::string CmdExportCash::load_or_retrieve_encrypt_key(
     if (!VerifyStringVal(strPubkey)) {
         std::string strResponse = check_nym(notaryID, nymID, targetNymID);
 
-        if (1 == VerifyMessageSuccess(strResponse)) {
+        if (1 == VerifyMessageSuccess(Opentxs::Client(), strResponse)) {
             strPubkey = load_public_encryption_key(targetNymID);
         }
     }

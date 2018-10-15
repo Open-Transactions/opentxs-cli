@@ -205,12 +205,15 @@ std::int32_t find_strange_offers(
     attr the_lambda_struct::the_price         // for newoffer as well.
     attr the_lambda_struct::bSelling          // for newoffer as well.
     */
-    LogTrace(strLocation)(": About to compare the new potential offer against one of the existing ones...").Flush();
+    LogTrace(strLocation)(": About to compare the new potential offer against "
+                          "one of the existing ones...")
+        .Flush();
 
     if ((extra_vals.the_asset_acct == offer_data.asset_acct_id) &&
         (extra_vals.the_currency_acct == offer_data.currency_acct_id) &&
         (extra_vals.the_scale == offer_data.scale)) {
-        LogTrace(strLocation)(": the account IDs and the scale match...").Flush();
+        LogTrace(strLocation)(": the account IDs and the scale match...")
+            .Flush();
 
         // By this point we know the current offer_data has the same asset acct,
         // currency acct, and scale
@@ -814,12 +817,14 @@ int32_t CmdBase::processTxResponse(
         return -1;
     }
 
-    if (1 != VerifyMsgBalanceAgrmntSuccess(server, mynym, myacct, response)) {
+    if (1 != VerifyMsgBalanceAgrmntSuccess(
+                 Opentxs::Client(), server, mynym, myacct, response)) {
         otOut << "Error: " << what << " balance agreement failed.\n";
         return -1;
     }
 
-    if (1 != VerifyMsgTrnxSuccess(server, mynym, myacct, response)) {
+    if (1 != VerifyMsgTrnxSuccess(
+                 Opentxs::Client(), server, mynym, myacct, response)) {
         otOut << "Error: " << what << " transaction failed.\n";
         return -1;
     }
@@ -837,12 +842,12 @@ int32_t CmdBase::responseReply(
     const char* function) const
 {
     return InterpretTransactionMsgReply(
-        server, mynym, myacct, function, response);
+        Opentxs::Client(), server, mynym, myacct, function, response);
 }
 
 int32_t CmdBase::responseStatus(const string& response) const
 {
-    return VerifyMessageSuccess(response);
+    return VerifyMessageSuccess(Opentxs::Client(), response);
 }
 
 bool CmdBase::run(const map<string, string>& _options)

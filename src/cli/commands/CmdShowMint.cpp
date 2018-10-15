@@ -11,6 +11,8 @@
 #include <iostream>
 #include <string>
 
+#define OT_METHOD "opentxs::CmdShowMint"
+
 using namespace opentxs;
 using namespace std;
 
@@ -57,9 +59,10 @@ std::string CmdShowMint::load_or_retrieve_mint(
 
     // expired or missing.
     if (!SwigWrap::Mint_IsStillGood(notaryID, unitTypeID)) {
-        otWarn << "load_or_retrieve_mint: Mint file is "
+        LogDetail(OT_METHOD)(__FUNCTION__)(
+            ": Mint file is "
                   "missing or expired. Downloading from "
-                  "server...\n";
+                  "server...").Flush();
 
         std::string response;
         {

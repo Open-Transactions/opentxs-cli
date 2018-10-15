@@ -875,12 +875,14 @@ std::int32_t RecordList::confirmPaymentPlan_lowLevel(  // a static method
     }
 
     std::int32_t reply = InterpretTransactionMsgReply(
+
         Opentxs::Client(),
         server,
         senderUser,
         senderAcct,
         "deposit_payment_plan",
         response);
+
     if (1 != reply) { return reply; }
 
     if (nullptr != pOptionalOutput) { *pOptionalOutput = response; }
@@ -1568,12 +1570,14 @@ std::int32_t RecordList::acceptFromInbox(  // a static method
                 ->Run();
     }
     std::int32_t reply = InterpretTransactionMsgReply(
+
         Opentxs::Client(),
         server,
         mynym,
         myacct,
         "process_inbox",
         notary_response);
+
 
     if (1 != reply) { return reply; }
 

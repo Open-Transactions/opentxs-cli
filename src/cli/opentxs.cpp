@@ -189,6 +189,7 @@ using namespace std;
 
 #ifndef _PASSWORD_LEN
 #define _PASSWORD_LEN 128
+#define OT_METHOD "opentxs::Opentxs"
 #endif
 const opentxs::api::client::Manager* Opentxs::client_{nullptr};
 
@@ -547,7 +548,8 @@ const char* Opentxs::getOption(
     // can we get the default value from the command line?
     const char* value = opt.getValue(optionName);
     if (value != nullptr) {
-        otWarn << "Option  " << optionName << ": " << value << "\n";
+        LogDetail(OT_METHOD)(__FUNCTION__)(
+            "Option  ")(optionName)(": ")(value).Flush();
         return value;
     }
 
@@ -555,7 +557,8 @@ const char* Opentxs::getOption(
     if (nullptr != defaultName) {
         value = opt.getValue(defaultName);
         if (value != nullptr) {
-            otWarn << "Default " << optionName << ": " << value << "\n";
+            LogDetail(OT_METHOD)(__FUNCTION__)(
+                "Default ")(optionName)(": ")(value).Flush();
             return value;
         }
     }
@@ -571,7 +574,8 @@ void Opentxs::loadOptions(AnyOption& opt)
     OT_ASSERT_MSG(
         configPathFound,
         "RegisterAPIWithScript: Must set Config Path first!\n");
-    otWarn << "Using configuration path: " << configPath << "\n";
+    LogDetail(OT_METHOD)(__FUNCTION__)(
+        "Using configuration path: ")(configPath).Flush();
 
     opt.addUsage("");
     opt.addUsage(" Opentxs CLI Usage:  ");

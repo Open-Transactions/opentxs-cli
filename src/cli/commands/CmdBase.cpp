@@ -17,6 +17,8 @@
 #include <utility>
 #include <vector>
 
+#define OT_METHOD "opentxs::CmdBase"
+
 using namespace opentxs;
 using namespace std;
 
@@ -72,7 +74,8 @@ MapOfMaps* convert_offerlist_to_maps(OTDB::OfferListNym& offerList)
             }
 
             if (nullptr != sub_map) {
-                otWarn << strLocation << ": The sub-map already exists!\n";
+                LogDetail(OT_METHOD)(__FUNCTION__)(
+                    ": The sub-map already exists!").Flush();
 
                 // Let's just add this offer to the existing submap
                 // (There must be other offers already there for the same
@@ -86,8 +89,8 @@ MapOfMaps* convert_offerlist_to_maps(OTDB::OfferListNym& offerList)
             } else  // submap does NOT already exist for this market. (Create
                     // it...)
             {
-                otWarn << strLocation
-                       << ": The sub-map does NOT already exist!\n";
+                LogDetail(OT_METHOD)(__FUNCTION__)(
+                       ": The sub-map does NOT already exist!").Flush();
                 //
                 // Let's create the submap with this new offer, and add it
                 // to the main map.
@@ -417,7 +420,8 @@ OTDB::OfferListNym* loadNymOffers(
             notaryID,
             "offers",
             nymID + ".bin")) {
-        otWarn << "Offers file exists... Querying nyms...\n";
+        LogDetail(OT_METHOD)(__FUNCTION__)(
+            ": Offers file exists... Querying nyms...").Flush();
         OTDB::Storable* storable = OTDB::QueryObject(
             OTDB::STORED_OBJ_OFFER_LIST_NYM,
             Opentxs::Client().DataFolder(),
@@ -432,8 +436,9 @@ OTDB::OfferListNym* loadNymOffers(
             return nullptr;
         }
 
-        otWarn << "QueryObject worked. Now dynamic casting from storable to a "
-                  "(nym) offerList...\n";
+        LogDetail(OT_METHOD)(__FUNCTION__)(
+            ": QueryObject worked. Now dynamic casting from storable to a "
+                  "(nym) offerList...").Flush();
         offerList = dynamic_cast<OTDB::OfferListNym*>(storable);
 
         if (nullptr == offerList) {
@@ -737,7 +742,8 @@ string CmdBase::getOption(string optionName) const
 {
     auto result = options.find(optionName);
     if (result == options.end()) {
-        otWarn << "Option " << optionName << " not found.\n";
+        LogDetail(OT_METHOD)(__FUNCTION__)(
+            ": Option ")(optionName)(" not found.").Flush();
         return "";
     }
 
@@ -819,12 +825,14 @@ int32_t CmdBase::processTxResponse(
 
     if (1 != VerifyMsgBalanceAgrmntSuccess(
                  Opentxs::Client(), server, mynym, myacct, response)) {
+
         otOut << "Error: " << what << " balance agreement failed.\n";
         return -1;
     }
 
     if (1 != VerifyMsgTrnxSuccess(
                  Opentxs::Client(), server, mynym, myacct, response)) {
+
         otOut << "Error: " << what << " transaction failed.\n";
         return -1;
     }

@@ -11,6 +11,8 @@
 #include <iostream>
 #include <string>
 
+#define OT_METHOD "opentxs::CmdShowOffers"
+
 using namespace opentxs;
 using namespace std;
 
@@ -99,7 +101,8 @@ OTDB::OfferListMarket* CmdShowOffers::loadMarketOffers(
         return nullptr;
     }
 
-    otWarn << "Offers file exists... Querying file for market offers...\n";
+    LogDetail(OT_METHOD)(__FUNCTION__)(
+        ": Offers file exists... Querying file for market offers...").Flush();
 
     OTDB::Storable* storable = OTDB::QueryObject(
         OTDB::STORED_OBJ_OFFER_LIST_MARKET,
@@ -114,8 +117,9 @@ OTDB::OfferListMarket* CmdShowOffers::loadMarketOffers(
         return nullptr;
     }
 
-    otWarn << "QueryObject worked. Now dynamic casting from storable to a "
-              "(market) offerList...\n";
+    LogDetail(OT_METHOD)(__FUNCTION__)(
+        ": QueryObject worked. Now dynamic casting from storable to a "
+              "(market) offerList...").Flush();
 
     OTDB::OfferListMarket* offerList =
         dynamic_cast<OTDB::OfferListMarket*>(storable);

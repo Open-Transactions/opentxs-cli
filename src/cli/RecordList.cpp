@@ -1672,11 +1672,12 @@ bool RecordList::PerformAutoAccept()
         std::int32_t nNymIndex = -1;
         for (auto& it_nym : m_nyms) {
             ++nNymIndex;
-            if (0 == nNymIndex)
-                otInfo << "======================================\n "
-                       << __FUNCTION__
-                       << ": Beginning auto-accept loop through "
-                          "Nyms...\n";
+
+            if (0 == nNymIndex) {
+                LogVerbose("======================================").Flush();
+                LogVerbose(__FUNCTION__)(": Beginning auto-accept loop through Nyms...").Flush();
+            }
+
             const std::string& str_nym_id(it_nym);
             const auto theNymID = Identifier::Factory(str_nym_id);
             const auto strNymID = String::Factory(theNymID);
@@ -1693,21 +1694,17 @@ bool RecordList::PerformAutoAccept()
                 const auto theMsgNotaryID =
                     Identifier::Factory(str_msg_notary_id);
                 auto pMsgServer = wallet_.Server(theMsgNotaryID);
+
                 if (!pMsgServer) {
                     // This can happen if the user erases the server contract
                     // from the wallet. Therefore we just need to skip it.
-                    otInfo << __FUNCTION__ << ": Skipping a notary server ("
-                           << str_msg_notary_id.c_str()
-                           << ") since the contract has disappeared from the "
-                              "wallet. (Probably deleted by the user.)\n";
+                    LogVerbose(__FUNCTION__)(": Skipping a notary server (")(str_msg_notary_id)(") since the contract has disappeared from the wallet. (Probably deleted by the user.)").Flush();
                     continue;
                 }
+
                 const auto strMsgNotaryID = String::Factory(theMsgNotaryID);
-                otInfo << __FUNCTION__ << ": Msg Notary " << nServerIndex
-                       << ", ID: " << strMsgNotaryID->Get() << "\n";
-
+                LogVerbose(__FUNCTION__)(": Msg Notary ")(nServerIndex)(", ID: ")(strMsgNotaryID).Flush();
                 mapOfPayments thePaymentMap;
-
                 std::map<std::int32_t, TransactionNumber> mapPaymentBoxTransNum;
 
                 // OPTIMIZE FYI:
@@ -1830,10 +1827,7 @@ bool RecordList::PerformAutoAccept()
                                   (0 == str_type.compare("voucher")))) ||
                                 (m_bAutoAcceptCash &&
                                  (0 == str_type.compare("cash")))) {
-                                otInfo << __FUNCTION__
-                                       << ": Adding to acceptance "
-                                          "list: pending incoming "
-                                       << str_type.c_str() << ".\n";
+                                LogVerbose(__FUNCTION__)(": Adding to acceptance list: pending incoming ")(str_type)(".").Flush();
 
                                 mapPaymentBoxTransNum.insert(
                                     std::pair<std::int32_t, TransactionNumber>(
@@ -1844,15 +1838,14 @@ bool RecordList::PerformAutoAccept()
                                         std::int32_t,
                                         std::shared_ptr<OTPayment>>(
                                         nIndex, pPayment));
-                            } else
-                                otInfo << __FUNCTION__
-                                       << ": Instrument type not enabled for "
-                                          "auto-accept (skipping): "
-                                       << str_type.c_str() << "\n";
-                        } else
+                            } else {
+                                LogVerbose(__FUNCTION__)(": Instrument type not enabled for auto-accept (skipping): ")(str_type).Flush();
+                            }
+                        } else {
                             otOut << __FUNCTION__
                                   << ": Failed in pPayment->IsValid "
                                      "or pPayment->SetTempValues()\n";
+                        }
                     }
                 }  // looping through payments inbox.
                 else
@@ -1943,14 +1936,9 @@ bool RecordList::PerformAutoAccept()
 
                             if (false == bool(account)) {
                                 // This can happen if the user erases the
-                                // account.
-                                // Therefore we just need to skip it.
-                                otInfo << __FUNCTION__
-                                       << ": Skipping an account ("
-                                       << str_account_id.c_str()
-                                       << ") since it has disappeared from the "
-                                          "wallet. (Probably deleted by the "
-                                          "user.)\n";
+                                // account. Therefore we just need to skip it.
+                                LogVerbose(__FUNCTION__)(": Skipping an account (")(str_account_id)(") since it has disappeared from the wallet. (Probably deleted by the user.)").Flush();
+
                                 continue;
                             }
 
@@ -2055,11 +2043,12 @@ bool RecordList::PerformAutoAccept()
         std::int32_t nAccountIndex = -1;
         for (auto& it_acct : m_accounts) {
             ++nAccountIndex;  // (0 on first iteration.)
-            if (0 == nAccountIndex)
-                otInfo << "---------------------------------\n " << __FUNCTION__
-                       << ": "
-                          "Beginning auto-accept loop through the "
-                          "accounts in the wallet...\n";
+
+            if (0 == nAccountIndex) {
+                LogVerbose("---------------------------------").Flush();
+                LogVerbose(__FUNCTION__)(": Beginning auto-accept loop through the accounts in the wallet...").Flush();
+            }
+
             // For each account, loop through its inbox, outbox, and record box.
             const std::string& str_account_id(it_acct);
             const auto theAccountID = Identifier::Factory(str_account_id);
@@ -2068,10 +2057,8 @@ bool RecordList::PerformAutoAccept()
             if (false == bool(account)) {
                 // This can happen if the user erases the account.
                 // Therefore we just need to skip it.
-                otInfo << __FUNCTION__ << ": Skipping an account ("
-                       << str_account_id.c_str()
-                       << ") since it has disappeared from the wallet. "
-                          "(Probably deleted by the user.)\n";
+                LogVerbose(__FUNCTION__)(": Skipping an account (")(str_account_id)(") since it has disappeared from the wallet. (Probably deleted by the user.)").Flush();
+
                 continue;
             }
             const Identifier& theNymID = account.get().GetNymID();
@@ -2084,9 +2071,8 @@ bool RecordList::PerformAutoAccept()
             const auto strNotaryID = String::Factory(theNotaryID);
             const auto strInstrumentDefinitionID =
                 String::Factory(theInstrumentDefinitionID);
-            otInfo << "------------\n"
-                   << __FUNCTION__ << ": Account: " << nAccountIndex
-                   << ", ID: " << str_account_id.c_str() << "\n";
+            LogVerbose("------------").Flush();
+            LogVerbose(__FUNCTION__)(": Account: ")(nAccountIndex)(", ID: ")(str_account_id).Flush();
             const std::string str_nym_id(strNymID->Get());
             const std::string str_notary_id(strNotaryID->Get());
             const std::string str_instrument_definition_id(
@@ -2111,10 +2097,8 @@ bool RecordList::PerformAutoAccept()
             auto it_asset = m_assets.find(str_instrument_definition_id);
             if ((m_nyms.end() == it_nym) || (m_servers.end() == it_server) ||
                 (m_assets.end() == it_asset)) {
-                otInfo << __FUNCTION__ << ": Skipping an account ("
-                       << str_account_id.c_str()
-                       << ") since its Nym, or Server, "
-                          "or Asset Type wasn't on my list.\n";
+                LogVerbose(__FUNCTION__)(": Skipping an account (")(str_account_id)(") since its Nym, or Server, or Asset Type wasn't on my list.").Flush();
+
                 continue;
             }
             // Loop through asset account INBOX.
@@ -2138,11 +2122,8 @@ bool RecordList::PerformAutoAccept()
             }
 
             if (false == bool(pInbox)) {
-                otInfo << __FUNCTION__ << ": Skipping an account ("
-                       << str_account_id.c_str()
-                       << ") since its "
-                          "inbox failed to load (have you downloaded "
-                          "the latest one?)\n";
+                LogVerbose(__FUNCTION__)(": Skipping an account (")(str_account_id)(") since its inbox failed to load (have you downloaded the latest one?)").Flush();
+
                 continue;
             }
             const auto strInbox = String::Factory(*pInbox);
@@ -2153,14 +2134,16 @@ bool RecordList::PerformAutoAccept()
             // It loaded up, so let's loop through it.
             for (auto& it : pInbox->GetTransactionMap()) {
                 ++nInboxIndex;  // (0 on first iteration.)
-                if (0 == nInboxIndex)
-                    otInfo
-                        << __FUNCTION__
-                        << ": Beginning loop through asset account INBOX...\n";
+
+                if (0 == nInboxIndex) {
+                    LogVerbose(__FUNCTION__)(": Beginning loop through asset account INBOX...").Flush();
+                }
+
                 auto pBoxTrans = it.second;
+
                 OT_ASSERT(false != bool(pBoxTrans));
-                otInfo << __FUNCTION__ << ": Inbox index: " << nInboxIndex
-                       << "\n";
+
+                LogVerbose(__FUNCTION__)(": Inbox index: ")(nInboxIndex).Flush();
                 const std::string str_type(
                     pBoxTrans->GetTypeString());  // pending, chequeReceipt,
                                                   // etc.
@@ -2169,9 +2152,7 @@ bool RecordList::PerformAutoAccept()
                 const bool bIsReceipt = !bIsTransfer;
                 if ((m_bAutoAcceptReceipts && bIsReceipt) ||
                     (m_bAutoAcceptTransfers && bIsTransfer)) {
-                    otInfo << __FUNCTION__ << ": Auto-accepting: incoming "
-                           << (bIsTransfer ? "pending transfer" : "receipt")
-                           << " (str_type: " << str_type.c_str() << ")\n";
+                    LogVerbose(__FUNCTION__)(": Auto-accepting: incoming ")(bIsTransfer ? "pending transfer" : "receipt")(" (str_type: ")(str_type)(")").Flush();
                     // If we haven't found any yet, then this must be the first
                     // one!
                     //
@@ -2293,11 +2274,8 @@ bool RecordList::PerformAutoAccept()
                             theAccountID,
                             true);  // bForceDownload defaults to false.
 
-                    otInfo << "\n\nServer response (" << strAttempt.c_str()
-                           << "): SUCCESS "
-                              "processing/accepting inbox.\n";
-                    otInfo << (bRetrieved ? "Success" : "Failed")
-                           << " retrieving intermediary files for account.\n";
+                    LogVerbose("Server response (")(strAttempt)("): SUCCESS processing/accepting inbox.").Flush();
+                    LogVerbose(bRetrieved ? "Success" : "Failed")(" retrieving intermediary files for account.").Flush();
                 }
             }
         }
@@ -2330,9 +2308,11 @@ bool RecordList::Populate()
     std::int32_t nNymIndex = -1;
     for (auto& it_nym : m_nyms) {
         ++nNymIndex;
-        if (0 == nNymIndex)
-            otInfo << "=============== " << __FUNCTION__
-                   << ": Beginning loop through Nyms...\n";
+
+        if (0 == nNymIndex) {
+            LogVerbose("=============== ")(__FUNCTION__)(": Beginning loop through Nyms...").Flush();
+        }
+
         const std::string& str_nym_id(it_nym);
         const auto theNymID = Identifier::Factory(str_nym_id);
         ConstNym pNym = wallet_.Nym(theNymID);
@@ -2342,16 +2322,14 @@ bool RecordList::Populate()
         //
         const std::int32_t nOutpaymentsCount =
             SwigWrap::GetNym_OutpaymentsCount(str_nym_id);
+        LogVerbose("--------").Flush();
+        LogVerbose(__FUNCTION__)(": Nym ")(nNymIndex)(", nOutpaymentsCount: ")(nOutpaymentsCount)(", ID: ")(theNymID).Flush();
 
-        otInfo << "--------\n"
-               << __FUNCTION__ << ": Nym " << nNymIndex
-               << ", nOutpaymentsCount: " << nOutpaymentsCount
-               << ", ID: " << theNymID->str() << "\n";
         for (std::int32_t nCurrentOutpayment = 0;
              nCurrentOutpayment < nOutpaymentsCount;
              ++nCurrentOutpayment) {
-            otInfo << __FUNCTION__
-                   << ": Outpayment instrument: " << nCurrentOutpayment << "\n";
+            LogVerbose(OT_METHOD)(__FUNCTION__)(
+                   ": Outpayment instrument: ")(nCurrentOutpayment)(".").Flush();
             const auto strOutpayment =
                 String::Factory(SwigWrap::GetNym_OutpaymentsContentsByIndex(
                     str_nym_id, nCurrentOutpayment));
@@ -2429,10 +2407,10 @@ bool RecordList::Populate()
                     // instrument, and it definitely did not match any of the
                     // assets that we care about. Therefore, skip.
                     //
-                    otInfo << __FUNCTION__
-                           << ": Skipping outpayment (we don't care "
-                              "about this unit type "
-                           << str_outpmt_asset.c_str() << ")\n";
+                    LogVerbose(OT_METHOD)(__FUNCTION__)(
+                           ": Skipping outpayment (we don't care "
+                              "about this unit type ")
+                           (str_outpmt_asset.c_str())(").").Flush();
 
                     otErr << __FUNCTION__
                           << ": Skipping outpayment (we don't care "
@@ -2493,10 +2471,10 @@ bool RecordList::Populate()
                     // definitely did not match any of the accounts that we care
                     // about. Therefore, skip.
                     //
-                    otInfo << __FUNCTION__
-                           << ": Skipping outpayment (we don't care "
-                              "about this account "
-                           << str_outpmt_account.c_str() << ")\n";
+                    LogVerbose(OT_METHOD)(__FUNCTION__)(
+                           ": Skipping outpayment (we don't care "
+                              "about this account ")
+                           (str_outpmt_account.c_str())(").").Flush();
 
                     otErr << __FUNCTION__
                           << ": Skipping outpayment (we don't care "
@@ -2590,9 +2568,9 @@ bool RecordList::Populate()
                 const std::string& str_type = GetTypeString(nType);
                 // CREATE A Record AND POPULATE IT...
                 //
-                otInfo << __FUNCTION__
-                       << ": ADDED: pending outgoing instrument (str_type: "
-                       << str_type.c_str() << ")\n";
+                LogVerbose(OT_METHOD)(__FUNCTION__)(
+                       ": ADDED: pending outgoing instrument (str_type: ")
+                       (str_type.c_str())(").").Flush();
 
                 shared_ptr_Record sp_Record(new Record(
                     *this,
@@ -2650,10 +2628,10 @@ bool RecordList::Populate()
             } else  // the server for this outpayment is not on the list of
                     // servers we care about. Skip this outpayment.
             {
-                otInfo << __FUNCTION__
-                       << ": Skipping outgoing instrument (we don't "
-                          "care about this notary "
-                       << str_outpayment_notary_id.c_str() << ")\n";
+                LogVerbose(OT_METHOD)(__FUNCTION__)(
+                       ": Skipping outgoing instrument (we don't "
+                          "care about this notary ")
+                       (str_outpayment_notary_id.c_str())(").").Flush();
                 continue;
             }
         }  // for outpayments.
@@ -2665,7 +2643,7 @@ bool RecordList::Populate()
             std::int32_t index = 0;
 
             for (const auto& id : mail) {
-                otInfo << __FUNCTION__ << ": Mail index: " << index << "\n";
+                LogVerbose(OT_METHOD)(__FUNCTION__)(": Mail index: ")(index)(".").Flush();
                 const auto nymID = Identifier::Factory(str_nym_id);
 
                 if (id.empty()) {
@@ -2734,7 +2712,7 @@ bool RecordList::Populate()
                     const std::string str_date(strDate->Get());
                     // CREATE A Record AND POPULATE IT...
                     //
-                    otInfo << __FUNCTION__ << ": ADDED: incoming mail.\n";
+                    LogVerbose(OT_METHOD)(__FUNCTION__)(": ADDED: incoming mail.").Flush();
 
                     shared_ptr_Record sp_Record(new Record(
                         *this,
@@ -2785,7 +2763,8 @@ bool RecordList::Populate()
             index = 0;
 
             for (const auto& id : outmail) {
-                otInfo << __FUNCTION__ << ": Outmail index: " << index << "\n";
+                LogVerbose(OT_METHOD)(__FUNCTION__)(
+                    ": Outmail index: ")(index)(".").Flush();
                 const auto nymID = Identifier::Factory(str_nym_id);
 
                 if (id.empty()) {
@@ -2854,7 +2833,7 @@ bool RecordList::Populate()
                     const std::string str_date(strDate->Get());
                     // CREATE A Record AND POPULATE IT...
                     //
-                    otInfo << __FUNCTION__ << ": ADDED: sent mail.\n";
+                    LogVerbose(OT_METHOD)(__FUNCTION__)(": ADDED: sent mail.").Flush();
 
                     shared_ptr_Record sp_Record(new Record(
                         *this,
@@ -2912,15 +2891,17 @@ bool RecordList::Populate()
             if (!pServer) {
                 // This can happen if the user erases the server contract
                 // from the wallet. Therefore we just need to skip it.
-                otInfo << __FUNCTION__ << ": Skipping a notary server ("
-                       << it_server.c_str()
-                       << ") since the contract has disappeared from the "
-                          "wallet. (Probably deleted by the user.)\n";
+                LogVerbose(OT_METHOD)(__FUNCTION__)(
+                    ": Skipping a notary server (")
+                       (it_server.c_str())
+                       (") since the contract has disappeared from the "
+                          "wallet. (Probably deleted by the user.).").Flush();
                 continue;
             }
             const auto strMsgNotaryID = String::Factory(theMsgNotaryID);
-            otInfo << __FUNCTION__ << ": Transport Notary " << nServerIndex
-                   << ", ID: " << strMsgNotaryID->Get() << "\n";
+            LogVerbose(OT_METHOD)(__FUNCTION__)(
+                ": Transport Notary ")(nServerIndex)
+                   (", ID: ")(strMsgNotaryID->Get())(".").Flush();
             // OPTIMIZE FYI:
             // The "NoVerify" version is much faster, but you will lose the
             // ability to get the
@@ -2946,8 +2927,8 @@ bool RecordList::Populate()
                     auto pBoxTrans = it.second;
                     OT_ASSERT(false != bool(pBoxTrans));
                     ++nIndex;  // 0 on first iteration.
-                    otInfo << __FUNCTION__ << ": Incoming payment: " << nIndex
-                           << "\n";
+                    LogVerbose(OT_METHOD)(__FUNCTION__)(
+                        ": Incoming payment: ")(nIndex)(".").Flush();
                     std::string str_name;  // name of sender (since its in the
                                            // payments inbox.)
                     std::string str_sender_nym_id;
@@ -3186,9 +3167,9 @@ bool RecordList::Populate()
                             }
                         }
                     }
-                    otInfo << __FUNCTION__
-                           << ": ADDED: pending incoming payment (str_type: "
-                           << str_type.c_str() << ")\n";
+                    LogVerbose(OT_METHOD)(__FUNCTION__)(
+                           ": ADDED: pending incoming payment (str_type: ")
+                           (str_type.c_str())(").").Flush();
 
                     shared_ptr_Record sp_Record(new Record(
                         *this,
@@ -3327,8 +3308,8 @@ bool RecordList::Populate()
                     // (or not) activated.)
                     // -------------------------------------------
                     ++nIndex;  // 0 on first iteration.
-                    otInfo << __FUNCTION__
-                           << ": Payment RECORD index: " << nIndex << "\n";
+                    LogVerbose(OT_METHOD)(__FUNCTION__)(
+                           ": Payment RECORD index: ")(nIndex)(".").Flush();
                     std::string str_name;  // name of sender OR recipient
                     // (depending on whether it was originally incoming or
                     // outgoing.)
@@ -3648,12 +3629,12 @@ bool RecordList::Populate()
                                         // did not match any of the accounts
                                         // that we care about. Therefore, skip.
                                         //
-                                        otInfo << __FUNCTION__
-                                               << ": Skipping 'sent payment' "
+                                        LogVerbose(OT_METHOD)(__FUNCTION__)(
+                                               ": Skipping 'sent payment' "
                                                   "record. (We don't care "
-                                                  "about account "
-                                               << str_outpmt_account.c_str()
-                                               << ")\n";
+                                                  "about account ")
+                                               (str_outpmt_account.c_str())
+                                               (").").Flush();
                                         continue;
                                     }
                                 }
@@ -3780,9 +3761,10 @@ bool RecordList::Populate()
                             }
                         }
                     }
-                    otInfo << __FUNCTION__ << ": ADDED: Payment record "
-                           << (bOutgoing ? "(sent)" : "(received)")
-                           << " (str_type: " << str_type.c_str() << ")\n";
+                    LogVerbose(OT_METHOD)(__FUNCTION__)(
+                        ": ADDED: Payment record ")
+                           (bOutgoing ? "(sent)" : "(received)")
+                           (" (str_type: ")(str_type.c_str())(").").Flush();
 
                     shared_ptr_Record sp_Record(new Record(
                         *this,
@@ -3916,9 +3898,9 @@ bool RecordList::Populate()
                     //
                     // -------------------------------------------
                     ++nIndex;  // 0 on first iteration.
-                    otInfo << __FUNCTION__
-                           << ": Expired payment RECORD index: " << nIndex
-                           << "\n";
+                    LogVerbose(OT_METHOD)(__FUNCTION__)(
+                           ": Expired payment RECORD index: ")(nIndex)
+                           (".").Flush();
                     std::string str_name;  // name of sender OR recipient
                                            // (depending on whether it was
                                            // originally incoming or outgoing.)
@@ -4231,12 +4213,12 @@ bool RecordList::Populate()
                                         // that we care about.
                                         // Therefore, skip.
                                         //
-                                        otInfo << __FUNCTION__
-                                               << ": Skipping 'sent payment' "
+                                        LogVerbose(OT_METHOD)(__FUNCTION__)(
+                                               ": Skipping 'sent payment' "
                                                   "expired record. (We don't "
-                                                  "care about account "
-                                               << str_outpmt_account.c_str()
-                                               << ")\n";
+                                                  "care about account ")
+                                               (str_outpmt_account.c_str())
+                                               (").").Flush();
                                         continue;
                                     }
                                 }
@@ -4357,9 +4339,10 @@ bool RecordList::Populate()
                             }
                         }
                     }
-                    otInfo << __FUNCTION__ << ": ADDED: Expired payment record "
-                           << (bOutgoing ? "(sent)" : "(received)")
-                           << " (str_type: " << str_type.c_str() << ")\n";
+                    LogVerbose(OT_METHOD)(__FUNCTION__)(
+                        ": ADDED: Expired payment record ")
+                           (bOutgoing ? "(sent)" : "(received)")
+                           (" (str_type: ")(str_type.c_str())(").").Flush();
 
                     shared_ptr_Record sp_Record(new Record(
                         *this,
@@ -4426,9 +4409,9 @@ bool RecordList::Populate()
            // ASSET ACCOUNT -- INBOX/OUTBOX + RECORD BOX
            // Loop through the Accounts.
            //
-    otInfo << "================ " << __FUNCTION__
-           << ": Looping through the accounts in the wallet...\n";
+    LogVerbose("================ ")(__FUNCTION__)(": Looping through the accounts in the wallet...").Flush();
     std::int32_t nAccountIndex = -1;
+
     for (auto& it_acct : m_accounts) {
         ++nAccountIndex;  // (0 on first iteration.)
         // For each account, loop through its inbox, outbox, and record box.
@@ -4440,10 +4423,11 @@ bool RecordList::Populate()
         if (false == bool(account)) {
             // This can happen if the user erases the account.
             // Therefore we just need to skip it.
-            otInfo << __FUNCTION__ << ": Skipping an account ("
-                   << str_account_id.c_str()
-                   << ") since it has disappeared from the wallet. (Probably "
-                      "deleted by the user.)\n";
+            LogVerbose(OT_METHOD)(__FUNCTION__)(
+                ": Skipping an account (")
+                   (str_account_id.c_str())
+                   (") since it has disappeared from the wallet. (Probably "
+                      "deleted by the user).").Flush();
             continue;
         }
         const Identifier& theNymID = account.get().GetNymID();
@@ -4455,9 +4439,9 @@ bool RecordList::Populate()
         const auto strNotaryID = String::Factory(theNotaryID);
         const auto strInstrumentDefinitionID =
             String::Factory(theInstrumentDefinitionID);
-        otInfo << "------------\n"
-               << __FUNCTION__ << ": Account: " << nAccountIndex
-               << ", ID: " << str_account_id.c_str() << "\n";
+        LogVerbose(OT_METHOD)(__FUNCTION__)(
+            ": Account: ")(nAccountIndex)
+               (", ID: ")(str_account_id.c_str())(".").Flush();
         const std::string str_nym_id(strNymID->Get());
         const std::string str_notary_id(strNotaryID->Get());
         const std::string str_instrument_definition_id(
@@ -4485,10 +4469,11 @@ bool RecordList::Populate()
         auto it_asset = m_assets.find(str_instrument_definition_id);
         if ((m_nyms.end() == it_nym) || (m_servers.end() == it_server) ||
             (m_assets.end() == it_asset)) {
-            otInfo << __FUNCTION__ << ": Skipping an account ("
-                   << str_account_id.c_str()
-                   << ") since its Nym, or Server, "
-                      "or Asset Type wasn't on my list.\n";
+            LogVerbose(OT_METHOD)(__FUNCTION__)(
+                ": Skipping an account (")
+                   (str_account_id.c_str())
+                   (") since its Nym, or Server, "
+                      "or Asset Type wasn't on my list.").Flush();
             continue;
         }
         // These pointers are what we'll use to construct each Record.
@@ -4522,13 +4507,12 @@ bool RecordList::Populate()
             for (auto& it : pInbox->GetTransactionMap()) {
                 ++nInboxIndex;  // (0 on first iteration.)
                 if (0 == nInboxIndex)
-                    otInfo
-                        << __FUNCTION__
-                        << ": Beginning loop through asset account INBOX...\n";
+                    LogVerbose(OT_METHOD)(__FUNCTION__)(
+                        ": Beginning loop through asset account INBOX...").Flush();
                 auto pBoxTrans = it.second;
                 OT_ASSERT(false != bool(pBoxTrans));
-                otInfo << __FUNCTION__ << ": Inbox index: " << nInboxIndex
-                       << "\n";
+                LogVerbose(OT_METHOD)(__FUNCTION__)(": Inbox index: ")(nInboxIndex)
+                       (".").Flush();
                 bool bCanceled = false;
                 std::string str_name;  // name of sender (since its in the
                                        // inbox.)
@@ -4674,11 +4658,12 @@ bool RecordList::Populate()
                 const std::string str_type(
                     pBoxTrans->GetTypeString());  // pending, chequeReceipt,
                                                   // etc.
-                otInfo << __FUNCTION__ << ": ADDED: incoming "
-                       << ((transactionType::pending == pBoxTrans->GetType())
+                LogVerbose(OT_METHOD)(__FUNCTION__)(
+                    ": ADDED: incoming ")
+                       ((transactionType::pending == pBoxTrans->GetType())
                                ? "pending transfer"
                                : "receipt")
-                       << " (str_type: " << str_type.c_str() << ")\n";
+                       (" (str_type: ")(str_type.c_str())(").").Flush();
 
                 shared_ptr_Record sp_Record(new Record(
                     *this,
@@ -4764,13 +4749,13 @@ bool RecordList::Populate()
             for (auto& it : pOutbox->GetTransactionMap()) {
                 ++nOutboxIndex;  // (0 on first iteration.)
                 if (0 == nOutboxIndex)
-                    otInfo
-                        << __FUNCTION__
-                        << ": Beginning loop through asset account OUTBOX...\n";
+                    LogVerbose(OT_METHOD)(__FUNCTION__)(
+                        ": Beginning loop through asset account OUTBOX...").Flush();
                 auto pBoxTrans = it.second;
                 OT_ASSERT(false != bool(pBoxTrans));
-                otInfo << __FUNCTION__ << ": Outbox index: " << nOutboxIndex
-                       << "\n";
+                LogVerbose(OT_METHOD)(__FUNCTION__)(
+                    ": Outbox index: ")(nOutboxIndex)
+                       (".").Flush();
                 std::string str_name;  // name of recipient (since its in the
                                        // outbox.)
                 std::string str_other_nym_id;
@@ -4858,12 +4843,13 @@ bool RecordList::Populate()
                     pBoxTrans->GetTypeString());  // pending, chequeReceipt,
                                                   // etc.
                 if (0 == str_type.compare("pending")) str_type = "transfer";
-                otInfo << __FUNCTION__ << ": ADDED: "
-                       << ((transactionType::pending == pBoxTrans->GetType())
+                LogVerbose(OT_METHOD)(__FUNCTION__)(
+                    ": ADDED: ")
+                       ((transactionType::pending == pBoxTrans->GetType())
                                ? "pending"
                                : "ERROR")
-                       << " outgoing transfer (str_type: " << str_type.c_str()
-                       << ").\n";
+                       (" outgoing transfer (str_type: ")(str_type.c_str())
+                       (").").Flush();
 
                 shared_ptr_Record sp_Record(new Record(
                     *this,
@@ -4942,8 +4928,8 @@ bool RecordList::Populate()
                 ++nRecordIndex;
                 auto pBoxTrans = it.second;
                 OT_ASSERT(false != bool(pBoxTrans));
-                otInfo << __FUNCTION__
-                       << ": Account RECORD index: " << nRecordIndex << "\n";
+                LogVerbose(OT_METHOD)(__FUNCTION__)(
+                       ": Account RECORD index: ")(nRecordIndex)(".").Flush();
                 bool bOutgoing{false};
                 bool bCanceled{false};
                 std::string str_name;  // name of sender OR recipient (depending
@@ -5261,12 +5247,13 @@ bool RecordList::Populate()
                     strTemp->Format("%" PRId64 "", lAmount);
                     str_amount = strTemp->Get();
                 }
-                otInfo << __FUNCTION__ << ": ADDED: "
-                       << ((pBoxTrans->GetType() != transactionType::pending)
+                LogVerbose(OT_METHOD)(__FUNCTION__)(
+                    ": ADDED: ")
+                       ((pBoxTrans->GetType() != transactionType::pending)
                                ? ""
                                : (bOutgoing ? "sent" : "received"))
-                       << " (asset account) record (str_type: "
-                       << str_type.c_str() << ")\n";
+                       (" (asset account) record (str_type: ")
+                        (str_type.c_str())(").").Flush();
                 // This line means: If it's a receipt, use a blank string.
                 // Otherwise if it's a transfer, then show sent/received. (This
                 // is the record box, so if it's a transfer, it's a completed

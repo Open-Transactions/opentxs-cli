@@ -86,7 +86,7 @@ std::int32_t CmdRefreshNym::retrieve_nym(
     } else  // If it returns 1, we know for sure that the request number is in
             // sync.
     {
-        otInfo << "SUCCESS syncronizing the request number." << std::endl;
+        LogVerbose("SUCCESS syncronizing the request number.").Flush();
     }
 
     std::int32_t nGetAndProcessNymbox = MsgUtil.getAndProcessNymbox_4(

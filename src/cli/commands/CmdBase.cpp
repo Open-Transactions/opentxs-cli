@@ -741,13 +741,15 @@ string CmdBase::getAccountAssetType(const string& myacct) const
 string CmdBase::getOption(string optionName) const
 {
     auto result = options.find(optionName);
+
     if (result == options.end()) {
         LogDetail(OT_METHOD)(__FUNCTION__)(
             ": Option ")(optionName)(" not found.").Flush();
         return "";
     }
 
-    otInfo << "Option  " << result->first << ": " << result->second << "\n";
+    LogVerbose("Option  ")(result->first)(": ")(result->second).Flush();
+
     return result->second;
 }
 

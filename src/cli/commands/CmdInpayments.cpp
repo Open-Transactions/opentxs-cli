@@ -7,9 +7,11 @@
 
 #include <opentxs/opentxs.hpp>
 
-#include <stdint.h>
 #include <iostream>
+#include <stdint.h>
 #include <string>
+
+#define OT_METHOD "opentxs::CmdInpayments::"
 
 using namespace opentxs;
 using namespace std;
@@ -38,18 +40,23 @@ int32_t CmdInpayments::run(string server, string mynym)
 
     string inbox = SwigWrap::LoadPaymentInbox(server, mynym);
     if ("" == inbox) {
-        otOut << "Error: cannot load payment inbox.\n";
+        LogNormal(OT_METHOD)(__FUNCTION__)(
+            ": Error: cannot load payment inbox.")
+            .Flush();
         return -1;
     }
 
     int32_t items = SwigWrap::Ledger_GetCount(server, mynym, mynym, inbox);
     if (0 > items) {
-        otOut << "Error: cannot load payment inbox item count.\n";
+        LogNormal(OT_METHOD)(__FUNCTION__)(
+            ": Error: cannot load payment inbox item count.")
+            .Flush();
         return -1;
     }
 
     if (0 == items) {
-        otOut << "The payment inbox is empty.\n";
+        LogNormal(OT_METHOD)(__FUNCTION__)(": The payment inbox is empty.")
+            .Flush();
         return 0;
     }
 
@@ -62,7 +69,8 @@ int32_t CmdInpayments::run(string server, string mynym)
         string payment =
             SwigWrap::Ledger_GetInstrument(server, mynym, mynym, inbox, i);
         if ("" == payment) {
-            otOut << "Error: cannot load payment.\n";
+            LogNormal(OT_METHOD)(__FUNCTION__)(": Error: cannot load payment.")
+                .Flush();
             return -1;
         }
 
@@ -100,9 +108,11 @@ int32_t CmdInpayments::run(string server, string mynym)
         cout << assetType << assetName << "\n";
     }
 
-    otOut << "\nFor the above, try: acceptpayments, acceptinvoices, "
-             "acceptmoney, or acceptall.\nEXCEPT for smart contracts and "
-             "payment plans -- for those, use: opentxs confirm\n\n";
+    LogNormal(OT_METHOD)(__FUNCTION__)(
+        ": For the above, try: acceptpayments, acceptinvoices, "
+        "acceptmoney, or acceptall.\nEXCEPT for smart contracts and "
+        "payment plans -- for those, use: opentxs confirm.")
+        .Flush();
 
     return 1;
 }

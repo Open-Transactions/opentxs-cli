@@ -12,6 +12,8 @@
 #include <ostream>
 #include <string>
 
+#define OT_METHOD "opentxs::CmdGetMarkets::"
+
 using namespace opentxs;
 using namespace std;
 
@@ -40,15 +42,15 @@ int32_t CmdGetMarkets::run(string server, string mynym)
     std::string response;
     {
         response =
-            Opentxs::
-                Client()
+            Opentxs::Client()
                 .ServerAction()
                 .DownloadMarketList(
                     Identifier::Factory(mynym), Identifier::Factory(server))
                 ->Run();
     }
     if (1 != responseStatus(response)) {
-        otOut << "Error: cannot get market list.\n";
+        LogNormal(OT_METHOD)(__FUNCTION__)(": Error: cannot get market list.")
+            .Flush();
         return -1;
     }
 

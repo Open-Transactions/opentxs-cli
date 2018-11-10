@@ -8,9 +8,11 @@
 
 #include <opentxs/opentxs.hpp>
 
-#include <stdint.h>
 #include <iostream>
+#include <stdint.h>
 #include <string>
+
+#define OT_METHOD "opentxs::CmdNewBasket::"
 
 using namespace opentxs;
 using namespace std;
@@ -60,7 +62,9 @@ int32_t CmdNewBasket::run(
 
     int32_t assetCount = stol(assets);
     if (assetCount < 2) {
-        otOut << "Error: invalid asset count for basket.\n";
+        LogNormal(OT_METHOD)(__FUNCTION__)(
+            ": Error: invalid asset count for basket.")
+            .Flush();
         return -1;
     }
 
@@ -69,7 +73,9 @@ int32_t CmdNewBasket::run(
     int64_t minTransfer = stoll(weight);
 
     if (minTransfer < 1) {
-        otOut << "Error: invalid minimum transfer amount for basket.\n";
+        LogNormal(OT_METHOD)(__FUNCTION__)(
+            ": Error: invalid minimum transfer amount for basket.")
+            .Flush();
         return -1;
     }
     uint64_t intWeight = minTransfer;
@@ -81,7 +87,8 @@ int32_t CmdNewBasket::run(
         server, shortname, name, symbol, str_terms, intWeight);
 
     if ("" == basket) {
-        otOut << "Error: cannot create basket.\n";
+        LogNormal(OT_METHOD)(__FUNCTION__)(": Error: cannot create basket.")
+            .Flush();
         return -1;
     }
 
@@ -89,37 +96,47 @@ int32_t CmdNewBasket::run(
         CmdShowAssets showAssets;
         showAssets.run();
 
-        otOut << std::endl
-              << "This basket currency has " << assetCount << " subcurrencies."
-              << std::endl;
-        otOut << "So far you have defined " << i << " of them." << std::endl;
-        otOut << "Please PASTE the instrument definition ID for a subcurrency "
-                 "of this "
-                 "basket: "
-              << std::endl;
+        LogNormal(OT_METHOD)(__FUNCTION__)(": This basket currency has ")(
+            assetCount)(" subcurrencies.")
+            .Flush();
+        LogNormal(OT_METHOD)(__FUNCTION__)(": So far you have defined ")(i)(
+            " of them.")
+            .Flush();
+        LogNormal(OT_METHOD)(__FUNCTION__)(": Please PASTE the instrument "
+                                           "definition ID for a subcurrency of "
+                                           "this basket: ")
+            .Flush();
 
         string assetType = inputLine();
         if ("" == assetType) {
-            otOut << "Error: empty instrument definition." << std::endl;
+            LogNormal(OT_METHOD)(__FUNCTION__)(
+                ": Error: empty instrument definition.")
+                .Flush();
             return -1;
         }
 
         string assetContract = SwigWrap::GetAssetType_Contract(assetType);
         if ("" == assetContract) {
-            otOut << "Error: invalid instrument definition." << std::endl;
+            LogNormal(OT_METHOD)(__FUNCTION__)(
+                ": Error: invalid instrument definition.")
+                .Flush();
             i--;
             continue;
         }
 
-        otOut << "Enter minimum transfer amount for that instrument definition "
-                 "[100]: "
-              << std::endl;
+        LogNormal(OT_METHOD)(__FUNCTION__)(
+            ": Enter minimum transfer amount for "
+            "that instrument definition "
+            "[100]: ")
+            .Flush();
         minTransfer = 100;
         string minAmount = inputLine();
         if ("" != minAmount) {
             minTransfer = SwigWrap::StringToAmount(assetType, minAmount);
             if (1 > minTransfer) {
-                otOut << "Error: invalid minimum transfer amount." << std::endl;
+                LogNormal(OT_METHOD)(__FUNCTION__)(
+                    ": Error: invalid minimum transfer amount.")
+                    .Flush();
                 i--;
                 continue;
             }
@@ -129,17 +146,20 @@ int32_t CmdNewBasket::run(
             SwigWrap::AddBasketCreationItem(basket, assetType, minTransfer);
 
         if ("" == basket) {
-            otOut << "Error: cannot create basket item.\n";
+            LogNormal(OT_METHOD)(__FUNCTION__)(
+                ": Error: cannot create basket item.")
+                .Flush();
             return -1;
         }
     }
 
-    otOut << "Here's the basket we're issuing:\n\n" << basket << std::endl;
+    LogNormal(OT_METHOD)(__FUNCTION__)(": Here's the basket we're issuing: ")(
+        basket)
+        .Flush();
 
     std::string response;
     {
-        response = Opentxs::
-                       Client()
+        response = Opentxs::Client()
                        .ServerAction()
                        .IssueBasketCurrency(
                            Identifier::Factory(mynym),
@@ -151,8 +171,10 @@ int32_t CmdNewBasket::run(
     int32_t status = responseStatus(response);
     switch (status) {
         case 1: {
-            otOut << "\n\n SUCCESS in issue_basket_currency! Server "
-                     "response:\n\n";
+            LogNormal(OT_METHOD)(__FUNCTION__)(
+                ": SUCCESS in issue_basket_currency! "
+                "Server response: ")(basket)
+                .Flush();
             cout << response << "\n";
 
             string strNewID =
@@ -163,8 +185,7 @@ int32_t CmdNewBasket::run(
 
             if (bGotNewID) {
                 {
-                    response = Opentxs::
-                                   Client()
+                    response = Opentxs::Client()
                                    .ServerAction()
                                    .DownloadContract(
                                        Identifier::Factory(mynym),
@@ -176,30 +197,42 @@ int32_t CmdNewBasket::run(
 
                 if (1 == responseStatus(response)) { bRetrieved = true; }
             }
-            otOut << "Server response: SUCCESS in issue_basket_currency!\n";
-            otOut << (bRetrieved ? "Success" : "Failed")
-                  << " retrieving new basket contract" << strEnding << "\n";
+            LogNormal(OT_METHOD)(__FUNCTION__)(": Server response: SUCCESS in "
+                                               "issue_basket_currency! ")
+                .Flush();
+            LogNormal(OT_METHOD)(__FUNCTION__)(
+                bRetrieved ? "Success"
+                           : "Failed")(" retrieving new basket contract")
+                .Flush();
             break;
         }
-        case 0:
-            otOut << "\n\n FAILURE in issue_basket_currency! Server "
-                     "response:\n\n";
+        case 0: {
+            LogNormal(OT_METHOD)(__FUNCTION__)(
+                ": FAILURE in issue_basket_currency! Server "
+                "response:")
+                .Flush();
             cout << response << "\n";
-            otOut << " FAILURE in issue_basket_currency!\n";
-            break;
-        default:
-            otOut << "\n\nError in issue_basket_currency! status is: " << status
-                  << "\n";
-
+            LogNormal(OT_METHOD)(__FUNCTION__)(
+                ": FAILURE in issue_basket_currency!")
+                .Flush();
+        } break;
+        default: {
+            LogNormal(OT_METHOD)(__FUNCTION__)(
+                ": Error in issue_basket_currency! "
+                "status is: ")(status)
+                .Flush();
+        }
             if ("" != response) {
-                otOut << "Server response:\n\n";
+                LogNormal(OT_METHOD)(__FUNCTION__)(": Server response: ")
+                    .Flush();
                 cout << response << "\n";
-                otOut << "\nError in issue_basket_currency! status is: "
-                      << status << "\n";
+                LogNormal(OT_METHOD)(__FUNCTION__)(
+                    ": Error in issue_basket_currency! status is: ")(status)
+                    .Flush();
             }
             break;
     }
-    otOut << "\n";
+    LogNormal(OT_METHOD)(__FUNCTION__)(" ").Flush();
 
     return (0 == status) ? -1 : status;
 }

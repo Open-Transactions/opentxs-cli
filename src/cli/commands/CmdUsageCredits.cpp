@@ -11,6 +11,8 @@
 #include <ostream>
 #include <string>
 
+#define OT_METHOD "opentxs::CmdUsageCredits"
+
 using namespace opentxs;
 using namespace std;
 
@@ -54,8 +56,7 @@ int32_t CmdUsageCredits::run(
 
     std::string response;
     {
-        response = Opentxs::
-                       Client()
+        response = Opentxs::Client()
                        .ServerAction()
                        .AdjustUsageCredits(
                            Identifier::Factory(mynym),
@@ -68,21 +69,29 @@ int32_t CmdUsageCredits::run(
 
     int64_t balance = SwigWrap::Message_GetUsageCredits(response);
     if (-1 > balance) {
-        otOut << "Error: failed to retrieve usage credits.\n";
+        LogNormal(OT_METHOD)(__FUNCTION__)(
+            ": Error: failed to retrieve usage credits.")
+            .Flush();
         return -1;
     }
 
     if (-1 == balance) {
-        otOut << "Nym has unlimited usage credits, or server enforcement is "
-                 "turned off.\n";
+        LogNormal(OT_METHOD)(__FUNCTION__)(
+            ": Nym has unlimited usage credits, or server enforcement is "
+            "turned off.")
+            .Flush();
         return 1;
     }
 
     if (0 == balance) {
-        otOut << "Nym has exhausted his usage credits.\n";
+        LogNormal(OT_METHOD)(__FUNCTION__)(
+            ": Nym has exhausted his usage credits.")
+            .Flush();
         return 1;
     }
 
-    otOut << "Nym currently has " << balance << " usage credits.";
+    LogNormal(OT_METHOD)(__FUNCTION__)(": Nym currently has ")(balance)(
+        " usage credits.")
+        .Flush();
     return 1;
 }

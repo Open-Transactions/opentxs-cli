@@ -13,6 +13,8 @@
 #include <ostream>
 #include <string>
 
+#define OT_METHOD "opentxs::CmdGetReceipt::"
+
 using namespace opentxs;
 using namespace std;
 
@@ -65,13 +67,17 @@ int32_t CmdGetReceipt::run(
 
         server = SwigWrap::GetAccountWallet_NotaryID(myacct);
         if ("" == server) {
-            otOut << "Error: cannot determine server from myacct.\n";
+            LogNormal(OT_METHOD)(__FUNCTION__)(
+                ": Error: cannot determine server from myacct.")
+                .Flush();
             return -1;
         }
 
         mynym = SwigWrap::GetAccountWallet_NymID(myacct);
         if ("" == mynym) {
-            otOut << "Error: cannot determine mynym from myacct.\n";
+            LogNormal(OT_METHOD)(__FUNCTION__)(
+                ": Error: cannot determine mynym from myacct.")
+                .Flush();
             return -1;
         }
     }
@@ -80,8 +86,7 @@ int32_t CmdGetReceipt::run(
     sscanf(id.c_str(), "%" SCNd64, &i);
     std::string response;
     {
-        response = Opentxs::
-                       Client()
+        response = Opentxs::Client()
                        .ServerAction()
                        .DownloadBoxReceipt(
                            Identifier::Factory(mynym),

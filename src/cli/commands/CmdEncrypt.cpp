@@ -11,6 +11,8 @@
 #include <iostream>
 #include <string>
 
+#define OT_METHOD "opentxs::CmdEncrypt::"
+
 using namespace opentxs;
 using namespace std;
 
@@ -35,12 +37,13 @@ int32_t CmdEncrypt::run(string hisnym)
 
     string output = SwigWrap::Encrypt(hisnym, input);
     if ("" == output) {
-        otOut << "Error: cannot encrypt input.\n";
+        LogNormal(OT_METHOD)(__FUNCTION__)(": Error: cannot encrypt input.")
+            .Flush();
         return -1;
     }
 
     dashLine();
-    otOut << "Encrypted:\n\n";
+    LogNormal(OT_METHOD)(__FUNCTION__)(": Encrypted:").Flush();
     cout << output << "\n";
 
     return 1;

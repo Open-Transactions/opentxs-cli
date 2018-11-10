@@ -11,6 +11,8 @@
 #include <iostream>
 #include <string>
 
+#define OT_METHOD "opentxs::CmdShowAccount::"
+
 namespace opentxs
 {
 CmdShowAccount::CmdShowAccount()
@@ -25,8 +27,11 @@ CmdShowAccount::CmdShowAccount()
 void CmdShowAccount::display_row(const ui::BalanceItem& row) const
 {
     const auto time = std::chrono::system_clock::to_time_t(row.Timestamp());
-    otOut << " " << row.Text() << " " << row.DisplayAmount() << " "
-          << std::ctime(&time) << "\n " << row.Memo() << "\n";
+    LogNormal(OT_METHOD)(__FUNCTION__)(": ")(row.Text())(" ")(
+        row.DisplayAmount())(" ")(std::string(std::ctime(&time)))
+        .Flush();
+
+    LogNormal(OT_METHOD)(__FUNCTION__)(row.Memo()).Flush();
 }
 
 std::int32_t CmdShowAccount::runWithOptions()
@@ -44,7 +49,7 @@ std::int32_t CmdShowAccount::run(std::string mynym, std::string myacct)
     const OTIdentifier nymID = Identifier::Factory(mynym);
     const OTIdentifier accountID = Identifier::Factory(myacct);
     auto& list = Opentxs::Client().UI().AccountActivity(nymID, accountID);
-    otOut << "Account " << myacct << ":\n";
+    LogNormal(OT_METHOD)(__FUNCTION__)(": Account ")(myacct).Flush();
     dashLine();
     auto row = list.First();
 
@@ -59,7 +64,7 @@ std::int32_t CmdShowAccount::run(std::string mynym, std::string myacct)
         }
     }
 
-    otOut << std::endl;
+    LogNormal(OT_METHOD)(__FUNCTION__)(" ").Flush();
 
     return 1;
 }

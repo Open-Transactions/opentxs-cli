@@ -11,6 +11,8 @@
 #include <iostream>
 #include <string>
 
+#define OT_METHOD "opentxs::CmdShowBalance::"
+
 using namespace opentxs;
 using namespace std;
 
@@ -35,13 +37,16 @@ int32_t CmdShowBalance::run(string myacct)
 
     int64_t balance = SwigWrap::GetAccountWallet_Balance(myacct);
     if (OT_ERROR_AMOUNT == balance) {
-        otOut << "Error: cannot get account balance.\n";
+        LogNormal(OT_METHOD)(__FUNCTION__)(
+            ": Error: cannot get account balance.")
+            .Flush();
         return -1;
     }
 
     string name = SwigWrap::GetAccountWallet_Name(myacct);
     if ("" == name) {
-        otOut << "Error: cannot get account name.\n";
+        LogNormal(OT_METHOD)(__FUNCTION__)(": Error: cannot get account name.")
+            .Flush();
         return -1;
     }
 

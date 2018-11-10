@@ -11,6 +11,8 @@
 #include <ostream>
 #include <string>
 
+#define OT_METHOD "opentxs::CmdAddAsset::"
+
 using namespace opentxs;
 using namespace std;
 
@@ -31,7 +33,9 @@ int32_t CmdAddAsset::run()
     if ("" == contract) { return -1; }
 
     if (SwigWrap::AddUnitDefinition(contract).empty()) {
-        otOut << "Error: cannot add asset contract.\n";
+        LogNormal(OT_METHOD)(__FUNCTION__)(
+            ": Error: cannot add asset contract.")
+            .Flush();
         return -1;
     }
 

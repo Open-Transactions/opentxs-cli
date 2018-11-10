@@ -11,6 +11,8 @@
 #include <iostream>
 #include <string>
 
+#define OT_METHOD "opentxs::CmdShowNyms::"
+
 using namespace opentxs;
 using namespace std;
 
@@ -29,12 +31,14 @@ int32_t CmdShowNyms::run()
 {
     int32_t items = SwigWrap::GetNymCount();
     if (0 > items) {
-        otOut << "Error: cannot load nym list item count.\n";
+        LogNormal(OT_METHOD)(__FUNCTION__)(
+            ": Error: cannot load nym list item count.")
+            .Flush();
         return -1;
     }
 
     if (0 == items) {
-        otOut << "The nym list is empty.\n";
+        LogNormal(OT_METHOD)(__FUNCTION__)(": The nym list is empty.").Flush();
         return 0;
     }
 

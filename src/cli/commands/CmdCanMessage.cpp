@@ -7,6 +7,8 @@
 
 #include <opentxs/opentxs.hpp>
 
+#define OT_METHOD "opentxs::CmdCanMessage::"
+
 namespace opentxs
 {
 CmdCanMessage::CmdCanMessage()
@@ -30,11 +32,15 @@ int32_t CmdCanMessage::run(
     if (sender.empty()) { return -1; }
 
     if (recipient.empty()) { return -1; }
+    {
 
-    const auto response = Opentxs::Client().Sync().CanMessage(
-        Identifier::Factory(sender), Identifier::Factory(recipient));
-    otOut << std::to_string(static_cast<std::int8_t>(response)) << std::endl;
+        const auto response = Opentxs::Client().Sync().CanMessage(
+            Identifier::Factory(sender), Identifier::Factory(recipient));
+        LogNormal(OT_METHOD)(__FUNCTION__)(
+            std::to_string(static_cast<std::int8_t>(response)))
+            .Flush();
 
-    return 0;
+        return 0;
+    }
 }
 }  // namespace opentxs

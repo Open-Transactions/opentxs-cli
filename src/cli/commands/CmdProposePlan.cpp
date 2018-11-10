@@ -11,6 +11,8 @@
 #include <ostream>
 #include <string>
 
+#define OT_METHOD "opentxs::CmdProposePlan::"
+
 using namespace opentxs;
 using namespace std;
 
@@ -88,16 +90,25 @@ int32_t CmdProposePlan::run(
         if ("" == memo) { return -1; }
     }
 
-    otOut << "date_range (from,to): " << daterange << "\n";
-    otOut << "consideration: " << memo << "\n";
-    otOut << "initial_payment (amount,delay): " << initialpayment << "\n";
-    otOut << "payment_plan (amount,delay,period): " << paymentplan << "\n";
-    otOut << "plan_expiry (length,number): " << planexpiry << "\n";
+    LogNormal(OT_METHOD)(__FUNCTION__)(": date_range (from,to): ")(daterange)
+        .Flush();
+    LogNormal(OT_METHOD)(__FUNCTION__)(": consideration: ")(memo).Flush();
+    LogNormal(OT_METHOD)(__FUNCTION__)(": initial_payment (amount,delay): ")(
+        initialpayment)
+        .Flush();
+    LogNormal(OT_METHOD)(__FUNCTION__)(
+        ": payment_plan (amount,delay,period): ")(paymentplan)
+        .Flush();
+    LogNormal(OT_METHOD)(__FUNCTION__)(": plan_expiry (length,number): ")(
+        planexpiry)
+        .Flush();
 
     {
         if (!Opentxs::Client().ServerAction().GetTransactionNumbers(
                 Identifier::Factory(mynym), Identifier::Factory(server), 2)) {
-            otOut << "Error: cannot reserve transaction numbers.\n";
+            LogNormal(OT_METHOD)(__FUNCTION__)(
+                ": Error: cannot reserve transaction numbers.")
+                .Flush();
             return -1;
         }
     }
@@ -120,7 +131,9 @@ int32_t CmdProposePlan::run(
         paymentplan,
         planexpiry);
     if ("" == plan) {
-        otOut << "Error: cannot create proposed plan.\n";
+        LogNormal(OT_METHOD)(__FUNCTION__)(
+            ": Error: cannot create proposed plan.")
+            .Flush();
         return -1;
     }
 
@@ -130,8 +143,8 @@ int32_t CmdProposePlan::run(
     // before sending it -- he already has done that by this point, just as part
     // of the proposal itself.)
 
-    auto payment{Opentxs::Client().Factory().Payment(
-        String::Factory(plan.c_str()))};
+    auto payment{
+        Opentxs::Client().Factory().Payment(String::Factory(plan.c_str()))};
 
     OT_ASSERT(false != bool(payment));
 
@@ -148,7 +161,8 @@ int32_t CmdProposePlan::run(
                        ->Run();
     }
     if (1 != responseStatus(response)) {
-        otOut << "Error: cannot send payment plan.\n";
+        LogNormal(OT_METHOD)(__FUNCTION__)(": Error: cannot send payment plan.")
+            .Flush();
         return harvestTxNumbers(plan, mynym);
     }
 

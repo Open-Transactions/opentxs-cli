@@ -7,9 +7,11 @@
 
 #include <opentxs/opentxs.hpp>
 
-#include <stdint.h>
 #include <ostream>
+#include <stdint.h>
 #include <string>
+
+#define OT_METHOD "opentxs::CmdShowMyOffers::"
 
 using namespace opentxs;
 using namespace std;
@@ -38,18 +40,22 @@ int32_t CmdShowMyOffers::run(string server, string mynym)
 
     OTDB::OfferListNym* offerList = loadNymOffers(server, mynym);
     if (nullptr == offerList) {
-        otOut << "Error: cannot load offer list.\n";
+        LogNormal(OT_METHOD)(__FUNCTION__)(": Error: cannot load offer list.")
+            .Flush();
         return -1;
     }
 
     int32_t items = offerList->GetOfferDataNymCount();
     if (0 > items) {
-        otOut << "Error: cannot load offer list item count.\n";
+        LogNormal(OT_METHOD)(__FUNCTION__)(
+            ": Error: cannot load offer list item count.")
+            .Flush();
         return -1;
     }
 
     if (0 == items) {
-        otOut << "The offer list is empty.\n";
+        LogNormal(OT_METHOD)(__FUNCTION__)(": The offer list is empty.")
+            .Flush();
         return 0;
     }
 
@@ -59,7 +65,8 @@ int32_t CmdShowMyOffers::run(string server, string mynym)
     // value: the offer data itself.
     MapOfMaps* map_of_maps = convert_offerlist_to_maps(*offerList);
     if (nullptr == map_of_maps) {
-        otOut << "Error: cannot load offer map.\n";
+        LogNormal(OT_METHOD)(__FUNCTION__)(": Error: cannot load offer map.")
+            .Flush();
         return -1;
     }
 
@@ -77,7 +84,9 @@ int32_t CmdShowMyOffers::run(string server, string mynym)
     // Other sections in the code which use iterate_nymoffers_maps might pass
     // a value here, or expect one to be returned through the same mechansim.
     if (-1 == iterate_nymoffers_maps(*map_of_maps, output_nymoffer_data)) {
-        otOut << "Error: cannot iterate nym offer map.\n";
+        LogNormal(OT_METHOD)(__FUNCTION__)(
+            ": Error: cannot iterate nym offer map.")
+            .Flush();
         return -1;
     }
 

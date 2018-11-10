@@ -10,6 +10,8 @@
 #include <iostream>
 #include <string>
 
+#define OT_METHOD "opentxs::CmdImportOtherNym::"
+
 namespace opentxs
 {
 CmdImportOtherNym::CmdImportOtherNym()
@@ -30,7 +32,8 @@ std::int32_t CmdImportOtherNym::run()
     std::string outNym = SwigWrap::Import_Nym(input);
 
     if ("" == outNym) {
-        otOut << "Error: cannot import Nym.\n";
+        LogNormal(OT_METHOD)(__FUNCTION__)(": Error: cannot import Nym.")
+            .Flush();
 
         return -1;
     }

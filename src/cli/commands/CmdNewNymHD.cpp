@@ -11,6 +11,8 @@
 #include <iostream>
 #include <string>
 
+#define OT_METHOD "opentxs::CmdNewNymHD::"
+
 using namespace opentxs;
 using namespace std;
 
@@ -55,7 +57,8 @@ int32_t CmdNewNymHD::run(string label, string source, string path)
     std::string mynym = SwigWrap::CreateIndividualNym(label, source, nym);
 
     if ("" == mynym) {
-        otOut << "Error: cannot create new nym.\n";
+        LogNormal(OT_METHOD)(__FUNCTION__)(": Error: cannot create new nym.")
+            .Flush();
         return -1;
     }
 

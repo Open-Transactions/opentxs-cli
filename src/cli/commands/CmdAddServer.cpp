@@ -11,6 +11,8 @@
 #include <ostream>
 #include <string>
 
+#define OT_METHOD "opentxs::CmdAddServer::"
+
 using namespace opentxs;
 using namespace std;
 
@@ -31,7 +33,9 @@ int32_t CmdAddServer::run()
     if ("" == contract) { return -1; }
 
     if ("" == SwigWrap::AddServerContract(contract)) {
-        otOut << "Error: cannot add server contract.\n";
+        LogNormal(OT_METHOD)(__FUNCTION__)(
+            ": Error: cannot add server contract.")
+            .Flush();
         return -1;
     }
 

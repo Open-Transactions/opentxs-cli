@@ -9,6 +9,8 @@
 
 #include <string>
 
+#define OT_METHOD "opentxs::CmdImportPublicNym::"
+
 namespace opentxs
 {
 
@@ -30,12 +32,13 @@ std::int32_t CmdImportPublicNym::run()
     const auto nymID = SwigWrap::Import_Nym(input);
 
     if (nymID.empty()) {
-        otOut << "Error: cannot import Nym.\n";
+        LogNormal(OT_METHOD)(__FUNCTION__)(": Error: cannot import Nym.")
+            .Flush();
 
         return -1;
     }
 
-    otOut << "Imported nym: " << nymID << ".\n";
+    LogNormal(OT_METHOD)(__FUNCTION__)(": Imported nym: ")(nymID)(".").Flush();
 
     return 1;
 }

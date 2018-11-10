@@ -11,6 +11,8 @@
 #include <ostream>
 #include <string>
 
+#define OT_METHOD "opentxs::CmdEditAsset::"
+
 using namespace opentxs;
 using namespace std;
 
@@ -37,7 +39,8 @@ int32_t CmdEditAsset::run(string mypurse, string label)
     if (!checkMandatory("label", label)) { return -1; }
 
     if (!SwigWrap::SetAssetType_Name(mypurse, label)) {
-        otOut << "Error: cannot set purse label.\n";
+        LogNormal(OT_METHOD)(__FUNCTION__)(": Error: cannot set purse label.")
+            .Flush();
         return -1;
     }
 

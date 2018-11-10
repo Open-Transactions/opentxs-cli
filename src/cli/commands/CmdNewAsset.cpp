@@ -7,9 +7,11 @@
 
 #include <opentxs/opentxs.hpp>
 
-#include <stdint.h>
 #include <iostream>
+#include <stdint.h>
 #include <string>
+
+#define OT_METHOD "opentxs::CmdNewAsset::"
 
 using namespace opentxs;
 using namespace std;
@@ -60,7 +62,9 @@ int32_t CmdNewAsset::run(
         mynym, shortname, input, name, symbol, tla, stoi(power), fraction);
 
     if ("" == unitDefinitionID) {
-        otOut << "Error: cannot create unit definition.\n";
+        LogNormal(OT_METHOD)(__FUNCTION__)(
+            ": Error: cannot create unit definition.")
+            .Flush();
         return -1;
     }
 
@@ -68,7 +72,9 @@ int32_t CmdNewAsset::run(
 
     string contract = SwigWrap::GetAssetType_Contract(unitDefinitionID);
     if ("" == contract) {
-        otOut << "Error: cannot load unit definition.\n";
+        LogNormal(OT_METHOD)(__FUNCTION__)(
+            ": Error: cannot load unit definition.")
+            .Flush();
         return -1;
     }
 

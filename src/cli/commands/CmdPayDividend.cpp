@@ -7,9 +7,11 @@
 
 #include <opentxs/opentxs.hpp>
 
-#include <stdint.h>
 #include <ostream>
+#include <stdint.h>
 #include <string>
+
+#define OT_METHOD "opentxs::CmdPayDividend::"
 
 using namespace opentxs;
 using namespace std;
@@ -56,20 +58,23 @@ int32_t CmdPayDividend::run(
 
     string server = SwigWrap::GetAccountWallet_NotaryID(myacct);
     if ("" == server) {
-        otOut << "Error: cannot determine server from myacct.\n";
+        LogNormal(OT_METHOD)(__FUNCTION__)(
+            ": Error: cannot determine server from myacct.")
+            .Flush();
         return -1;
     }
 
     string mynym = SwigWrap::GetAccountWallet_NymID(myacct);
     if ("" == mynym) {
-        otOut << "Error: cannot determine mynym from myacct.\n";
+        LogNormal(OT_METHOD)(__FUNCTION__)(
+            ": Error: cannot determine mynym from myacct.")
+            .Flush();
         return -1;
     }
 
     std::string response;
     {
-        response = Opentxs::
-                       Client()
+        response = Opentxs::Client()
                        .ServerAction()
                        .PayDividend(
                            Identifier::Factory(mynym),
@@ -90,7 +95,9 @@ int32_t CmdPayDividend::run(
                 Identifier::Factory(server),
                 Identifier::Factory(myacct),
                 true)) {
-            otOut << "Error retrieving intermediary files for account.\n";
+            LogNormal(OT_METHOD)(__FUNCTION__)(
+                ": Error retrieving intermediary files for account.")
+                .Flush();
             return -1;
         }
     }

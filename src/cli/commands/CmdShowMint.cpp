@@ -43,11 +43,14 @@ std::string CmdShowMint::load_or_retrieve_mint(
     std::string response = check_nym(notaryID, nymID, nymID);
 
     if (1 != VerifyMessageSuccess(Opentxs::Client(), response)) {
-        otOut << "load_or_retrieve_mint: Cannot verify nym for "
-                 "IDs: \n";
-        otOut << "   Notary ID: " << notaryID << "\n";
-        otOut << "      Nym ID: " << nymID << "\n";
-        otOut << "Unit Type Id: " << unitTypeID << "\n";
+        LogNormal(OT_METHOD)(__FUNCTION__)(
+            ": load_or_retrieve_mint: Cannot verify nym for "
+            "IDs: ")
+            .Flush();
+        LogNormal(OT_METHOD)(__FUNCTION__)(":    Notary ID: ").Flush();
+        LogNormal(OT_METHOD)(__FUNCTION__)(":      Nym ID: ")(nymID).Flush();
+        LogNormal(OT_METHOD)(__FUNCTION__)(": Unit Type Id: ")(unitTypeID)
+            .Flush();
         return "";
     }
 
@@ -61,8 +64,9 @@ std::string CmdShowMint::load_or_retrieve_mint(
     if (!SwigWrap::Mint_IsStillGood(notaryID, unitTypeID)) {
         LogDetail(OT_METHOD)(__FUNCTION__)(
             ": Mint file is "
-                  "missing or expired. Downloading from "
-                  "server...").Flush();
+            "missing or expired. Downloading from "
+            "server...")
+            .Flush();
 
         std::string response;
         {
@@ -76,20 +80,29 @@ std::string CmdShowMint::load_or_retrieve_mint(
         }
 
         if (1 != VerifyMessageSuccess(Opentxs::Client(), response)) {
-            otOut << "load_or_retrieve_mint: Unable to "
-                     "retrieve mint for IDs: \n";
-            otOut << "   Notary ID: " << notaryID << "\n";
-            otOut << "      Nym ID: " << nymID << "\n";
-            otOut << "Unit Type Id: " << unitTypeID << "\n";
+            LogNormal(OT_METHOD)(__FUNCTION__)(
+                ": load_or_retrieve_mint: Unable to "
+                "retrieve mint for IDs: ")
+                .Flush();
+            LogNormal(OT_METHOD)(__FUNCTION__)(":    Notary ID: ")(notaryID)
+                .Flush();
+            LogNormal(OT_METHOD)(__FUNCTION__)(":      Nym ID: ")(nymID)
+                .Flush();
+            LogNormal(OT_METHOD)(__FUNCTION__)(": Unit Type Id: ")(unitTypeID)
+                .Flush();
             return "";
         }
 
         if (!SwigWrap::Mint_IsStillGood(notaryID, unitTypeID)) {
-            otOut << "load_or_retrieve_mint: Retrieved "
-                     "mint, but still 'not good' for IDs: \n";
-            otOut << "   Notary ID: " << notaryID << "\n";
-            otOut << "      Nym ID: " << nymID << "\n";
-            otOut << "Unit Type Id: " << unitTypeID << "\n";
+            LogNormal(OT_METHOD)(__FUNCTION__)(
+                ":load_or_retrieve_mint: Retrieved "
+                "mint, but still 'not good' for IDs: ")
+                .Flush();
+            LogNormal(OT_METHOD)(__FUNCTION__)("   Notary ID: ")(notaryID)
+                .Flush();
+            LogNormal(OT_METHOD)(__FUNCTION__)("      Nym ID: ")(nymID).Flush();
+            LogNormal(OT_METHOD)(__FUNCTION__)(": Unit Type Id: ")(unitTypeID)
+                .Flush();
             return "";
         }
     }
@@ -102,11 +115,15 @@ std::string CmdShowMint::load_or_retrieve_mint(
 
     std::string strMint = SwigWrap::LoadMint(notaryID, unitTypeID);
     if (!VerifyStringVal(strMint)) {
-        otOut << "load_or_retrieve_mint: Unable to load mint "
-                 "for IDs: \n";
-        otOut << "   Notary ID: " << notaryID << "\n";
-        otOut << "      Nym ID: " << nymID << "\n";
-        otOut << "Unit Type Id: " << unitTypeID << "\n";
+        LogNormal(OT_METHOD)(__FUNCTION__)(
+            ": load_or_retrieve_mint: Unable to load mint "
+            "for IDs: ")
+            .Flush();
+        LogNormal(OT_METHOD)(__FUNCTION__)(":    Notary ID: ")(notaryID)
+            .Flush();
+        LogNormal(OT_METHOD)(__FUNCTION__)(":      Nym ID: ")(nymID).Flush();
+        LogNormal(OT_METHOD)(__FUNCTION__)(": Unit Type Id: ")(unitTypeID)
+            .Flush();
     }
 
     return strMint;
@@ -126,7 +143,8 @@ int32_t CmdShowMint::run(string server, string mynym, string mypurse)
 
     string mint = load_or_retrieve_mint(server, mynym, mypurse);
     if ("" == mint) {
-        otOut << "Error: cannot load mint.\n";
+        LogNormal(OT_METHOD)(__FUNCTION__)(": Error: cannot load mint.")
+            .Flush();
         return -1;
     }
 

@@ -10,6 +10,8 @@
 #include <stdint.h>
 #include <ostream>
 
+#define OT_METHOD "opentxs::CmdChangePw::"
+
 using namespace opentxs;
 using namespace std;
 
@@ -27,7 +29,8 @@ int32_t CmdChangePw::runWithOptions() { return run(); }
 int32_t CmdChangePw::run()
 {
     if (!SwigWrap::Wallet_ChangePassphrase()) {
-        otOut << "Error: cannot change passphrase.\n";
+        LogNormal(OT_METHOD)(__FUNCTION__)(": Error: cannot change passphrase.")
+            .Flush();
         return -1;
     }
 

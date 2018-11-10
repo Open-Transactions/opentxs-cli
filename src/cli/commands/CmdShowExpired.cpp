@@ -11,6 +11,8 @@
 #include <iostream>
 #include <string>
 
+#define OT_METHOD "opentxs::CmdShowExpired::"
+
 using namespace opentxs;
 using namespace std;
 
@@ -46,18 +48,23 @@ int32_t CmdShowExpired::run(string server, string mynym)
 
     string expired = SwigWrap::LoadExpiredBox(server, mynym);
     if ("" == expired) {
-        otOut << "Error: cannot load expired record box.\n";
+        LogNormal(OT_METHOD)(__FUNCTION__)(
+            ": Error: cannot load expired record box.")
+            .Flush();
         return -1;
     }
 
     int32_t items = SwigWrap::Ledger_GetCount(server, mynym, mynym, expired);
     if (0 > items) {
-        otOut << "Error: cannot load expired record box item count.\n";
+        LogNormal(OT_METHOD)(__FUNCTION__)(
+            ": Error: cannot load expired record box item count.")
+            .Flush();
         return -1;
     }
 
     if (0 == items) {
-        otOut << "The expired record box is empty.\n";
+        LogNormal(OT_METHOD)(__FUNCTION__)(": The expired record box is empty.")
+            .Flush();
         return 0;
     }
 

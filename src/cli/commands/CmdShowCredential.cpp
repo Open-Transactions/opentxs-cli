@@ -11,6 +11,8 @@
 #include <iostream>
 #include <string>
 
+#define OT_METHOD "opentxs::CmdShowCredential::"
+
 using namespace opentxs;
 using namespace std;
 
@@ -55,7 +57,9 @@ int32_t CmdShowCredential::run(string mynym, string id)
         credential =
             SwigWrap::GetNym_ChildCredentialContents(mynym, master, id);
         if ("" == credential) {
-            otOut << "Error: cannot load sub-credential.\n";
+            LogNormal(OT_METHOD)(__FUNCTION__)(
+                " : Error: cannot load sub-credential.")
+                .Flush();
             return -1;
         }
 
@@ -65,13 +69,16 @@ int32_t CmdShowCredential::run(string mynym, string id)
 
     master = findRevoked(mynym, id);
     if ("" == master) {
-        otOut << "Error: cannot find credential.\n";
+        LogNormal(OT_METHOD)(__FUNCTION__)(" : Error: cannot find credential.")
+            .Flush();
         return -1;
     }
 
     credential = SwigWrap::GetNym_ChildCredentialContents(mynym, master, id);
     if ("" == credential) {
-        otOut << "Error: cannot load sub-credential.\n";
+        LogNormal(OT_METHOD)(__FUNCTION__)(
+            " : Error: cannot load sub-credential.")
+            .Flush();
         return -1;
     }
 

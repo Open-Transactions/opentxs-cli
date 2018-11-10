@@ -7,6 +7,8 @@
 
 #include <opentxs/opentxs.hpp>
 
+#define OT_METHOD "opentxs::CmdGetPeerReply::"
+
 namespace opentxs
 {
 
@@ -32,8 +34,8 @@ std::int32_t CmdGetPeerReply::run(std::string mynym, std::string reply)
 
     const auto text = SwigWrap::getReply_Base64(mynym, reply);
 
-    otOut << "Peer reply ID: " << reply << std::endl;
-    otOut << text << std::endl;
+    LogNormal(OT_METHOD)(__FUNCTION__)(": Peer reply ID: ")(reply).Flush();
+    LogNormal(OT_METHOD)(__FUNCTION__)(text)(reply).Flush();
 
     return 1;
 }

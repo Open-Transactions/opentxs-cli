@@ -9,6 +9,8 @@
 
 #include <ctime>
 
+#define OT_METHOD "opentxs::CmdShowThread::"
+
 namespace opentxs
 {
 CmdShowThread::CmdShowThread()
@@ -32,24 +34,26 @@ std::int32_t CmdShowThread::run(std::string mynym, const std::string& threadID)
     const auto& thread = Opentxs::Client().UI().ActivityThread(
         Identifier::Factory(mynym), Identifier::Factory(threadID));
     const auto first = thread.First();
-    otOut << thread.DisplayName() << "\n";
+    LogNormal(OT_METHOD)(__FUNCTION__)(thread.DisplayName()).Flush();
 
     if (false == first->Valid()) { return 0; }
 
     auto last = first->Last();
-    otOut << " * " << time(first->Timestamp()) << " "
-          << "(StorageBox: " << storage_box_name(first->Type()) << ")\n "
-          << first->Text() << "\n";
+    LogNormal(OT_METHOD)(__FUNCTION__)(": * ")(time(first->Timestamp()))(
+        " (StorageBox: ")(storage_box_name(first->Type()))(")")
+        .Flush();
+    LogNormal(OT_METHOD)(__FUNCTION__)(first->Text()).Flush();
 
     while (false == last) {
         const auto line = thread.Next();
         last = line->Last();
-        otOut << " * " << time(line->Timestamp()) << " "
-              << "(StorageBox: " << storage_box_name(line->Type()) << ")\n "
-              << line->Text() << "\n";
+        LogNormal(OT_METHOD)(__FUNCTION__)(": * ")(time(line->Timestamp()))(
+            " (StorageBox: ")(storage_box_name(line->Type()))(")")
+            .Flush();
+        LogNormal(OT_METHOD)(__FUNCTION__)(line->Text()).Flush();
     }
 
-    otOut << std::endl;
+    LogNormal(OT_METHOD)(__FUNCTION__)(" ").Flush();
 
     return 0;
 }

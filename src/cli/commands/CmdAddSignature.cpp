@@ -11,6 +11,8 @@
 #include <iostream>
 #include <string>
 
+#define OT_METHOD "opentxs::CmdAddSignature::"
+
 using namespace opentxs;
 using namespace std;
 
@@ -37,7 +39,8 @@ int32_t CmdAddSignature::run(string mynym)
 
     string output = SwigWrap::AddSignature(mynym, contract);
     if ("" == output) {
-        otOut << "Error: cannot add signature.\n";
+        LogNormal(OT_METHOD)(__FUNCTION__)(": Error: cannot add signature.")
+            .Flush();
         return -1;
     }
 

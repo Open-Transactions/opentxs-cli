@@ -11,6 +11,8 @@
 #include <iostream>
 #include <string>
 
+#define OT_METHOD "opentxs::CmdPasswordDecrypt::"
+
 using namespace opentxs;
 using namespace std;
 
@@ -35,7 +37,9 @@ int32_t CmdPasswordDecrypt::run()
 
     string encrypted = SwigWrap::SymmetricDecrypt(key, input);
     if ("" == encrypted) {
-        otOut << "Error: cannot decrypt encrypted text.\n";
+        LogNormal(OT_METHOD)(__FUNCTION__)(
+            ": Error: cannot decrypt encrypted text.")
+            .Flush();
         return -1;
     }
 

@@ -11,6 +11,8 @@
 #include <ostream>
 #include <string>
 
+#define OT_METHOD "opentxs::CmdRenameNym::"
+
 namespace opentxs
 {
 
@@ -35,7 +37,8 @@ std::int32_t CmdRenameNym::run(std::string mynym, std::string label)
     if (!checkMandatory("label", label)) { return -1; }
 
     if (!SwigWrap::Rename_Nym(mynym, label, 1)) {
-        otOut << "Error: cannot rename nym.\n";
+        LogNormal(OT_METHOD)(__FUNCTION__)(": Error: cannot rename nym.")
+            .Flush();
         return -1;
     }
 

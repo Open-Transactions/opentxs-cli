@@ -14,6 +14,8 @@
 using namespace opentxs;
 using namespace std;
 
+#define OT_METHOD "opentxs::CmdExchangeBasket::"
+
 CmdExchangeBasket::CmdExchangeBasket()
 {
     command = "exchangebasket";
@@ -37,7 +39,9 @@ int32_t CmdExchangeBasket::run(string myacct, string direction, string multiple)
     if (!checkAccount("myacct", myacct)) { return -1; }
 
     if ("" != direction && "in" != direction && "out" != direction) {
-        otOut << "Error: direction: expected 'in' or 'out'.\n";
+        LogNormal(OT_METHOD)(__FUNCTION__)(
+            ": Error: direction: expected 'in' or 'out'.")
+            .Flush();
         return -1;
     }
 
@@ -45,19 +49,25 @@ int32_t CmdExchangeBasket::run(string myacct, string direction, string multiple)
 
     int32_t multiplier = "" != multiple ? stol(multiple) : 1;
     if (1 > multiplier) {
-        otOut << "Error: multiple: invalid value: " << multiple << "\n";
+        LogNormal(OT_METHOD)(__FUNCTION__)(
+	   ": Error: multiple: invalid value: ")(multiple)(".")
+            .Flush();
         return -1;
     }
 
     string server = SwigWrap::GetAccountWallet_NotaryID(myacct);
     if ("" == server) {
-        otOut << "Error: cannot determine server from myacct.\n";
+        LogNormal(OT_METHOD)(__FUNCTION__)(
+            ": Error: cannot determine server from myacct.")
+            .Flush();
         return -1;
     }
 
     string mynym = SwigWrap::GetAccountWallet_NymID(myacct);
     if ("" == mynym) {
-        otOut << "Error: cannot determine mynym from myacct.\n";
+        LogNormal(OT_METHOD)(__FUNCTION__)(
+            ": Error: cannot determine mynym from myacct.")
+            .Flush();
         return -1;
     }
 
@@ -65,25 +75,33 @@ int32_t CmdExchangeBasket::run(string myacct, string direction, string multiple)
     if ("" == assetType) { return -1; }
 
     if (!SwigWrap::IsBasketCurrency(assetType)) {
-        otOut << "Error: account is not a basket currency.\n";
+        LogNormal(OT_METHOD)(__FUNCTION__)(
+            ": Error: account is not a basket currency.")
+            .Flush();
         return -1;
     }
 
     int32_t members = SwigWrap::Basket_GetMemberCount(assetType);
     if (2 > members) {
-        otOut << "Error: cannot load basket member count.\n";
+        LogNormal(OT_METHOD)(__FUNCTION__)(
+            ": Error: cannot load basket member count.")
+            .Flush();
         return -1;
     }
 
     int64_t minAmount = SwigWrap::Basket_GetMinimumTransferAmount(assetType);
     if (0 > minAmount) {
-        otOut << "Error: cannot load minimum transfer amount for basket.\n";
+        LogNormal(OT_METHOD)(__FUNCTION__)(
+            ": Error: cannot load minimum transfer amount for basket.")
+            .Flush();
         return -1;
     }
 
     int64_t balance = SwigWrap::GetAccountWallet_Balance(myacct);
     if (OT_ERROR_AMOUNT == balance) {
-        otOut << "Error: cannot retrieve balance for basket account.\n";
+        LogNormal(OT_METHOD)(__FUNCTION__)(
+            ": Error: cannot retrieve balance for basket account.")
+            .Flush();
         return -1;
     }
 
@@ -92,15 +110,16 @@ int32_t CmdExchangeBasket::run(string myacct, string direction, string multiple)
     bool bExchangingIn = "out" != direction;
     if (!bExchangingIn) {
         if (balance < minAmount) {
-            otOut << "Error: balance (" << balance
-                  << ") is less than minimum amount (" << minAmount << ").\n";
+            LogNormal(OT_METHOD)(__FUNCTION__)(": Error: balance (")(balance)(
+                ") is less than minimum amount (")(minAmount)(").")
+                .Flush();
             return -1;
         }
 
         if (amount > balance) {
-            otOut << "Error: balance (" << balance
-                  << ") is insufficient for transfer amount (" << amount
-                  << ").\n";
+            LogNormal(OT_METHOD)(__FUNCTION__)(": Error: balance (")(balance)(
+                ") is insufficient for transfer amount (")(amount)(").")
+                .Flush();
             return -1;
         }
     }
@@ -108,7 +127,9 @@ int32_t CmdExchangeBasket::run(string myacct, string direction, string multiple)
     {
         if (!Opentxs::Client().ServerAction().GetTransactionNumbers(
                 Identifier::Factory(mynym), Identifier::Factory(server), 20)) {
-            otOut << "Error: cannot reserve transaction numbers.\n";
+            LogNormal(OT_METHOD)(__FUNCTION__)(
+                ": Error: cannot reserve transaction numbers.")
+                .Flush();
             return -1;
         }
     }
@@ -116,7 +137,9 @@ int32_t CmdExchangeBasket::run(string myacct, string direction, string multiple)
     string basket = SwigWrap::GenerateBasketExchange(
         server, mynym, assetType, myacct, multiplier);
     if ("" == basket) {
-        otOut << "Error: cannot generate basket exchange.\n";
+        LogNormal(OT_METHOD)(__FUNCTION__)(
+            ": Error: cannot generate basket exchange.")
+            .Flush();
         return -1;
     }
 
@@ -124,15 +147,19 @@ int32_t CmdExchangeBasket::run(string myacct, string direction, string multiple)
     for (int32_t member = 0; member < members; member++) {
         string memberType = SwigWrap::Basket_GetMemberType(assetType, member);
         if ("" == memberType) {
-            otOut << "Error: cannot load basket member type.\n";
+            LogNormal(OT_METHOD)(__FUNCTION__)(
+                ": Error: cannot load basket member type.")
+                .Flush();
             return harvestTxNumbers(basket, mynym);
         }
 
         int64_t memberAmount =
             SwigWrap::Basket_GetMemberMinimumTransferAmount(assetType, member);
         if (0 > memberAmount) {
-            otOut << "Error: cannot load basket member minimum transfer "
-                     "amount.\n";
+            LogNormal(OT_METHOD)(__FUNCTION__)(
+                ": Error: cannot load basket member minimum transfer "
+                "amount.")
+                .Flush();
             return harvestTxNumbers(basket, mynym);
         }
 
@@ -143,59 +170,80 @@ int32_t CmdExchangeBasket::run(string myacct, string direction, string multiple)
         }
 
         string memberTypeName = SwigWrap::GetAssetType_Name(memberType);
-        otOut << "\nThere are " << (members - member)
-              << " accounts remaining to be selected.\n\n";
-        otOut << "Currently we need to select an account with the instrument "
-                 "definition:\n"
-              << memberType << " (" << memberTypeName << ")\n";
-        otOut << "Above are all the accounts in the wallet, for the relevant "
-                 "server and nym, of that instrument definition.\n";
+        LogNormal(OT_METHOD)(__FUNCTION__)(": There are ")(members - member)(
+            " accounts remaining to be selected.")
+            .Flush();
+        LogNormal(OT_METHOD)(__FUNCTION__)(
+            ": Currently we need to select an account with the instrument "
+            "definition:")
+            .Flush();
+        LogNormal(OT_METHOD)(__FUNCTION__)(": ")(memberType)(" (")(memberTypeName)(
+            ").")
+            .Flush();
+        LogNormal(OT_METHOD)(__FUNCTION__)(
+            ": Above are all the accounts in the wallet, for the relevant "
+            "server and nym, of that instrument definition.")
+            .Flush();
 
         if (bExchangingIn) {
-            otOut << "\nKeep in mind, with a transfer multiple of "
-                  << multiplier << " and a minimum transfer amount of "
-                  << memberAmount
-                  << "\n(for this sub-currency), you must therefore select an "
-                     "account with a minimum\nbalance of: "
-                  << amount << "\n";
+            LogNormal(OT_METHOD)(__FUNCTION__)(
+                ": Keep in mind, with a transfer multiple of ")(multiplier)(
+                " and a minimum transfer amount of ")(memberAmount)(".")
+                .Flush();
+            LogNormal(OT_METHOD)(__FUNCTION__)(
+                ": (for this sub-currency), you must therefore select an "
+                "account with a minimum\nbalance of: ")(amount)(".")
+                .Flush();
         }
 
-        otOut << "\nPlease PASTE an account ID from the above list: ";
+        LogNormal(OT_METHOD)(__FUNCTION__)(
+            ": Please PASTE an account ID from the above list: ")
+            .Flush();
         string account = inputLine();
         if ("" == account) {
-            otOut << "Error: invalid account ID.\n";
+            LogNormal(OT_METHOD)(__FUNCTION__)(": Error: invalid account ID.")
+                .Flush();
             return harvestTxNumbers(basket, mynym);
         }
 
         string subAssetType =
             SwigWrap::GetAccountWallet_InstrumentDefinitionID(account);
         if ("" == subAssetType) {
-            otOut << "Error: cannot load account instrument definition.\n";
+            LogNormal(OT_METHOD)(__FUNCTION__)(
+                ": Error: cannot load account instrument definition.")
+                .Flush();
             return harvestTxNumbers(basket, mynym);
         }
 
         if (memberType != subAssetType) {
-            otOut << "Error: incorrect account instrument definition.\n";
+            LogNormal(OT_METHOD)(__FUNCTION__)(
+                ": Error: incorrect account instrument definition.")
+                .Flush();
             return harvestTxNumbers(basket, mynym);
         }
 
         balance = SwigWrap::GetAccountWallet_Balance(account);
         if (OT_ERROR_AMOUNT == balance) {
-            otOut << "Error: cannot load account balance.\n";
+            LogNormal(OT_METHOD)(__FUNCTION__)(
+                ": Error: cannot load account balance.")
+                .Flush();
             return harvestTxNumbers(basket, mynym);
         }
 
         if (bExchangingIn && amount > balance) {
-            otOut << "Error: account balance (" << balance
-                  << ") is insufficient for transfer amount (" << amount
-                  << ").\n";
+            LogNormal(OT_METHOD)(__FUNCTION__)(": Error: account balance (")(
+                balance)(") is insufficient for transfer amount (")(amount)(
+                ").")
+                .Flush();
             return harvestTxNumbers(basket, mynym);
         }
 
         string newBasket = SwigWrap::AddBasketExchangeItem(
             server, mynym, basket, subAssetType, account);
         if ("" == newBasket) {
-            otOut << "Error: cannot add basket exchange item.\n";
+            LogNormal(OT_METHOD)(__FUNCTION__)(
+                ": Error: cannot add basket exchange item.")
+                .Flush();
             return harvestTxNumbers(basket, mynym);
         }
 
@@ -207,8 +255,7 @@ int32_t CmdExchangeBasket::run(string myacct, string direction, string multiple)
                        theAcctID = Identifier::Factory({myacct});
     std::string response;
     {
-        response = Opentxs::
-                       Client()
+        response = Opentxs::Client()
                        .ServerAction()
                        .ExchangeBasketCurrency(
                            theNymID,
@@ -226,7 +273,9 @@ int32_t CmdExchangeBasket::run(string myacct, string direction, string multiple)
     {
         if (!Opentxs::Client().ServerAction().DownloadAccount(
                 theNymID, theNotaryID, theAcctID, true)) {
-            otOut << "Error retrieving intermediary files for account.\n";
+            LogNormal(OT_METHOD)(__FUNCTION__)(
+                ": Error retrieving intermediary files for account.")
+                .Flush();
             return -1;
         }
     }
@@ -261,14 +310,18 @@ int32_t CmdExchangeBasket::showBasketAccounts(
 
         string accountServer = SwigWrap::GetAccountWallet_NotaryID(acct);
         if ("" == accountServer) {
-            otOut << "Error: cannot determine server from myacct.\n";
+            LogNormal(OT_METHOD)(__FUNCTION__)(
+                ": Error: cannot determine server from myacct.")
+                .Flush();
             return -1;
         }
 
         if ("" == server || server == accountServer) {
             string accountNym = SwigWrap::GetAccountWallet_NymID(acct);
             if ("" == accountNym) {
-                otOut << "Error: cannot determine accountNym from acct.\n";
+                LogNormal(OT_METHOD)(__FUNCTION__)(
+                    ": Error: cannot determine accountNym from acct.")
+                    .Flush();
                 return -1;
             }
 
@@ -281,7 +334,9 @@ int32_t CmdExchangeBasket::showBasketAccounts(
                     ("" != assetType && !bFilter && assetType != asset)) {
                     string statAccount = stat_asset_account(acct);
                     if ("" == statAccount) {
-                        otOut << "Error: cannot stat account.\n";
+                        LogNormal(OT_METHOD)(__FUNCTION__)(
+                            ": Error: cannot stat account.")
+                            .Flush();
                         return -1;
                     }
 

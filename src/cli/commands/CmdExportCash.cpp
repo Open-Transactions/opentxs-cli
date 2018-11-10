@@ -7,10 +7,12 @@
 
 #include <opentxs/opentxs.hpp>
 
-#include <stdint.h>
 #include <iostream>
+#include <stdint.h>
 #include <string>
 #include <vector>
+
+#define OT_METHOD "opentxs::CmdExportCash::"
 
 using namespace opentxs;
 using namespace std;
@@ -150,8 +152,9 @@ string CmdExportCash::exportCash(
         }
     }
     if (strContract.empty()) {
-        otOut << "CmdExportCash::exportCash: Error: cannot load asset "
-                 "contract.\n";
+        LogNormal(OT_METHOD)(__FUNCTION__)(": Error: cannot load asset "
+                                           "contract.")
+            .Flush();
         return {};
     }
     // -------------------------------------------------------------------
@@ -159,9 +162,10 @@ string CmdExportCash::exportCash(
         // If no recipient, then recipient == Nym.
         //
         if (hisnym.empty()) {
-            otOut << "CmdExportCash::exportCash: recipientNym empty--using "
-                     "mynym for recipient instead: "
-                  << mynym << "\n";
+            LogNormal(OT_METHOD)(__FUNCTION__)(
+                ": recipientNym empty--using "
+                "mynym for recipient instead: ")(mynym)(".")
+                .Flush();
             hisnym = mynym;
         }
 
@@ -178,7 +182,9 @@ string CmdExportCash::exportCash(
                 load_or_retrieve_encrypt_key(server, mynym, hisnym);
 
             if (!VerifyStringVal(recipientPubKey)) {
-                otOut << "CmdExportCash::exportCash: recipientPubKey is null\n";
+                LogNormal(OT_METHOD)(__FUNCTION__)(
+		   ": recipientPubKey is null")(".")
+                    .Flush();
                 return {};
             }
         }
@@ -229,21 +235,27 @@ std::string CmdExportCash::load_or_retrieve_encrypt_key(
 std::string CmdExportCash::load_public_encryption_key(
     const std::string& nymID) const
 {
-    otOut << "\nload_public_encryption_key: Trying to load public "
-             "key, assuming Nym isn't in the local wallet...\n";
+    LogNormal(OT_METHOD)(__FUNCTION__)(
+        ": load_public_encryption_key: Trying to load public "
+        "key, assuming Nym isn't in the local wallet...")
+        .Flush();
     std::string strPubkey = SwigWrap::LoadPubkey_Encryption(
         nymID);  // This version is for "other people";
 
     if (!VerifyStringVal(strPubkey)) {
-        otOut << "\nload_public_encryption_key: Didn't find the Nym (" << nymID
-              << ") as an 'other' user, so next, checking to see if there's "
-                 "a pubkey available for one of the local private Nyms...\n";
+        LogNormal(OT_METHOD)(__FUNCTION__)(
+            ": load_public_encryption_key: Didn't find the Nym (")(nymID)(
+            ") as an 'other' user, so next, checking to see if there's "
+            "a pubkey available for one of the local private Nyms...")
+            .Flush();
         strPubkey = SwigWrap::LoadUserPubkey_Encryption(
             nymID);  // This version is for "the user sitting at the machine.";
 
         if (!VerifyStringVal(strPubkey)) {
-            otOut << "\nload_public_encryption_key: Didn't find "
-                     "him as a local Nym either... returning nullptr.\n";
+            LogNormal(OT_METHOD)(__FUNCTION__)(
+                ": load_public_encryption_key: Didn't find "
+                "him as a local Nym either... returning nullptr.")
+                .Flush();
         }
     }
 

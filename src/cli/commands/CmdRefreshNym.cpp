@@ -7,8 +7,8 @@
 
 #include <opentxs/opentxs.hpp>
 
-#include <stdint.h>
 #include <ostream>
+#include <stdint.h>
 #include <string>
 
 #define OT_METHOD "opentxs::CmdRefreshNym::"
@@ -46,15 +46,18 @@ int32_t CmdRefreshNym::run(string server, string mynym)
 
         case 0:
             if (msgWasSent) {
-                otOut << "Error: cannot refresh nym.\n";
+                LogNormal(OT_METHOD)(__FUNCTION__)(
+                    ": Error: cannot refresh nym.")
+                    .Flush();
                 return -1;
             }
 
-            otOut << "Nymbox is empty.\n";
+            LogNormal(OT_METHOD)(__FUNCTION__)(": Nymbox is empty.").Flush();
             break;
 
         default:
-            otOut << "Error: cannot refresh nym.\n";
+            LogNormal(OT_METHOD)(__FUNCTION__)(": Error: cannot refresh nym.")
+                .Flush();
             return -1;
     }
 

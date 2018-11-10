@@ -11,6 +11,8 @@
 #include <iostream>
 #include <string>
 
+#define OT_METHOD "opentxs::CmdSignContract"
+
 using namespace opentxs;
 using namespace std;
 
@@ -46,7 +48,8 @@ int32_t CmdSignContract::run(string mynym, string type)
 
         output = SwigWrap::FlatSign(mynym, contract, type);
         if ("" == output) {
-            otOut << "Error: cannot sign contract.\n";
+            LogNormal(OT_METHOD)(__FUNCTION__)(": Error: cannot sign contract.")
+                .Flush();
             return -1;
         }
     }

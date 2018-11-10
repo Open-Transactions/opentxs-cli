@@ -11,6 +11,8 @@
 #include <ostream>
 #include <string>
 
+#define OT_METHOD "opentxs::CmdClearExpired::"
+
 using namespace opentxs;
 using namespace std;
 
@@ -37,7 +39,9 @@ int32_t CmdClearExpired::run(string server, string mynym)
     if (!checkNym("mynym", mynym)) { return -1; }
 
     if (!SwigWrap::ClearExpired(server, mynym, 0, true)) {
-        otOut << "Error: cannot clear expired records.\n";
+        LogNormal(OT_METHOD)(__FUNCTION__)(
+            " : Error: cannot clear expired records.")
+            .Flush();
         return -1;
     }
 

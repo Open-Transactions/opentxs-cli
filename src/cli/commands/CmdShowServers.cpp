@@ -11,6 +11,8 @@
 #include <iostream>
 #include <string>
 
+#define OT_METHOD "opentxs::CmdShowServers::"
+
 using namespace opentxs;
 using namespace std;
 
@@ -29,12 +31,15 @@ int32_t CmdShowServers::run()
 {
     int32_t items = SwigWrap::GetServerCount();
     if (0 > items) {
-        otOut << "Error: cannot load server list item count.\n";
+        LogNormal(OT_METHOD)(__FUNCTION__)(
+            ": Error: cannot load server list item count.")
+            .Flush();
         return -1;
     }
 
     if (0 == items) {
-        otOut << "The server list is empty.\n";
+        LogNormal(OT_METHOD)(__FUNCTION__)(": The server list is empty.")
+            .Flush();
         return 0;
     }
 

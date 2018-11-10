@@ -7,6 +7,8 @@
 
 #include <opentxs/opentxs.hpp>
 
+#define OT_METHOD "opentxs::CmdAddBitcoinAccount::"
+
 namespace opentxs
 {
 CmdAddBitcoinAccount::CmdAddBitcoinAccount()
@@ -25,13 +27,17 @@ std::int32_t CmdAddBitcoinAccount::runWithOptions()
 std::int32_t CmdAddBitcoinAccount::run(std::string mynym)
 {
     if (!checkNym("mynym", mynym)) { return -1; }
+    {
 
-    const auto account = Opentxs::Client().Blockchain().NewAccount(
-        Identifier::Factory(mynym),
-        BlockchainAccountType::BIP44,
-        proto::CITEMTYPE_BTC);
-    otOut << "BIP-44 account ID: " << String::Factory(account) << std::endl;
+        const auto account = Opentxs::Client().Blockchain().NewAccount(
+            Identifier::Factory(mynym),
+            BlockchainAccountType::BIP44,
+            proto::CITEMTYPE_BTC);
+        LogNormal(OT_METHOD)(__FUNCTION__)(": BIP-44 account ID: ")(
+	   String::Factory(account))(".")
+            .Flush();
 
-    return 0;
+        return 0;
+    }
 }
 }  // namespace opentxs

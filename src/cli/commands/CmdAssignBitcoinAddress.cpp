@@ -106,11 +106,12 @@ std::int32_t CmdAssignBitcoinAddress::run(
         return -1;
     }
 
-    otOut << "Assigned address at index " << address->index() << ": "
-          << address->address() << std::endl
-          << " (" << address->label() << ") to contact: " << address->contact()
-          << "\n"
-          << std::endl;
+    LogNormal(OT_METHOD)(__FUNCTION__)(": Assigned address at index ")(
+       address->index())(": ")(address->address())(".")
+        .Flush();
+    LogNormal(OT_METHOD)(__FUNCTION__)(": (")(address->label())(
+        " ) to contact: ")(address->contact())(".")
+        .Flush();
 
     return 0;
 }

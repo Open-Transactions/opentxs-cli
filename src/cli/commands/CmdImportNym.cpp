@@ -11,6 +11,8 @@
 #include <iostream>
 #include <string>
 
+#define OT_METHOD "opentxs::CmdImportNym::"
+
 using namespace opentxs;
 using namespace std;
 
@@ -32,7 +34,8 @@ int32_t CmdImportNym::run()
 
     string outNym = SwigWrap::Wallet_ImportNym(input);
     if ("" == outNym) {
-        otOut << "Error: cannot import Nym.\n";
+        LogNormal(OT_METHOD)(__FUNCTION__)(": Error: cannot import Nym.")
+            .Flush();
         return -1;
     }
 

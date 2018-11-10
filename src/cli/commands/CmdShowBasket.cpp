@@ -7,9 +7,11 @@
 
 #include <opentxs/opentxs.hpp>
 
-#include <stdint.h>
 #include <iostream>
+#include <stdint.h>
 #include <string>
+
+#define OT_METHOD "opentxs::CmdShowBasket::"
 
 using namespace opentxs;
 using namespace std;
@@ -31,12 +33,16 @@ int32_t CmdShowBasket::run(string index)
 {
     int32_t items = SwigWrap::GetAssetTypeCount();
     if (0 > items) {
-        otOut << "Error: cannot load assetType type list item count.\n";
+        LogNormal(OT_METHOD)(__FUNCTION__)(
+            ": Error: cannot load assetType type list item count.")
+            .Flush();
         return -1;
     }
 
     if (0 == items) {
-        otOut << "The instrument definition list is empty.\n";
+        LogNormal(OT_METHOD)(__FUNCTION__)(
+            ": The instrument definition list is empty.")
+            .Flush();
         return 0;
     }
 
@@ -63,27 +69,33 @@ int32_t CmdShowBasket::run(string index)
 
     string assetType = SwigWrap::GetAssetType_ID(messageNr);
     if ("" == assetType) {
-        otOut << "Error: cannot load instrument definition " << messageNr
-              << ".\n";
+        LogNormal(OT_METHOD)(__FUNCTION__)(
+            ": Error: cannot load instrument definition ")(messageNr)(".")
+            .Flush();
         return -1;
     }
 
     string assetName = SwigWrap::GetAssetType_Name(assetType);
     if (!SwigWrap::IsBasketCurrency(assetType)) {
-        otOut << "Error: not a basket currency: " << assetType << " : "
-              << assetName << ".\n";
+        LogNormal(OT_METHOD)(__FUNCTION__)(": Error: not a basket currency: ")(
+            assetType)(" : ")(assetName)(".")
+            .Flush();
         return -1;
     }
 
     int32_t currencies = SwigWrap::Basket_GetMemberCount(assetType);
     if (0 >= currencies) {
-        otOut << "Error: cannot load basket currency count.\n";
+        LogNormal(OT_METHOD)(__FUNCTION__)(
+            ": Error: cannot load basket currency count.")
+            .Flush();
         return -1;
     }
 
     int64_t minAmount = SwigWrap::Basket_GetMinimumTransferAmount(assetType);
     if (0 > minAmount) {
-        otOut << "Error: cannot load minimum transfer amount.\n";
+        LogNormal(OT_METHOD)(__FUNCTION__)(
+            ": Error: cannot load minimum transfer amount.")
+            .Flush();
         return -1;
     }
 

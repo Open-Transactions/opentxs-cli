@@ -11,6 +11,8 @@
 #include <ostream>
 #include <string>
 
+#define OT_METHOD "opentxs::CmdVerifyReceipt::"
+
 using namespace opentxs;
 using namespace std;
 
@@ -38,12 +40,15 @@ int32_t CmdVerifyReceipt::run(string server, string myacct)
 
     string mynym = SwigWrap::GetAccountWallet_NymID(myacct);
     if ("" == mynym) {
-        otOut << "Error: cannot determine mynym from myacct.\n";
+        LogNormal(OT_METHOD)(__FUNCTION__)(
+            " : Error: cannot determine mynym from myacct.")
+            .Flush();
         return -1;
     }
 
     if (!SwigWrap::VerifyAccountReceipt(server, mynym, myacct)) {
-        otOut << "Error: cannot verify recepit.\n";
+        LogNormal(OT_METHOD)(__FUNCTION__)(" : Error: cannot verify receipt.")
+            .Flush();
         return -1;
     }
     return 1;

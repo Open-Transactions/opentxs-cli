@@ -11,6 +11,8 @@
 #include <iostream>
 #include <string>
 
+#define OT_METHOD "opentxs::CmdSendCash::"
+
 using namespace opentxs;
 using namespace std;
 
@@ -62,13 +64,17 @@ int32_t CmdSendCash::run(
         // myacct specified: server and mynym are implied
         server = SwigWrap::GetAccountWallet_NotaryID(myacct);
         if ("" == server) {
-            otOut << "Error: cannot determine server from myacct.\n";
+            LogNormal(OT_METHOD)(__FUNCTION__)(
+                ": Error: cannot determine server from myacct.")
+                .Flush();
             return -1;
         }
 
         mynym = SwigWrap::GetAccountWallet_NymID(myacct);
         if ("" == mynym) {
-            otOut << "Error: cannot determine mynym from myacct.\n";
+            LogNormal(OT_METHOD)(__FUNCTION__)(
+                ": Error: cannot determine mynym from myacct.")
+                .Flush();
             return -1;
         }
 
@@ -76,8 +82,10 @@ int32_t CmdSendCash::run(
         if ("" == assetType) { return -1; }
 
         if ("" != mypurse && mypurse != assetType) {
-            otOut << "Error: myacct instrument definition does not match "
-                     "mypurse.\n";
+            LogNormal(OT_METHOD)(__FUNCTION__)(
+                ": Error: myacct instrument definition does not match "
+                "mypurse.")
+                .Flush();
             return -1;
         }
 

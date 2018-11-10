@@ -7,6 +7,8 @@
 
 #include <opentxs/opentxs.hpp>
 
+#define OT_METHOD "opentxs::CmdContactName::"
+
 namespace opentxs
 {
 CmdContactName::CmdContactName()
@@ -32,7 +34,7 @@ std::int32_t CmdContactName::run(const std::string& id)
     if (pContact) {
         const auto label = pContact->Label();
 
-        otOut << label << std::endl;
+        LogNormal(OT_METHOD)(__FUNCTION__)(": ")(label)(".").Flush();
         return 0;
     }
 

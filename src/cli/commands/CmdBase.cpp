@@ -49,10 +49,10 @@ MapOfMaps* convert_offerlist_to_maps(OTDB::OfferListNym& offerList)
             OTDB::OfferDataNym* offerDataPtr = offerList.GetOfferDataNym(nTemp);
 
             if (!offerDataPtr) {
-                otOut << strLocation
-                      << ": Unable to reference (nym) offerData "
-                         "on offerList, at index: "
-                      << nIndex << "\n";
+                LogNormal(OT_METHOD)(__FUNCTION__)(strLocation)(
+                    ": Unable to reference (nym) offerData "
+                    "on offerList, at index: ")(nIndex)(".")
+                    .Flush();
                 return map_of_maps;
             }
 
@@ -75,7 +75,8 @@ MapOfMaps* convert_offerlist_to_maps(OTDB::OfferListNym& offerList)
 
             if (nullptr != sub_map) {
                 LogDetail(OT_METHOD)(__FUNCTION__)(
-                    ": The sub-map already exists!").Flush();
+                    ": The sub-map already exists!")
+                    .Flush();
 
                 // Let's just add this offer to the existing submap
                 // (There must be other offers already there for the same
@@ -90,7 +91,8 @@ MapOfMaps* convert_offerlist_to_maps(OTDB::OfferListNym& offerList)
                     // it...)
             {
                 LogDetail(OT_METHOD)(__FUNCTION__)(
-                       ": The sub-map does NOT already exist!").Flush();
+                    ": The sub-map does NOT already exist!")
+                    .Flush();
                 //
                 // Let's create the submap with this new offer, and add it
                 // to the main map.
@@ -282,9 +284,10 @@ std::int32_t iterate_nymoffers_sub_map(
 
     SubMap* sub_mapPtr = &sub_map;
     if (!sub_mapPtr) {
-        otOut << strLocation
-              << ": No range retrieved from sub_map. It must be "
-                 "non-existent, I guess.\n";
+        LogNormal(OT_METHOD)(__FUNCTION__)(strLocation)(
+            ": No range retrieved from sub_map. It must be "
+            "non-existent, I guess.")
+            .Flush();
         return -1;
     }
     if (sub_map.empty()) {
@@ -293,9 +296,10 @@ std::int32_t iterate_nymoffers_sub_map(
         // chaiscript
         // bug (extremely unlikely.)
         //
-        otOut << strLocation
-              << ": Error: A range was retrieved for the "
-                 "sub_map, but the range is empty.\n";
+        LogNormal(OT_METHOD)(__FUNCTION__)(strLocation)(
+            ": Error: A range was retrieved for the "
+            "sub_map, but the range is empty.")
+            .Flush();
         return -1;
     }
 
@@ -305,10 +309,11 @@ std::int32_t iterate_nymoffers_sub_map(
         // var offer_data_pair = range_sub_map.front();
 
         if (nullptr == it->second) {
-            otOut << strLocation
-                  << ": Looping through range_sub_map range, "
-                     "and first offer_data_pair fails to "
-                     "verify.\n";
+            LogNormal(OT_METHOD)(__FUNCTION__)(strLocation)(
+                ": Looping through range_sub_map range, "
+                "and first offer_data_pair fails to "
+                "verify.")
+                .Flush();
             return -1;
         }
 
@@ -321,7 +326,9 @@ std::int32_t iterate_nymoffers_sub_map(
             extra_vals);  // if 10 offers are printed for the SAME
                           // market, nIndex will be 0..9;
         if (-1 == nLambda) {
-            otOut << strLocation << ": Error: the_lambda failed.\n";
+            LogNormal(OT_METHOD)(__FUNCTION__)(strLocation)(
+                ": Error: the_lambda failed.")
+                .Flush();
             return -1;
         }
     }
@@ -365,22 +372,26 @@ std::int32_t iterate_nymoffers_maps(
     // var range_map_of_maps = map_of_maps.range();
     MapOfMaps* map_of_mapsPtr = &map_of_maps;
     if (!map_of_mapsPtr) {
-        otOut << strLocation << ": No range retrieved from map_of_maps.\n";
+        LogNormal(OT_METHOD)(__FUNCTION__)(strLocation)(
+            ": No range retrieved from map_of_maps.")
+            .Flush();
         return -1;
     }
     if (map_of_maps.empty()) {
-        otOut << strLocation
-              << ": A range was retrieved for the map_of_maps, "
-                 "but the range is empty.\n";
+        LogNormal(OT_METHOD)(__FUNCTION__)(strLocation)(
+            ": A range was retrieved for the map_of_maps, "
+            "but the range is empty.")
+            .Flush();
         return -1;
     }
 
     for (auto it = map_of_maps.begin(); it != map_of_maps.end(); ++it) {
         // var sub_map_pair = range_map_of_maps.front();
         if (nullptr == it->second) {
-            otOut << strLocation
-                  << ": Looping through map_of_maps range, and "
-                     "first sub_map_pair fails to verify.\n";
+            LogNormal(OT_METHOD)(__FUNCTION__)(strLocation)(
+                ": Looping through map_of_maps range, and "
+                "first sub_map_pair fails to verify.")
+                .Flush();
             return -1;
         }
 
@@ -388,18 +399,21 @@ std::int32_t iterate_nymoffers_maps(
 
         SubMap& sub_map = *it->second;
         if (sub_map.empty()) {
-            otOut << strLocation
-                  << ": Error: Sub_map is empty (Then how is it "
-                     "even here?? Submaps are only added based "
-                     "on existing offers.)\n";
+            LogNormal(OT_METHOD)(__FUNCTION__)(strLocation)(
+                ": Error: Sub_map is empty (Then how is it "
+                "even here?? Submaps are only added based "
+                "on existing offers.")
+                .Flush();
             return -1;
         }
 
         std::int32_t nSubMap = iterate_nymoffers_sub_map(
             map_of_maps, sub_map, the_lambda, extra_vals);
         if (-1 == nSubMap) {
-            otOut << strLocation
-                  << ": Error: while trying to iterate_nymoffers_sub_map.\n";
+            LogNormal(OT_METHOD)(__FUNCTION__)(strLocation)(
+                ": Error: while trying "
+                "to iterate_nymoffers_sub_map.")
+                .Flush();
             return -1;
         }
     }
@@ -421,7 +435,8 @@ OTDB::OfferListNym* loadNymOffers(
             "offers",
             nymID + ".bin")) {
         LogDetail(OT_METHOD)(__FUNCTION__)(
-            ": Offers file exists... Querying nyms...").Flush();
+            ": Offers file exists... Querying nyms...")
+            .Flush();
         OTDB::Storable* storable = OTDB::QueryObject(
             OTDB::STORED_OBJ_OFFER_LIST_NYM,
             Opentxs::Client().DataFolder(),
@@ -431,19 +446,23 @@ OTDB::OfferListNym* loadNymOffers(
             nymID + ".bin");
 
         if (nullptr == storable) {
-            otOut << "Unable to verify storable object. Probably doesn't "
-                     "exist.\n";
+            LogNormal(OT_METHOD)(__FUNCTION__)(
+                ": Unable to verify storable object. "
+                "Probably doesn't exist.")
+                .Flush();
             return nullptr;
         }
 
         LogDetail(OT_METHOD)(__FUNCTION__)(
             ": QueryObject worked. Now dynamic casting from storable to a "
-                  "(nym) offerList...").Flush();
+            "(nym) offerList...")
+            .Flush();
         offerList = dynamic_cast<OTDB::OfferListNym*>(storable);
 
         if (nullptr == offerList) {
-            otOut
-                << "Unable to dynamic cast a storable to a (nym) offerList.\n";
+            LogNormal(OT_METHOD)(__FUNCTION__)(": Unable to dynamic cast a "
+                                               "storable to a (nym) offerList.")
+                .Flush();
             return nullptr;
         }
     }
@@ -473,10 +492,17 @@ std::int32_t output_nymoffer_data(
 
     if (0 == nIndex)  // first iteration! (Output a header.)
     {
-        otOut << "\nScale:\t\t" << strScale << "\n";
-        otOut << "Asset:\t\t" << strInstrumentDefinitionID << "\n";
-        otOut << "Currency:\t" << strCurrencyTypeID << "\n";
-        otOut << "\nIndex\tTrans#\tType\tPrice\tAvailable\n";
+       LogNormal(OT_METHOD)(__FUNCTION__)(": Scale:")(
+	   strScale)(".").Flush();
+        LogNormal(OT_METHOD)(__FUNCTION__)(": Asset:")(
+           strInstrumentDefinitionID)(".")
+           .Flush();
+        LogNormal(OT_METHOD)(__FUNCTION__)(": Currency:")(
+	   strCurrencyTypeID)(".")
+           .Flush();
+        LogNormal(OT_METHOD)(__FUNCTION__)(
+            ": Index/Trans#/Type/Price/Available")
+            .Flush();
     }
 
     //
@@ -532,7 +558,9 @@ int64_t CmdBase::checkAmount(
 
     int64_t value = SwigWrap::StringToAmount(assetType, amount);
     if (OT_ERROR_AMOUNT == value) {
-        otOut << "Error: " << name << ": invalid amount: " << amount << "\n";
+        LogNormal(OT_METHOD)(__FUNCTION__)(": Error: ")(name)(
+            ": invalid amount: ")(amount)(".")
+            .Flush();
         return OT_ERROR_AMOUNT;
     }
 
@@ -543,7 +571,9 @@ bool CmdBase::checkBoolean(const char* name, const string& value) const
 {
     if (!checkMandatory(name, value)) { return false; }
     if (value != "false" && value != "true") {
-        otOut << "Error: " << name << ": expected 'false' or 'true'.\n";
+        LogNormal(OT_METHOD)(__FUNCTION__)(": Error: ")(name)(
+            ": expected 'false' or 'true'.")
+            .Flush();
         return false;
     }
 
@@ -634,13 +664,15 @@ bool CmdBase::checkPurse(const char* name, string& purse) const
     }
 
     if (!pUnit) {
-        otOut << "Error: " << name << ": unknown unit definition: " << purse
-              << "\n";
+        LogNormal(OT_METHOD)(__FUNCTION__)(": Error: ")(name)(
+            ": unknown unit definition: ")(purse)(".")
+            .Flush();
         return false;
     }
 
     purse = pUnit->ID()->str();
-    otOut << "Using " << name << ": " << purse << "\n";
+    LogNormal(OT_METHOD)(__FUNCTION__)(": Using ")(
+       name)(": ")(purse)(".").Flush();
     return true;
 }
 
@@ -655,14 +687,18 @@ int64_t CmdBase::checkTransNum(const char* name, const string& id) const
 
     for (string::size_type i = 0; i < id.length(); i++) {
         if (!isdigit(id[i])) {
-            otOut << "Error: " << name << ": not a value: " << id << "\n";
+            LogNormal(OT_METHOD)(__FUNCTION__)(": Error: ")(name)(
+                ": not a value: ")(id)(".")
+                .Flush();
             return -1;
         }
     }
 
     int64_t value = stoll(id);
     if (0 >= value) {
-        otOut << "Error: " << name << ": invalid value: " << id << "\n";
+        LogNormal(OT_METHOD)(__FUNCTION__)(": Error: ")(name)(
+            ": invalid value: ")(id)(".")
+            .Flush();
         return -1;
     }
 
@@ -675,7 +711,9 @@ bool CmdBase::checkValue(const char* name, const string& value) const
 
     for (string::size_type i = 0; i < value.length(); i++) {
         if (!isdigit(value[i])) {
-            otOut << "Error: " << name << ": not a value: " << value << "\n";
+            LogNormal(OT_METHOD)(__FUNCTION__)(": Error: ")(name)(
+                ": not a value: ")(value)(".")
+                .Flush();
             return false;
         }
     }
@@ -733,7 +771,9 @@ string CmdBase::getAccountAssetType(const string& myacct) const
     string assetType =
         SwigWrap::GetAccountWallet_InstrumentDefinitionID(myacct);
     if ("" == assetType) {
-        otOut << "Error: cannot load instrument definition from myacct.\n";
+        LogNormal(OT_METHOD)(__FUNCTION__)(
+            ": Error: cannot load instrument definition from myacct.")
+            .Flush();
     }
     return assetType;
 }
@@ -743,8 +783,9 @@ string CmdBase::getOption(string optionName) const
     auto result = options.find(optionName);
 
     if (result == options.end()) {
-        LogDetail(OT_METHOD)(__FUNCTION__)(
-            ": Option ")(optionName)(" not found.").Flush();
+        LogDetail(OT_METHOD)(__FUNCTION__)(": Option ")(optionName)(
+            " not found.")
+            .Flush();
         return "";
     }
 
@@ -790,7 +831,11 @@ string CmdBase::inputText(const char* what)
          << "followed by an EOF or a ~ on a line by itself:\n";
 
     string input = OT_CLI_ReadUntilEOF();
-    if ("" == input) { otOut << "Error: you did not paste " << what << ".\n"; }
+    if ("" == input) {
+        LogNormal(OT_METHOD)(__FUNCTION__)(
+	   ": Error: you did not paste ")(what)(".")
+            .Flush();
+    }
     return input;
 }
 
@@ -801,11 +846,13 @@ int32_t CmdBase::processResponse(const string& response, const char* what) const
             break;
 
         case 0:
-            otOut << "Error: failed to " << what << ".\n";
+            LogNormal(OT_METHOD)(__FUNCTION__)(": Error: failed to ")(what)(".")
+                .Flush();
             return -1;
 
         default:
-            otOut << "Error: cannot " << what << ".\n";
+            LogNormal(OT_METHOD)(__FUNCTION__)(": Error: cannot ")(what)(".")
+                .Flush();
             return -1;
     }
 
@@ -821,21 +868,26 @@ int32_t CmdBase::processTxResponse(
     const char* what) const
 {
     if (1 != responseStatus(response)) {
-        otOut << "Error: cannot " << what << ".\n";
+        LogNormal(OT_METHOD)(__FUNCTION__)(": Error: cannot ")(what)(".")
+            .Flush();
         return -1;
     }
 
     if (1 != VerifyMsgBalanceAgrmntSuccess(
                  Opentxs::Client(), server, mynym, myacct, response)) {
 
-        otOut << "Error: " << what << " balance agreement failed.\n";
+        LogNormal(OT_METHOD)(__FUNCTION__)(": Error: ")(what)(
+            " balance agreement failed.")
+            .Flush();
         return -1;
     }
 
     if (1 != VerifyMsgTrnxSuccess(
                  Opentxs::Client(), server, mynym, myacct, response)) {
 
-        otOut << "Error: " << what << " transaction failed.\n";
+        LogNormal(OT_METHOD)(__FUNCTION__)(": Error: ")(what)(
+            " transaction failed.")
+            .Flush();
         return -1;
     }
 
@@ -874,7 +926,9 @@ bool CmdBase::run(const map<string, string>& _options)
         case -1:  // failed
             return false;
         default:
-            otOut << "Error: undefined error code: " << returnValue << ".\n";
+            LogNormal(OT_METHOD)(__FUNCTION__)(
+                ": Error: undefined error code: ")(returnValue)(".")
+                .Flush();
             break;
     }
 
@@ -886,8 +940,10 @@ std::string CmdBase::stat_asset_account(const std::string& ACCOUNT_ID) const
     std::string strNymID = SwigWrap::GetAccountWallet_NymID(ACCOUNT_ID);
 
     if (!VerifyStringVal(strNymID)) {
-        otOut << "\nstat_asset_account: Cannot find account wallet for: "
-              << ACCOUNT_ID << "\n";
+        LogNormal(OT_METHOD)(__FUNCTION__)(
+            ": stat_asset_account: Cannot find account wallet for: ")(
+            ACCOUNT_ID)(".")
+            .Flush();
         return "";
     }
 
@@ -895,9 +951,10 @@ std::string CmdBase::stat_asset_account(const std::string& ACCOUNT_ID) const
         SwigWrap::GetAccountWallet_InstrumentDefinitionID(ACCOUNT_ID);
 
     if (!VerifyStringVal(strInstrumentDefinitionID)) {
-        otOut << "\nstat_asset_account: Cannot cannot determine instrument "
-                 "definition for: "
-              << ACCOUNT_ID << "\n";
+        LogNormal(OT_METHOD)(__FUNCTION__)(
+            ": stat_asset_account: Cannot cannot determine instrument "
+            "definition for: ")(ACCOUNT_ID)(".")
+            .Flush();
         return "";
     }
 

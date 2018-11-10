@@ -11,6 +11,8 @@
 #include <iostream>
 #include <string>
 
+#define OT_METHOD "opentxs::CmdNewNewKey::"
+
 using namespace opentxs;
 using namespace std;
 
@@ -29,7 +31,8 @@ int32_t CmdNewKey::run()
 {
     string key = SwigWrap::CreateSymmetricKey();
     if ("" == key) {
-        otOut << "Error: cannot create new key.\n";
+        LogNormal(OT_METHOD)(__FUNCTION__)(": Error: cannot create new key.")
+            .Flush();
         return -1;
     }
 

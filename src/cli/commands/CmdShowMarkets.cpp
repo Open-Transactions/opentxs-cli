@@ -34,18 +34,22 @@ int32_t CmdShowMarkets::run(string server)
 
     OTDB::MarketList* marketList = loadMarketList(server);
     if (nullptr == marketList) {
-        otOut << "Error: cannot load market list.\n";
+        LogNormal(OT_METHOD)(__FUNCTION__)(": Error: cannot load market list.")
+            .Flush();
         return -1;
     }
 
     int32_t items = marketList->GetMarketDataCount();
     if (0 > items) {
-        otOut << "Error: cannot load market list item count.\n";
+        LogNormal(OT_METHOD)(__FUNCTION__)(
+            ": Error: cannot load market list item count.")
+            .Flush();
         return -1;
     }
 
     if (0 == items) {
-        otOut << "The market list is empty.\n";
+        LogNormal(OT_METHOD)(__FUNCTION__)(": The market list is empty.")
+            .Flush();
         return 0;
     }
 
@@ -54,7 +58,9 @@ int32_t CmdShowMarkets::run(string server)
     for (int32_t i = 0; i < items; i++) {
         OTDB::MarketData* marketData = marketList->GetMarketData(i);
         if (nullptr == marketData) {
-            otOut << "Error: cannot load market data at index " << i << ".\n";
+            LogNormal(OT_METHOD)(__FUNCTION__)(
+                ": Error: cannot load market data at index ")(i)
+                .Flush();
             return -1;
         }
 
@@ -75,12 +81,15 @@ OTDB::MarketList* CmdShowMarkets::loadMarketList(const string& server)
             server,
             "market_data.bin",
             "")) {
-        otOut << "The market list file doesn't exist.\n";
+        LogNormal(OT_METHOD)(__FUNCTION__)(
+            ": The market list file doesn't exist")
+            .Flush();
         return nullptr;
     }
 
     LogDetail(OT_METHOD)(__FUNCTION__)(
-        ": Markets file exists... Querying list of markets...").Flush();
+        ": Markets file exists... Querying list of markets...")
+        .Flush();
 
     OTDB::Storable* storable = OTDB::QueryObject(
         OTDB::STORED_OBJ_MARKET_LIST,
@@ -90,17 +99,23 @@ OTDB::MarketList* CmdShowMarkets::loadMarketList(const string& server)
         "market_data.bin",
         "");
     if (nullptr == storable) {
-        otOut << "Failed to verify storable object. Probably doesn't exist.\n";
+        LogNormal(OT_METHOD)(__FUNCTION__)(
+            ": Failed to verify storable object. "
+            "Probably doesn't exist.")
+            .Flush();
         return nullptr;
     }
 
     LogDetail(OT_METHOD)(__FUNCTION__)(
         "QueryObject worked. Now dynamic casting from storable to "
-              "marketlist...").Flush();
+        "marketlist...")
+        .Flush();
 
     OTDB::MarketList* marketList = dynamic_cast<OTDB::MarketList*>(storable);
     if (nullptr == marketList) {
-        otOut << "Unable to dynamic cast a storable to a marketlist.\n";
+        LogNormal(OT_METHOD)(__FUNCTION__)(
+            ": Unable to dynamic cast a storable to a marketlist.")
+            .Flush();
         return nullptr;
     }
 

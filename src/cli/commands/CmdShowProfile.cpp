@@ -7,6 +7,8 @@
 
 #include <opentxs/opentxs.hpp>
 
+#define OT_METHOD "opentxs::CmdShowProfile::"
+
 namespace opentxs
 {
 CmdShowProfile::CmdShowProfile()
@@ -24,13 +26,17 @@ void CmdShowProfile::display_groups(const ui::ProfileSection& section) const
     if (false == group->Valid()) { return; }
 
     auto lastGroup = group->Last();
-    otOut << "** " << group->Name("en") << " (" << group->Type() << ")\n";
-    display_items(group);
+    LogNormal(OT_METHOD)(__FUNCTION__)(": ** ")(group->Name("en"))(" (")(
+        group->Type())(")")
+        .Flush();
+    (display_items(group));
 
     while (false == lastGroup) {
         group = section.Next();
         lastGroup = group->Last();
-        otOut << "** " << group->Name("en") << " (" << group->Type() << ")\n";
+        LogNormal(OT_METHOD)(__FUNCTION__)(": ** ")(group->Name("en"))(" (")(
+            group->Type())(")")
+            .Flush();
         display_items(group);
     }
 }
@@ -42,16 +48,18 @@ void CmdShowProfile::display_items(const ui::ProfileSubsection& group) const
     if (false == item->Valid()) { return; }
 
     auto lastItem = item->Last();
-    otOut << "  * ID: " << item->ClaimID() << " Value: " << item->Value()
-          << " Primary: " << item->IsPrimary()
-          << " Active: " << item->IsActive() << "\n";
+    LogNormal(OT_METHOD)(__FUNCTION__)(":   * ID: ")(item->ClaimID())(
+        " Value: ")(item->Value())(" Primary: ")(item->IsPrimary())(
+        " Active: ")(item->IsActive())
+        .Flush();
 
     while (false == lastItem) {
         item = group.Next();
         lastItem = item->Last();
-        otOut << "  * ID: " << item->ClaimID() << " Value: " << item->Value()
-              << " Primary: " << item->IsPrimary()
-              << " Active: " << item->IsActive() << "\n";
+        LogNormal(OT_METHOD)(__FUNCTION__)(":  * ID: ")(item->ClaimID())(
+            " Value: ")(item->Value())(" Primary: ")(item->IsPrimary())(
+            " Active: ")(item->IsActive())
+            .Flush();
     }
 }
 
@@ -66,26 +74,30 @@ std::int32_t CmdShowProfile::run(std::string mynym)
 
     const OTIdentifier nymID = Identifier::Factory({mynym});
     auto& profile = Opentxs::Client().UI().Profile(nymID);
-    otOut << profile.DisplayName() << ": (" << profile.ID()
-          << ")\nPayment Code: " << profile.PaymentCode() << "\n\n";
+    LogNormal(OT_METHOD)(__FUNCTION__)(profile.DisplayName())(": (")(
+        profile.ID())(") Payment Code: ")(profile.PaymentCode())
+        .Flush();
     dashLine();
     auto section = profile.First();
 
     if (false == section->Valid()) { return 1; }
 
     auto lastSection = section->Last();
-    otOut << "* " << section->Name("en") << " (" << section->Type() << ")\n";
+    LogNormal(OT_METHOD)(__FUNCTION__)(": * ")(section->Name("en"))(" (")(
+        section->Type())(")")
+        .Flush();
     display_groups(section);
 
     while (false == lastSection) {
         section = profile.Next();
         lastSection = section->Last();
-        otOut << "* " << section->Name("en") << " (" << section->Type()
-              << ")\n";
+        LogNormal(OT_METHOD)(__FUNCTION__)(": * ")(section->Name("en"))(" (")(
+            section->Type())(")")
+            .Flush();
         display_groups(section);
     }
 
-    otOut << std::endl;
+    LogNormal(OT_METHOD)(__FUNCTION__)(" ").Flush();
 
     return 1;
 }

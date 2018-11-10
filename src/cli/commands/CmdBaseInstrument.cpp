@@ -12,6 +12,8 @@
 #include <string>
 #include <vector>
 
+#define OT_METHOD "opentxs::CmdBaseInstrument::"
+
 using namespace opentxs;
 using namespace std;
 
@@ -26,26 +28,29 @@ int32_t CmdBaseInstrument::sendPayment(
 {
     string server = SwigWrap::Instrmnt_GetNotaryID(cheque);
     if ("" == server) {
-        otOut << "Error: cannot get server.\n";
+        LogNormal(OT_METHOD)(__FUNCTION__)(": Error: cannot get server.")
+            .Flush();
         return -1;
     }
 
     if ("" == sender) {
         sender = SwigWrap::Instrmnt_GetSenderNymID(cheque);
         if ("" == sender) {
-            otOut << "Error: cannot get sender.\n";
+            LogNormal(OT_METHOD)(__FUNCTION__)(": Error: cannot get sender.")
+                .Flush();
             return -1;
         }
     }
 
     string recipient = SwigWrap::Instrmnt_GetRecipientNymID(cheque);
     if ("" == recipient) {
-        otOut << "Error: cannot get recipient.\n";
+        LogNormal(OT_METHOD)(__FUNCTION__)(": Error: cannot get recipient.")
+            .Flush();
         return -1;
     }
 
-    auto payment{Opentxs::Client().Factory().Payment(
-        String::Factory(cheque.c_str()))};
+    auto payment{
+        Opentxs::Client().Factory().Payment(String::Factory(cheque.c_str()))};
 
     OT_ASSERT(false != bool(payment));
 
@@ -83,20 +88,26 @@ string CmdBaseInstrument::writeCheque(
 
     string server = SwigWrap::GetAccountWallet_NotaryID(myacct);
     if ("" == server) {
-        otOut << "Error: cannot determine server from myacct.\n";
+        LogNormal(OT_METHOD)(__FUNCTION__)(
+            ": Error: cannot determine server from myacct.")
+            .Flush();
         return "";
     }
 
     string mynym = SwigWrap::GetAccountWallet_NymID(myacct);
     if ("" == mynym) {
-        otOut << "Error: cannot determine mynym from myacct.\n";
+        LogNormal(OT_METHOD)(__FUNCTION__)(
+            ": Error: cannot determine mynym from myacct.")
+            .Flush();
         return "";
     }
 
     {
         if (!Opentxs::Client().ServerAction().GetTransactionNumbers(
                 Identifier::Factory(mynym), Identifier::Factory(server), 10)) {
-            otOut << "Error: cannot reserve transaction numbers.\n";
+            LogNormal(OT_METHOD)(__FUNCTION__)(
+                ": Error: cannot reserve transaction numbers.")
+                .Flush();
             return "";
         }
     }
@@ -116,7 +127,8 @@ string CmdBaseInstrument::writeCheque(
         memo,
         hisnym);
     if ("" == cheque) {
-        otOut << "Error: cannot write cheque.\n";
+        LogNormal(OT_METHOD)(__FUNCTION__)(": Error: cannot write cheque.")
+            .Flush();
         return "";
     }
 

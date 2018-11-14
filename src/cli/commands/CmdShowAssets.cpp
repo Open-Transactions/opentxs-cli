@@ -11,6 +11,8 @@
 #include <iostream>
 #include <string>
 
+#define OT_METHOD "opentxs::CmdShowAssets::"
+
 using namespace opentxs;
 using namespace std;
 
@@ -29,12 +31,16 @@ int32_t CmdShowAssets::run()
 {
     int32_t items = SwigWrap::GetAssetTypeCount();
     if (0 > items) {
-        otOut << "Error: cannot load instrument definition list count.\n";
+        LogNormal(OT_METHOD)(__FUNCTION__)(
+            ": Error: cannot load instrument definition list count.")
+            .Flush();
         return -1;
     }
 
     if (0 == items) {
-        otOut << "The instrument definition list is empty.\n";
+        LogNormal(OT_METHOD)(__FUNCTION__)(
+            ": The instrument definition list is empty.")
+            .Flush();
         return 0;
     }
 

@@ -14,6 +14,8 @@
 #include <string>
 #include <vector>
 
+#define OT_METHOD "opentxs::CmdNewOffer::"
+
 using namespace opentxs;
 using namespace std;
 
@@ -64,7 +66,9 @@ int32_t CmdNewOffer::run(
     if (!checkAccount("hisacct", hisacct)) { return -1; }
 
     if (type != "ask" && type != "bid") {
-        otOut << "Error: type: mandatory ask/bid parameter not specified.\n";
+        LogNormal(OT_METHOD)(__FUNCTION__)(
+            ": Error: type: mandatory ask/bid parameter not specified.")
+            .Flush();
         return -1;
     }
 
@@ -78,35 +82,47 @@ int32_t CmdNewOffer::run(
 
     string server = SwigWrap::GetAccountWallet_NotaryID(myacct);
     if ("" == server) {
-        otOut << "Error: cannot determine server from myacct.\n";
+        LogNormal(OT_METHOD)(__FUNCTION__)(
+            ":Error: cannot determine server from myacct.")
+            .Flush();
         return -1;
     }
 
     string mynym = SwigWrap::GetAccountWallet_NymID(myacct);
     if ("" == mynym) {
-        otOut << "Error: cannot determine mynym from myacct.\n";
+        LogNormal(OT_METHOD)(__FUNCTION__)(
+            ": Error: cannot determine mynym from myacct.")
+            .Flush();
         return -1;
     }
 
     string hisserver = SwigWrap::GetAccountWallet_NotaryID(hisacct);
     if ("" == hisserver) {
-        otOut << "Error: cannot determine server from myacct.\n";
+        LogNormal(OT_METHOD)(__FUNCTION__)(
+            ": Error: cannot determine server from myacct.")
+            .Flush();
         return -1;
     }
 
     string hisnym = SwigWrap::GetAccountWallet_NymID(hisacct);
     if ("" == hisnym) {
-        otOut << "Error: cannot determine hisnym from hisacct.\n";
+        LogNormal(OT_METHOD)(__FUNCTION__)(
+            ": Error: cannot determine hisnym from hisacct.")
+            .Flush();
         return -1;
     }
 
     if (mynym != hisnym) {
-        otOut << "Error: you must own both myacct and hisacct.\n";
+        LogNormal(OT_METHOD)(__FUNCTION__)(
+            ": Error: you must own both myacct and hisacct.")
+            .Flush();
         return -1;
     }
 
     if (server != hisserver) {
-        otOut << "Error: accounts must be on the same server.\n";
+        LogNormal(OT_METHOD)(__FUNCTION__)(
+            ": Error: accounts must be on the same server.")
+            .Flush();
         return -1;
     }
 
@@ -131,8 +147,7 @@ int32_t CmdNewOffer::run(
     sscanf(lifespan.c_str(), "%" SCNd64, &l);
     std::string response;
     {
-        response = Opentxs::
-                       Client()
+        response = Opentxs::Client()
 
                        .ServerAction()
                        .CreateMarketOffer(
@@ -195,7 +210,9 @@ int32_t CmdNewOffer::cleanMarketOfferList(
 {
     OTDB::OfferListNym* offerList = loadNymOffers(server, mynym);
     if (nullptr == offerList) {
-        otOut << "Error: cannot load market offer list.\n";
+        LogNormal(OT_METHOD)(__FUNCTION__)(
+            ": Error: cannot load market offer list.")
+            .Flush();
         return -1;
     }
 
@@ -205,18 +222,23 @@ int32_t CmdNewOffer::cleanMarketOfferList(
     // the key: transaction ID and value: the offer data itself.
     int32_t items = offerList->GetOfferDataNymCount();
     if (0 > items) {
-        otOut << "Error: cannot load market offer list count.\n";
+        LogNormal(OT_METHOD)(__FUNCTION__)(
+            ": Error: cannot load market offer list count.")
+            .Flush();
         return -1;
     }
 
     if (0 == items) {
-        otOut << "The market offer list is empty.\n";
+        LogNormal(OT_METHOD)(__FUNCTION__)(": The market offer list is empty.")
+            .Flush();
         return 0;
     }
 
     MapOfMaps* map_of_maps = convert_offerlist_to_maps(*offerList);
     if (nullptr == map_of_maps) {
-        otOut << "Error: cannot convert offer list to map.\n";
+        LogNormal(OT_METHOD)(__FUNCTION__)(
+            ": Error: cannot convert offer list to map.")
+            .Flush();
         return -1;
     }
     // (FT) TODO: Fix this ridiculous memory leak. map_of_maps is not
@@ -239,7 +261,9 @@ int32_t CmdNewOffer::cleanMarketOfferList(
     extra.bSelling = type == "ask";
 
     if (0 > iterate_nymoffers_maps(*map_of_maps, find_strange_offers, extra)) {
-        otOut << "Error: cannot iterate nym's offers.\n";
+        LogNormal(OT_METHOD)(__FUNCTION__)(
+            ": Error: cannot iterate nym's offers.")
+            .Flush();
         return -1;
     }
 
@@ -248,15 +272,15 @@ int32_t CmdNewOffer::cleanMarketOfferList(
     // the market before starting up the new offer...
     for (size_t i = 0; i < extra.the_vector.size(); i++) {
         const string& id = extra.the_vector[i];
-        otOut << "Canceling market offer with transaction number: " << id
-              << ".\n";
+        LogNormal(OT_METHOD)(__FUNCTION__)(
+            ": Canceling market offer with transaction number: ")(id)
+            .Flush();
 
         int64_t j;
         sscanf(id.c_str(), "%" SCNd64, &j);
         std::string response;
         {
-            response = Opentxs::
-                           Client()
+            response = Opentxs::Client()
 
                            .ServerAction()
                            .KillMarketOffer(

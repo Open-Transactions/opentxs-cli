@@ -11,6 +11,8 @@
 #include <ostream>
 #include <string>
 
+#define OT_METHOD "opentxs::CmdClearRecords::"
+
 using namespace opentxs;
 using namespace std;
 
@@ -32,24 +34,32 @@ int32_t CmdClearRecords::run(string myacct)
 
     string server = SwigWrap::GetAccountWallet_NotaryID(myacct);
     if ("" == server) {
-        otOut << "Error: cannot determine server from myacct.\n";
+        LogNormal(OT_METHOD)(__FUNCTION__)(
+            ": Error: cannot determine server from myacct.")
+            .Flush();
         return -1;
     }
 
     string mynym = SwigWrap::GetAccountWallet_NymID(myacct);
     if ("" == mynym) {
-        otOut << "Error: cannot determine mynym from myacct.\n";
+        LogNormal(OT_METHOD)(__FUNCTION__)(
+            ": Error: cannot determine mynym from myacct.")
+            .Flush();
         return -1;
     }
 
     // Recordbox for mynym contains the old payments (in and out.)
-    otOut << "Clearing archived Nym-related records...\n";
+    LogNormal(OT_METHOD)(__FUNCTION__)(
+        ": Clearing archived Nym-related records...")
+        .Flush();
     bool success = SwigWrap::ClearRecord(server, mynym, mynym, 0, true);
 
     dashLine();
 
     // Recordbox for myacct contains the old inbox receipts.
-    otOut << "\nClearing archived Account-related records...\n";
+    LogNormal(OT_METHOD)(__FUNCTION__)(
+        ": Clearing archived Account-related records...")
+        .Flush();
     success |= SwigWrap::ClearRecord(server, mynym, myacct, 0, true);
 
     return success ? 1 : -1;

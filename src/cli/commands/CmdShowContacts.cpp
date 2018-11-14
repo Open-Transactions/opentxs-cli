@@ -7,6 +7,8 @@
 
 #include <opentxs/opentxs.hpp>
 
+#define OT_METHOD "opentxs::CmdShowContacts::"
+
 namespace opentxs
 {
 
@@ -29,21 +31,23 @@ std::int32_t CmdShowContacts::run(std::string mynym)
 
     const OTIdentifier nymID = Identifier::Factory({mynym});
     auto& list = Opentxs::Client().UI().ContactList(nymID);
-    otOut << "Contacts:\n";
+    LogNormal(OT_METHOD)(__FUNCTION__)(": Contacts:").Flush();
     dashLine();
     auto line = list.First();
     auto last = line->Last();
-    otOut << " " << line->Section() << " " << line->DisplayName() << " ("
-          << line->ContactID() << ")\n";
+    LogNormal(OT_METHOD)(__FUNCTION__)(": ")(line->Section())(" ")(
+        line->DisplayName())(" (")(line->ContactID())(")")
+        .Flush();
 
     while (false == last) {
         line = list.Next();
         last = line->Last();
-        otOut << " " << line->Section() << "  " << line->DisplayName() << " ("
-              << line->ContactID() << ")\n";
+        LogNormal(OT_METHOD)(__FUNCTION__)(": ")(line->Section())("  ")(
+            line->DisplayName())(" (")(line->ContactID())(")")
+            .Flush();
     }
 
-    otOut << std::endl;
+    LogNormal(OT_METHOD)(__FUNCTION__)(" ").Flush();
 
     return 1;
 }

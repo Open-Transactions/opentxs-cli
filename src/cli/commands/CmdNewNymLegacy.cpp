@@ -11,6 +11,8 @@
 #include <iostream>
 #include <string>
 
+#define OT_METHOD "opentxs::CmdNewNymLegacy::"
+
 using namespace opentxs;
 using namespace std;
 
@@ -52,20 +54,24 @@ int32_t CmdNewNymLegacy::run(string keybits, string label, string source)
 
     int32_t bits = "" == keybits ? 1024 : stoi(keybits);
     if (1024 != bits && 2048 != bits && 4096 != bits && 8192 != bits) {
-        otOut << "Error: invalid keybits value.\n";
+        LogNormal(OT_METHOD)(__FUNCTION__)(": Error: invalid keybits value.")
+            .Flush();
         return -1;
     }
 
     string mynym = SwigWrap::CreateNymLegacy(bits, source);
     if ("" == mynym) {
-        otOut << "Error: cannot create new nym.\n";
+        LogNormal(OT_METHOD)(__FUNCTION__)(": Error: cannot create new nym.")
+            .Flush();
         return -1;
     }
 
     cout << "New nym: " << mynym << "\n";
 
     if (!SwigWrap::SetNym_Alias(mynym, mynym, label)) {
-        otOut << "Error: cannot set new nym name.\n";
+        LogNormal(OT_METHOD)(__FUNCTION__)(
+            ": Error: cannot create new nym name.")
+            .Flush();
         return -1;
     }
 

@@ -11,6 +11,8 @@
 #include <ostream>
 #include <string>
 
+#define OT_METHOD "opentxs::CmdEditNym::"
+
 using namespace opentxs;
 using namespace std;
 
@@ -37,7 +39,8 @@ int32_t CmdEditNym::run(string mynym, string label)
     if (!checkMandatory("label", label)) { return -1; }
 
     if (!SwigWrap::SetNym_Alias(mynym, mynym, label)) {
-        otOut << "Error: cannot set nym label.\n";
+        LogNormal(OT_METHOD)(__FUNCTION__)(": Error: cannot set nym label.")
+            .Flush();
         return -1;
     }
 

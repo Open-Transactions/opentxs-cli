@@ -7,6 +7,8 @@
 
 #include <opentxs/opentxs.hpp>
 
+#define OT_METHOD "opentxs::CmdVerifyPassword::"
+
 namespace opentxs
 {
 
@@ -22,11 +24,12 @@ std::int32_t CmdVerifyPassword::runWithOptions() { return run(); }
 std::int32_t CmdVerifyPassword::run()
 {
     if (false == SwigWrap::Wallet_CheckPassword()) {
-        otOut << "Error: invalid passphrase." << std::endl;
+        LogNormal(OT_METHOD)(__FUNCTION__)(": Error: invalid passphrase.")
+            .Flush();
 
         return -1;
     } else {
-        otOut << "Password confirmed." << std::endl;
+        LogNormal(OT_METHOD)(__FUNCTION__)(": Password confirmed.").Flush();
 
         return 1;
     }

@@ -11,6 +11,8 @@
 #include <iostream>
 #include <string>
 
+#define OT_METHOD "opentxs::CmdWithdrawVoucher::"
+
 using namespace opentxs;
 using namespace std;
 
@@ -67,13 +69,17 @@ int32_t CmdWithdrawVoucher::run(
 
     string server = SwigWrap::GetAccountWallet_NotaryID(myacct);
     if ("" == server) {
-        otOut << "Error: cannot determine server from myacct.\n";
+        LogNormal(OT_METHOD)(__FUNCTION__)(
+            ": Error: cannot determine server from myacct.")
+            .Flush();
         return -1;
     }
 
     string mynym = SwigWrap::GetAccountWallet_NymID(myacct);
     if ("" == mynym) {
-        otOut << "Error: cannot determine mynym from myacct.\n";
+        LogNormal(OT_METHOD)(__FUNCTION__)(
+            ": Error: cannot determine mynym from myacct.")
+            .Flush();
         return -1;
     }
 
@@ -83,8 +89,7 @@ int32_t CmdWithdrawVoucher::run(
 
     std::string response;
     {
-        response = Opentxs::
-                       Client()
+        response = Opentxs::Client()
 
                        .ServerAction()
                        .WithdrawVoucher(
@@ -102,20 +107,24 @@ int32_t CmdWithdrawVoucher::run(
 
     string ledger = SwigWrap::Message_GetLedger(response);
     if ("" == ledger) {
-        otOut << "Error: cannot load ledger.\n";
+        LogNormal(OT_METHOD)(__FUNCTION__)(": Error: cannot load ledger.")
+            .Flush();
         return -1;
     }
 
     string tx = SwigWrap::Ledger_GetTransactionByIndex(
         server, mynym, myacct, ledger, 0);
     if ("" == tx) {
-        otOut << "Error: cannot retrieve transaction.\n";
+        LogNormal(OT_METHOD)(__FUNCTION__)(
+            ": Error: cannot retrieve transaction.")
+            .Flush();
         return -1;
     }
 
     voucher = SwigWrap::Transaction_GetVoucher(server, mynym, myacct, tx);
     if ("" == voucher) {
-        otOut << "Error: cannot load voucher.\n";
+        LogNormal(OT_METHOD)(__FUNCTION__)(": Error: cannot load voucher.")
+            .Flush();
         return -1;
     }
 
@@ -127,8 +136,8 @@ int32_t CmdWithdrawVoucher::run(
     // Notice how I can send an instrument to myself. This doesn't actually
     // send anything -- it just puts a copy into my outpayments box for
     // safe-keeping.
-    auto payment{Opentxs::Client().Factory().Payment(
-         String::Factory(voucher.c_str()))};
+    auto payment{
+        Opentxs::Client().Factory().Payment(String::Factory(voucher.c_str()))};
 
     OT_ASSERT(false != bool(payment));
 
@@ -140,7 +149,9 @@ int32_t CmdWithdrawVoucher::run(
             ->Run();
         if (!Opentxs::Client().ServerAction().DownloadAccount(
                 theNymID, theNotaryID, theAcctID, true)) {
-            otOut << "Error retrieving intermediary files for account.\n";
+            LogNormal(OT_METHOD)(__FUNCTION__)(
+                ": Error retrieving intermediary files for account.")
+                .Flush();
             return -1;
         }
     }

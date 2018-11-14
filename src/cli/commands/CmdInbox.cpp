@@ -11,6 +11,8 @@
 #include <iostream>
 #include <string>
 
+#define OT_METHOD "opentxs::CmdInbox()"
+
 using namespace opentxs;
 using namespace std;
 
@@ -32,30 +34,37 @@ int32_t CmdInbox::run(string myacct)
 
     string server = SwigWrap::GetAccountWallet_NotaryID(myacct);
     if ("" == server) {
-        otOut << "Error: cannot determine server from myacct.\n";
+        LogNormal(OT_METHOD)(__FUNCTION__)(
+            " : Error: cannot determine server from myacct.")
+            .Flush();
         return -1;
     }
 
     string mynym = SwigWrap::GetAccountWallet_NymID(myacct);
     if ("" == mynym) {
-        otOut << "Error: cannot determine mynym from myacct.\n";
+        LogNormal(OT_METHOD)(__FUNCTION__)(
+            " : Error: cannot determine mynym from myacct.")
+            .Flush();
         return -1;
     }
 
     string inbox = SwigWrap::LoadInbox(server, mynym, myacct);
     if ("" == inbox) {
-        otOut << "Error: cannot load inbox.\n";
+        LogNormal(OT_METHOD)(__FUNCTION__)(" : Error: cannot load inbox.")
+            .Flush();
         return -1;
     }
 
     int32_t items = SwigWrap::Ledger_GetCount(server, mynym, myacct, inbox);
     if (0 > items) {
-        otOut << "Error: cannot load inbox item count.\n";
+        LogNormal(OT_METHOD)(__FUNCTION__)(
+            " : Error: cannot load inbox item count.")
+            .Flush();
         return -1;
     }
 
     if (0 == items) {
-        otOut << "The inbox is empty.\n";
+        LogNormal(OT_METHOD)(__FUNCTION__)(" : The inbox is empty.").Flush();
         return 0;
     }
 
@@ -105,8 +114,10 @@ int32_t CmdInbox::run(string myacct)
         cout << userDenoter << user << separator << acctDenoter << acct << "\n";
     }
 
-    otOut << "\n For the above, try: accepttransfers, acceptreceipts, "
-             "acceptinbox, acceptmoney, or acceptall.\n";
+    LogNormal(OT_METHOD)(__FUNCTION__)(
+        " : For the above, try: accepttransfers, acceptreceipts, "
+        "acceptinbox, acceptmoney, or acceptall.")
+        .Flush();
 
     return 1;
 }

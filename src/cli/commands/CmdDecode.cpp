@@ -11,6 +11,8 @@
 #include <iostream>
 #include <string>
 
+#define OT_METHOD "opentxs::CmdDecode::"
+
 using namespace opentxs;
 using namespace std;
 
@@ -32,12 +34,13 @@ int32_t CmdDecode::run()
 
     string output = SwigWrap::Decode(input, true);
     if ("" == output) {
-        otOut << "Error: cannot decode input.\n";
+        LogNormal(OT_METHOD)(__FUNCTION__)(": Error: cannot decode input.")
+            .Flush();
         return -1;
     }
 
     dashLine();
-    otOut << "Decoded:\n\n";
+    LogNormal(OT_METHOD)(__FUNCTION__)(": Decoded:").Flush();
     cout << output << "\n";
 
     return 1;

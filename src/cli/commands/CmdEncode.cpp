@@ -11,6 +11,8 @@
 #include <iostream>
 #include <string>
 
+#define OT_METHOD "opentxs::CmdEncode"
+
 using namespace opentxs;
 using namespace std;
 
@@ -32,12 +34,13 @@ int32_t CmdEncode::run()
 
     string output = SwigWrap::Encode(input, true);
     if ("" == output) {
-        otOut << "Error: cannot encode input.\n";
+        LogNormal(OT_METHOD)(__FUNCTION__)(": Error: cannot encode input.")
+            .Flush();
         return -1;
     }
 
     dashLine();
-    otOut << "Encoded:\n\n";
+    LogNormal(OT_METHOD)(__FUNCTION__)(": Encoded:").Flush();
     cout << output << "\n";
 
     return 1;

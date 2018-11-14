@@ -51,21 +51,25 @@ std::int32_t CmdAllocateBitcoinAddress::run(
     BIP44Chain change{EXTERNAL_CHAIN};
 
     if ("internal" == chain) { change = INTERNAL_CHAIN; }
+    {
 
-    const auto address = Opentxs::Client().Blockchain().AllocateAddress(
-        Identifier::Factory(mynym), accountID, label, change);
+        const auto address = Opentxs::Client().Blockchain().AllocateAddress(
+            Identifier::Factory(mynym), accountID, label, change);
 
-    if (false == bool(address)) {
-        otErr << OT_METHOD << __FUNCTION__ << ": Failed to allocate address."
-              << std::endl;
+        if (false == bool(address)) {
+            otErr << OT_METHOD << __FUNCTION__
+                  << ": Failed to allocate address." << std::endl;
 
-        return -1;
+            return -1;
+        }
+
+        LogNormal(OT_METHOD)(__FUNCTION__)(": Allocated new address at index ")(
+           address->index())(": ")(address->address())(".")
+            .Flush();
+        LogNormal(OT_METHOD)(__FUNCTION__)(": (")(address->label())(").")
+            .Flush();
+
+        return 0;
     }
-
-    otOut << "Allocated new address at index " << address->index() << ": "
-          << address->address() << std::endl
-          << " (" << address->label() << ")" << std::endl;
-
-    return 0;
 }
 }  // namespace opentxs

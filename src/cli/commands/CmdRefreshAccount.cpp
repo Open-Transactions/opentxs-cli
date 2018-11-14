@@ -11,6 +11,8 @@
 #include <ostream>
 #include <string>
 
+#define OT_METHOD "opentxs::CmdRefreshAccount::"
+
 using namespace opentxs;
 using namespace std;
 
@@ -32,13 +34,17 @@ int32_t CmdRefreshAccount::run(string myacct)
 
     string server = SwigWrap::GetAccountWallet_NotaryID(myacct);
     if ("" == server) {
-        otOut << "Error: cannot determine server from myacct.\n";
+        LogNormal(OT_METHOD)(__FUNCTION__)(
+            " : Error: cannot determine server from myacct.")
+            .Flush();
         return -1;
     }
 
     string mynym = SwigWrap::GetAccountWallet_NymID(myacct);
     if ("" == mynym) {
-        otOut << "Error: cannot determine mynym from myacct.\n";
+        LogNormal(OT_METHOD)(__FUNCTION__)(
+            " : Error: cannot determine mynym from myacct.")
+            .Flush();
         return -1;
     }
 
@@ -48,7 +54,9 @@ int32_t CmdRefreshAccount::run(string myacct)
                 Identifier::Factory(server),
                 Identifier::Factory(myacct),
                 true)) {
-            otOut << "Error retrieving intermediary files for myacct.\n";
+            LogNormal(OT_METHOD)(__FUNCTION__)(
+                " : Error retrieving intermediary files for myacct.")
+                .Flush();
             return -1;
         }
     }

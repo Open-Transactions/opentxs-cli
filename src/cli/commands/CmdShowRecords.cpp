@@ -11,6 +11,8 @@
 #include <iostream>
 #include <string>
 
+#define OT_METHOD "opentxs::CmdShowRecords::"
+
 using namespace opentxs;
 using namespace std;
 
@@ -43,13 +45,17 @@ int32_t CmdShowRecords::run(string server, string mynym, string myacct)
 
         server = SwigWrap::GetAccountWallet_NotaryID(myacct);
         if ("" == server) {
-            otOut << "Error: cannot determine server from myacct.\n";
+            LogNormal(OT_METHOD)(__FUNCTION__)(
+                ": Error: cannot determine server from myacct.")
+                .Flush();
             return -1;
         }
 
         mynym = SwigWrap::GetAccountWallet_NymID(myacct);
         if ("" == mynym) {
-            otOut << "Error: cannot determine mynym from myacct.\n";
+            LogNormal(OT_METHOD)(__FUNCTION__)(
+                ": Error: cannot determine mynym from myacct.")
+                .Flush();
             return -1;
         }
     }
@@ -65,12 +71,16 @@ int32_t CmdShowRecords::run(string server, string mynym, string myacct)
     // actually done with the records -- they're just there for the actual
     // client to take and store however it wishes.)
 
-    otOut << "Archived Nym-related records (" << mynym << "):\n";
+    LogNormal(OT_METHOD)(__FUNCTION__)(": Archived Nym-related records(")(
+        mynym)("):")
+        .Flush();
     bool success = 0 <= showRecords(server, mynym, mynym);
 
     if ("" != myacct) {
         dashLine();
-        otOut << "Archived Account-related records (" << myacct << "):\n";
+        LogNormal(OT_METHOD)(__FUNCTION__)(
+            ": Archived Account-related records (")(myacct)("):")
+            .Flush();
         success |= 0 <= showRecords(server, mynym, myacct);
     }
 
@@ -84,18 +94,22 @@ int32_t CmdShowRecords::showRecords(
 {
     string records = SwigWrap::LoadRecordBox(server, mynym, myacct);
     if ("" == records) {
-        otOut << "Error: cannot load record box.\n";
+        LogNormal(OT_METHOD)(__FUNCTION__)(": Error: cannot load record box.")
+            .Flush();
         return -1;
     }
 
     int32_t items = SwigWrap::Ledger_GetCount(server, mynym, myacct, records);
     if (0 > items) {
-        otOut << "Error: cannot load record box item count.\n";
+        LogNormal(OT_METHOD)(__FUNCTION__)(
+            ": Error: cannot load record box item count.")
+            .Flush();
         return -1;
     }
 
     if (0 == items) {
-        otOut << "The record box is empty.\n";
+        LogNormal(OT_METHOD)(__FUNCTION__)(": The record box is empty.")
+            .Flush();
         return 0;
     }
 

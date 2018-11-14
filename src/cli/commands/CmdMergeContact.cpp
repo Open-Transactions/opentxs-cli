@@ -7,6 +7,8 @@
 
 #include <opentxs/opentxs.hpp>
 
+#define OT_METHOD "opentxs::CmdMergeContact::"
+
 namespace opentxs
 {
 CmdMergeContact::CmdMergeContact()
@@ -31,9 +33,11 @@ std::int32_t CmdMergeContact::run(
         Identifier::Factory(parent), Identifier::Factory(child));
 
     if (false == bool(contact)) { return -1; }
+    {
 
-    otOut << contact->Print();
+        LogNormal(OT_METHOD)(__FUNCTION__)(contact->Print()).Flush();
 
-    return 1;
+        return 1;
+    }
 }
 }  // namespace opentxs

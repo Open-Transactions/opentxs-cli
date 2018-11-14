@@ -7,8 +7,10 @@
 
 #include <opentxs/opentxs.hpp>
 
-#include <iostream>
 #include <ctime>
+#include <iostream>
+
+#define OT_METHOD "opentxs::CmdActivitySummary::"
 
 namespace opentxs
 {
@@ -31,25 +33,31 @@ std::int32_t CmdActivitySummary::run(std::string mynym)
 
     const OTIdentifier nymID = Identifier::Factory(mynym);
     auto& activity = Opentxs::Client().UI().ActivitySummary(nymID);
-    otOut << "Activity:\n";
+    LogNormal(OT_METHOD)(__FUNCTION__)(": Activity: ").Flush();
     dashLine();
     auto line = activity.First();
 
     if (false == line->Valid()) { return 1; }
 
     auto last = line->Last();
-    otOut << "* " << line->DisplayName() << " (" << line->ThreadID()
-          << "): " << time(line->Timestamp()) << "\n  " << line->Text() << "\n";
-
+    {
+        LogNormal(OT_METHOD)(__FUNCTION__)(": * ")(line->DisplayName())(" (")(
+            line->ThreadID())("): ")(time(line->Timestamp())).Flush();
+	LogNormal(OT_METHOD)(__FUNCTION__)(
+	   " ")(line->Text())
+           .Flush();
+    }
     while (false == last) {
         line = activity.Next();
         last = line->Last();
-        otOut << "* " << line->DisplayName() << " (" << line->ThreadID()
-              << "): " << time(line->Timestamp()) << "\n  " << line->Text()
-              << "\n";
+        LogNormal(OT_METHOD)(__FUNCTION__)(": * ")(line->DisplayName())(" (")(
+            line->ThreadID())("): ")(time(line->Timestamp())).Flush();
+	LogNormal(OT_METHOD)(__FUNCTION__)(
+	   " ")(line->Text())
+           .Flush();
     }
 
-    otOut << std::endl;
+    LogNormal(OT_METHOD)(__FUNCTION__)(" ").Flush();
 
     return 1;
 }

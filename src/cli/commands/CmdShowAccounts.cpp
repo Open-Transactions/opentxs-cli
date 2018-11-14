@@ -7,9 +7,11 @@
 
 #include <opentxs/opentxs.hpp>
 
-#include <stdint.h>
 #include <iostream>
+#include <stdint.h>
 #include <string>
+
+#define OT_METHOD "opentxs::CmdShowAccounts::"
 
 using namespace opentxs;
 using namespace std;
@@ -35,7 +37,8 @@ int32_t CmdShowAccounts::run()
         const auto& myacct = std::get<0>(it);
 
         if ("" == myacct) {
-            otOut << "Error: cannot load account.\n";
+            LogNormal(OT_METHOD)(__FUNCTION__)(": Error: cannot load account.")
+                .Flush();
             return -1;
         }
 

@@ -40,7 +40,9 @@ int32_t CmdShowOffers::run(string server, string market)
 
     OTDB::OfferListMarket* offerList = loadMarketOffers(server, market);
     if (nullptr == offerList) {
-        otOut << "Error: cannot load market offer list.\n";
+        LogNormal(OT_METHOD)(__FUNCTION__)(
+            ": Error: cannot load market offer list.")
+            .Flush();
         return -1;
     }
 
@@ -58,7 +60,9 @@ int32_t CmdShowOffers::run(string server, string market)
         for (int32_t i = 0; i < bidItems; i++) {
             OTDB::BidData* bid = offerList->GetBidData(i);
             if (nullptr == bid) {
-                otOut << "Error: cannot load bid data at index: " << i << "\n";
+                LogNormal(OT_METHOD)(__FUNCTION__)(
+                    ": Error: cannot load bid data at index: ")(i)
+                    .Flush();
                 return -1;
             }
 
@@ -75,7 +79,9 @@ int32_t CmdShowOffers::run(string server, string market)
         for (int32_t i = 0; i < askItems; i++) {
             OTDB::AskData* ask = offerList->GetAskData(i);
             if (nullptr == ask) {
-                otOut << "Error: cannot load ask data at index: " << i << "\n";
+                LogNormal(OT_METHOD)(__FUNCTION__)(
+                    ": Error: cannot load ask data at index: ")(i)
+                    .Flush();
                 return -1;
             }
 
@@ -102,7 +108,8 @@ OTDB::OfferListMarket* CmdShowOffers::loadMarketOffers(
     }
 
     LogDetail(OT_METHOD)(__FUNCTION__)(
-        ": Offers file exists... Querying file for market offers...").Flush();
+        ": Offers file exists... Querying file for market offers...")
+        .Flush();
 
     OTDB::Storable* storable = OTDB::QueryObject(
         OTDB::STORED_OBJ_OFFER_LIST_MARKET,
@@ -112,20 +119,25 @@ OTDB::OfferListMarket* CmdShowOffers::loadMarketOffers(
         "offers",
         market + ".bin");
     if (nullptr == storable) {
-        otOut << "Unable to verify storable object. Probably doesn't "
-                 "exist.\n";
+        LogNormal(OT_METHOD)(__FUNCTION__)(
+            ": Unable to verify storable object. "
+            "Probably doesn't exist.")
+            .Flush();
         return nullptr;
     }
 
     LogDetail(OT_METHOD)(__FUNCTION__)(
         ": QueryObject worked. Now dynamic casting from storable to a "
-              "(market) offerList...").Flush();
+        "(market) offerList...")
+        .Flush();
 
     OTDB::OfferListMarket* offerList =
         dynamic_cast<OTDB::OfferListMarket*>(storable);
     if (nullptr == offerList) {
-        otOut << "Unable to dynamic cast a storable to a (market) "
-                 "offerList.\n";
+        LogNormal(OT_METHOD)(__FUNCTION__)(
+            ": Unable to dynamic cast a storable "
+            "to a (market) offerList.")
+            .Flush();
         return nullptr;
     }
 

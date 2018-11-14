@@ -11,6 +11,8 @@
 #include <ostream>
 #include <string>
 
+#define OT_METHOD "opentxs::CmdEditAccount::"
+
 using namespace opentxs;
 using namespace std;
 
@@ -38,12 +40,15 @@ int32_t CmdEditAccount::run(string myacct, string label)
 
     string mynym = SwigWrap::GetAccountWallet_NymID(myacct);
     if ("" == mynym) {
-        otOut << "Error: cannot determine mynym from myacct.\n";
+        LogNormal(OT_METHOD)(__FUNCTION__)(
+            ": Error: cannot determine mynym from myacct.")
+            .Flush();
         return -1;
     }
 
     if (!SwigWrap::SetAccountWallet_Name(myacct, mynym, label)) {
-        otOut << "Error: cannot set account label.\n";
+        LogNormal(OT_METHOD)(__FUNCTION__)(": Error: cannot set account label.")
+            .Flush();
         return -1;
     }
 

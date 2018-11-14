@@ -7,9 +7,11 @@
 
 #include <opentxs/opentxs.hpp>
 
-#include <stdint.h>
 #include <iostream>
+#include <stdint.h>
 #include <string>
+
+#define OT_METHOD "opentxs::CmdShowCredentials::"
 
 using namespace opentxs;
 using namespace std;
@@ -34,10 +36,12 @@ int32_t CmdShowCredentials::run(string mynym)
     auto masterCredentialIDs = nym->GetMasterCredentialIDs();
 
     if (0 == masterCredentialIDs.size()) {
-        otOut << "The credential list is empty.\n";
+        LogNormal(OT_METHOD)(__FUNCTION__)(": The credential list is empty.")
+            .Flush();
     } else {
-        otOut << "Idx     Credential ID\n"
-                 "---------------------------\n";
+        LogNormal(OT_METHOD)(__FUNCTION__)(": Idx     Credential ID\n"
+                                           "---------------------------")
+            .Flush();
 
         auto i = 0;
         for (auto masterCredentialID : masterCredentialIDs) {
@@ -47,9 +51,11 @@ int32_t CmdShowCredentials::run(string mynym)
             auto childCredentialIDs =
                 nym->GetChildCredentialIDs(masterCredentialID->str());
             if (childCredentialIDs.size()) {
-                otOut << "        ---------------------------\n"
-                         "        Idx     Credential ID\n"
-                         "        ---------------------------\n";
+                LogNormal(OT_METHOD)(__FUNCTION__)(
+                    ":       ---------------------------"
+                    "        Idx     Credential ID\n"
+                    "        ---------------------------")
+                    .Flush();
 
                 auto j = 0;
                 for (auto childCredentialID : childCredentialIDs) {
@@ -65,8 +71,9 @@ int32_t CmdShowCredentials::run(string mynym)
     if (0 == revokedCredentialIDs.size()) {
         cout << "The revoked credential list is empty.\n";
     } else {
-        otOut << "Idx     Revoked Credential ID\n"
-                 "---------------------------\n";
+        LogNormal(OT_METHOD)(__FUNCTION__)(":Idx     Revoked Credential ID"
+                                           "---------------------------")
+            .Flush();
 
         auto i = 0;
         for (auto revokedCredentialID : revokedCredentialIDs) {
@@ -76,9 +83,11 @@ int32_t CmdShowCredentials::run(string mynym)
             auto childCredentialIDs =
                 nym->GetChildCredentialIDs(revokedCredentialID->str());
             if (childCredentialIDs.size()) {
-                otOut << "        ---------------------------\n"
-                         "        Idx     Revoked Credential ID\n"
-                         "        ---------------------------\n";
+                LogNormal(OT_METHOD)(__FUNCTION__)(
+                    ":       ---------------------------"
+                    "        Idx     Revoked Credential ID"
+                    "        ---------------------------")
+                    .Flush();
 
                 auto j = 0;
                 for (auto childCredentialID : childCredentialIDs) {

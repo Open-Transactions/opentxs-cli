@@ -11,6 +11,8 @@
 #include <iostream>
 #include <string>
 
+#define OT_METHOD "opentxs::CmdVerifySignature::"
+
 using namespace opentxs;
 using namespace std;
 
@@ -37,7 +39,8 @@ int32_t CmdVerifySignature::run(string hisnym)
     if ("" == contract) { return -1; }
 
     if (!SwigWrap::VerifySignature(hisnym, contract)) {
-        otOut << "Error: cannot verify signature.\n";
+        LogNormal(OT_METHOD)(__FUNCTION__)(": Error: cannot verify signature.")
+            .Flush();
         return -1;
     }
 

@@ -7,6 +7,8 @@
 
 #include <opentxs/opentxs.hpp>
 
+#define OT_METHOD "opentxs::CmdHaveContact::"
+
 namespace opentxs
 {
 CmdHaveContact::CmdHaveContact()
@@ -30,9 +32,9 @@ std::int32_t CmdHaveContact::run(const std::string& id)
         Identifier::Factory(String::Factory(id.c_str())));
 
     if (contact) {
-        otOut << "true" << std::endl;
+        LogNormal(OT_METHOD)(__FUNCTION__)(": true.").Flush();
     } else {
-        otOut << "false" << std::endl;
+        LogNormal(OT_METHOD)(__FUNCTION__)(": false.").Flush();
     }
 
     return 0;

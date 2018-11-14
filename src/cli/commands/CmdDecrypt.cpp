@@ -11,6 +11,8 @@
 #include <iostream>
 #include <string>
 
+#define OT_METHOD "opentxs::CmdDecrypt::"
+
 using namespace opentxs;
 using namespace std;
 
@@ -35,12 +37,13 @@ int32_t CmdDecrypt::run(string mynym)
 
     string output = SwigWrap::Decrypt(mynym, input);
     if ("" == output) {
-        otOut << "Error: cannot decrypt input.\n";
+        LogNormal(OT_METHOD)(__FUNCTION__)(": Error: cannot decrypt input.")
+            .Flush();
         return -1;
     }
 
     dashLine();
-    otOut << "Decrypted:\n\n";
+    LogNormal(OT_METHOD)(__FUNCTION__)(": Decrypted:").Flush();
     cout << output << "\n";
 
     return 1;

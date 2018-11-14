@@ -548,8 +548,8 @@ const char* Opentxs::getOption(
     // can we get the default value from the command line?
     const char* value = opt.getValue(optionName);
     if (value != nullptr) {
-        LogDetail(OT_METHOD)(__FUNCTION__)(
-            "Option  ")(optionName)(": ")(value).Flush();
+        LogDetail(OT_METHOD)(__FUNCTION__)("Option  ")(optionName)(": ")(value)
+            .Flush();
         return value;
     }
 
@@ -557,8 +557,9 @@ const char* Opentxs::getOption(
     if (nullptr != defaultName) {
         value = opt.getValue(defaultName);
         if (value != nullptr) {
-            LogDetail(OT_METHOD)(__FUNCTION__)(
-                "Default ")(optionName)(": ")(value).Flush();
+            LogDetail(OT_METHOD)(__FUNCTION__)("Default ")(optionName)(": ")(
+                value)
+                .Flush();
             return value;
         }
     }
@@ -574,8 +575,8 @@ void Opentxs::loadOptions(AnyOption& opt)
     OT_ASSERT_MSG(
         configPathFound,
         "RegisterAPIWithScript: Must set Config Path first!\n");
-    LogDetail(OT_METHOD)(__FUNCTION__)(
-        "Using configuration path: ")(configPath).Flush();
+    LogDetail(OT_METHOD)(__FUNCTION__)("Using configuration path: ")(configPath)
+        .Flush();
 
     opt.addUsage("");
     opt.addUsage(" Opentxs CLI Usage:  ");
@@ -606,7 +607,8 @@ void Opentxs::loadOptions(AnyOption& opt)
     opt.setFileOption("defaulthisnym");
     opt.setFileOption("defaulthispurse");
 
-    auto optionsFile = String::Factory("command-line-ot.opt"), iniFileExact = String::Factory();
+    auto optionsFile = String::Factory("command-line-ot.opt"),
+         iniFileExact = String::Factory();
     bool buildFullPathSuccess =
         OTPaths::RelativeToCanonical(iniFileExact, configPath, optionsFile);
     OT_ASSERT_MSG(buildFullPathSuccess, "Unable to set Full Path");
@@ -628,34 +630,44 @@ int Opentxs::processCommand(AnyOption& opt)
             newArgv = new char*[newArgc];
             for (auto i = 0; i < newArgc; ++i) {
                 newArgv[i] = const_cast<char*>(c.args[i].c_str());
-                if (i) { otOut << newArgv[i] << " "; }
+                if (i) {
+                    LogNormal(OT_METHOD)(__FUNCTION__)(std::string(newArgv[i]))(
+                        " ")
+                        .Flush();
+                }
             }
-            otOut << endl << endl;
+            LogNormal(OT_METHOD)(__FUNCTION__)(" ").Flush();
             opt.processCommandArgs(newArgc, newArgv);
             command = newArgv[1];
         }
     }
 
     if ("version" == command) {
-        otOut << "opentxs " << OPENTXS_VERSION_STRING << "\n";
-        otOut << "Copyright (C) 2014 Open Transactions Developers\n";
+        LogNormal(OT_METHOD)(__FUNCTION__)(": opentxs ")(OPENTXS_VERSION_STRING)
+            .Flush();
+        LogNormal(OT_METHOD)(__FUNCTION__)(
+            ": Copyright (C) 2014 Open Transactions Developers")
+            .Flush();
         return 0;
     }
 
     if ("list" == command) {
-        otOut << "\nCommands:\n\n";
+        LogNormal(OT_METHOD)(__FUNCTION__)(": Commands").Flush();
 
         for (std::size_t i = 0; i < cmds_.size(); ++i) {
             CmdBase& cmd = *cmds_[i];
-            otOut << (cmd.getCommand() + spaces24).substr(0, 24);
-            if (i % 4 == 3) { otOut << "\n"; }
+            LogNormal(OT_METHOD)(__FUNCTION__)(
+                (cmd.getCommand() + spaces24).substr(0, 24))
+                .Flush();
+            if (i % 4 == 3) { LogNormal(OT_METHOD)(__FUNCTION__)(" ").Flush(); }
         }
-        otOut << "\n";
+        LogNormal(OT_METHOD)(__FUNCTION__)(" ").Flush();
 
-        otOut << endl
-              << "history (h) - displays a list of previously executed "
-                 "commands.  Enter the index number to re-execute a command."
-              << endl;
+        LogNormal(OT_METHOD)(__FUNCTION__)(": history (h) - displays a list "
+                                           "of previously executed "
+                                           "commands.  Enter the index "
+                                           "number to re-execute a command.")
+            .Flush();
 
         return 0;
     }
@@ -668,7 +680,7 @@ int Opentxs::processCommand(AnyOption& opt)
         }
 
         // add commands to their category group
-        otOut << "\nCommands:\n";
+        LogNormal(OT_METHOD)(__FUNCTION__)(": Commands:").Flush();
         for (std::size_t i = 0; i < cmds_.size(); ++i) {
             CmdBase& cmd = *cmds_[i];
             categoryGroup[cmd.getCategory()] +=
@@ -677,24 +689,29 @@ int Opentxs::processCommand(AnyOption& opt)
         }
 
         // print all category groups
-        for (int i = 1; i < catLast; i++) { otOut << categoryGroup[i]; }
+        for (int i = 1; i < catLast; i++) {
+            LogNormal(OT_METHOD)(__FUNCTION__)(categoryGroup[i]).Flush();
+        }
+        {
 
-        otOut << endl
-              << "history (h) - displays a list of previously executed "
-                 "commands.  Enter the index number to re-execute a command."
-              << endl;
-
+            LogNormal(OT_METHOD)(__FUNCTION__)(
+                ": history (h) - displays a list "
+                "of previously executed "
+                "commands.  Enter the index "
+                "number to re-execute a command.")
+                .Flush();
+        }
         return 0;
     }
 
     if ("history" == command || "h" == command) {
         for (int idx = history.size() - 1; idx > -1; --idx) {
-            otOut << idx << ":";
+            LogNormal(OT_METHOD)(__FUNCTION__)(idx)(":").Flush();
             Command& c = history[idx];
             for (size_t i = 1; i < c.args.size(); ++i) {
-                otOut << " " << c.args[i];
+                LogNormal(OT_METHOD)(__FUNCTION__)(" ")(c.args[i]).Flush();
             }
-            otOut << endl;
+            LogNormal(OT_METHOD)(__FUNCTION__)(" ").Flush();
         }
 
         return 0;
@@ -705,7 +722,8 @@ int Opentxs::processCommand(AnyOption& opt)
         if (command == cmd.getCommand()) { return runCommand(cmd); }
     }
 
-    otOut << "Expecting a single opentxs command.\n";
+    LogNormal(OT_METHOD)(__FUNCTION__)(": Expecting a single opentxs command.")
+        .Flush();
 
     return -1;
 }
@@ -788,11 +806,13 @@ int Opentxs::run(int argc, char* argv[])
             while (i < cmd.length() && isspace(cmd[i])) { i++; }
 
             if (i == cmd.length() || cmd[i] != '=') {
-                otOut << "\n\n***ERROR***\n"
-                         "Expected macro definition of the form: "
-                         "$macroName = macroValue\n"
-                         "Command was: "
-                      << cmd;
+                LogNormal(OT_METHOD)(__FUNCTION__)(": ***ERROR*** ").Flush();
+                LogNormal(OT_METHOD)(__FUNCTION__)(
+                    ": Expected macro definition of the form: "
+                    "$macroName = macroValue")
+                    .Flush();
+                LogNormal(OT_METHOD)(__FUNCTION__)(": Command was: ")(cmd)
+                    .Flush();
                 continue;
             }
 
@@ -823,13 +843,14 @@ int Opentxs::run(int argc, char* argv[])
             string macroName = cmd.substr(macro, macroEnd - macro);
             auto found = macros.find(macroName);
             if (found == macros.end()) {
-                otOut << "\n\n***ERROR***\n"
-                         "Macro expansion failed.\n"
-                         "Unknown macro: "
-                      << macroName
-                      << "\n"
-                         "Command was: "
-                      << cmd;
+                LogNormal(OT_METHOD)(__FUNCTION__)(": ***ERROR*** ").Flush();
+                LogNormal(OT_METHOD)(__FUNCTION__)(": Macro expansion failed.")
+                    .Flush();
+                LogNormal(OT_METHOD)(__FUNCTION__)(": Unknown macro: ")(
+                    macroName)
+                    .Flush();
+                LogNormal(OT_METHOD)(__FUNCTION__)(": Command was: ")(cmd)
+                    .Flush();
                 expansions = 100;
                 break;
             }
@@ -839,28 +860,30 @@ int Opentxs::run(int argc, char* argv[])
             // limit to 100 expansions to avoid endless recusion loop
             expansions++;
             if (expansions > 100) {
-                otOut << "\n\n***ERROR***\n"
-                         "Macro expansion failed.\n"
-                         "Too many expansions at macro: "
-                      << macroName
-                      << "\n"
-                         "Command was: "
-                      << cmd;
+                LogNormal(OT_METHOD)(__FUNCTION__)(": ***ERROR*** ").Flush();
+                LogNormal(OT_METHOD)(__FUNCTION__)(": Macro expansion failed. ")
+                    .Flush();
+                LogNormal(OT_METHOD)(__FUNCTION__)(
+                    ": Too many expansions at macro: ")(macroName)
+                    .Flush();
+                LogNormal(OT_METHOD)(__FUNCTION__)(": Command was: ")(cmd)
+                    .Flush();
                 break;
             }
 
             // limit to 10000 characters to avoid crazy recursive expansions
             if (cmd.length() + macroValue.length() > 10000) {
-                otOut << "\n\n***ERROR***\n"
-                         "Macro expansion failed.\n"
-                         "Command length exceeded at macro: "
-                      << macroName
-                      << "\n"
-                         "Macro value is: "
-                      << macroValue
-                      << "\n"
-                         "Command was: "
-                      << cmd;
+                LogNormal(OT_METHOD)(__FUNCTION__)(": ***ERROR*** ").Flush();
+                LogNormal(OT_METHOD)(__FUNCTION__)(": Macro expansion failed. ")
+                    .Flush();
+                LogNormal(OT_METHOD)(__FUNCTION__)(
+                    ": Command length exceeded at macro: ")(macroName)
+                    .Flush();
+                LogNormal(OT_METHOD)(__FUNCTION__)(": Macro value is: ")(
+                    macroValue)
+                    .Flush();
+                LogNormal(OT_METHOD)(__FUNCTION__)(": Command was: ")(cmd)
+                    .Flush();
                 expansions = 100;
                 break;
             }
@@ -869,7 +892,9 @@ int Opentxs::run(int argc, char* argv[])
             cmd = cmd.substr(0, macro) + macroValue + cmd.substr(macroEnd);
         }
 
-        if (echoExpand && cmd != originalCmd) { otOut << cmd << endl; }
+        if (echoExpand && cmd != originalCmd) {
+            LogNormal(OT_METHOD)(__FUNCTION__)(cmd).Flush();
+        }
 
         // skip command when anything during macro expansion failed
         if (expansions > 99) { continue; }
@@ -976,10 +1001,11 @@ int Opentxs::run(int argc, char* argv[])
         if (expectFailure != (0 != processCommand(opt))) {
             errorLineNumbers.push_back(lineNumber);
             errorCommands.push_back(originalCmd);
-            otOut << "\n\n***ERROR***\n"
-                  << (expectFailure ? "Expected command to fail.\nSucceeding"
-                                    : "Failed")
-                  << " command was: " << cmd;
+            LogNormal(OT_METHOD)(__FUNCTION__)(": ***ERROR*** ").Flush();
+            LogNormal(OT_METHOD)(__FUNCTION__)(
+                expectFailure ? "Expected command to fail.Succeeding"
+                              : "Failed")(" command was: ")(cmd)
+                .Flush();
         }
 
         delete[] newArgv;
@@ -988,7 +1014,7 @@ int Opentxs::run(int argc, char* argv[])
         newArgc = 0;
         newArgv = nullptr;
 
-        otOut << "\n\n";
+        LogNormal(OT_METHOD)(__FUNCTION__)(" ").Flush();
         processed++;
     }
 

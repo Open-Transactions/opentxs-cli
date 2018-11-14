@@ -9,6 +9,8 @@
 
 #include <stdint.h>
 
+#define OT_METHOD "opentxs::CmdConvertPaymentCode::"
+
 namespace opentxs
 {
 
@@ -32,12 +34,13 @@ std::int32_t CmdConvertPaymentCode::run(const std::string& code)
     const std::string id = SwigWrap::NymIDFromPaymentCode(code);
 
     if ("" == id) {
-        otOut << "Error: invalid payment code." << std::endl;
+        LogNormal(OT_METHOD)(__FUNCTION__)(": Error: invalid payment code.")
+            .Flush();
 
         return -1;
     }
 
-    otOut << id << std::endl;
+    LogNormal(OT_METHOD)(__FUNCTION__)(": ")(id)(".").Flush();
 
     return 1;
 }

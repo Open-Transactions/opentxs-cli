@@ -7,6 +7,8 @@
 
 #include <opentxs/opentxs.hpp>
 
+#define OT_METHOD "opentxs::CmdShowThreads::"
+
 namespace opentxs
 {
 CmdShowThreads::CmdShowThreads()
@@ -30,15 +32,18 @@ std::int32_t CmdShowThreads::run(std::string mynym)
     const auto& activity = ot.Activity();
     const auto threads = activity.Threads(Identifier::Factory(mynym), false);
 
-    otOut << "Activity threads for: " << mynym << "\n";
-
+    LogNormal(OT_METHOD)(__FUNCTION__)(
+       " Activity threads for: ")(mynym).Flush();
+    
     for (const auto& thread : threads) {
         const auto& threadID = thread.first;
         const auto& label = thread.second;
-        otOut << "    * " << threadID << " (" << label << ")\n";
+        LogNormal(OT_METHOD)(__FUNCTION__)(
+           ":     * ")(threadID)(" (")(label)(")").Flush();
+	
     }
 
-    otOut << std::endl;
+    LogNormal(OT_METHOD)(__FUNCTION__)(" ").Flush();
 
     return 1;
 }

@@ -9,11 +9,13 @@
 
 #include <opentxs/opentxs.hpp>
 
-#include <stdint.h>
 #include <iostream>
 #include <map>
+#include <stdint.h>
 #include <string>
 #include <utility>
+
+#define OT_METHOD "opentxs::CmdConfirm"
 
 using namespace opentxs;
 using namespace std;
@@ -64,18 +66,23 @@ int32_t CmdConfirm::run(
 
     string inbox = SwigWrap::LoadPaymentInbox(server, mynym);
     if ("" == inbox) {
-        otOut << "Error: cannot load payment inbox.\n";
+        LogNormal(OT_METHOD)(__FUNCTION__)(
+            ": Error: cannot load payment inbox.")
+            .Flush();
         return -1;
     }
 
     int32_t items = SwigWrap::Ledger_GetCount(server, mynym, mynym, inbox);
     if (0 > items) {
-        otOut << "Error: cannot load payment inbox item count.\n";
+        LogNormal(OT_METHOD)(__FUNCTION__)(
+            ": Error: cannot load payment inbox item count.")
+            .Flush();
         return -1;
     }
 
     if (0 == items) {
-        otOut << "The payment inbox is empty.\n";
+        LogNormal(OT_METHOD)(__FUNCTION__)(": The payment inbox is empty.")
+            .Flush();
         return 0;
     }
 
@@ -86,7 +93,9 @@ int32_t CmdConfirm::run(
     string instrument = opentxs::cli::RecordList::get_payment_instrument(
         server, mynym, messageNr, "");
     if (instrument.empty()) {
-        otOut << "Error: cannot load payment instrument.\n";
+        LogNormal(OT_METHOD)(__FUNCTION__)(
+            ": Error: cannot load payment instrument.")
+            .Flush();
         return -1;
     }
 
@@ -105,20 +114,23 @@ int32_t CmdConfirm::confirmInstrument(
 {
     string instrumentType = SwigWrap::Instrmnt_GetType(instrument);
     if (instrumentType.empty()) {
-        otOut << "Error: instrument is empty.\n";
+        LogNormal(OT_METHOD)(__FUNCTION__)(": Error: instrument is empty.")
+            .Flush();
         return -1;
     }
 
     time64_t now = SwigWrap::GetTime();
     time64_t from = SwigWrap::Instrmnt_GetValidFrom(instrument);
     if (now < from) {
-        otOut << "The instrument is not yet valid.\n";
+        LogNormal(OT_METHOD)(__FUNCTION__)(": The instrument is not yet valid.")
+            .Flush();
         return 0;
     }
 
     time64_t until = SwigWrap::Instrmnt_GetValidTo(instrument);
     if (until > OT_TIME_ZERO && now > until) {
-        otOut << "The instrument has expired.\n";
+        LogNormal(OT_METHOD)(__FUNCTION__)(": The instrument has expired.")
+            .Flush();
 
         if (-1 == index) {
             if (!SwigWrap::Msg_HarvestTransactionNumbers(
@@ -146,7 +158,9 @@ int32_t CmdConfirm::confirmInstrument(
     }
 
     // CHEQUE VOUCHER INVOICE PURSE
-    otOut << "Error: instrument is not a smart contract or payment plan.\n";
+    LogNormal(OT_METHOD)(__FUNCTION__)(": Error: instrument is not a smart "
+                                       "contract or payment plan.")
+        .Flush();
     return -1;
 }
 
@@ -187,17 +201,23 @@ int32_t CmdConfirm::confirmSmartContract(
 {
     int32_t parties = SwigWrap::Smart_GetPartyCount(contract);
     if (0 > parties) {
-        otOut << "Error: cannot get contract party count.\n";
+        LogNormal(OT_METHOD)(__FUNCTION__)(
+            ": Error: cannot get contract party count.")
+            .Flush();
         return -1;
     }
 
     if (0 == parties) {
-        otOut << "Error: there are no contract parties.\n";
+        LogNormal(OT_METHOD)(__FUNCTION__)(
+            ": Error: there are no contract parties.")
+            .Flush();
         return -1;
     }
 
     if (SwigWrap::Smart_AreAllPartiesConfirmed(contract)) {
-        otOut << "Error: all contract parties are already confirmed.\n";
+        LogNormal(OT_METHOD)(__FUNCTION__)(
+            ": Error: all contract parties are already confirmed.")
+            .Flush();
         return -1;
     }
 
@@ -205,18 +225,24 @@ int32_t CmdConfirm::confirmSmartContract(
     for (int32_t i = 0; i < parties; i++) {
         string name = SwigWrap::Smart_GetPartyByIndex(contract, i);
         if ("" == name) {
-            otOut << "Error: cannot retrieve contract party name.\n";
+            LogNormal(OT_METHOD)(__FUNCTION__)(
+                ": Error: cannot retrieve contract party name.")
+                .Flush();
             return -1;
         }
 
         if (!SwigWrap::Smart_IsPartyConfirmed(contract, name)) {
-            otOut << i << ": Unconfirmed party: " << name << "\n";
+            LogNormal(OT_METHOD)(__FUNCTION__)(
+	       i)(": Unconfirmed party: ")(name)(".")
+                .Flush();
             unconfirmed++;
         }
     }
 
     if (0 == unconfirmed) {
-        otOut << "Error: cannot find unconfirmed contract parties.\n";
+        LogNormal(OT_METHOD)(__FUNCTION__)(
+            ": Error: cannot find unconfirmed contract parties.")
+            .Flush();
         return -1;
     }
 
@@ -226,19 +252,25 @@ int32_t CmdConfirm::confirmSmartContract(
 
     string name = SwigWrap::Smart_GetPartyByIndex(contract, party);
     if ("" == name) {
-        otOut << "Error: cannot retrieve contract party name.\n";
+        LogNormal(OT_METHOD)(__FUNCTION__)(
+            ": Error: cannot retrieve contract party name.")
+            .Flush();
         return -1;
     }
 
     if (SwigWrap::Smart_IsPartyConfirmed(contract, name)) {
-        otOut << "Error: contract party was already confirmed.\n";
+        LogNormal(OT_METHOD)(__FUNCTION__)(
+            ": Error: contract party was already confirmed.")
+            .Flush();
         return -1;
     }
 
     // So how many accounts does the party have? We must confirm those, too.
     int32_t accounts = SwigWrap::Party_GetAcctCount(contract, name);
     if (0 > accounts) {
-        otOut << "Error: cannot load party account item count.\n";
+        LogNormal(OT_METHOD)(__FUNCTION__)(
+            ": Error: cannot load party account item count.")
+            .Flush();
         return -1;
     }
 
@@ -280,7 +312,9 @@ int32_t CmdConfirm::confirmSmartContract(
     string confirmed =
         SwigWrap::SmartContract_ConfirmParty(contract, name, mynym, server);
     if ("" == confirmed) {
-        otOut << "Error: cannot confirm smart contract party.\n";
+        LogNormal(OT_METHOD)(__FUNCTION__)(
+            ": Error: cannot confirm smart contract party.")
+            .Flush();
         return harvestTxNumbers(contract, mynym);
     }
 
@@ -335,8 +369,10 @@ int32_t CmdConfirm::activateContract(
         // name and call activate_smart_contract.
         showPartyAccounts(contract, name, 2);
 
-        otOut << "\nEnter the index for the account you'll use to ACTIVATE the "
-                 "smart contract: ";
+        LogNormal(OT_METHOD)(__FUNCTION__)(
+            ": Enter the index for the account you'll use to ACTIVATE the "
+            "smart contract: ")
+            .Flush();
 
         int32_t acctIndex = checkIndex("account index", inputLine(), accounts);
         if (0 > acctIndex) { return harvestTxNumbers(contract, mynym); }
@@ -344,20 +380,26 @@ int32_t CmdConfirm::activateContract(
         string acctName =
             SwigWrap::Party_GetAcctNameByIndex(contract, name, acctIndex);
         if ("" == acctName) {
-            otOut << "Error: cannot retrieve account.\n";
+            LogNormal(OT_METHOD)(__FUNCTION__)(
+                ": Error: cannot retrieve account.")
+                .Flush();
             return harvestTxNumbers(contract, mynym);
         }
 
         myAcctID = SwigWrap::Party_GetAcctID(contract, name, acctName);
         if ("" == myAcctID) {
-            otOut << "Error: account is not yet confirmed.\n";
+            LogNormal(OT_METHOD)(__FUNCTION__)(
+                ": Error: account is not yet confirmed.")
+                .Flush();
             return harvestTxNumbers(contract, mynym);
         }
 
         myAcctAgentName =
             SwigWrap::Party_GetAcctAgentName(contract, name, acctName);
         if ("" == myAcctAgentName) {
-            otOut << "Error: account agent is not yet confirmed.\n";
+            LogNormal(OT_METHOD)(__FUNCTION__)(
+                ": Error: account agent is not yet confirmed.")
+                .Flush();
             return harvestTxNumbers(contract, mynym);
         }
     }
@@ -366,8 +408,7 @@ int32_t CmdConfirm::activateContract(
                        theNymID = Identifier::Factory(mynym),
                        theAcctID = Identifier::Factory(myAcctID);
 
-    auto smartContract{
-        Opentxs::Client().Factory().SmartContract()};
+    auto smartContract{Opentxs::Client().Factory().SmartContract()};
 
     OT_ASSERT(false != bool(smartContract));
 
@@ -386,7 +427,9 @@ int32_t CmdConfirm::activateContract(
                        ->Run();
     }
     if (1 != responseStatus(response)) {
-        otOut << "Error: cannot activate smart contract.\n";
+        LogNormal(OT_METHOD)(__FUNCTION__)(
+            ": Error: cannot activate smart contract.")
+            .Flush();
         harvestTxNumbers(contract, mynym);
         return -1;
     }
@@ -399,7 +442,9 @@ int32_t CmdConfirm::activateContract(
     {
         if (!Opentxs::Client().ServerAction().DownloadAccount(
                 theNymID, theNotaryID, theAcctID, true)) {
-            otOut << "Error retrieving intermediary files for account.\n";
+            LogNormal(OT_METHOD)(__FUNCTION__)(
+                ": Error retrieving intermediary files for account.")
+                .Flush();
         }
     }
 
@@ -427,12 +472,21 @@ int32_t CmdConfirm::sendToNextParty(
         CmdShowNyms showNyms;
         showNyms.run();
 
-        otOut << "\nOnce you confirm this contract, then we need to send it on "
-                 "to the\nnext party so he can confirm it, too.\n\nPlease "
-                 "PASTE a recipient Nym ID (the next party): ";
+        LogNormal(OT_METHOD)(__FUNCTION__)(
+            ": Once you confirm this contract, then "
+            "we need to send it on to the")
+            .Flush();
+        LogNormal(OT_METHOD)(__FUNCTION__)(
+            ": next party so he can confirm it, too.")
+            .Flush();
+        LogNormal(OT_METHOD)(__FUNCTION__)(
+            ": Please PASTE a recipient Nym ID (the next party):")
+            .Flush();
         string recipientNymID = inputLine();
         if ("" == recipientNymID) {
-            otOut << "Error: no recipient nym found.\n";
+            LogNormal(OT_METHOD)(__FUNCTION__)(
+                ": Error: no recipient nym found.")
+                .Flush();
             return harvestTxNumbers(contract, mynym);
         }
 
@@ -443,15 +497,17 @@ int32_t CmdConfirm::sendToNextParty(
         if ("" == hisNymID) { hisNymID = recipientNymID; }
 
         if (hisNymID == mynym) {
-            otOut << "\nSorry, but YOU cannot simultaneously be the SENDER "
-                     "_and_ the RECIPIENT. Choose another nym for one or the "
-                     "other.\n";
+            LogNormal(OT_METHOD)(__FUNCTION__)(
+                ": Sorry, but YOU cannot simultaneously be the SENDER "
+                "_and_ the RECIPIENT. Choose another nym for one or the "
+                "other.")
+                .Flush();
             return harvestTxNumbers(contract, mynym);
         }
     }
 
-    auto payment{Opentxs::Client().Factory().Payment(
-        String::Factory(contract.c_str()))};
+    auto payment{
+        Opentxs::Client().Factory().Payment(String::Factory(contract.c_str()))};
 
     OT_ASSERT(false != bool(payment));
 
@@ -467,9 +523,11 @@ int32_t CmdConfirm::sendToNextParty(
                            ppayment)
                        ->Run();
         if (1 != responseStatus(response)) {
-            otOut << "\nFor whatever reason, our attempt to send the "
-                     "instrument on "
-                     "to the next user has failed.\n";
+            LogNormal(OT_METHOD)(__FUNCTION__)(
+                ": For whatever reason, our attempt to send the "
+                "instrument on "
+                "to the next user has Failed.")
+                .Flush();
             return harvestTxNumbers(contract, mynym);
         }
     }
@@ -503,7 +561,9 @@ int32_t CmdConfirm::sendToNextParty(
     //
     // In the meantime, this is good enough.
 
-    otOut << "Success sending the agreement on to the next party.\n";
+    LogNormal(OT_METHOD)(__FUNCTION__)(
+        ": Success sending the agreement on to the next party.")
+        .Flush();
     return 1;
 }
 
@@ -524,13 +584,16 @@ int32_t CmdConfirm::confirmAccounts(
     string foundMyNymID = "";
 
     while (0 < accounts) {
-        otOut << "\n";
+        LogNormal(OT_METHOD)(__FUNCTION__)(" ").Flush();
         showPartyAccounts(contract, name, 2);
 
-        otOut << "\nThere are " << accounts
-              << " asset accounts remaining to "
-                 "be confirmed.\nEnter the index "
-                 "for an UNconfirmed account: ";
+        LogNormal(OT_METHOD)(__FUNCTION__)(": There are ")(accounts)(
+            " asset accounts remaining to "
+            "be confirmed.")
+            .Flush();
+        LogNormal(OT_METHOD)(__FUNCTION__)(": Enter the index "
+                                           "for an UNconfirmed account:")
+            .Flush();
 
         int32_t acctIndex = checkIndex("account index", inputLine(), accounts);
         if (0 > acctIndex) { return -1; }
@@ -538,7 +601,9 @@ int32_t CmdConfirm::confirmAccounts(
         string acctName =
             SwigWrap::Party_GetAcctNameByIndex(contract, name, acctIndex);
         if ("" == acctName) {
-            otOut << "Error: cannot retrieve unconfirmed account.\n";
+            LogNormal(OT_METHOD)(__FUNCTION__)(
+                ": Error: cannot retrieve unconfirmed account.")
+                .Flush();
             return -1;
         }
 
@@ -552,9 +617,12 @@ int32_t CmdConfirm::confirmAccounts(
 
         string acctID = SwigWrap::Party_GetAcctID(contract, name, acctName);
         if (alreadyThere || "" != acctID) {
-            otOut << "The account at index " << acctIndex
-                  << " is already confirmed with account ID: " << acctID
-                  << "\nPlease pick a different account.\n";
+            LogNormal(OT_METHOD)(__FUNCTION__)(": The account at index ")(
+                acctIndex)(" is already confirmed with account ID: ")(acctID)
+                .Flush();
+            LogNormal(OT_METHOD)(__FUNCTION__)(
+                ": Please pick a different account.")
+                .Flush();
             continue;
         }
 
@@ -563,12 +631,16 @@ int32_t CmdConfirm::confirmAccounts(
 
         string serverFromContract = SwigWrap::Instrmnt_GetNotaryID(contract);
         if ("" != serverFromContract && server != serverFromContract) {
-            otOut << "Error: mismatching server in contract.\n";
+            LogNormal(OT_METHOD)(__FUNCTION__)(
+                ": Error: mismatching server in contract.")
+                .Flush();
             return -1;
         }
 
         if (!SwigWrap::IsNym_RegisteredAtServer(mynym, server)) {
-            otOut << "Error: mynym is not registered on server.\n";
+            LogNormal(OT_METHOD)(__FUNCTION__)(
+                ": Error: mynym is not registered on server.")
+                .Flush();
             return -1;
         }
 
@@ -592,15 +664,18 @@ int32_t CmdConfirm::confirmAccounts(
         const auto accountList = Opentxs::Client().Storage().AccountList();
         const std::int32_t accountCount = accountList.size();
 
-        otOut << "\nAccounts by index (filtered by notaryID and nymID):\n\n";
+        LogNormal(OT_METHOD)(__FUNCTION__)(
+            ": Accounts by index (filtered by notaryID and nymID):")
+            .Flush();
         std::int32_t i{0};
 
         for (const auto& it : accountList) {
             const auto& acct = std::get<0>(it);
 
             if ("" == acct) {
-                otOut << "Error reading account ID based on index: " << i
-                      << "\n";
+                LogNormal(OT_METHOD)(__FUNCTION__)(
+                    ": Error reading account ID based on index: ")(i)
+                    .Flush();
                 return -1;
             }
 
@@ -630,8 +705,9 @@ int32_t CmdConfirm::confirmAccounts(
                     // them.)
                     if (!bAlreadyOnTheMap) {
                         foundAccounts = true;
-                        otOut << i << " : " << acct << " ("
-                              << SwigWrap::GetAccountWallet_Name(acct) << ")\n";
+                        LogNormal(OT_METHOD)(__FUNCTION__)(i)(" : ")(acct)(
+                            " (")(SwigWrap::GetAccountWallet_Name(acct))(").")
+                            .Flush();
                     }
                 }
             }
@@ -640,21 +716,26 @@ int32_t CmdConfirm::confirmAccounts(
         }
 
         if (!foundAccounts) {
-            otOut << "There are no accounts matching the specified Nym ("
-                  << mynym << ") and Server (" << server
-                  << ")\nTry:  opentxs newaccount --mynym " << mynym
-                  << " --server " << server << " \n";
+            LogNormal(OT_METHOD)(__FUNCTION__)(
+                "There are no accounts matching the specified Nym (")(mynym)(
+                ") and Server (")(server)(") Try:  opentxs newaccount --mynym ")(
+                mynym)(" --server ")(server)(".")
+                .Flush();
             return -1;
         }
 
-        otOut << "\nChoose an account by index (for '" << acctName << "'): ";
+        LogNormal(OT_METHOD)(__FUNCTION__)(
+            ": Choose an account by index (for '")(acctName)("'): ")
+            .Flush();
 
         string selectedAcctIndex = inputLine();
         if ("" == selectedAcctIndex) { return -1; }
 
         const auto selectedIndex = stol(selectedAcctIndex);
         if (0 > selectedIndex || selectedIndex >= accountCount) {
-            otOut << "Bad index: " << selectedAcctIndex << "\n";
+            LogNormal(OT_METHOD)(__FUNCTION__)(": Bad index: ")(
+                selectedAcctIndex)(".")
+                .Flush();
             return -1;
         }
 
@@ -671,8 +752,10 @@ int32_t CmdConfirm::confirmAccounts(
         }
 
         if ("" == acct) {
-            otOut << "Error reading account ID based on index: "
-                  << selectedIndex << "\n";
+            LogNormal(OT_METHOD)(__FUNCTION__)(
+                ": Error reading account ID based on index: ")
+	        (selectedIndex)(".")
+                .Flush();
             return -1;
         }
 
@@ -698,8 +781,10 @@ int32_t CmdConfirm::confirmAccounts(
                 }
 
                 if (bAlreadyOnIt) {
-                    otOut << "Sorry, you already selected this account. Choose "
-                             "another.\n";
+                    LogNormal(OT_METHOD)(__FUNCTION__)(
+                        ": Sorry, you already selected this account. Choose "
+                        "another.")
+                        .Flush();
                 } else {
                     // acct has been selected for name's account, acctName.
                     // Add these to a map or whatever, to save them until
@@ -709,40 +794,50 @@ int32_t CmdConfirm::confirmAccounts(
                         contract, name, acctName);
 
                     if ("" == agentName) {
-                        otOut << "\n";
+                        LogNormal(OT_METHOD)(__FUNCTION__)(" ").Flush();
 
                         if (showPartyAgents(contract, name, 3)) {
-                            otOut << "\n (This choice is arbitrary, but you "
-                                     "must pick one.)\nEnter the index for an "
-                                     "agent, to have authority  over that "
-                                     "account: ";
+                            LogNormal(OT_METHOD)(__FUNCTION__)(
+                                ": (This choice is arbitrary, but you "
+                                "must pick one.")
+                                .Flush();
+                            LogNormal(OT_METHOD)(__FUNCTION__)(
+                                ": Enter the index for an "
+                                "agent, to have authority  over that ."
+                                "account: ")
+                                .Flush();
 
                             string strAgentIndex = inputLine();
                             if ("" == strAgentIndex) { return -1; }
 
                             int32_t nAgentIndex = stol(strAgentIndex);
                             if (0 > nAgentIndex) {
-                                otOut << "Error: Bad Index: " << strAgentIndex
-                                      << "\n";
+                                LogNormal(OT_METHOD)(__FUNCTION__)(
+                                    ": Error: Bad Index: ")
+				    (strAgentIndex)(".")
+                                    .Flush();
                                 return -1;
                             }
 
                             agentName = SwigWrap::Party_GetAgentNameByIndex(
                                 contract, name, nAgentIndex);
                             if ("" == agentName) {
-                                otOut << "Error: Unable to retrieve agent name "
-                                         "at index "
-                                      << strAgentIndex << " for Party: " << name
-                                      << "\n";
+                                LogNormal(OT_METHOD)(__FUNCTION__)(
+                                    ": Error: Unable to retrieve agent name "
+                                    "at index ")(strAgentIndex)(" for Party: ")(
+                                    name)(".")
+                                    .Flush();
                                 return -1;
                             }
 
                         } else {
-                            otOut
-                                << "Failed finding the agent's name for party: "
-                                << name << " Account: " << acctName
-                                << " \n And then failed  finding any agents on "
-                                   " this smart contract at ALL.\n";
+                            LogNormal(OT_METHOD)(__FUNCTION__)(
+                                ": Failed finding the "
+                                "agent's name for party: ")(name)(" Account: ")(
+                                acctName)(" And then failed finding "
+                                          "any agents on "
+                                          " this smart contract at ALL.")
+                                .Flush();
                             return -1;
                         }
                     }
@@ -764,7 +859,9 @@ int32_t CmdConfirm::confirmAccounts(
                 Identifier::Factory(mynym),
                 Identifier::Factory(server),
                 needed + 1)) {
-            otOut << "Error: cannot reserve transaction numbers.\n";
+            LogNormal(OT_METHOD)(__FUNCTION__)(": Error: cannot reserve "
+                                               "transaction numbers.")
+                .Flush();
             return -1;
         }
     }
@@ -795,10 +892,11 @@ int32_t CmdConfirm::confirmAccounts(
         string confirmed = SwigWrap::SmartContract_ConfirmAccount(
             contract, mynym, name, x->first, mapAgents[x->first], x->second);
         if ("" == confirmed) {
-            otOut << "Failure while calling "
-                     "OT_API_SmartContract_ConfirmAccount. Acct Name: "
-                  << x->first << "  Agent Name: " << mapAgents[x->first]
-                  << "  Acct ID: " << x->second << " \n";
+            LogNormal(OT_METHOD)(__FUNCTION__)(
+                ": Failure while calling "
+                "OT_API_SmartContract_ConfirmAccount. Acct Name: ")(x->first)(
+                " Agent Name: ")(mapAgents[x->first])(" Acct ID: ")(x->second)
+                (".").Flush();
             return harvestTxNumbers(contract, mynym);
         }
 
@@ -816,8 +914,10 @@ bool CmdConfirm::showPartyAccounts(
     int32_t accounts = SwigWrap::Party_GetAcctCount(contract, name);
 
     if (0 > accounts) {
-        otOut << "Error: Party '" << name
-              << "' has bad value for number of asset accounts.\n";
+        LogNormal(OT_METHOD)(__FUNCTION__)(": Error: Party '")(name)(
+            "' has bad value for number "
+            "of asset accounts.")
+            .Flush();
         return false;
     }
 
@@ -831,8 +931,10 @@ bool CmdConfirm::showPartyAccounts(
     for (int32_t i = 0; i < accounts; i++) {
         string acctName = SwigWrap::Party_GetAcctNameByIndex(contract, name, i);
         if ("" == acctName) {
-            otOut << "Error: Failed retrieving Asset Account Name from party '"
-                  << name << "' at account index: " << i << "\n";
+            LogNormal(OT_METHOD)(__FUNCTION__)(
+                ": Error: Failed retrieving Asset Account Name from party '")(
+                name)("' at account index: ")(i)(".")
+                .Flush();
             return false;
         }
 
@@ -873,8 +975,9 @@ bool CmdConfirm::showPartyAgents(
 {
     int32_t agentCount = SwigWrap::Party_GetAgentCount(contract, name);
     if (0 > agentCount) {
-        otOut << "Error: Party '" << name
-              << "' has bad value for number of authorized agents.\n";
+        LogNormal(OT_METHOD)(__FUNCTION__)(": Error: Party '")(name)(
+            "' has bad value for number of authorized agents.")
+            .Flush();
         return false;
     }
 
@@ -887,8 +990,10 @@ bool CmdConfirm::showPartyAgents(
     for (int32_t i = 0; i < agentCount; i++) {
         string agent = SwigWrap::Party_GetAgentNameByIndex(contract, name, i);
         if ("" == agent) {
-            otOut << "Error: Failed retrieving Agent Name from party '" << name
-                  << "' at agent index: " << i << "\n";
+            LogNormal(OT_METHOD)(__FUNCTION__)(
+                ": Error: Failed retrieving Agent Name from party '")(name)(
+                "' at agent index: ")(i)(".")
+                .Flush();
             return false;
         }
 

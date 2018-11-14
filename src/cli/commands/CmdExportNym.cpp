@@ -11,6 +11,8 @@
 #include <iostream>
 #include <string>
 
+#define OT_METHOD "opentxs::CmdExportNym::"
+
 using namespace opentxs;
 using namespace std;
 
@@ -32,7 +34,8 @@ int32_t CmdExportNym::run(string mynym)
 
     string exportedNym = SwigWrap::Wallet_ExportNym(mynym);
     if ("" == exportedNym) {
-        otOut << "Error: cannor export nym.\n";
+        LogNormal(OT_METHOD)(__FUNCTION__)(": Error: cannor export nym.")
+            .Flush();
         return -1;
     }
 

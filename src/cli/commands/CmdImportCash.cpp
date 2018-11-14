@@ -7,9 +7,11 @@
 
 #include <opentxs/opentxs.hpp>
 
-#include <stdint.h>
 #include <ostream>
+#include <stdint.h>
 #include <string>
+
+#define OT_METHOD "opentxs::CmdImportCash::"
 
 using namespace opentxs;
 using namespace std;
@@ -37,13 +39,17 @@ int32_t CmdImportCash::run(string mynym)
 
     string type = SwigWrap::Instrmnt_GetType(instrument);
     if ("" == type) {
-        otOut << "Error: cannot determine instrument type.\n";
+        LogNormal(OT_METHOD)(__FUNCTION__)(
+            ": Error: cannot determine instrument type.")
+            .Flush();
         return -1;
     }
 
     string server = SwigWrap::Instrmnt_GetNotaryID(instrument);
     if ("" == server) {
-        otOut << "Error: cannot determine instrument server.\n";
+        LogNormal(OT_METHOD)(__FUNCTION__)(
+            ": Error: cannot determine instrument server.")
+            .Flush();
         return -1;
     }
 
@@ -70,7 +76,9 @@ int32_t CmdImportCash::run(string mynym)
         //    return 1;
         //}
 
-        otOut << "Error: invalid instrument type. Expected PURSE.\n";
+        LogNormal(OT_METHOD)(__FUNCTION__)(
+            ": Error: invalid instrument type. Expected PURSE.")
+            .Flush();
         return -1;
     }
 
@@ -101,8 +109,10 @@ int32_t CmdImportCash::run(string mynym)
     if ("" == purseOwner) {
         purseOwner = mynym;
         if ("" == purseOwner) {
-            otOut << "Error: cannot determine purse owner.\n"
-                     "Please specify mynym.\n";
+            LogNormal(OT_METHOD)(__FUNCTION__)(
+                ": Error: cannot determine purse owner."
+                "Please specify mynym.")
+                .Flush();
             return -1;
         }
     }
@@ -110,13 +120,16 @@ int32_t CmdImportCash::run(string mynym)
     string instrumentDefinitionID =
         SwigWrap::Instrmnt_GetInstrumentDefinitionID(instrument);
     if ("" == instrumentDefinitionID) {
-        otOut << "Error: cannot determine instrument definition ID.\n";
+        LogNormal(OT_METHOD)(__FUNCTION__)(": Error: cannot determine "
+                                           "instrument definition ID.")
+            .Flush();
         return -1;
     }
 
     if (!SwigWrap::Wallet_ImportPurse(
             server, instrumentDefinitionID, purseOwner, instrument)) {
-        otOut << "Error: cannot import purse.\n";
+        LogNormal(OT_METHOD)(__FUNCTION__)(": Error: cannot import purse.")
+            .Flush();
         return -1;
     }
 

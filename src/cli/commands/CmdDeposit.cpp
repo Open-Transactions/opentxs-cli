@@ -12,6 +12,8 @@
 #include <string>
 #include <vector>
 
+#define OT_METHOD "opentxs::CmdDeposit::"
+
 using namespace opentxs;
 using namespace std;
 
@@ -60,13 +62,17 @@ int32_t CmdDeposit::run(string mynym, string myacct, string indices)
 
     string server = SwigWrap::GetAccountWallet_NotaryID(myacct);
     if ("" == server) {
-        otOut << "Error: cannot determine server from myacct.\n";
+        LogNormal(OT_METHOD)(__FUNCTION__)(
+            ": Error: cannot determine server from myacct.")
+            .Flush();
         return -1;
     }
 
     string toNym = SwigWrap::GetAccountWallet_NymID(myacct);
     if ("" == toNym) {
-        otOut << "Error: cannot determine toNym from myacct.\n";
+        LogNormal(OT_METHOD)(__FUNCTION__)(
+            ": Error: cannot determine toNym from myacct.")
+            .Flush();
         return -1;
     }
 
@@ -86,8 +92,10 @@ int32_t CmdDeposit::run(string mynym, string myacct, string indices)
         return depositPurse(server, myacct, fromNym, "", indices);
     }
 
-    otOut << "You can deposit a PURSE (containing cash tokens) or "
-             "a CHEQUE / INVOICE / VOUCHER.\n";
+    LogNormal(OT_METHOD)(__FUNCTION__)(
+        ": You can deposit a PURSE (containing cash tokens) or "
+        "a CHEQUE / INVOICE / VOUCHER.")
+        .Flush();
 
     string instrument = inputText("your financial instrument");
     if ("" == instrument) { return -1; }
@@ -101,8 +109,11 @@ int32_t CmdDeposit::run(string mynym, string myacct, string indices)
         return depositCheque(server, myacct, toNym, instrument);
     }
 
-    otOut << "Error: cannot determine instrument type.\n"
-             "Expected CHEQUE, VOUCHER, INVOICE, or (cash) PURSE.\n";
+    LogNormal(OT_METHOD)(__FUNCTION__)(
+       ": Error: cannot determine instrument type.").Flush();
+   LogNormal(OT_METHOD)(__FUNCTION__)(	
+      "Expected CHEQUE, VOUCHER, INVOICE, or (cash) PURSE.")
+        .Flush();
     return -1;
 }
 

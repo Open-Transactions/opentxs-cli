@@ -11,6 +11,8 @@
 #include <ostream>
 #include <string>
 
+#define OT_METHOD "opentxs::CmdEditServer::"
+
 using namespace opentxs;
 using namespace std;
 
@@ -37,7 +39,8 @@ int32_t CmdEditServer::run(string server, string label)
     if (!checkMandatory("label", label)) { return -1; }
 
     if (!SwigWrap::SetServer_Name(server, label)) {
-        otOut << "Error: cannot set server label.\n";
+        LogNormal(OT_METHOD)(__FUNCTION__)(": Error: cannot set server label.")
+            .Flush();
         return -1;
     }
 

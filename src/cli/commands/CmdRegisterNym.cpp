@@ -7,6 +7,8 @@
 
 #include <opentxs/opentxs.hpp>
 
+#define OT_METHOD "opentxs::CmdRegisterNym"
+
 namespace opentxs
 {
 
@@ -56,7 +58,9 @@ std::int32_t CmdRegisterNym::run(
         isPrimary = primary == "true";
     }
     if (!shouldPublish && isPrimary) {
-        otOut << "Can't make the server primary if it isn't published.";
+        LogNormal(OT_METHOD)(__FUNCTION__)(": Can't make the server primary "
+                                           "if it isn't published.")
+            .Flush();
 
         return -1;
     }
@@ -77,10 +81,12 @@ std::int32_t CmdRegisterNym::run(
 
     switch (status) {
         case ThreadStatus::FINISHED_SUCCESS: {
-            otOut << "Nym registered successfully " << std::endl;
+            LogNormal(OT_METHOD)(__FUNCTION__)(
+                ": Nym registered successfully. ")
+                .Flush();
         } break;
         case ThreadStatus::FINISHED_FAILED: {
-            otOut << "Nym not registered " << std::endl;
+            LogNormal(OT_METHOD)(__FUNCTION__)(": Nym not registered.").Flush();
             [[fallthrough]];
         }
         case ThreadStatus::ERROR:

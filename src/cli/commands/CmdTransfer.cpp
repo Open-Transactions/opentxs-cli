@@ -11,6 +11,8 @@
 #include <ostream>
 #include <string>
 
+#define OT_METHOD "opentxs::CmdTransfer::"
+
 using namespace opentxs;
 using namespace std;
 
@@ -52,24 +54,32 @@ int32_t CmdTransfer::run(
 
     string server = SwigWrap::GetAccountWallet_NotaryID(myacct);
     if ("" == server) {
-        otOut << "Error: cannot determine server from myacct.\n";
+        LogNormal(OT_METHOD)(__FUNCTION__)(
+            ": Error: cannot determine server from myacct.")
+            .Flush();
         return -1;
     }
 
     string mynym = SwigWrap::GetAccountWallet_NymID(myacct);
     if ("" == mynym) {
-        otOut << "Error: cannot determine mynym from myacct.\n";
+        LogNormal(OT_METHOD)(__FUNCTION__)(
+            " : Error: cannot determine mynym from myacct.")
+            .Flush();
         return -1;
     }
 
     string hisServer = SwigWrap::GetAccountWallet_NotaryID(hisacct);
     if (hisServer != server) {
-        otOut << "Error: myacct and hisacct are on different servers.\n";
+        LogNormal(OT_METHOD)(__FUNCTION__)(
+            " : Error: myacct and hisacct are on different servers.")
+            .Flush();
         return -1;
     }
 
     if ("" == hisServer) {
-        otOut << "Assuming hisaccount is on the same server as myacct.\n";
+        LogNormal(OT_METHOD)(__FUNCTION__)(
+            " : Assuming hisaccount is on the same server as myacct.")
+            .Flush();
     }
 
     auto& sync = Opentxs::Client().Sync();
@@ -90,10 +100,13 @@ int32_t CmdTransfer::run(
 
     switch (status) {
         case ThreadStatus::FINISHED_SUCCESS: {
-            otOut << "Transfer completed successfully " << std::endl;
+            LogNormal(OT_METHOD)(__FUNCTION__)(
+                " : Transfer completed successfully.")
+                .Flush();
         } break;
         case ThreadStatus::FINISHED_FAILED: {
-            otOut << "Transfer not completed " << std::endl;
+            LogNormal(OT_METHOD)(__FUNCTION__)(" : Transfer not completed.")
+                .Flush();
             [[fallthrough]];
         }
         case ThreadStatus::ERROR:
@@ -109,7 +122,9 @@ int32_t CmdTransfer::run(
                 Identifier::Factory(server),
                 Identifier::Factory(myacct),
                 true)) {
-            otOut << "Error retrieving intermediary files for account.\n";
+            LogNormal(OT_METHOD)(__FUNCTION__)(
+                " : Error retrieving intermediary files for account.")
+                .Flush();
             return -1;
         }
     }

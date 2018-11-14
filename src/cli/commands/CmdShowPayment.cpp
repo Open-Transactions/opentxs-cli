@@ -11,6 +11,8 @@
 #include <iostream>
 #include <string>
 
+#define OT_METHOD "opentxs::CmdShowPayment::"
+
 using namespace opentxs;
 using namespace std;
 
@@ -52,13 +54,17 @@ int32_t CmdShowPayment::run(
 
     string inbox = SwigWrap::LoadPaymentInbox(server, mynym);
     if ("" == inbox) {
-        otOut << "Error: cannot load payment inbox.\n";
+        LogNormal(OT_METHOD)(__FUNCTION__)(
+            ": Error: cannot load payment inbox.")
+            .Flush();
         return -1;
     }
 
     int32_t items = SwigWrap::Ledger_GetCount(server, mynym, mynym, inbox);
     if (0 > items) {
-        otOut << "Error: cannot load payment inbox item count.\n";
+        LogNormal(OT_METHOD)(__FUNCTION__)(
+            ": Error: cannot load payment inbox item count.")
+            .Flush();
         return -1;
     }
 
@@ -66,7 +72,8 @@ int32_t CmdShowPayment::run(
     if (0 > messageNr) { return -1; }
 
     if (0 == items) {
-        otOut << "The payment inbox is empty.\n";
+        LogNormal(OT_METHOD)(__FUNCTION__)(": The payment inbox is empty.")
+            .Flush();
         return 0;
     }
 
@@ -76,7 +83,8 @@ int32_t CmdShowPayment::run(
     string payment =
         SwigWrap::Ledger_GetInstrument(server, mynym, mynym, inbox, messageNr);
     if ("" == payment) {
-        otOut << "Error: cannot load payment.\n";
+        LogNormal(OT_METHOD)(__FUNCTION__)(": Error: cannot load payment.")
+            .Flush();
         return -1;
     }
 

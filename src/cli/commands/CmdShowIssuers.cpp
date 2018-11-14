@@ -7,6 +7,8 @@
 
 #include <opentxs/opentxs.hpp>
 
+#define OT_METHOD "opentxs::CmdShowIssuers::"
+
 namespace opentxs
 {
 
@@ -43,22 +45,24 @@ void CmdShowIssuers::print_accounts(const opentxs::ui::IssuerItem& issuer) const
 
 void CmdShowIssuers::print_line(const opentxs::ui::IssuerItem& line) const
 {
-    otOut << "* " << line.Name() << " [";
+    LogNormal(OT_METHOD)(__FUNCTION__)(": * ")(line.Name())(" [").Flush();
 
     if (line.ConnectionState()) {
-        otOut << "*";
+        LogNormal(OT_METHOD)(__FUNCTION__)("*").Flush();
     } else {
-        otOut << " ";
+        LogNormal(OT_METHOD)(__FUNCTION__)(" ").Flush();
     }
 
-    otOut << "]\n";
+    LogNormal(OT_METHOD)(__FUNCTION__)("]").Flush();
     print_accounts(line);
 }
 
 void CmdShowIssuers::print_line(
     const opentxs::ui::AccountSummaryItem& line) const
 {
-    otOut << " * " << line.Name() << " " << line.DisplayBalance() << "\n";
+    LogNormal(OT_METHOD)(__FUNCTION__)(" * ")(line.Name())(" ")(
+        line.DisplayBalance())
+        .Flush();
 }
 
 std::int32_t CmdShowIssuers::run(std::string mynym, std::string currency)
@@ -70,7 +74,7 @@ std::int32_t CmdShowIssuers::run(std::string mynym, std::string currency)
     const auto currencyType = proto::ContactItemType(std::stoi(currency));
     const OTIdentifier nymID = Identifier::Factory(mynym);
     auto& list = Opentxs::Client().UI().AccountSummary(nymID, currencyType);
-    otOut << "Issuers:\n";
+    LogNormal(OT_METHOD)(__FUNCTION__)(":Issuers: ").Flush();
     dashLine();
     auto issuer = list.First();
 
@@ -84,8 +88,7 @@ std::int32_t CmdShowIssuers::run(std::string mynym, std::string currency)
         lastIssuer = issuer->Last();
         print_line(issuer.get());
     }
-
-    otOut << std::endl;
+    LogNormal(OT_METHOD)(__FUNCTION__)(" ").Flush();
 
     return 1;
 }

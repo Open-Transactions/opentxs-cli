@@ -13,6 +13,8 @@
 #include <iostream>
 #include <string>
 
+#define OT_METHOD "opentxs::CmdSendVoucher::"
+
 using namespace opentxs;
 using namespace std;
 
@@ -62,7 +64,9 @@ int32_t CmdSendVoucher::run(
 
     string sender = SwigWrap::GetAccountWallet_NymID(myacct);
     if ("" == sender) {
-        otOut << "Error: cannot get sender from myacct.\n";
+        LogNormal(OT_METHOD)(__FUNCTION__)(
+            ": Error: cannot get sender from myacct.")
+            .Flush();
         return -1;
     }
 

@@ -7,9 +7,11 @@
 
 #include <opentxs/opentxs.hpp>
 
-#include <stdint.h>
 #include <iostream>
+#include <stdint.h>
 #include <string>
+
+#define OT_METHOD "opentxs::CmdOutbox::"
 
 using namespace opentxs;
 using namespace std;
@@ -32,30 +34,37 @@ int32_t CmdOutbox::run(string myacct)
 
     string server = SwigWrap::GetAccountWallet_NotaryID(myacct);
     if ("" == server) {
-        otOut << "Error: cannot determine server from myacct.\n";
+        LogNormal(OT_METHOD)(__FUNCTION__)(
+            ": Error: cannot determine server from myacct.")
+            .Flush();
         return -1;
     }
 
     string mynym = SwigWrap::GetAccountWallet_NymID(myacct);
     if ("" == mynym) {
-        otOut << "Error: cannot determine mynym from myacct.\n";
+        LogNormal(OT_METHOD)(__FUNCTION__)(
+            ": Error: cannot determine mynym from myacct.")
+            .Flush();
         return -1;
     }
 
     string outbox = SwigWrap::LoadOutbox(server, mynym, myacct);
     if ("" == outbox) {
-        otOut << "Error: cannot load outbox.\n";
+        LogNormal(OT_METHOD)(__FUNCTION__)(": Error: cannot load outbox.")
+            .Flush();
         return -1;
     }
 
     int32_t items = SwigWrap::Ledger_GetCount(server, mynym, myacct, outbox);
     if (0 > items) {
-        otOut << "Error: cannot load outbox item count.\n";
+        LogNormal(OT_METHOD)(__FUNCTION__)(
+            ": Error: cannot load outbox item count.")
+            .Flush();
         return -1;
     }
 
     if (0 == items) {
-        otOut << "The outbox is empty.\n";
+        LogNormal(OT_METHOD)(__FUNCTION__)(": The outbox is empty.").Flush();
         return 0;
     }
 

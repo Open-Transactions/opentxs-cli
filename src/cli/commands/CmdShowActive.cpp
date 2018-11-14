@@ -13,6 +13,8 @@
 #include <string>
 #include <vector>
 
+#define OT_METHOD "opentxs::CmdShowActive::"
+
 using namespace opentxs;
 using namespace std;
 
@@ -48,11 +50,17 @@ int32_t CmdShowActive::run(string server, string mynym, string id)
         if ("" != item) {
             string type = SwigWrap::Instrmnt_GetType(item);
             if ("" == type) { type = "UNKNOWN"; }
+            {
 
-            otOut << "Found an active transaction!\n"
-                  << "ID: " << transNum << "  Type: " << type
-                  << "\n\nContents:\n\n"
-                  << item << "\n\n";
+                LogNormal(OT_METHOD)(__FUNCTION__)(
+                    ": Found an active transaction!")
+                    .Flush();
+                LogNormal(OT_METHOD)(__FUNCTION__)(": ID: ")(transNum)(
+                    "  Type: ")(type)
+                    .Flush();
+                LogNormal(OT_METHOD)(__FUNCTION__)(": Contents:").Flush();
+                LogNormal(OT_METHOD)(__FUNCTION__)(item).Flush();
+            }
         }
         return 1;
     }
@@ -61,14 +69,17 @@ int32_t CmdShowActive::run(string server, string mynym, string id)
 
     string ids = SwigWrap::GetNym_ActiveCronItemIDs(mynym, server);
     if ("" == ids) {
-        otOut << "Found no active transactions. "
-                 "Perhaps try 'opentxs refresh' first?\n";
+        LogNormal(OT_METHOD)(__FUNCTION__)(
+            ": Found no active transactions. "
+            "Perhaps try 'opentxs refresh' first?")
+            .Flush();
         return 0;
     }
 
     vector<string> items = tokenize(ids, ',', true);
-    otOut << "\n Found " << items.size() << " active transactions:  " << ids
-          << "\n\n";
+    LogNormal(OT_METHOD)(__FUNCTION__)(": Found ")(items.size())(
+        " active transactions:  ")(ids)
+        .Flush();
     for (size_t i = 0; i < items.size(); i++) {
         string id = items[i];
         int64_t transNum = checkTransNum("id", id);

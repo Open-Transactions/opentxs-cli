@@ -7,9 +7,11 @@
 
 #include <opentxs/opentxs.hpp>
 
-#include <stdint.h>
 #include <iostream>
+#include <stdint.h>
 #include <string>
+
+#define OT_METHOD "opentxs::CmdOutpayment::"
 
 using namespace opentxs;
 using namespace std;
@@ -37,12 +39,15 @@ int32_t CmdOutpayment::run(string mynym, string index)
 
     int32_t items = SwigWrap::GetNym_OutpaymentsCount(mynym);
     if (0 > items) {
-        otOut << "Error: cannot load payment outbox item count.\n";
+        LogNormal(OT_METHOD)(__FUNCTION__)(
+            ": Error: cannot load payment outbox item count.")
+            .Flush();
         return -1;
     }
 
     if (0 == items) {
-        otOut << "The payment outbox is empty.\n";
+        LogNormal(OT_METHOD)(__FUNCTION__)(": The payment outbox is empty.")
+            .Flush();
         return 0;
     }
 
@@ -53,7 +58,9 @@ int32_t CmdOutpayment::run(string mynym, string index)
         int32_t retVal = 1;
         for (int32_t i = 0; i < items; i++) {
             if (!showOutpayment(mynym, i, false)) {
-                otOut << "Error: cannot retrieve outpayment " << i << ".\n";
+                LogNormal(OT_METHOD)(__FUNCTION__)(
+                    ": Error: cannot retrieve outpayment ")(i)(".")
+                    .Flush();
                 retVal = -1;
             }
         }
@@ -65,7 +72,9 @@ int32_t CmdOutpayment::run(string mynym, string index)
     if (0 > messageNr) { return -1; }
 
     if (!showOutpayment(mynym, messageNr, true)) {
-        otOut << "Error: cannot retrieve outpayment " << messageNr << ".\n";
+        LogNormal(OT_METHOD)(__FUNCTION__)(
+            ": Error: cannot retrieve outpayment ")(messageNr)(".")
+            .Flush();
         return -1;
     }
 
@@ -79,7 +88,9 @@ bool CmdOutpayment::showOutpayment(
 {
     string payment = SwigWrap::GetNym_OutpaymentsContentsByIndex(mynym, index);
     if ("" == payment) {
-        otOut << "Error: cannot load payment " << index << ".\n";
+        LogNormal(OT_METHOD)(__FUNCTION__)(": Error: cannot load payment ")(
+            index)(".")
+            .Flush();
         return false;
     }
 

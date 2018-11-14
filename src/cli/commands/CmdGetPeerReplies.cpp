@@ -7,6 +7,8 @@
 
 #include <opentxs/opentxs.hpp>
 
+#define OT_METHOD "opentxs::CmdGetPeerReplies::"
+
 namespace opentxs
 {
 
@@ -28,22 +30,25 @@ std::int32_t CmdGetPeerReplies::runWithOptions()
 std::int32_t CmdGetPeerReplies::run(std::string mynym)
 {
     if (!checkNym("mynym", mynym)) { return -1; }
+    {
 
-    auto sent = SwigWrap::getSentReplies(mynym);
-    auto incoming = SwigWrap::getIncomingReplies(mynym);
-    auto finished = SwigWrap::getFinishedReplies(mynym);
-    auto processed = SwigWrap::getProcessedReplies(mynym);
+        auto sent = SwigWrap::getSentReplies(mynym);
+        auto incoming = SwigWrap::getIncomingReplies(mynym);
+        auto finished = SwigWrap::getFinishedReplies(mynym);
+        auto processed = SwigWrap::getProcessedReplies(mynym);
 
-    otOut << "Peer reply box contents:" << std::endl;
-    otOut << "Sent box:" << std::endl;
-    otOut << sent << std::endl;
-    otOut << "Incoming box:" << std::endl;
-    otOut << incoming << std::endl;
-    otOut << "Finished box:" << std::endl;
-    otOut << finished << std::endl;
-    otOut << "Processed box:" << std::endl;
-    otOut << processed << std::endl;
+        LogNormal(OT_METHOD)(__FUNCTION__)(" : Peer reply box contents:")
+            .Flush();
+        LogNormal(OT_METHOD)(__FUNCTION__)(" : Sent box:").Flush();
+        LogNormal(OT_METHOD)(__FUNCTION__)(sent).Flush();
+        LogNormal(OT_METHOD)(__FUNCTION__)(": Incoming box:").Flush();
+        LogNormal(OT_METHOD)(__FUNCTION__)(incoming).Flush();
+        LogNormal(OT_METHOD)(__FUNCTION__)(": Finished box:").Flush();
+        LogNormal(OT_METHOD)(__FUNCTION__)(finished).Flush();
+        LogNormal(OT_METHOD)(__FUNCTION__)(": Processed box:").Flush();
+        LogNormal(OT_METHOD)(__FUNCTION__)(processed).Flush();
 
-    return 1;
+        return 1;
+    }
 }
 }  // namespace opentxs

@@ -7,6 +7,8 @@
 
 #include <opentxs/opentxs.hpp>
 
+#define OT_METHOD "opentxs::CmdGetContact::"
+
 namespace opentxs
 {
 CmdGetContact::CmdGetContact()
@@ -27,10 +29,10 @@ std::int32_t CmdGetContact::run(const std::string& hisnym)
     const auto contact = SwigWrap::Nym_to_Contact(hisnym);
 
     if (contact.empty()) {
-        otErr << "Nym " << hisnym << " is not associated with a contact."
-              << std::endl;
+        LogOutput(OT_METHOD)(__FUNCTION__)(
+            ": Nym ")(hisnym)(" is not associated with a contact.").Flush();
     } else {
-        otErr << contact << std::endl;
+        LogOutput(OT_METHOD)(__FUNCTION__)(": ")(contact)(".").Flush();
     }
 
     return 0;

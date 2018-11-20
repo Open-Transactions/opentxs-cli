@@ -7,6 +7,8 @@
 
 #include <opentxs/opentxs.hpp>
 
+#define OT_METHOD "opentxs::CmdAddContract::"
+
 namespace opentxs
 {
 CmdAddContract::CmdAddContract()
@@ -30,19 +32,20 @@ std::int32_t CmdAddContract::run(
     const std::string& value)
 {
     if (false == checkNym("mynym", mynym)) {
-        otErr << "Unknown nym " << mynym << std::endl;
+        LogOutput(OT_METHOD)(__FUNCTION__)(
+            ": Unknown nym ")(mynym)(".").Flush();
 
         return -1;
     }
 
     if (type.empty()) {
-        otErr << "Invalid type" << std::endl;
+        LogOutput(OT_METHOD)(__FUNCTION__)(": Invalid type.").Flush();
 
         return -1;
     }
 
     if (value.empty()) {
-        otErr << "Invalid value" << std::endl;
+        LogOutput(OT_METHOD)(__FUNCTION__)(": Invalid value.").Flush();
 
         return -1;
     }
@@ -51,7 +54,8 @@ std::int32_t CmdAddContract::run(
     auto data = SwigWrap::Wallet_GetNym(mynym);
 
     if (false == data.Valid()) {
-        otErr << "Invalid nym " << mynym << std::endl;
+        LogOutput(OT_METHOD)(__FUNCTION__)(": Invalid nym ")(mynym)(".")
+        .Flush();
 
         return -1;
     }
@@ -59,12 +63,13 @@ std::int32_t CmdAddContract::run(
     const auto set = data.AddContract(value, currency, true, true);
 
     if (false == set) {
-        otErr << "Failed to set claim" << std::endl;
+        LogOutput(OT_METHOD)(__FUNCTION__)(": Failed to set claim.").Flush();
 
         return -1;
     }
 
-    otErr << SwigWrap::DumpContactData(mynym) << std::endl;
+    LogOutput(OT_METHOD)(__FUNCTION__)(": ")(
+        SwigWrap::DumpContactData(mynym))(".").Flush();
 
     return 1;
 }

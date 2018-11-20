@@ -7,6 +7,8 @@
 
 #include <opentxs/opentxs.hpp>
 
+#define OT_METHOD "opentxs::CmdSetProfileValue::"
+
 namespace opentxs
 {
 CmdSetProfileValue::CmdSetProfileValue()
@@ -45,14 +47,14 @@ std::int32_t CmdSetProfileValue::run(
     const auto itemType = static_cast<proto::ContactItemType>(std::stoi(type));
 
     if (false == section_exists(profile.AllowedSections("en"), sectionType)) {
-        otErr << "Invalid section." << std::endl;
+        LogOutput(OT_METHOD)(__FUNCTION__)(": Invalid section.").Flush();
 
         return -1;
     }
 
     if (false ==
         section_exists(profile.AllowedItems(sectionType, "en"), itemType)) {
-        otErr << "Invalid type." << std::endl;
+        LogOutput(OT_METHOD)(__FUNCTION__)(": Invalid type.").Flush();
 
         return -1;
     }
@@ -61,7 +63,7 @@ std::int32_t CmdSetProfileValue::run(
         profile.AddClaim(sectionType, itemType, value, true, true);
 
     if (isSet) {
-        otErr << "Success" << std::endl;
+        LogOutput(OT_METHOD)(__FUNCTION__)(": Success.").Flush();
 
         return 1;
     }

@@ -82,8 +82,8 @@ std::int32_t CmdRefreshNym::retrieve_nym(
     Utility MsgUtil(context.It(), Opentxs::Client());
 
     if (0 >= context.It().UpdateRequestNumber()) {
-        otErr << OT_METHOD << __FUNCTION__
-              << ": Failed calling getRequestNumber" << std::endl;
+        LogOutput(OT_METHOD)(__FUNCTION__)(
+              ": Failed calling getRequestNumber.").Flush();
 
         return -1;
     } else  // If it returns 1, we know for sure that the request number is in

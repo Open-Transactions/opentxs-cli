@@ -14,6 +14,8 @@
 #include <ostream>
 #include <string>
 
+#define OT_METHOD "opentxs::cli::Record::"
+
 namespace opentxs::cli
 {
 
@@ -706,8 +708,9 @@ bool Record::DeleteRecord() const
     if ((Record::Transfer == GetRecordType()) ||
         (Record::Receipt == GetRecordType())) {
         if (m_str_account_id.empty()) {
-            otErr << __FUNCTION__
-                  << ": Error: missing account id for transfer or receipt.\n";
+            LogOutput(OT_METHOD)(__FUNCTION__)(
+                  ": Error: Missing account id for transfer or receipt.")
+            .Flush();
             return false;
         }
         bUsingAccountOrNym = true;
@@ -720,18 +723,21 @@ bool Record::DeleteRecord() const
     // ----------------------------------------------
     if (!m_bIsSpecialMail) {
         if (m_str_nym_id.empty()) {
-            otErr << __FUNCTION__ << ": Error: missing nym id (" << m_str_nym_id
-                  << ")\n";
+            LogOutput(OT_METHOD)(__FUNCTION__)(
+                ": Error: Missing nym id (")(m_str_nym_id)
+                  (").").Flush();
             return false;
         }
         if (bUsingAccountOrNym && m_str_pmnt_notary_id.empty()) {
-            otErr << __FUNCTION__ << ": Error: missing pmnt notary id ("
-                  << m_str_pmnt_notary_id << ")\n";
+            LogOutput(OT_METHOD)(__FUNCTION__)(
+                ": Error: Missing payment notary id (")
+                  (m_str_pmnt_notary_id)(").").Flush();
             return false;
         }
         if (!bUsingAccountOrNym && m_str_msg_notary_id.empty()) {
-            otErr << __FUNCTION__ << ": Error: missing msg notary id ("
-                  << m_str_msg_notary_id << ")\n";
+            LogOutput(OT_METHOD)(__FUNCTION__)(
+                ": Error: Missing message notary id (")
+                  (m_str_msg_notary_id)(").").Flush();
             return false;
         }
     }
@@ -788,20 +794,20 @@ bool Record::DeleteRecord() const
         case Record::Notice:      // Delete from Nym's recordbox.
             break;
         default:
-            otErr << __FUNCTION__
-                  << ": Unexpected type: " << GetInstrumentType() << "\n";
+            LogOutput(OT_METHOD)(__FUNCTION__)(
+                  ": Unexpected type: ")(GetInstrumentType())(".").Flush();
             return false;
     }
     // The below section handles both the Nym's recordbox AND the Asset Account
     // recordbox.
     //
     if (0 == m_lTransactionNum) {
-        otErr << __FUNCTION__
-              << ": Error: Transaction number is 0, in recordbox for "
-                 "msg notary id ("
-              << m_str_msg_notary_id << "), pmnt notary id ("
-              << m_str_pmnt_notary_id << "), nym id (" << m_str_nym_id
-              << "), acct id (" << str_using_account << ")\n";
+        LogOutput(OT_METHOD)(__FUNCTION__)(
+              ": Error: Transaction number is 0 in recordbox for "
+                 "message notary id (")
+              (m_str_msg_notary_id)("), payment notary id (")
+              (m_str_pmnt_notary_id)("), nym id (")(m_str_nym_id)
+              ("), or account id (")(str_using_account)(").").Flush();
         return false;
     }
 
@@ -834,11 +840,11 @@ bool Record::DeleteRecord() const
     auto pRecordbox = Opentxs::Client().OTAPI().LoadRecordBox(
         theNotaryID, theNymID, theAcctID);
     if (false == bool(pRecordbox)) {
-        otErr << __FUNCTION__
-              << ": Failed loading record box for msg notary ID"
-                 " ("
-              << m_str_msg_notary_id << ") nymID (" << m_str_nym_id
-              << ") accountID (" << str_using_account << ")\n";
+        LogOutput(OT_METHOD)(__FUNCTION__)(
+              ": Failed loading record box for message notary ID"
+                 " (")
+              (m_str_msg_notary_id)("), nymID (")(m_str_nym_id)
+              ("), or accountID (")(str_using_account)(").").Flush();
         return false;
     }
     // Find the receipt in the recordbox that correlates to this Record.
@@ -846,12 +852,13 @@ bool Record::DeleteRecord() const
     int nIndex = pRecordbox->GetTransactionIndex(m_lTransactionNum);
 
     if ((-1) == nIndex) {
-        otErr << __FUNCTION__ << ": Error: Unable to find transaction "
-              << m_lTransactionNum
-              << " in recordbox "
-                 "for server id ("
-              << theNotaryID->str() << "), nym id (" << m_str_nym_id
-              << "), acct id (" << str_using_account << ")\n";
+        LogOutput(OT_METHOD)(__FUNCTION__)(
+            ": Error: Unable to find transaction ")
+              (m_lTransactionNum)
+              (" in recordbox "
+                 "for server id (")
+              (theNotaryID)("), nym id (")(m_str_nym_id)
+              ("), or account id (")(str_using_account)(").").Flush();
         return false;
     }
     // Accept it.
@@ -888,7 +895,7 @@ bool Record::accept_inbox_items(
         }
 
         default:
-            otErr << __FUNCTION__ << ": Invalid nItemType.\n";
+            LogOutput(OT_METHOD)(__FUNCTION__)(": Invalid nItemType.").Flush();
             break;
     }
 
@@ -932,19 +939,20 @@ bool Record::AcceptIncomingTransferOrReceipt() const
         case Record::Receipt: {
             if (m_str_pmnt_notary_id.empty() || m_str_nym_id.empty() ||
                 m_str_account_id.empty()) {
-                otErr << __FUNCTION__ << ": Error: missing pmnt notary id ("
-                      << m_str_pmnt_notary_id << ") or nym id (" << m_str_nym_id
-                      << ") or "
-                         "acct id ("
-                      << m_str_account_id << ")\n";
+                LogOutput(OT_METHOD)(__FUNCTION__)(
+                    ": Error: Missing payment notary id (")
+                      (m_str_pmnt_notary_id)("), nym id (")(m_str_nym_id)
+                      ("), or "
+                         "account id (")
+                      (m_str_account_id)(").").Flush();
                 return false;
             }
             if (0 == m_lTransactionNum) {
-                otErr << __FUNCTION__
-                      << ": Error: Transaction number is 0, in asset "
-                         "account inbox for pmnt notary id ("
-                      << m_str_pmnt_notary_id << "), nym id (" << m_str_nym_id
-                      << ")\n";
+                LogOutput(OT_METHOD)(__FUNCTION__)(
+                      ": Error: Transaction number is 0 in asset "
+                         "account inbox for payment notary id (")
+                      (m_str_pmnt_notary_id)(") or nym id (")(m_str_nym_id)
+                      (").").Flush();
                 return false;
             }
             const auto thePmntNotaryID =
@@ -956,11 +964,11 @@ bool Record::AcceptIncomingTransferOrReceipt() const
             auto pInbox = Opentxs::Client().OTAPI().LoadInbox(
                 thePmntNotaryID, theNymID, theAcctID);
             if (false == bool(pInbox)) {
-                otErr << __FUNCTION__
-                      << ": Error: Unable to load asset account inbox for "
-                         "pmnt notary id ("
-                      << m_str_pmnt_notary_id << "), nym id (" << m_str_nym_id
-                      << ")\n";
+                LogOutput(OT_METHOD)(__FUNCTION__)(
+                      ": Error: Unable to load asset account inbox for "
+                         "payment notary id (")
+                      (m_str_pmnt_notary_id)(") or nym id (")(m_str_nym_id)
+                      (").").Flush();
                 return false;
             }
             // Find the transfer/receipt therein that correlates to this
@@ -969,12 +977,13 @@ bool Record::AcceptIncomingTransferOrReceipt() const
             int nIndex = pInbox->GetTransactionIndex(m_lTransactionNum);
 
             if ((-1) == nIndex) {
-                otErr << __FUNCTION__ << ": Error: Unable to find transaction "
-                      << m_lTransactionNum
-                      << " in asset account inbox "
-                         "for pmnt notary id ("
-                      << m_str_pmnt_notary_id << "), nym id (" << m_str_nym_id
-                      << "), acct id (" << m_str_account_id << ")\n";
+                LogOutput(OT_METHOD)(__FUNCTION__)(
+                    ": Error: Unable to find transaction ")
+                      (m_lTransactionNum)
+                      (" in asset account inbox "
+                         "for payment notary id (")
+                      (m_str_pmnt_notary_id)("), nym id (")(m_str_nym_id)
+                      ("), or account id (")(m_str_account_id)(").").Flush();
                 return false;
             }
             // Accept it.
@@ -986,8 +995,8 @@ bool Record::AcceptIncomingTransferOrReceipt() const
             return accept_inbox_items(m_str_account_id, 0, str_indices);
         } break;
         default:
-            otErr << __FUNCTION__
-                  << ": Unexpected type: " << GetInstrumentType() << "\n";
+            LogOutput(OT_METHOD)(__FUNCTION__)(
+                  ": Unexpected type: ")(GetInstrumentType())(".").Flush();
             return false;
     }
 
@@ -1004,17 +1013,18 @@ bool Record::AcceptIncomingInstrument(const std::string& str_into_acct) const
         //
         case Record::Instrument: {
             if (m_str_msg_notary_id.empty() || m_str_nym_id.empty()) {
-                otErr << __FUNCTION__ << ": Error: missing msg notary id ("
-                      << m_str_msg_notary_id << ") or nym id (" << m_str_nym_id
-                      << ")\n";
+                LogOutput(OT_METHOD)(__FUNCTION__)(
+                    ": Error: Missing message notary id (")
+                      (m_str_msg_notary_id)(") or nym id (")(m_str_nym_id)
+                      (").").Flush();
                 return false;
             }
             if (0 == m_lTransactionNum) {
-                otErr << __FUNCTION__
-                      << ": Error: Transaction number is 0, in payment "
-                         "inbox for msg notary id ("
-                      << m_str_msg_notary_id << "), nym id (" << m_str_nym_id
-                      << ")\n";
+                LogOutput(OT_METHOD)(__FUNCTION__)(
+                      ": Error: Transaction number is 0 in payment "
+                         "inbox for message notary id (")
+                      (m_str_msg_notary_id)(") or nym id (")(m_str_nym_id)
+                      (").").Flush();
                 return false;
             }
             const auto theMsgNotaryID =
@@ -1025,11 +1035,11 @@ bool Record::AcceptIncomingInstrument(const std::string& str_into_acct) const
             auto pInbox = Opentxs::Client().OTAPI().LoadPaymentInbox(
                 theMsgNotaryID, theNymID);
             if (!pInbox) {
-                otErr << __FUNCTION__
-                      << ": Error: Unable to load payment inbox for msg notary "
-                         "id ("
-                      << m_str_msg_notary_id << "), nym id (" << m_str_nym_id
-                      << ")\n";
+                LogOutput(OT_METHOD)(__FUNCTION__)(
+                      ": Error: Unable to load payment inbox for message notary "
+                         "id (")
+                      (m_str_msg_notary_id)(") or nym id (")(m_str_nym_id)
+                      (").").Flush();
                 return false;
             }
             // Find the payment therein that correlates to this Record.
@@ -1037,12 +1047,13 @@ bool Record::AcceptIncomingInstrument(const std::string& str_into_acct) const
             int nIndex = pInbox->GetTransactionIndex(m_lTransactionNum);
 
             if ((-1) == nIndex) {
-                otErr << __FUNCTION__ << ": Error: Unable to find transaction "
-                      << m_lTransactionNum
-                      << " in "
-                         "payment inbox for transport notary id ("
-                      << m_str_msg_notary_id << "), nym id (" << m_str_nym_id
-                      << ")\n";
+                LogOutput(OT_METHOD)(__FUNCTION__)(
+                    ": Error: Unable to find transaction ")
+                      (m_lTransactionNum)
+                      (" in "
+                         "payment inbox for transport notary id (")
+                      (m_str_msg_notary_id)(") or nym id (")(m_str_nym_id)
+                      (").").Flush();
                 return false;
             }
             // Accept it.
@@ -1064,15 +1075,15 @@ bool Record::AcceptIncomingInstrument(const std::string& str_into_acct) const
             // GUI to hang up while the application is suddenly asking you
             // questions on a command line terminal somewhere!
             if (IsContract()) {
-                otErr << __FUNCTION__
-                      << ": It's a bug that this function was even called in "
+                LogOutput(OT_METHOD)(__FUNCTION__)(
+                      ": It's a bug that this function was even called in "
                          "the first place! "
                          "The reason is because you CANNOT confirm a smart "
                          "contract here. The confirmation process requires "
                          "a whole wizard so the user can select various Nyms "
-                         "and Accounts. The GUI must perform this process, and "
+                         "and Accounts. The GUI must perform this process and "
                          "thus would do that instead of ever calling this "
-                         "function. (So why are we here again...?)\n";
+                         "function. (So why are we here again...?).").Flush();
                 return false;
             }
 
@@ -1083,8 +1094,9 @@ bool Record::AcceptIncomingInstrument(const std::string& str_into_acct) const
                     str_indices,
                     szPaymentType,
                     &str_server_response)) {
-                otErr << __FUNCTION__
-                      << ": Error while trying to accept this instrument.\n";
+                LogOutput(OT_METHOD)(__FUNCTION__)(
+                      ": Error while trying to accept this instrument.")
+                .Flush();
                 return false;
             } else
                 backlink_.notifyOfSuccessfulNotarization(
@@ -1098,8 +1110,8 @@ bool Record::AcceptIncomingInstrument(const std::string& str_into_acct) const
         }  // case: instrument
         break;
         default:
-            otErr << __FUNCTION__
-                  << ": Unexpected type: " << GetInstrumentType() << "\n";
+            LogOutput(OT_METHOD)(__FUNCTION__)(
+                  ": Unexpected type: ")(GetInstrumentType())(".").Flush();
             return false;
     }
 
@@ -1115,17 +1127,18 @@ bool Record::DiscardIncoming() const
     switch (GetRecordType()) {
         case Record::Instrument: {
             if (m_str_msg_notary_id.empty() || m_str_nym_id.empty()) {
-                otErr << __FUNCTION__ << ": Error: missing server id ("
-                      << m_str_msg_notary_id << ") or nym id (" << m_str_nym_id
-                      << ")\n";
+                LogOutput(OT_METHOD)(__FUNCTION__)(
+                    ": Error: missing server id (")
+                      (m_str_msg_notary_id)(") or nym id (")(m_str_nym_id)
+                      (").").Flush();
                 return false;
             }
             if (0 == m_lTransactionNum) {
-                otErr << __FUNCTION__
-                      << ": Error: Transaction number is 0, in "
-                         "payment inbox for transport notary id ("
-                      << m_str_msg_notary_id << "), nym id (" << m_str_nym_id
-                      << ")\n";
+                LogOutput(OT_METHOD)(__FUNCTION__)(
+                      ": Error: Transaction number is 0, in "
+                         "payment inbox for transport notary id (")
+                      (m_str_msg_notary_id)(") or nym id (")(m_str_nym_id)
+                      (").").Flush();
                 return false;
             }
             const auto theMsgNotaryID =
@@ -1136,11 +1149,11 @@ bool Record::DiscardIncoming() const
             auto pInbox = Opentxs::Client().OTAPI().LoadPaymentInbox(
                 theMsgNotaryID, theNymID);
             if (!pInbox) {
-                otErr << __FUNCTION__
-                      << ": Error: Unable to load payment inbox for transport "
-                         "notary id ("
-                      << m_str_msg_notary_id << "), nym id (" << m_str_nym_id
-                      << ")\n";
+                LogOutput(OT_METHOD)(__FUNCTION__)(
+                      ": Error: Unable to load payment inbox for transport "
+                         "notary id (")
+                      (m_str_msg_notary_id)(") or nym id (")(m_str_nym_id)
+                      (").").Flush();
                 return false;
             }
             // Find the payment therein that correlates to this Record.
@@ -1148,12 +1161,13 @@ bool Record::DiscardIncoming() const
             int nIndex = pInbox->GetTransactionIndex(m_lTransactionNum);
 
             if ((-1) == nIndex) {
-                otErr << __FUNCTION__ << ": Error: Unable to find transaction "
-                      << m_lTransactionNum
-                      << " in "
-                         "payment inbox for transport notary id ("
-                      << m_str_msg_notary_id << "), nym id (" << m_str_nym_id
-                      << ")\n";
+                LogOutput(OT_METHOD)(__FUNCTION__)(
+                    ": Error: Unable to find transaction ")
+                      (m_lTransactionNum)
+                      (" in "
+                         "payment inbox for transport notary id (")
+                      (m_str_msg_notary_id)(") or nym id (")(m_str_nym_id)
+                      (").").Flush();
                 return false;
             }
             // Accept it.
@@ -1168,8 +1182,8 @@ bool Record::DiscardIncoming() const
         }  // case: instrument
         break;
         default:
-            otErr << __FUNCTION__
-                  << ": Unexpected type: " << GetInstrumentType() << "\n";
+            LogOutput(OT_METHOD)(__FUNCTION__)(
+                  ": Unexpected type: ")(GetInstrumentType())(".").Flush();
             return false;
     }
 
@@ -1208,8 +1222,8 @@ bool Record::CancelOutgoing(std::string str_via_acct) const  // This can be
     switch (GetRecordType()) {
         case Record::Instrument: {
             if (m_str_nym_id.empty()) {
-                otErr << __FUNCTION__ << ": Error: missing nym id ("
-                      << m_str_nym_id << ")\n";
+                LogOutput(OT_METHOD)(__FUNCTION__)(": Error: missing nym id (")
+                      (m_str_nym_id)(").").Flush();
                 return false;
             }
 
@@ -1222,8 +1236,8 @@ bool Record::CancelOutgoing(std::string str_via_acct) const  // This can be
                 str_using_acct = str_via_acct;
             }
             if (str_using_acct.empty()) {
-                otErr << __FUNCTION__
-                      << ": Error: Missing account ID (FAILURE)\n";
+                LogOutput(OT_METHOD)(__FUNCTION__)(
+                      ": Error: Missing account ID (FAILURE)!").Flush();
                 return false;
             }
             if (0 == m_lTransactionNum) {
@@ -1235,9 +1249,9 @@ bool Record::CancelOutgoing(std::string str_via_acct) const  // This can be
 
                     if (strOutpayment.empty()) {
                         std::int32_t lIndex = GetBoxIndex();
-                        otErr << __FUNCTION__
-                              << ": Error: Blank outpayment at index " << lIndex
-                              << "\n";
+                        LogOutput(OT_METHOD)(__FUNCTION__)(
+                              ": Error: Blank outpayment at index ")(lIndex)
+                              (".").Flush();
                         return false;
                     }
                     auto strPayment = String::Factory(strOutpayment);
@@ -1249,9 +1263,9 @@ bool Record::CancelOutgoing(std::string str_via_acct) const  // This can be
                     if (!thePayment->IsValid() ||
                         !thePayment->SetTempValues()) {
                         std::int32_t lIndex = GetBoxIndex();
-                        otErr << __FUNCTION__
-                              << ": Error: Invalid outpayment at index "
-                              << lIndex << "\n";
+                        LogOutput(OT_METHOD)(__FUNCTION__)(
+                              ": Error: Invalid outpayment at index ")
+                              (lIndex)(".").Flush();
                         return false;
                     }
                     TransactionNumber lTransNum = 0;
@@ -1266,20 +1280,20 @@ bool Record::CancelOutgoing(std::string str_via_acct) const  // This can be
                         return cancel_outgoing_payments(
                             m_str_nym_id, str_using_acct, str_indices);
                     } else {
-                        otErr << __FUNCTION__
-                              << ": Error: Transaction number is non-zero ("
-                              << lTransNum
-                              << "), for cash outgoing payment for nym id ("
-                              << m_str_nym_id << ")\n";
+                        LogOutput(OT_METHOD)(__FUNCTION__)(
+                              ": Error: Transaction number is non-zero (")
+                              (lTransNum)
+                              (") for cash outgoing payment for nym id (")
+                              (m_str_nym_id)(").").Flush();
                         return false;
                     }
                 }  // IsCash()
                 else {
-                    otErr << __FUNCTION__
-                          << ": Error: Transaction number is 0, "
+                    LogOutput(OT_METHOD)(__FUNCTION__)(
+                          ": Error: Transaction number is 0 "
                              "for non-cash outgoing payment for "
-                             "nym id ("
-                          << m_str_nym_id << ")\n";
+                             "nym id (")
+                          (m_str_nym_id)(").").Flush();
                     return false;
                 }
             }
@@ -1295,9 +1309,9 @@ bool Record::CancelOutgoing(std::string str_via_acct) const  // This can be
                         m_str_nym_id, nIndex));
 
                 if (strOutpayment.empty()) {
-                    otErr << __FUNCTION__
-                          << ": Error: Blank outpayment at index " << nIndex
-                          << "\n";
+                    LogOutput(OT_METHOD)(__FUNCTION__)(
+                          ": Error: Blank outpayment at index ")(nIndex)
+                          (".").Flush();
                     return false;
                 }
                 auto strPayment = String::Factory(strOutpayment);
@@ -1307,9 +1321,9 @@ bool Record::CancelOutgoing(std::string str_via_acct) const  // This can be
                 OT_ASSERT(false != bool(thePayment));
 
                 if (!thePayment->IsValid() || !thePayment->SetTempValues()) {
-                    otErr << __FUNCTION__
-                          << ": Error: Invalid outpayment at index " << nIndex
-                          << "\n";
+                    LogOutput(OT_METHOD)(__FUNCTION__)(
+                          ": Error: Invalid outpayment at index ")(nIndex)
+                          (".").Flush();
                     return false;
                 }
                 TransactionNumber lTransNum = 0;
@@ -1326,8 +1340,8 @@ bool Record::CancelOutgoing(std::string str_via_acct) const  // This can be
             }  // for
         } break;
         default:
-            otErr << __FUNCTION__
-                  << ": Unexpected type: " << GetInstrumentType() << "\n";
+            LogOutput(OT_METHOD)(__FUNCTION__)(
+                  ": Unexpected type: ")(GetInstrumentType())(".").Flush();
             return false;
     }
 

@@ -10,6 +10,8 @@
 #include <cstdint>
 #include <string>
 
+#define OT_METHOD "opentxs::CmdAcceptIncoming::"
+
 namespace opentxs
 {
 CmdAcceptIncoming::CmdAcceptIncoming()
@@ -43,7 +45,8 @@ std::int32_t CmdAcceptIncoming::run(std::string myacct)
         Opentxs::Client().Sync().AcceptIncoming(nymID, accountID, serverID);
 
     if (!output) {
-        otErr << "Failed to accept incoming payments." << std::endl;
+        LogOutput(OT_METHOD)(__FUNCTION__)(
+            ": Failed to accept incoming payments.").Flush();
 
         return -1;
     }

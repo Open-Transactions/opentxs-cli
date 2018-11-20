@@ -7,6 +7,8 @@
 
 #include <opentxs/opentxs.hpp>
 
+#define OT_METHOD "opentxs::CmdAddContact::"
+
 namespace opentxs
 {
 CmdAddContact::CmdAddContact()
@@ -34,20 +36,25 @@ std::int32_t CmdAddContact::run(
     auto code = Opentxs::Client().Factory().PaymentCode(hisnym);
 
     if (nymID->empty()) {
-        otErr << "Provided ID was not a nymID." << std::endl;
+        LogOutput(OT_METHOD)(__FUNCTION__)(
+            ": Provided ID was not a nymID.").Flush();
     } else {
-        otErr << "Provided ID was a nymID." << std::endl;
+        LogOutput(OT_METHOD)(__FUNCTION__)(
+            ": Provided ID was a nymID.").Flush();
     }
 
     if (false == code->VerifyInternally()) {
-        otErr << "Provided ID was not a payment code." << std::endl;
+        LogOutput(OT_METHOD)(__FUNCTION__)(
+            ": Provided ID was not a payment code.").Flush();
     } else {
-        otErr << "Provided ID was a payment code." << std::endl;
+        LogOutput(OT_METHOD)(__FUNCTION__)(
+            ": Provided ID was a payment code.").Flush();
     }
 
     if (nymID->empty() && code->VerifyInternally()) {
         nymID = code->ID();
-        otErr << "Derived nymID: " << String::Factory(nymID) << std::endl;
+        LogOutput(OT_METHOD)(__FUNCTION__)(
+            ": Derived nymID: ")(nymID)(".").Flush();
     }
 
     const auto response =

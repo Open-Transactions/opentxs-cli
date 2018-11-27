@@ -10,6 +10,8 @@
 #include <cstdint>
 #include <string>
 
+#define OT_METHOD "opentxs::CmdStartServer::"
+
 using namespace opentxs;
 
 CmdStartServer::CmdStartServer()
@@ -29,7 +31,8 @@ std::int32_t CmdStartServer::run(const std::string& instance)
 {
     const auto value = opentxs::String::Factory(instance)->ToLong();
     auto& server = OT::App().StartServer({}, value, true);
-    otErr << "Started server " << server.Instance() << std::endl;
+    LogOutput(OT_METHOD)(__FUNCTION__)(
+        ": Started server ")(server.Instance())(".").Flush();
 
     return 0;
 }

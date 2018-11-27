@@ -1590,7 +1590,8 @@ std::int32_t RecordList::acceptFromInbox(  // a static method
     std::int32_t item_count = pInbox->GetTransactionCount();
     // -----------------------------------------------------------
     if (0 > item_count) {
-        otErr << "Error: cannot load inbox item count.\n";
+        LogOutput(OT_METHOD)(__FUNCTION__)(
+            ": Error: Cannot load inbox item count.").Flush();
         return -1;
     } else if (0 == item_count) {
         LogDetail(OT_METHOD)(__FUNCTION__)(": The inbox is empty.").Flush();
@@ -1653,8 +1654,9 @@ std::int32_t RecordList::acceptFromInbox(  // a static method
                 *inbox, lReceiptId);
 
         if (nullptr == pReceipt) {
-            otErr << __FUNCTION__
-                  << "Unexpectedly got a nullptr for ReceiptId: " << lReceiptId;
+            LogOutput(OT_METHOD)(__FUNCTION__)(
+                  ": Unexpectedly got a nullptr for ReceiptId: ")(
+                      lReceiptId)(".").Flush();
             return -1;
         }  // Below this point, pReceipt is a good pointer. It's
         //   owned by inbox, so no need to delete.
@@ -1687,17 +1689,17 @@ std::int32_t RecordList::acceptFromInbox(  // a static method
                 true);
 
         if (!bReceiptResponseCreated) {
-            otErr << __FUNCTION__
-                  << "Error: cannot create transaction response.\n";
+            LogOutput(OT_METHOD)(__FUNCTION__)(
+                  ": Error: Cannot create transaction response.").Flush();
             return -1;
         }
     }  // for
     // -------------------------------------------------------
     if (processInbox->GetTransactionCount() <= 0) {
         // did not process anything
-        otErr << __FUNCTION__
-              << "Should never happen. Might want to follow up if you see this "
-                 "log.\n";
+        LogOutput(OT_METHOD)(__FUNCTION__)(
+              ": Should never happen. Might want to follow up if you see this "
+                 "log.").Flush();
         return 0;
     }
     // ----------------------------------------------
@@ -1705,7 +1707,8 @@ std::int32_t RecordList::acceptFromInbox(  // a static method
         theNotaryID, theNymID, theAcctID, *processInbox);
 
     if (!bFinalized) {
-        otErr << __FUNCTION__ << "Error: cannot finalize response.\n";
+        LogOutput(OT_METHOD)(__FUNCTION__)(
+            ": Error: Cannot finalize response.").Flush();
         return -1;
     }
     // ----------------------------------------------
@@ -1897,10 +1900,10 @@ bool RecordList::PerformAutoAccept()
                         if (false == bool(pPayment))  // then we treat it like
                                                       // it's abbreviated.
                         {
-                            otErr << __FUNCTION__
-                                  << ": Payment retrieved from payments "
-                                     "inbox was nullptr. (It's abbreviated?) "
-                                     "Skipping.\n";
+                            LogOutput(OT_METHOD)(__FUNCTION__)(
+                                  ": Payment retrieved from payments "
+                                     "inbox was nullptr. (It's abbreviated?). "
+                                     "Skipping.").Flush();
                         }
                         // We have pPayment, the instrument accompanying the
                         // receipt in the payments inbox.
@@ -1941,10 +1944,10 @@ bool RecordList::PerformAutoAccept()
                                     // care about.
                                     // Therefore, skip.
                                     //
-                                    otErr << __FUNCTION__
-                                          << ": Skipping: Incoming payment (we "
-                                             "don't care about asset "
-                                          << str_inpmt_asset.c_str() << ")\n";
+                                    LogOutput(OT_METHOD)(__FUNCTION__)(
+                                          ": Skipping: Incoming payment (we "
+                                             "don't care about asset ")
+                                          (str_inpmt_asset)(").").Flush();
                                     continue;
                                 }
                             }
@@ -2024,18 +2027,18 @@ bool RecordList::PerformAutoAccept()
                         std::int32_t lIndex = it->first;
                         auto pPayment = it->second;
                         if (false == bool(pPayment)) {
-                            otErr << __FUNCTION__
-                                  << ": Error: payment pointer was "
-                                     "nullptr! (Should never happen.) "
-                                     "Skipping.\n";
+                            LogOutput(OT_METHOD)(__FUNCTION__)(
+                                  ": Error: Payment pointer was "
+                                     "nullptr! (Should never happen). "
+                                     "Skipping.").Flush();
                             continue;
                         }
                         auto payment = String::Factory();
                         if (!pPayment->GetPaymentContents(payment)) {
-                            otErr << __FUNCTION__
-                                  << ": Error: Failed while trying to "
+                            LogOutput(OT_METHOD)(__FUNCTION__)(
+                                  ": Error: Failed while trying to "
                                      "get payment string contents. "
-                                     "(Skipping.)\n";
+                                     "(Skipping).").Flush();
                             continue;
                         }
 
@@ -2064,10 +2067,10 @@ bool RecordList::PerformAutoAccept()
                             str_payment_notary_id = strPaymentNotaryId->Get();
                         }
                         if (str_payment_notary_id.empty()) {
-                            otErr
-                                << __FUNCTION__
-                                << ": Error: Failed while trying to "
-                                   "get Notary ID from payment. (Skipping.)\n";
+                            LogOutput(OT_METHOD)(__FUNCTION__)(
+                                ": Error: Failed while trying to "
+                                   "get Notary ID from payment. (Skipping).")
+                            .Flush();
                             continue;
                         }
 
@@ -2078,11 +2081,10 @@ bool RecordList::PerformAutoAccept()
                                 strInstrumentDefinitionID->Get();
                         }
                         if (str_instrument_definition_id.empty()) {
-                            otErr
-                                << __FUNCTION__
-                                << ": Error: Failed while trying to "
+                            LogOutput(OT_METHOD)(__FUNCTION__)(
+                                ": Error: Failed while trying to "
                                    "get instrument definition ID from payment. "
-                                   "(Skipping.)\n";
+                                   "(Skipping).").Flush();
                             continue;
                         }
                         // pick an account to deposit the cheque into.
@@ -2150,9 +2152,9 @@ bool RecordList::PerformAutoAccept()
                                         str_indices,
                                         "ANY",
                                         &str_server_response)) {
-                                    otErr << __FUNCTION__
-                                          << ": Error while trying to "
-                                             "accept this instrument.\n";
+                                    LogOutput(OT_METHOD)(__FUNCTION__)(
+                                          ": Error while trying to "
+                                             "accept this instrument.").Flush();
                                 } else {
                                     TransactionNumber temp_number = 0;
                                     TransactionNumber temp_trans_number = 0;
@@ -2538,10 +2540,10 @@ bool RecordList::Populate()
             OT_ASSERT(false != bool(theOutPayment));
 
             if (!theOutPayment->IsValid() || !theOutPayment->SetTempValues()) {
-                otErr << __FUNCTION__
-                      << ": Skipping: Unable to load outpayments "
-                         "instrument from string:\n"
-                      << strOutpayment->Get() << "\n";
+                LogOutput(OT_METHOD)(__FUNCTION__)(
+                      ": Skipping: Unable to load outpayments "
+                         "instrument from string: ")
+                      (strOutpayment->Get())(".").Flush();
                 continue;
             }
             Amount lAmount = 0;
@@ -2581,9 +2583,9 @@ bool RecordList::Populate()
                 str_outpayment_notary_id = paymentNotaryId->str();
             }
             if (str_outpayment_notary_id.empty()) {
-                otErr << __FUNCTION__
-                      << ": Error: Failed while trying to "
-                         "get Notary ID from payment. (Skipping.)\n";
+                LogOutput(OT_METHOD)(__FUNCTION__)(
+                      ": Error: Failed while trying to "
+                         "get Notary ID from payment. (Skipping).").Flush();
                 continue;
             }
             // --------------------------------------------------
@@ -2610,10 +2612,10 @@ bool RecordList::Populate()
                         "about this unit type ")(str_outpmt_asset.c_str())(").")
                         .Flush();
 
-                    otErr << __FUNCTION__
-                          << ": Skipping outpayment (we don't care "
-                             "about this unit type "
-                          << str_outpmt_asset.c_str() << ")\n";
+                    LogOutput(OT_METHOD)(__FUNCTION__)(
+                          ": Skipping outpayment (we don't care "
+                             "about this unit type ")
+                          (str_outpmt_asset)(").").Flush();
 
                     continue;
                 }
@@ -2674,10 +2676,10 @@ bool RecordList::Populate()
                         "about this account ")(str_outpmt_account.c_str())(").")
                         .Flush();
 
-                    otErr << __FUNCTION__
-                          << ": Skipping outpayment (we don't care "
-                             "about this account "
-                          << str_outpmt_account.c_str() << ")\n";
+                    LogOutput(OT_METHOD)(__FUNCTION__)(
+                          ": Skipping outpayment (we don't care "
+                             "about this account ")
+                          (str_outpmt_account)(").").Flush();
                     continue;
                 }
             }
@@ -2858,9 +2860,9 @@ bool RecordList::Populate()
                     nymID, Identifier::Factory(id), StorageBox::MAILINBOX);
 
                 if (!message) {
-                    otErr << __FUNCTION__
-                          << ": Failed to load mail message with "
-                          << "ID " << id << " from inbox." << std::endl;
+                    LogOutput(OT_METHOD)(__FUNCTION__)(
+                          ": Failed to load mail message with "
+                          "ID ")(id)(" from inbox.").Flush();
                     index++;
 
                     continue;
@@ -2982,9 +2984,9 @@ bool RecordList::Populate()
                     nymID, Identifier::Factory(id), StorageBox::MAILOUTBOX);
 
                 if (!message) {
-                    otErr << __FUNCTION__
-                          << ": Failed to load mail message with "
-                          << "ID " << id << " from outbox." << std::endl;
+                    LogOutput(OT_METHOD)(__FUNCTION__)(
+                          ": Failed to load mail message with "
+                          "ID ")(id)(" from outbox.").Flush();
                     index++;
 
                     continue;
@@ -3331,10 +3333,10 @@ bool RecordList::Populate()
                                     // care about.
                                     // Therefore, skip.
                                     //
-                                    otErr << __FUNCTION__
-                                          << ": Skipping: Incoming payment (we "
-                                             "don't care about asset "
-                                          << str_inpmt_asset.c_str() << ")\n";
+                                    LogOutput(OT_METHOD)(__FUNCTION__)(
+                                          ": Skipping: Incoming payment (we "
+                                             "don't care about asset ")
+                                          (str_inpmt_asset)(").").Flush();
                                     continue;
                                 }
                             }
@@ -3925,11 +3927,11 @@ bool RecordList::Populate()
                                     // did not match any of the assets that we
                                     // care about. Therefore, skip.
                                     //
-                                    otErr << __FUNCTION__
-                                          << ": Skipping: Payment record (we "
+                                    LogOutput(OT_METHOD)(__FUNCTION__)(
+                                          ": Skipping: Payment record (we "
                                              "don't care about instrument "
-                                             "definition "
-                                          << str_inpmt_asset.c_str() << ")\n";
+                                             "definition ")
+                                          (str_inpmt_asset)(").").Flush();
                                     continue;
                                 }
                             }
@@ -4511,11 +4513,11 @@ bool RecordList::Populate()
                                     // assets that we care about.
                                     // Therefore, skip.
                                     //
-                                    otErr << __FUNCTION__
-                                          << ": Skipping: Expired payment "
+                                    LogOutput(OT_METHOD)(__FUNCTION__)(
+                                          ": Skipping: Expired payment "
                                              "record (we don't care about "
-                                             "instrument definition "
-                                          << str_inpmt_asset.c_str() << ")\n";
+                                             "instrument definition ")
+                                          (str_inpmt_asset)(").").Flush();
                                     continue;
                                 }
                             }

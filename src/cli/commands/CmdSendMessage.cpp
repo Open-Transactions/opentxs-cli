@@ -7,6 +7,8 @@
 
 #include <opentxs/opentxs.hpp>
 
+#define OT_METHOD "opentxs::CmdSendMessage::"
+
 namespace opentxs
 {
 CmdSendMessage::CmdSendMessage()
@@ -32,14 +34,16 @@ std::int32_t CmdSendMessage::contact(
     const auto loaded = thread.SetDraft(message);
 
     if (false == loaded) {
-        otErr << "Failed to load message." << std::endl;
+        LogOutput(OT_METHOD)(__FUNCTION__)(
+            ": Failed to load message.").Flush();
         return -1;
     }
 
     const auto sent = thread.SendDraft();
 
     if (false == sent) {
-        otErr << "Error sending message." << std::endl;
+        LogOutput(OT_METHOD)(__FUNCTION__)(
+            ": Error sending message.").Flush();
         return -1;
     }
 
@@ -53,7 +57,8 @@ std::int32_t CmdSendMessage::nym(
     const std::string& message)
 {
     if (!checkNym("hisnym", hisnym)) {
-        otErr << "Bad recipient" << std::endl;
+        LogOutput(OT_METHOD)(__FUNCTION__)(
+            ": Bad recipient.").Flush();
 
         return -1;
     }
@@ -82,7 +87,7 @@ std::int32_t CmdSendMessage::run(
     const bool haveServer = checkServer("server", server);
 
     if (!checkNym("mynym", mynym)) {
-        otErr << "Bad sender" << std::endl;
+        LogOutput(OT_METHOD)(__FUNCTION__)(": Bad sender.").Flush();
 
         return -1;
     }
@@ -90,7 +95,7 @@ std::int32_t CmdSendMessage::run(
     std::string input = inputText("your message");
 
     if ("" == input) {
-        otErr << "Bad message" << std::endl;
+        LogOutput(OT_METHOD)(__FUNCTION__)(": Bad message.").Flush();
 
         return -1;
     }

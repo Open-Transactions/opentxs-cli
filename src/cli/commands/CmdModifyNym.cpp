@@ -7,6 +7,8 @@
 
 #include <opentxs/opentxs.hpp>
 
+#define OT_METHOD "opentxs::CmdModifyNym::"
+
 namespace opentxs
 {
 CmdModifyNym::CmdModifyNym()
@@ -48,7 +50,8 @@ std::int32_t CmdModifyNym::run(
     const std::string& testCash)
 {
     if (false == checkNym("mynym", mynym)) {
-        otErr << "Unknown nym " << mynym << std::endl;
+        LogOutput(OT_METHOD)(__FUNCTION__)(
+            ": Unknown nym ")(mynym)(".").Flush();
 
         return -1;
     }
@@ -56,7 +59,8 @@ std::int32_t CmdModifyNym::run(
     auto data = SwigWrap::Wallet_GetNym(mynym);
 
     if (false == data.Valid()) {
-        otErr << "Invalid nym " << mynym << std::endl;
+        LogOutput(OT_METHOD)(__FUNCTION__)(
+            ": Invalid nym ")(mynym)(".").Flush();
 
         return -1;
     }
@@ -87,7 +91,8 @@ std::int32_t CmdModifyNym::run(
         data.AddPaymentCode(testCash, proto::CITEMTYPE_TNBCH, true, true);
     }
 
-    otErr << SwigWrap::DumpContactData(mynym) << std::endl;
+    LogOutput(OT_METHOD)(__FUNCTION__)(": ")(
+        SwigWrap::DumpContactData(mynym))(".").Flush();
 
     return 1;
 }

@@ -45,8 +45,8 @@ std::int32_t CmdAssignBitcoinAddress::run(
     OTIdentifier accountID = Identifier::Factory(account);
 
     if (accountID->empty()) {
-        otErr << OT_METHOD << __FUNCTION__ << ": Invalid account ID."
-              << std::endl;
+        LogOutput(OT_METHOD)(__FUNCTION__)(": Invalid account ID.")
+              .Flush();
 
         return -1;
     }
@@ -64,8 +64,8 @@ std::int32_t CmdAssignBitcoinAddress::run(
             if (0 <= temp) {
                 index = temp;
             } else {
-                otErr << OT_METHOD << __FUNCTION__ << ": Negative index."
-                      << std::endl;
+                LogOutput(OT_METHOD)(__FUNCTION__)(": Negative index.")
+                      .Flush();
 
                 return -1;
             }
@@ -75,12 +75,12 @@ std::int32_t CmdAssignBitcoinAddress::run(
             index = std::stoull(indexArg);
         }
     } catch (const std::invalid_argument&) {
-        otErr << OT_METHOD << __FUNCTION__ << ": Invalid index." << std::endl;
+        LogOutput(OT_METHOD)(__FUNCTION__)(": Invalid index.").Flush();
 
         return -1;
     } catch (const std::out_of_range&) {
-        otErr << OT_METHOD << __FUNCTION__ << ": Index out of range."
-              << std::endl;
+        LogOutput(OT_METHOD)(__FUNCTION__)(": Index out of range.")
+              .Flush();
 
         return -1;
     }
@@ -90,8 +90,8 @@ std::int32_t CmdAssignBitcoinAddress::run(
         nymID, accountID, index, Identifier::Factory(contact), change);
 
     if (false == assigned) {
-        otErr << OT_METHOD << __FUNCTION__ << ": Failed to allocate address."
-              << std::endl;
+        LogOutput(OT_METHOD)(__FUNCTION__)(": Failed to allocate address.")
+              .Flush();
 
         return -1;
     }
@@ -100,8 +100,8 @@ std::int32_t CmdAssignBitcoinAddress::run(
         nymID, accountID, index, change);
 
     if (false == bool(address)) {
-        otErr << OT_METHOD << __FUNCTION__ << ": Failed to load address."
-              << std::endl;
+        LogOutput(OT_METHOD)(__FUNCTION__)(": Failed to load address.")
+              .Flush();
 
         return -1;
     }

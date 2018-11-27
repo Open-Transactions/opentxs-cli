@@ -42,8 +42,8 @@ std::int32_t CmdAllocateBitcoinAddress::run(
     OTIdentifier accountID = Identifier::Factory(account);
 
     if (accountID->empty()) {
-        otErr << OT_METHOD << __FUNCTION__ << ": Invalid account ID."
-              << std::endl;
+        LogOutput(OT_METHOD)(__FUNCTION__)(": Invalid account ID.")
+              .Flush();
 
         return -1;
     }
@@ -57,8 +57,8 @@ std::int32_t CmdAllocateBitcoinAddress::run(
             Identifier::Factory(mynym), accountID, label, change);
 
         if (false == bool(address)) {
-            otErr << OT_METHOD << __FUNCTION__
-                  << ": Failed to allocate address." << std::endl;
+            LogOutput(OT_METHOD)(__FUNCTION__)(
+                  ": Failed to allocate address.").Flush();
 
             return -1;
         }

@@ -11,8 +11,6 @@
 #include <iostream>
 #include <string>
 
-#define OT_METHOD "opentxs::CmdShowPurse::"
-
 using namespace opentxs;
 using namespace std;
 
@@ -36,6 +34,8 @@ int32_t CmdShowPurse::runWithOptions()
 int32_t CmdShowPurse::run(string server, string mynym, string mypurse)
 {
 #if OT_CASH
+#define OT_METHOD "opentxs::CmdShowPurse::"
+
     if (!checkServer("server", server)) { return -1; }
 
     if (!checkNym("mynym", mynym)) { return -1; }

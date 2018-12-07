@@ -11,8 +11,6 @@
 #include <stdint.h>
 #include <string>
 
-#define OT_METHOD "opentxs::CmdImportCash::"
-
 using namespace opentxs;
 using namespace std;
 
@@ -32,6 +30,8 @@ int32_t CmdImportCash::runWithOptions() { return run(getOption("mynym")); }
 int32_t CmdImportCash::run(string mynym)
 {
 #if OT_CASH
+#define OT_METHOD "opentxs::CmdImportCash::"
+
     if ("" != mynym && !checkNym("mynym", mynym)) { return -1; }
 
     string instrument = inputText("a cash purse");

@@ -11,8 +11,6 @@
 #include <iostream>
 #include <string>
 
-#define OT_METHOD "opentxs::CmdShowMint"
-
 using namespace opentxs;
 using namespace std;
 
@@ -40,6 +38,8 @@ std::string CmdShowMint::load_or_retrieve_mint(
     const std::string& unitTypeID) const
 {
 #if OT_CASH
+#define OT_METHOD "opentxs::CmdShowMint"
+
     std::string response = check_nym(notaryID, nymID, nymID);
 
     if (1 != VerifyMessageSuccess(Opentxs::Client(), response)) {

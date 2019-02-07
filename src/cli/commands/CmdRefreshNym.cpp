@@ -38,62 +38,16 @@ int32_t CmdRefreshNym::run(string server, string mynym)
 
     if (!checkNym("mynym", mynym)) { return -1; }
 
-    bool msgWasSent = false;
-    auto nymBox = retrieve_nym(server, mynym, msgWasSent, true);
-    switch (nymBox) {
-        case 1:
-            break;
+    auto task = Opentxs::Client().OTX().DownloadNymbox(
+        Identifier::Factory(mynym), Identifier::Factory(server));
 
-        case 0:
-            if (msgWasSent) {
-                LogNormal(OT_METHOD)(__FUNCTION__)(
-                    ": Error: cannot refresh nym.")
-                    .Flush();
-                return -1;
-            }
-
-            LogNormal(OT_METHOD)(__FUNCTION__)(": Nymbox is empty.").Flush();
-            break;
-
-        default:
-            LogNormal(OT_METHOD)(__FUNCTION__)(": Error: cannot refresh nym.")
-                .Flush();
-            return -1;
+    const auto result = std::get<1>(task).get();
+    
+    const auto success = CmdBase::GetResultSuccess(result);
+    if (false == success) {
+        LogOutput(OT_METHOD)(__FUNCTION__)(": Failed to refresh nym").Flush();
+        return -1;
     }
 
     return 1;
-}
-
-// RETRIEVE NYM INTERMEDIARY FILES
-// Returns:
-//  True if I have enough numbers, or if there was success getting more
-// transaction numbers.
-//  False if I didn't have enough numbers, tried to get more, and failed
-// somehow.
-//
-std::int32_t CmdRefreshNym::retrieve_nym(
-    const std::string& strNotaryID,
-    const std::string& strMyNymID,
-    bool& bWasMsgSent,
-    bool bForceDownload) const
-{
-    auto context = Opentxs::Client().Wallet().mutable_ServerContext(
-        Identifier::Factory(strMyNymID), Identifier::Factory(strNotaryID));
-    Utility MsgUtil(context.It(), Opentxs::Client());
-
-    if (0 >= context.It().UpdateRequestNumber()) {
-        LogOutput(OT_METHOD)(__FUNCTION__)(
-              ": Failed calling getRequestNumber.").Flush();
-
-        return -1;
-    } else  // If it returns 1, we know for sure that the request number is in
-            // sync.
-    {
-        LogVerbose("SUCCESS syncronizing the request number.").Flush();
-    }
-
-    std::int32_t nGetAndProcessNymbox = MsgUtil.getAndProcessNymbox_4(
-        strNotaryID, strMyNymID, bWasMsgSent, bForceDownload);
-
-    return nGetAndProcessNymbox;
 }

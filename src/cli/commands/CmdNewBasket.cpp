@@ -181,25 +181,19 @@ int32_t CmdNewBasket::run(
                 SwigWrap::Message_GetNewInstrumentDefinitionID(response);
             bool bGotNewID = "" != strNewID;
             bool bRetrieved = false;
-            string strEnding = ".";
 
             if (bGotNewID) {
-                {
-                    response = Opentxs::Client()
-                                   .ServerAction()
-                                   .DownloadContract(
-                                       Identifier::Factory(mynym),
-                                       Identifier::Factory(server),
-                                       Identifier::Factory(strNewID))
-                                   ->Run();
-                }
-                strEnding = ": " + strNewID;
+                auto task = Opentxs::Client().OTX().DownloadContract(
+                    Identifier::Factory(mynym),
+                    Identifier::Factory(server),
+                    Identifier::Factory(strNewID));
 
-                if (1 == responseStatus(response)) { bRetrieved = true; }
+                const auto result = std::get<1>(task).get();
+                const auto success =
+                    CmdBase::GetResultSuccess(result);
+
+                if (success) { bRetrieved = true; }
             }
-            LogNormal(OT_METHOD)(__FUNCTION__)(": Server response: SUCCESS in "
-                                               "issue_basket_currency! ")
-                .Flush();
             LogNormal(OT_METHOD)(__FUNCTION__)(
                 bRetrieved ? "Success"
                            : "Failed")(" retrieving new basket contract")

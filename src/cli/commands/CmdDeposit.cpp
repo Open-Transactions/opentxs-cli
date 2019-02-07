@@ -147,8 +147,11 @@ int32_t CmdDeposit::depositPurse(
     string* pOptionalOutput /*=nullptr*/) const
 {
 #if OT_CASH
+/*
     return Opentxs::Client().Cash().deposit_purse(
         server, myacct, mynym, instrument, indices, pOptionalOutput);
+*/
+	return -1;
 #else
     return -1;
 #endif  // OT_CASH

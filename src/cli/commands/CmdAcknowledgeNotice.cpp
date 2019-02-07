@@ -7,6 +7,8 @@
 
 #include <opentxs/opentxs.hpp>
 
+#define OT_METHOD "opentxs::CmdAcknowledgeNotice"
+
 namespace opentxs
 {
 
@@ -44,19 +46,21 @@ std::int32_t CmdAcknowledgeNotice::run(
 
     if (!checkNym("hisnym", hisnym)) { return -1; }
 
-    std::string response;
-    {
-        response = Opentxs::
-                       Client()
-                       .ServerAction()
-                       .AcknowledgeNotice(
-                           Identifier::Factory(mynym),
-                           Identifier::Factory(server),
-                           Identifier::Factory(hisnym),
-                           Identifier::Factory(mypurse),
-                           true)
-                       ->Run();
+    auto task = Opentxs::Client().OTX().AcknowledgeNotice(
+        identifier::Nym::Factory(mynym),
+        identifier::Server::Factory(server),
+        identifier::Nym::Factory(hisnym),
+        Identifier::Factory(mypurse),
+        true);
+    
+    const auto result = std::get<1>(task).get();
+
+    if (false == CmdBase::GetResultSuccess(result)) {
+        LogOutput(OT_METHOD)(__FUNCTION__)(": Failed to acknowledge notice")
+            .Flush();
+        return -1;
     }
-    return processResponse(response, "acknowledge notice");
+
+    return 1;
 }
 }  // namespace opentxs

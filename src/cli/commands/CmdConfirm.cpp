@@ -232,8 +232,8 @@ int32_t CmdConfirm::confirmSmartContract(
         }
 
         if (!SwigWrap::Smart_IsPartyConfirmed(contract, name)) {
-            LogNormal(OT_METHOD)(__FUNCTION__)(
-	       i)(": Unconfirmed party: ")(name)(".")
+            LogNormal(OT_METHOD)(__FUNCTION__)(i)(": Unconfirmed party: ")(
+                name)(".")
                 .Flush();
             unconfirmed++;
         }
@@ -439,13 +439,16 @@ int32_t CmdConfirm::activateContract(
         response, server, mynym, myAcctID, "activate_smart_contract");
     if (1 != reply) { return reply; }
 
-    {
-        if (!Opentxs::Client().ServerAction().DownloadAccount(
-                theNymID, theNotaryID, theAcctID, true)) {
-            LogNormal(OT_METHOD)(__FUNCTION__)(
-                ": Error retrieving intermediary files for account.")
-                .Flush();
-        }
+    auto task =
+        Opentxs::Client().OTX().ProcessInbox(theNymID, theNotaryID, theAcctID);
+
+    const auto result = std::get<1>(task).get();
+    const auto success = CmdBase::GetResultSuccess(result);
+
+    if (false == success) {
+        LogNormal(OT_METHOD)(__FUNCTION__)(
+            ": Error retrieving intermediary files for account.")
+            .Flush();
     }
 
     return 1;
@@ -462,8 +465,9 @@ int32_t CmdConfirm::sendToNextParty(
     // If HisNym is provided, and it's different than mynym, then use it.
     // He's the next receipient.
     // If HisNym is NOT provided, then display the list of NymIDs, and allow
-    // the user to paste one. We can probably select him based on abbreviated
-    // ID or Name as well (I think there's an API call for that...)
+    // the user to paste one. We can probably select him based on
+    // abbreviated ID or Name as well (I think there's an API call for
+    // that...)
     string hisNymID = hisnym;
 
     // If hisNymID doesn't exist, or it's the same as mynym, then ask
@@ -511,34 +515,32 @@ int32_t CmdConfirm::sendToNextParty(
 
     OT_ASSERT(false != bool(payment));
 
-    std::string response;
-    {
-        std::shared_ptr<const OTPayment> ppayment{payment.release()};
-        response = Opentxs::Client()
-                       .ServerAction()
-                       .SendPayment(
-                           Identifier::Factory(mynym),
-                           Identifier::Factory(server),
-                           Identifier::Factory(hisNymID),
-                           ppayment)
-                       ->Run();
-        if (1 != responseStatus(response)) {
-            LogNormal(OT_METHOD)(__FUNCTION__)(
-                ": For whatever reason, our attempt to send the "
-                "instrument on "
-                "to the next user has Failed.")
-                .Flush();
-            return harvestTxNumbers(contract, mynym);
-        }
+    std::shared_ptr<const OTPayment> ppayment{payment.release()};
+
+    const auto contactid =
+        Opentxs::Client().Contacts().ContactID(Identifier::Factory(hisNymID));
+
+    auto task = Opentxs::Client().OTX().PayContact(
+        Identifier::Factory(mynym), contactid, ppayment);
+
+    const auto result = std::get<1>(task).get();
+
+    if (false == CmdBase::GetResultSuccess(result)) {
+        LogNormal(OT_METHOD)(__FUNCTION__)(
+            ": For whatever reason, our attempt to send the "
+            "instrument on "
+            "to the next user has Failed.")
+            .Flush();
+        return harvestTxNumbers(contract, mynym);
     }
 
-    // Success. (Remove the payment instrument we just successfully sent from
-    // our payments inbox.)
+    // Success. (Remove the payment instrument we just successfully sent
+    // from our payments inbox.)
 
-    // In the case of smart contracts, it might be sent on to a chain of 2 or
-    // 3 users, before finally being activated by the last one in the chain.
-    // All of the users in the chain (except the first one) will thus have a
-    // copy of the smart contract in their payments inbox AND outbox.
+    // In the case of smart contracts, it might be sent on to a chain of 2
+    // or 3 users, before finally being activated by the last one in the
+    // chain. All of the users in the chain (except the first one) will thus
+    // have a copy of the smart contract in their payments inbox AND outbox.
     //
     // But once the smart contract has successfully been sent on to the next
     // user, and thus a copy of it is in my outbox already, then there is
@@ -556,8 +558,8 @@ int32_t CmdConfirm::sendToNextParty(
     // reply processing, but that will require it to be encrypted to my own
     // key as well as the recipient's, which we already do for sending cash,
     // but which we up until now have not done for the other instruments.
-    // So perhaps we'll start doing that sometime in the future, and then move
-    // this code.
+    // So perhaps we'll start doing that sometime in the future, and then
+    // move this code.
     //
     // In the meantime, this is good enough.
 
@@ -645,15 +647,16 @@ int32_t CmdConfirm::confirmAccounts(
         }
 
         // Loop through all the accounts for that Server/Nym, display them,
-        // allow the user to choose one and then store it in a list somewhere
-        // for the actual confirmation. (Which we will do only after ALL
-        // accounts have been selected.) We will also make sure to prevent
-        // from selecting an account that already appears on that list.
+        // allow the user to choose one and then store it in a list
+        // somewhere for the actual confirmation. (Which we will do only
+        // after ALL accounts have been selected.) We will also make sure to
+        // prevent from selecting an account that already appears on that
+        // list.
         //
         // Also, when we actually add an Acct ID to the list, we need to
         // decrement accounts, so that we are finished once all the accounts
-        // from the smart contract template have had actual acct IDs selected
-        // for each.
+        // from the smart contract template have had actual acct IDs
+        // selected for each.
         string templateInstrumentDefinitionID =
             SwigWrap::Party_GetAcctInstrumentDefinitionID(
                 contract, name, acctName);
@@ -701,8 +704,8 @@ int32_t CmdConfirm::confirmAccounts(
                     templateInstrumentDefinitionID ==
                         acctInstrumentDefinitionID) {
                     // DO NOT display any accounts that have already been
-                    // selected! (Search the temp map where we've been stashing
-                    // them.)
+                    // selected! (Search the temp map where we've been
+                    // stashing them.)
                     if (!bAlreadyOnTheMap) {
                         foundAccounts = true;
                         LogNormal(OT_METHOD)(__FUNCTION__)(i)(" : ")(acct)(
@@ -718,8 +721,9 @@ int32_t CmdConfirm::confirmAccounts(
         if (!foundAccounts) {
             LogNormal(OT_METHOD)(__FUNCTION__)(
                 "There are no accounts matching the specified Nym (")(mynym)(
-                ") and Server (")(server)(") Try:  opentxs newaccount --mynym ")(
-                mynym)(" --server ")(server)(".")
+                ") and Server (")(server)(
+                ") Try:  opentxs newaccount --mynym ")(mynym)(" --server ")(
+                server)(".")
                 .Flush();
             return -1;
         }
@@ -753,8 +757,8 @@ int32_t CmdConfirm::confirmAccounts(
 
         if ("" == acct) {
             LogNormal(OT_METHOD)(__FUNCTION__)(
-                ": Error reading account ID based on index: ")
-	        (selectedIndex)(".")
+                ": Error reading account ID based on index: ")(selectedIndex)(
+                ".")
                 .Flush();
             return -1;
         }
@@ -765,10 +769,9 @@ int32_t CmdConfirm::confirmAccounts(
             SwigWrap::GetAccountWallet_InstrumentDefinitionID(acct);
 
         if (server == acctNotaryID && mynym == acctNymID) {
-            // If the smart contract doesn't specify the instrument definition
-            // ID of the
-            // account, or if it DOES specify, AND they match, then it's a
-            // viable choice. Allow it.
+            // If the smart contract doesn't specify the instrument
+            // definition ID of the account, or if it DOES specify, AND they
+            // match, then it's a viable choice. Allow it.
             if (!foundTemplateInstrumentDefinitionID ||
                 templateInstrumentDefinitionID == acctInstrumentDefinitionID) {
 
@@ -782,7 +785,8 @@ int32_t CmdConfirm::confirmAccounts(
 
                 if (bAlreadyOnIt) {
                     LogNormal(OT_METHOD)(__FUNCTION__)(
-                        ": Sorry, you already selected this account. Choose "
+                        ": Sorry, you already selected this account. "
+                        "Choose "
                         "another.")
                         .Flush();
                 } else {
@@ -813,8 +817,7 @@ int32_t CmdConfirm::confirmAccounts(
                             int32_t nAgentIndex = stol(strAgentIndex);
                             if (0 > nAgentIndex) {
                                 LogNormal(OT_METHOD)(__FUNCTION__)(
-                                    ": Error: Bad Index: ")
-				    (strAgentIndex)(".")
+                                    ": Error: Bad Index: ")(strAgentIndex)(".")
                                     .Flush();
                                 return -1;
                             }
@@ -823,7 +826,8 @@ int32_t CmdConfirm::confirmAccounts(
                                 contract, name, nAgentIndex);
                             if ("" == agentName) {
                                 LogNormal(OT_METHOD)(__FUNCTION__)(
-                                    ": Error: Unable to retrieve agent name "
+                                    ": Error: Unable to retrieve agent "
+                                    "name "
                                     "at index ")(strAgentIndex)(" for Party: ")(
                                     name)(".")
                                     .Flush();
@@ -851,36 +855,36 @@ int32_t CmdConfirm::confirmAccounts(
         }
     }
 
-    for (auto x = mapIDs.begin(); x != mapIDs.end(); x++) {
-        int32_t needed = SwigWrap::SmartContract_CountNumsNeeded(
-            contract, mapAgents[x->first]);
-
-        if (!Opentxs::Client().ServerAction().GetTransactionNumbers(
-                Identifier::Factory(mynym),
-                Identifier::Factory(server),
-                needed + 1)) {
-            LogNormal(OT_METHOD)(__FUNCTION__)(": Error: cannot reserve "
-                                               "transaction numbers.")
-                .Flush();
-            return -1;
-        }
-    }
+    //    for (auto x = mapIDs.begin(); x != mapIDs.end(); x++) {
+    //        int32_t needed = SwigWrap::SmartContract_CountNumsNeeded(
+    //            contract, mapAgents[x->first]);
+    //
+    //        if (!Opentxs::Client().ServerAction().GetTransactionNumbers(
+    //                Identifier::Factory(mynym),
+    //                Identifier::Factory(server),
+    //                needed + 1)) {
+    //            LogNormal(OT_METHOD)(__FUNCTION__)(": Error: cannot reserve "
+    //                                               "transaction numbers.")
+    //                .Flush();
+    //            return -1;
+    //        }
+    //    }
 
     // CONFIRM THE ACCOUNTS HERE
     //
     // Note: Any failure below this point needs to harvest back ALL
     // transaction numbers. Because we haven't even TRIED to activate it,
-    // therefore ALL numbers on the contract are still good (even the opening
-    // number.)
+    // therefore ALL numbers on the contract are still good (even the
+    // opening number.)
     //
-    // Whereas after a failed activation, we'd need to harvest only the closing
-    // numbers, and not the opening numbers. But in here, this is confirmation,
-    // not activation.
+    // Whereas after a failed activation, we'd need to harvest only the
+    // closing numbers, and not the opening numbers. But in here, this is
+    // confirmation, not activation.
     string myAcctID = "";
     string myAcctAgentName = "";
     for (auto x = mapIDs.begin(); x != mapIDs.end(); x++) {
-        // Here we check to see if MyAcct exists -- if so we compare it to the
-        // current acctID and if they match, we set myAcctID. Later on,
+        // Here we check to see if MyAcct exists -- if so we compare it to
+        // the current acctID and if they match, we set myAcctID. Later on,
         // if/when activating, we can just use myAcctID to activate.
         // (Otherwise we will have to pick one from the confirmed accounts.)
         if ("" == myAcctID && myacct == x->second) {
@@ -895,8 +899,9 @@ int32_t CmdConfirm::confirmAccounts(
             LogNormal(OT_METHOD)(__FUNCTION__)(
                 ": Failure while calling "
                 "OT_API_SmartContract_ConfirmAccount. Acct Name: ")(x->first)(
-                " Agent Name: ")(mapAgents[x->first])(" Acct ID: ")(x->second)
-                (".").Flush();
+                " Agent Name: ")(mapAgents[x->first])(" Acct ID: ")(x->second)(
+                ".")
+                .Flush();
             return harvestTxNumbers(contract, mynym);
         }
 
@@ -932,8 +937,8 @@ bool CmdConfirm::showPartyAccounts(
         string acctName = SwigWrap::Party_GetAcctNameByIndex(contract, name, i);
         if ("" == acctName) {
             LogNormal(OT_METHOD)(__FUNCTION__)(
-                ": Error: Failed retrieving Asset Account Name from party '")(
-                name)("' at account index: ")(i)(".")
+                ": Error: Failed retrieving Asset Account Name from party "
+                "'")(name)("' at account index: ")(i)(".")
                 .Flush();
             return false;
         }

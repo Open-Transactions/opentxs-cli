@@ -110,6 +110,8 @@ typedef enum {
 class CmdBase
 {
 public:
+	static bool GetResultSuccess(const api::client::OTX::Result& result);
+	
     EXPORT CmdBase();
     virtual ~CmdBase();
 
@@ -127,7 +129,7 @@ protected:
     const char* help;
     const char* usage;
 
-    std::string check_nym(
+    bool check_nym(
         const std::string& NOTARY_ID,
         const std::string& NYM_ID,
         const std::string& TARGET_NYM_ID) const;

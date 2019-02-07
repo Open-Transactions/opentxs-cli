@@ -41,12 +41,16 @@ std::int32_t CmdAcceptIncoming::run(std::string myacct)
 
     if (serverID->empty()) { return -1; }
 
-    const auto output =
-        Opentxs::Client().Sync().AcceptIncoming(nymID, accountID, serverID);
+    auto task =
+        Opentxs::Client().OTX().ProcessInbox(nymID, serverID, accountID);
 
-    if (!output) {
+    const auto result = std::get<1>(task).get();
+    
+    const auto success = CmdBase::GetResultSuccess(result);
+    if (false == success) {
         LogOutput(OT_METHOD)(__FUNCTION__)(
-            ": Failed to accept incoming payments.").Flush();
+            ": Failed to accept incoming payments.")
+            .Flush();
 
         return -1;
     }

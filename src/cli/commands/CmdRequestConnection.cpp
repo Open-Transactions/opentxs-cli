@@ -9,6 +9,8 @@
 
 #include <stdexcept>
 
+#define OT_METHOD "opentxs::CmdRequestConnection"
+
 namespace opentxs
 {
 
@@ -58,19 +60,20 @@ std::int32_t CmdRequestConnection::run(
         return -1;
     }
 
-    std::string response;
-    {
-        response = Opentxs::
-                       Client()
-                       .ServerAction()
-                       .InitiateRequestConnection(
-                           Identifier::Factory(mynym),
-                           Identifier::Factory(server),
-                           Identifier::Factory(hisnym),
-                           proto::ConnectionInfoType(type))
-                       ->Run();
+    auto task = Opentxs::Client().OTX().InitiateRequestConnection(
+        identifier::Nym::Factory(mynym),
+        identifier::Server::Factory(server),
+        identifier::Nym::Factory(hisnym),
+        proto::ConnectionInfoType(type));
+
+    const auto result = std::get<1>(task).get();
+
+    if (false == CmdBase::GetResultSuccess(result)) {
+        LogOutput(OT_METHOD)(__FUNCTION__)(": Failed to request connection")
+            .Flush();
+        return -1;
     }
 
-    return processResponse(response, "request connection");
+    return 1;
 }
 }  // namespace opentxs

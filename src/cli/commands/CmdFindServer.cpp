@@ -24,11 +24,13 @@ std::int32_t CmdFindServer::runWithOptions()
 
 std::int32_t CmdFindServer::run(std::string server)
 {
-    const auto response =
-        Opentxs::Client().Sync().FindServer(Identifier::Factory(server));
+    auto task = Opentxs::Client().OTX().FindServer(Identifier::Factory(server));
 
-    if (String::Factory(response)->Exists()) { return 1; }
+    const auto result = std::get<1>(task).get();
+    
+    const auto success = CmdBase::GetResultSuccess(result);
+    if (false == success) { return -1; }
 
-    return -1;
+    return 1;
 }
 }  // namespace opentxs

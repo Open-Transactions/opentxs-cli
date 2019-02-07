@@ -7,6 +7,8 @@
 
 #include <opentxs/opentxs.hpp>
 
+#define OT_METHOD "opentxs::CmdPeerStoreSecret"
+
 namespace opentxs
 {
 
@@ -44,21 +46,22 @@ std::int32_t CmdPeerStoreSecret::run(
 
     const std::string secondary = inputText("Passphrase");
 
-    std::string response;
-    {
-        response = Opentxs::
-                       Client()
-                       .ServerAction()
-                       .InitiateStoreSecret(
-                           Identifier::Factory(mynym),
-                           Identifier::Factory(server),
-                           Identifier::Factory(hisnym),
-                           proto::SecretType(1),
-                           primary,
-                           secondary)
-                       ->Run();
+    auto task = Opentxs::Client().OTX().InitiateStoreSecret(
+        identifier::Nym::Factory(mynym),
+        identifier::Server::Factory(server),
+        identifier::Nym::Factory(hisnym),
+        proto::SecretType(1),
+        primary,
+        secondary);
+
+    const auto result = std::get<1>(task).get();
+
+    if (false == CmdBase::GetResultSuccess(result)) {
+        LogOutput(OT_METHOD)(__FUNCTION__)(": Failed to register contract")
+            .Flush();
+        return -1;
     }
 
-    return processResponse(response, "peer store secret");
+    return 1;
 }
 }  // namespace opentxs

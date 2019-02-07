@@ -38,11 +38,12 @@ std::string CmdShowMint::load_or_retrieve_mint(
     const std::string& unitTypeID) const
 {
 #if OT_CASH
+/*
 #define OT_METHOD "opentxs::CmdShowMint"
 
-    std::string response = check_nym(notaryID, nymID, nymID);
+    const auto success = check_nym(notaryID, nymID, nymID);
 
-    if (1 != VerifyMessageSuccess(Opentxs::Client(), response)) {
+    if (!success) {
         LogNormal(OT_METHOD)(__FUNCTION__)(
             ": load_or_retrieve_mint: Cannot verify nym for "
             "IDs: ")
@@ -127,6 +128,8 @@ std::string CmdShowMint::load_or_retrieve_mint(
     }
 
     return strMint;
+*/
+	return"";
 #else
     return "";
 #endif
@@ -135,6 +138,7 @@ std::string CmdShowMint::load_or_retrieve_mint(
 int32_t CmdShowMint::run(string server, string mynym, string mypurse)
 {
 #if OT_CASH
+/*
     if (!checkServer("server", server)) { return -1; }
 
     if (!checkNym("mynym", mynym)) { return -1; }
@@ -151,6 +155,8 @@ int32_t CmdShowMint::run(string server, string mynym, string mypurse)
     cout << mint << "\n";
 
     return 1;
+*/
+	return -1;
 #else
     return -1;
 #endif  // OT_CASH

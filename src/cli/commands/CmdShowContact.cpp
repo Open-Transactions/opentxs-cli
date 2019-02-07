@@ -70,6 +70,8 @@ std::int32_t CmdShowContact::runWithOptions()
 
 std::int32_t CmdShowContact::run(const std::string& id)
 {
+    if (!checkMandatory("contact", id)) { return -1; }
+
     const OTIdentifier contactID = Identifier::Factory(id);
     auto& contact = Opentxs::Client().UI().Contact(contactID);
     LogNormal(OT_METHOD)(__FUNCTION__)(contact.DisplayName())(": (")(

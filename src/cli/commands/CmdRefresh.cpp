@@ -52,18 +52,19 @@ int32_t CmdRefresh::run(string myacct)
     CmdRefreshNym refreshNym;
     if (0 > refreshNym.run(server, mynym)) { return -1; }
 
-    {
-        if (!Opentxs::Client().ServerAction().DownloadAccount(
-                Identifier::Factory(mynym),
-                Identifier::Factory(server),
-                Identifier::Factory(myacct),
-                true)) {
-            LogNormal(OT_METHOD)(__FUNCTION__)(
-                ": Error retrieving intermediary "
-                "files for myacct.")
-                .Flush();
-            return -1;
-        }
+    auto task = Opentxs::Client().OTX().ProcessInbox(
+        Identifier::Factory(mynym),
+        Identifier::Factory(server),
+        Identifier::Factory(myacct));
+
+    const auto result = std::get<1>(task).get();
+    
+    const auto success = CmdBase::GetResultSuccess(result);
+    if (false == success) {
+        LogNormal(OT_METHOD)(__FUNCTION__)(": Error retrieving intermediary "
+                                           "files for myacct.")
+            .Flush();
+        return -1;
     }
 
     return 1;

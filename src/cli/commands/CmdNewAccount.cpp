@@ -11,6 +11,8 @@
 #include <stdint.h>
 #include <string>
 
+#define OT_METHOD "opentxs::CmdNewAccount::"
+
 using namespace opentxs;
 using namespace std;
 
@@ -44,16 +46,20 @@ int32_t CmdNewAccount::run(string server, string mynym, string mypurse)
         registerNym.run(server, mynym, "true", "false");
     }
 
-    std::string response;
-    {
-        response = Opentxs::
-                       Client()
-                       .ServerAction()
-                       .RegisterAccount(
-                           Identifier::Factory(mynym),
-                           Identifier::Factory(server),
-                           Identifier::Factory(mypurse))
-                       ->Run();
+    auto task = Opentxs::Client().OTX().RegisterAccount(
+        Identifier::Factory(mynym),
+        Identifier::Factory(server),
+        Identifier::Factory(mypurse));
+
+    const auto result = std::get<1>(task).get();
+    
+    const auto success = CmdBase::GetResultSuccess(result);
+    if (false == success) {
+        LogOutput(OT_METHOD)(__FUNCTION__)(": Failed to create asset account.")
+            .Flush();
+
+        return -1;
     }
-    return processResponse(response, "create asset account");
+
+    return 1;
 }

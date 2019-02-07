@@ -54,19 +54,24 @@ int32_t CmdBaseInstrument::sendPayment(
 
     OT_ASSERT(false != bool(payment));
 
-    std::string response;
-    {
-        std::shared_ptr<const OTPayment> ppayment{payment.release()};
-        response = Opentxs::Client()
-                       .ServerAction()
-                       .SendPayment(
-                           Identifier::Factory(sender),
-                           Identifier::Factory(server),
-                           Identifier::Factory(recipient),
-                           ppayment)
-                       ->Run();
+    const auto contactid =
+        Opentxs::Client().Contacts().ContactID(Identifier::Factory(recipient));
+
+    std::shared_ptr<const OTPayment> ppayment{payment.release()};
+
+    auto task = Opentxs::Client().OTX().PayContact(
+        Identifier::Factory(sender), contactid, ppayment);
+
+    const auto result = std::get<1>(task).get();
+    
+    const auto success = CmdBase::GetResultSuccess(result);
+    if (false == success) {
+        LogOutput(OT_METHOD)(__FUNCTION__)(": Failed to send payment.").Flush();
+
+        return -1;
     }
-    return processResponse(response, what);
+
+    return 1;
 }
 
 string CmdBaseInstrument::writeCheque(
@@ -100,16 +105,6 @@ string CmdBaseInstrument::writeCheque(
             ": Error: cannot determine mynym from myacct.")
             .Flush();
         return "";
-    }
-
-    {
-        if (!Opentxs::Client().ServerAction().GetTransactionNumbers(
-                Identifier::Factory(mynym), Identifier::Factory(server), 10)) {
-            LogNormal(OT_METHOD)(__FUNCTION__)(
-                ": Error: cannot reserve transaction numbers.")
-                .Flush();
-            return "";
-        }
     }
 
     int64_t oneMonth = OTTimeGetSecondsFromTime(OT_TIME_MONTH_IN_SECONDS);

@@ -250,7 +250,8 @@ bool RecordList::accept_from_paymentbox(  // static function
     std::string* pOptionalOutput /*=nullptr*/)
 {
     if (transport_notary.empty()) {
-        LogNormal(OT_METHOD)(__FUNCTION__)(": Error: transport_notary is empty.")
+        LogNormal(OT_METHOD)(__FUNCTION__)(
+            ": Error: transport_notary is empty.")
             .Flush();
         return -1;
     }
@@ -427,304 +428,340 @@ std::int32_t RecordList::processPayment(  // a static method
     std::string* pOptionalOutput /*=nullptr*/,
     bool CLI_input_allowed /*=false*/)
 {
-    if (myacct.empty()) {
-        LogNormal(OT_METHOD)(__FUNCTION__)(
-            ": Failure: myacct not a valid string.")
-            .Flush();
-        return -1;
-    }
-
-    auto accountNotaryId = Identifier::Factory();
-    std::string acct_server = SwigWrap::GetAccountWallet_NotaryID(myacct);
-    if (acct_server.empty()) {
-        LogNormal(OT_METHOD)(__FUNCTION__)(": Error: cannot determine "
-                                           "acct_server from myacct.")
-            .Flush();
-        return -1;
-    }
-    accountNotaryId = Identifier::Factory(acct_server);
-
-    std::string mynym = SwigWrap::GetAccountWallet_NymID(myacct);
-    if (mynym.empty()) {
-        LogNormal(OT_METHOD)(__FUNCTION__)(
-            ": Error: cannot determine mynym from myacct.")
-            .Flush();
-        return -1;
-    }
-
-    std::string instrument = "";
-    if (-1 == index) {
-        if (CLI_input_allowed) { instrument = inputText("the instrument"); }
-        if (instrument.empty()) { return -1; }
-    } else {
-        instrument = RecordList::get_payment_instrument(
-            transport_notary, mynym, index, inbox);
-        if (instrument.empty()) {
-            LogNormal(OT_METHOD)(__FUNCTION__)(
-                ": Error: cannot get payment instrument.")
-                .Flush();
-            return -1;
-        }
-    }
-
-    auto thePayment{Opentxs::Client().Factory().Payment(
-        String::Factory(instrument.c_str()))};
-
-    OT_ASSERT(false != bool(thePayment));
-
-    if (!thePayment->IsValid() || !thePayment->SetTempValues()) {
-        LogNormal(OT_METHOD)(__FUNCTION__)(": Error: Failed loading payment "
-                                           "instrument from string.")
-            .Flush();
-        return -1;
-    }
-
-    // The Notary ID we found on the payment instrument itself.
-    //
-    auto paymentNotaryId = Identifier::Factory();
-    const bool bGotPaymentNotaryId = thePayment->GetNotaryID(paymentNotaryId);
-
-    if (!bGotPaymentNotaryId) {
-        LogNormal(OT_METHOD)(__FUNCTION__)(": Error: Failed getting Notary ID "
-                                           "from payment instrument.")
-            .Flush();
-        return -1;
-    }
-
-    auto assetTypeId = Identifier::Factory();
-    const bool bGotPaymentAssetTypeId =
-        thePayment->GetInstrumentDefinitionID(assetTypeId);
-
-    if (!bGotPaymentAssetTypeId) {
-        // Allowed for now.
-
-        //        otOut << "Error: cannot determine instrument's asset type.\n";
-        //        return -1;
-        ;
-    }
-    const std::string strPaymentAssetTypeId = assetTypeId->str();
-    std::string type = thePayment->GetTypeString();
-
-    std::string strIndexErrorMsg = "";
-    if (-1 != index) {
-        strIndexErrorMsg = "at index " + std::to_string(index) + " ";
-    }
-
-    if (!paymentType.empty() &&  // If there is a payment type specified..
-        paymentType != "ANY" &&  // ...and if that type isn't "ANY"...
-        paymentType != type)     // ...and it's the wrong type:
-    {                            // Then skip this one.
-        // Except:
-        if (("CHEQUE" == paymentType || "VOUCHER" == paymentType) &&
-            (thePayment->IsCheque() || thePayment->IsVoucher())) {
-            // in this case we allow it to drop through.
-        } else {
-            LogNormal(OT_METHOD)(__FUNCTION__)(
-                ": Error: invalid instrument type.")
-                .Flush();
-            return -1;
-        }
-    }
-
-    const bool bIsPaymentPlan = thePayment->IsPaymentPlan();
-    const bool bIsSmartContract = thePayment->IsSmartContract();
-
-    if (bIsPaymentPlan) {
-        LogNormal(OT_METHOD)(__FUNCTION__)(
-            ": Error: Cannot process a payment plan here. You HAVE to "
-            "explicitly confirm it using confirmInstrument instead of "
-            "processPayment.")
-            .Flush();
-        // NOTE: I could remove this block and it would still work. I'm just
-        // deliberately disallowing payment plans here, so you are forced to
-        // explicitly confirm a payment plan. Otherwise here you might confirm
-        // a dozen plans under "ANY" and it's just too easy for them to slip
-        // by.
-        return -1;
-    }
-
-    if (bIsSmartContract) {
-        LogNormal(OT_METHOD)(__FUNCTION__)(
-            ": Error: Cannot process a smart contract here. You HAVE to "
-            "provide that functionality in your GUI directly, since you "
-            "may have to choose various accounts as part of the "
-            "activation process, and your user will need to probably do "
-            "that in a GUI wizard. It's not so simple as in this function "
-            "where you just have 'myacct'.")
-            .Flush();
-        return -1;
-    }
-
-    // Note: I USED to check the ASSET TYPE ID here, but then I removed it,
-    // since details_deposit_cheque() already verifies that (so I don't need
-    // to do it twice.)
-
-    // By this point, we know the invoice has the right instrument definition
-    // for the account we're trying to use (to pay it from.)
-    //
-    // But we need to make sure the invoice is made out to mynym (or to no
-    // one.) Because if it IS endorsed to a Nym, and mynym is NOT that nym,
-    // then the transaction will fail. So let's check, before we bother
-    // sending it...
-
-    auto senderNymId = Identifier::Factory(),
-         recipientNymId = Identifier::Factory();
-    std::string sender, recipient;
-
-    if (thePayment->GetSenderNymID(senderNymId)) sender = senderNymId->str();
-    if (thePayment->GetRecipientNymID(recipientNymId))
-        recipient = recipientNymId->str();
-
-    std::string endorsee = bIsPaymentPlan ? sender : recipient;
-
-    // Not all instruments have a specified recipient. But if they do, let's
-    // make sure the Nym matches.
-    if (!endorsee.empty() && (endorsee != mynym)) {
-        LogNormal(OT_METHOD)(__FUNCTION__)(": The instrument ")(
-            strIndexErrorMsg)(" is endorsed to a specific ")(
-            bIsPaymentPlan ? "customer" : "recipient")(" (")(endorsee)(
-            ") and it doesn't match the account's owner NymId (")(mynym)(
-            "). This is a problem, for example, because you can't deposit "
-            "a cheque into your own account, if the cheque is made out to "
-            "someone else. (Skipping.)Try specifying a different "
-            "account, using --myacct ACCT_ID.")
-            .Flush();
-        return -1;
-    }
-
-    // At this point I know the invoice isn't made out to anyone, or if it is,
-    // it's properly made out to the owner of the account which I'm trying to
-    // use to pay the invoice from. So let's pay it!
-    // P.S. recipient might be empty, but mynym is guaranteed to be good.
-
-    std::string accountAssetType =
-        SwigWrap::GetAccountWallet_InstrumentDefinitionID(myacct);
-
-    if (!strPaymentAssetTypeId.empty() &&
-        accountAssetType != strPaymentAssetTypeId) {
-        LogNormal(OT_METHOD)(__FUNCTION__)(": The instrument at index ")(index)(
-            " has a different unit type than the selected account. "
-            "(Skipping). Try specifying a different account, using "
-            "--myacct ACCT_ID.")
-            .Flush();
-        return -1;
-    }
-    // ---------------------------------------------
-    if (paymentNotaryId != accountNotaryId) {
-        LogNormal(OT_METHOD)(__FUNCTION__)(": The instrument at index ")(index)(
-            " has a different Notary ID than the selected account. "
-            "(Skipping). Try specifying a different account, using "
-            "--myacct ACCT_ID.")
-            .Flush();
-        return -1;
-    }
-    // Below this point we know for a fact that the notary ID on the payment
-    // instrument is the same as the notary ID for the account (myacct).
-    // They are interchangeable. So presumably the caller already did the
-    // heavy lifting of selecting the correct account.
-    // ---------------------------------------------
-    //    if (bIsPaymentPlan) {
-    //        // Note: this block is currently unreachable/disallowed.
-    //        //       (But it would otherwise work.)
-    //        //
-    //        // NOTE: We couldn't even do this for smart contracts, since
-    //        // the "confirmSmartContract" function assumes it's being used
-    //        // at the command line, and it asks the user to enter various
-    //        // data (choose your account, etc) at the command line.
-    //        // So ONLY with Payment Plans can we do this here! The GUI has
-    //        // to provide its own custom code for smart contracts. However,
-    //        // that code will be easy to write: Just copy the code you see
-    //        // in confirmInstrument, for smart contracts, and change it to
-    //        // use GUI input/output instead of command line i/o.
-    //        //
-    //        CmdConfirm cmd;
-    //        return cmd.confirmInstrument(
-    //            acct_server,
-    //            mynym,
-    //            myacct,
-    //            recipient,
-    //            instrument,
-    //            index,
-    //            pOptionalOutput);
-    //        // NOTE: we don't perform any RecordPayment here because
-    //        // confirmInstrument already does that.
+    //    if (myacct.empty()) {
+    //        LogNormal(OT_METHOD)(__FUNCTION__)(
+    //            ": Failure: myacct not a valid string.")
+    //            .Flush();
+    //        return -1;
     //    }
-    // ---------------------------------------------
-    time64_t now = SwigWrap::GetTime();
-    time64_t from{};
-    time64_t until{};
-
-    bool bGotValidFrom{false};
-    bGotValidFrom = thePayment->GetValidFrom(from);
-    bool bGotValidTo{false};
-    bGotValidTo = thePayment->GetValidTo(until);
-
-    if (!bGotValidFrom) {
-        ;  // TODO Maybe log here. But I think this case is allowed.
-    }
-    if (!bGotValidTo) {
-        ;  // TODO Maybe log here. But I think this case is allowed.
-    }
-    // TODO here: make sure the logic accounts for the fact that the boolean
-    // could be false. We should behave properly in the event that a valid from
-    // or valid to date isn't set on this particular instrument, or if it has
-    // a zero value or whatever.
     //
-    if (now < from) {
-        LogNormal(OT_METHOD)(__FUNCTION__)(": The instrument at index ")(index)(
-            " is not yet within its valid date range. (Skipping).")
-            .Flush();
-        return -1;
-    }
-
-    if (until > OT_TIME_ZERO && now > until) {
-        LogNormal(OT_METHOD)(__FUNCTION__)(": The instrument at index ")(index)(
-            " is expired. (Moving it to the record box).")
-            .Flush();
-
-        // Since this instrument is expired, remove it from the payments inbox,
-        // and move to record box.
-        if (0 <= index && SwigWrap::RecordPayment(
-                              transport_notary, mynym, true, index, true)) {
-            return 0;
-        }
-
-        return -1;
-    }
-
-    // IMPORTANT: After the below deposits are completed successfully, the
-    // wallet will receive a "successful deposit" server reply. When that
-    // happens, OT (internally) needs to go and see if the deposited item was a
-    // payment in the payments inbox. If so, it should REMOVE it from that box
-    // and move it to the record box.
+    //    auto accountNotaryId = Identifier::Factory();
+    //    std::string acct_server = SwigWrap::GetAccountWallet_NotaryID(myacct);
+    //    if (acct_server.empty()) {
+    //        LogNormal(OT_METHOD)(__FUNCTION__)(": Error: cannot determine "
+    //                                           "acct_server from myacct.")
+    //            .Flush();
+    //        return -1;
+    //    }
+    //    accountNotaryId = Identifier::Factory(acct_server);
     //
-    // That's why you don't see me messing with the payments inbox even when
-    // these are successful. They DO need to be removed from the payments inbox,
-    // but just not here in the script. (Rather, internally by OT itself.)
-    if (thePayment->IsCheque() || thePayment->IsVoucher() ||
-        thePayment->IsInvoice()) {
-        return depositCheque(
-            acct_server, myacct, mynym, instrument, pOptionalOutput);
-    } else if (thePayment->IsPurse()) {
-        std::int32_t success{-1};
-#if OT_CASH
-        success = Opentxs::Client().Cash().deposit_purse(
-            acct_server, myacct, mynym, instrument, "", pOptionalOutput);
-#endif  // OT_CASH
-        // if index != -1, go ahead and call RecordPayment on the purse at that
-        // index, to remove it from payments inbox and move it to the recordbox.
-        if (index != -1 && 1 == success) {
-            SwigWrap::RecordPayment(transport_notary, mynym, true, index, true);
-        }
-
-        return success;
-    }
-
-    LogNormal(OT_METHOD)(__FUNCTION__)(
-        ": Skipping this instrument: Expected CHEQUE, VOUCHER, INVOICE, "
-        "or (cash) PURSE.")
-        .Flush();
-
+    //    std::string mynym = SwigWrap::GetAccountWallet_NymID(myacct);
+    //    if (mynym.empty()) {
+    //        LogNormal(OT_METHOD)(__FUNCTION__)(
+    //            ": Error: cannot determine mynym from myacct.")
+    //            .Flush();
+    //        return -1;
+    //    }
+    //
+    //    std::string instrument = "";
+    //    if (-1 == index) {
+    //        if (CLI_input_allowed) { instrument = inputText("the instrument");
+    //        } if (instrument.empty()) { return -1; }
+    //    } else {
+    //        instrument = RecordList::get_payment_instrument(
+    //            transport_notary, mynym, index, inbox);
+    //        if (instrument.empty()) {
+    //            LogNormal(OT_METHOD)(__FUNCTION__)(
+    //                ": Error: cannot get payment instrument.")
+    //                .Flush();
+    //            return -1;
+    //        }
+    //    }
+    //
+    //    auto thePayment{Opentxs::Client().Factory().Payment(
+    //        String::Factory(instrument.c_str()))};
+    //
+    //    OT_ASSERT(false != bool(thePayment));
+    //
+    //    if (!thePayment->IsValid() || !thePayment->SetTempValues()) {
+    //        LogNormal(OT_METHOD)(__FUNCTION__)(": Error: Failed loading
+    //        payment "
+    //                                           "instrument from string.")
+    //            .Flush();
+    //        return -1;
+    //    }
+    //
+    //    // The Notary ID we found on the payment instrument itself.
+    //    //
+    //    auto paymentNotaryId = Identifier::Factory();
+    //    const bool bGotPaymentNotaryId =
+    //    thePayment->GetNotaryID(paymentNotaryId);
+    //
+    //    if (!bGotPaymentNotaryId) {
+    //        LogNormal(OT_METHOD)(__FUNCTION__)(": Error: Failed getting Notary
+    //        ID "
+    //                                           "from payment instrument.")
+    //            .Flush();
+    //        return -1;
+    //    }
+    //
+    //    auto assetTypeId = Identifier::Factory();
+    //    const bool bGotPaymentAssetTypeId =
+    //        thePayment->GetInstrumentDefinitionID(assetTypeId);
+    //
+    //    if (!bGotPaymentAssetTypeId) {
+    //        // Allowed for now.
+    //
+    //        //        otOut << "Error: cannot determine instrument's asset
+    //        type.\n";
+    //        //        return -1;
+    //        ;
+    //    }
+    //    const std::string strPaymentAssetTypeId = assetTypeId->str();
+    //    std::string type = thePayment->GetTypeString();
+    //
+    //    std::string strIndexErrorMsg = "";
+    //    if (-1 != index) {
+    //        strIndexErrorMsg = "at index " + std::to_string(index) + " ";
+    //    }
+    //
+    //    if (!paymentType.empty() &&  // If there is a payment type specified..
+    //        paymentType != "ANY" &&  // ...and if that type isn't "ANY"...
+    //        paymentType != type)     // ...and it's the wrong type:
+    //    {                            // Then skip this one.
+    //        // Except:
+    //        if (("CHEQUE" == paymentType || "VOUCHER" == paymentType) &&
+    //            (thePayment->IsCheque() || thePayment->IsVoucher())) {
+    //            // in this case we allow it to drop through.
+    //        } else {
+    //            LogNormal(OT_METHOD)(__FUNCTION__)(
+    //                ": Error: invalid instrument type.")
+    //                .Flush();
+    //            return -1;
+    //        }
+    //    }
+    //
+    //    const bool bIsPaymentPlan = thePayment->IsPaymentPlan();
+    //    const bool bIsSmartContract = thePayment->IsSmartContract();
+    //
+    //    if (bIsPaymentPlan) {
+    //        LogNormal(OT_METHOD)(__FUNCTION__)(
+    //            ": Error: Cannot process a payment plan here. You HAVE to "
+    //            "explicitly confirm it using confirmInstrument instead of "
+    //            "processPayment.")
+    //            .Flush();
+    //        // NOTE: I could remove this block and it would still work. I'm
+    //        just
+    //        // deliberately disallowing payment plans here, so you are forced
+    //        to
+    //        // explicitly confirm a payment plan. Otherwise here you might
+    //        confirm
+    //        // a dozen plans under "ANY" and it's just too easy for them to
+    //        slip
+    //        // by.
+    //        return -1;
+    //    }
+    //
+    //    if (bIsSmartContract) {
+    //        LogNormal(OT_METHOD)(__FUNCTION__)(
+    //            ": Error: Cannot process a smart contract here. You HAVE to "
+    //            "provide that functionality in your GUI directly, since you "
+    //            "may have to choose various accounts as part of the "
+    //            "activation process, and your user will need to probably do "
+    //            "that in a GUI wizard. It's not so simple as in this function
+    //            " "where you just have 'myacct'.") .Flush();
+    //        return -1;
+    //    }
+    //
+    //    // Note: I USED to check the ASSET TYPE ID here, but then I removed
+    //    it,
+    //    // since details_deposit_cheque() already verifies that (so I don't
+    //    need
+    //    // to do it twice.)
+    //
+    //    // By this point, we know the invoice has the right instrument
+    //    definition
+    //    // for the account we're trying to use (to pay it from.)
+    //    //
+    //    // But we need to make sure the invoice is made out to mynym (or to no
+    //    // one.) Because if it IS endorsed to a Nym, and mynym is NOT that
+    //    nym,
+    //    // then the transaction will fail. So let's check, before we bother
+    //    // sending it...
+    //
+    //    auto senderNymId = Identifier::Factory(),
+    //         recipientNymId = Identifier::Factory();
+    //    std::string sender, recipient;
+    //
+    //    if (thePayment->GetSenderNymID(senderNymId)) sender =
+    //    senderNymId->str(); if (thePayment->GetRecipientNymID(recipientNymId))
+    //        recipient = recipientNymId->str();
+    //
+    //    std::string endorsee = bIsPaymentPlan ? sender : recipient;
+    //
+    //    // Not all instruments have a specified recipient. But if they do,
+    //    let's
+    //    // make sure the Nym matches.
+    //    if (!endorsee.empty() && (endorsee != mynym)) {
+    //        LogNormal(OT_METHOD)(__FUNCTION__)(": The instrument ")(
+    //            strIndexErrorMsg)(" is endorsed to a specific ")(
+    //            bIsPaymentPlan ? "customer" : "recipient")(" (")(endorsee)(
+    //            ") and it doesn't match the account's owner NymId (")(mynym)(
+    //            "). This is a problem, for example, because you can't deposit
+    //            " "a cheque into your own account, if the cheque is made out
+    //            to " "someone else. (Skipping.)Try specifying a different "
+    //            "account, using --myacct ACCT_ID.")
+    //            .Flush();
+    //        return -1;
+    //    }
+    //
+    //    // At this point I know the invoice isn't made out to anyone, or if it
+    //    is,
+    //    // it's properly made out to the owner of the account which I'm trying
+    //    to
+    //    // use to pay the invoice from. So let's pay it!
+    //    // P.S. recipient might be empty, but mynym is guaranteed to be good.
+    //
+    //    std::string accountAssetType =
+    //        SwigWrap::GetAccountWallet_InstrumentDefinitionID(myacct);
+    //
+    //    if (!strPaymentAssetTypeId.empty() &&
+    //        accountAssetType != strPaymentAssetTypeId) {
+    //        LogNormal(OT_METHOD)(__FUNCTION__)(": The instrument at index
+    //        ")(index)(
+    //            " has a different unit type than the selected account. "
+    //            "(Skipping). Try specifying a different account, using "
+    //            "--myacct ACCT_ID.")
+    //            .Flush();
+    //        return -1;
+    //    }
+    //    // ---------------------------------------------
+    //    if (paymentNotaryId != accountNotaryId) {
+    //        LogNormal(OT_METHOD)(__FUNCTION__)(": The instrument at index
+    //        ")(index)(
+    //            " has a different Notary ID than the selected account. "
+    //            "(Skipping). Try specifying a different account, using "
+    //            "--myacct ACCT_ID.")
+    //            .Flush();
+    //        return -1;
+    //    }
+    //    // Below this point we know for a fact that the notary ID on the
+    //    payment
+    //    // instrument is the same as the notary ID for the account (myacct).
+    //    // They are interchangeable. So presumably the caller already did the
+    //    // heavy lifting of selecting the correct account.
+    //    // ---------------------------------------------
+    //    //    if (bIsPaymentPlan) {
+    //    //        // Note: this block is currently unreachable/disallowed.
+    //    //        //       (But it would otherwise work.)
+    //    //        //
+    //    //        // NOTE: We couldn't even do this for smart contracts, since
+    //    //        // the "confirmSmartContract" function assumes it's being
+    //    used
+    //    //        // at the command line, and it asks the user to enter
+    //    various
+    //    //        // data (choose your account, etc) at the command line.
+    //    //        // So ONLY with Payment Plans can we do this here! The GUI
+    //    has
+    //    //        // to provide its own custom code for smart contracts.
+    //    However,
+    //    //        // that code will be easy to write: Just copy the code you
+    //    see
+    //    //        // in confirmInstrument, for smart contracts, and change it
+    //    to
+    //    //        // use GUI input/output instead of command line i/o.
+    //    //        //
+    //    //        CmdConfirm cmd;
+    //    //        return cmd.confirmInstrument(
+    //    //            acct_server,
+    //    //            mynym,
+    //    //            myacct,
+    //    //            recipient,
+    //    //            instrument,
+    //    //            index,
+    //    //            pOptionalOutput);
+    //    //        // NOTE: we don't perform any RecordPayment here because
+    //    //        // confirmInstrument already does that.
+    //    //    }
+    //    // ---------------------------------------------
+    //    time64_t now = SwigWrap::GetTime();
+    //    time64_t from{};
+    //    time64_t until{};
+    //
+    //    bool bGotValidFrom{false};
+    //    bGotValidFrom = thePayment->GetValidFrom(from);
+    //    bool bGotValidTo{false};
+    //    bGotValidTo = thePayment->GetValidTo(until);
+    //
+    //    if (!bGotValidFrom) {
+    //        ;  // TODO Maybe log here. But I think this case is allowed.
+    //    }
+    //    if (!bGotValidTo) {
+    //        ;  // TODO Maybe log here. But I think this case is allowed.
+    //    }
+    //    // TODO here: make sure the logic accounts for the fact that the
+    //    boolean
+    //    // could be false. We should behave properly in the event that a valid
+    //    from
+    //    // or valid to date isn't set on this particular instrument, or if it
+    //    has
+    //    // a zero value or whatever.
+    //    //
+    //    if (now < from) {
+    //        LogNormal(OT_METHOD)(__FUNCTION__)(": The instrument at index
+    //        ")(index)(
+    //            " is not yet within its valid date range. (Skipping).")
+    //            .Flush();
+    //        return -1;
+    //    }
+    //
+    //    if (until > OT_TIME_ZERO && now > until) {
+    //        LogNormal(OT_METHOD)(__FUNCTION__)(": The instrument at index
+    //        ")(index)(
+    //            " is expired. (Moving it to the record box).")
+    //            .Flush();
+    //
+    //        // Since this instrument is expired, remove it from the payments
+    //        inbox,
+    //        // and move to record box.
+    //        if (0 <= index && SwigWrap::RecordPayment(
+    //                              transport_notary, mynym, true, index, true))
+    //                              {
+    //            return 0;
+    //        }
+    //
+    //        return -1;
+    //    }
+    //
+    //    // IMPORTANT: After the below deposits are completed successfully, the
+    //    // wallet will receive a "successful deposit" server reply. When that
+    //    // happens, OT (internally) needs to go and see if the deposited item
+    //    was a
+    //    // payment in the payments inbox. If so, it should REMOVE it from that
+    //    box
+    //    // and move it to the record box.
+    //    //
+    //    // That's why you don't see me messing with the payments inbox even
+    //    when
+    //    // these are successful. They DO need to be removed from the payments
+    //    inbox,
+    //    // but just not here in the script. (Rather, internally by OT itself.)
+    //    if (thePayment->IsCheque() || thePayment->IsVoucher() ||
+    //        thePayment->IsInvoice()) {
+    //        return depositCheque(
+    //            acct_server, myacct, mynym, instrument, pOptionalOutput);
+    //    } else if (thePayment->IsPurse()) {
+    //        std::int32_t success{-1};
+    //#if OT_CASH
+    //        success = Opentxs::Client().Cash().deposit_purse(
+    //            acct_server, myacct, mynym, instrument, "", pOptionalOutput);
+    //#endif  // OT_CASH
+    //        // if index != -1, go ahead and call RecordPayment on the purse at
+    //        that
+    //        // index, to remove it from payments inbox and move it to the
+    //        recordbox. if (index != -1 && 1 == success) {
+    //            SwigWrap::RecordPayment(transport_notary, mynym, true, index,
+    //            true);
+    //        }
+    //
+    //        return success;
+    //    }
+    //
+    //    LogNormal(OT_METHOD)(__FUNCTION__)(
+    //        ": Skipping this instrument: Expected CHEQUE, VOUCHER, INVOICE, "
+    //        "or (cash) PURSE.")
+    //        .Flush();
+    //
     return -1;
 }
 
@@ -735,54 +772,57 @@ std::int32_t RecordList::depositCheque(  // a static method
     const std::string& instrument,
     std::string* pOptionalOutput /*=nullptr*/)
 {
-    std::string assetType =
-        SwigWrap::GetAccountWallet_InstrumentDefinitionID(myacct);
-    if (assetType.empty()) { return -1; }
-
-    if (assetType != SwigWrap::Instrmnt_GetInstrumentDefinitionID(instrument)) {
-        LogNormal(OT_METHOD)(__FUNCTION__)(
-            ": Error: instrument definitions of instrument and myacct do "
-            "not match.")
-            .Flush();
-        return -1;
-    }
-
-    auto cheque{Opentxs::Client().Factory().Cheque()};
-
-    OT_ASSERT(false != bool(cheque));
-
-    cheque->LoadContractFromString(String::Factory(instrument.c_str()));
-
-    std::string response;
-    {
-        response = Opentxs::Client()
-                       .ServerAction()
-                       .DepositCheque(
-                           Identifier::Factory(mynym),
-                           Identifier::Factory(server),
-                           Identifier::Factory(myacct),
-                           cheque)
-                       ->Run();
-    }
-    std::int32_t reply = InterpretTransactionMsgReply(
-        Opentxs::Client(), server, mynym, myacct, "deposit_cheque", response);
-    if (1 != reply) { return reply; }
-
-    if (nullptr != pOptionalOutput) { *pOptionalOutput = response; }
-
-    {
-        if (!Opentxs::Client().ServerAction().DownloadAccount(
-                Identifier::Factory(mynym),
-                Identifier::Factory(server),
-                Identifier::Factory(myacct),
-                true)) {
-            LogNormal(OT_METHOD)(__FUNCTION__)(
-                ": Error retrieving intermediary files for account.")
-                .Flush();
-            return -1;
-        }
-    }
-    return 1;
+    //    std::string assetType =
+    //        SwigWrap::GetAccountWallet_InstrumentDefinitionID(myacct);
+    //    if (assetType.empty()) { return -1; }
+    //
+    //    if (assetType !=
+    //    SwigWrap::Instrmnt_GetInstrumentDefinitionID(instrument)) {
+    //        LogNormal(OT_METHOD)(__FUNCTION__)(
+    //            ": Error: instrument definitions of instrument and myacct do "
+    //            "not match.")
+    //            .Flush();
+    //        return -1;
+    //    }
+    //
+    //    auto cheque{Opentxs::Client().Factory().Cheque()};
+    //
+    //    OT_ASSERT(false != bool(cheque));
+    //
+    //    cheque->LoadContractFromString(String::Factory(instrument.c_str()));
+    //
+    //    std::string response;
+    //    {
+    //        response = Opentxs::Client()
+    //                       .ServerAction()
+    //                       .DepositCheque(
+    //                           Identifier::Factory(mynym),
+    //                           Identifier::Factory(server),
+    //                           Identifier::Factory(myacct),
+    //                           cheque)
+    //                       ->Run();
+    //    }
+    //    std::int32_t reply = InterpretTransactionMsgReply(
+    //        Opentxs::Client(), server, mynym, myacct, "deposit_cheque",
+    //        response);
+    //    if (1 != reply) { return reply; }
+    //
+    //    if (nullptr != pOptionalOutput) { *pOptionalOutput = response; }
+    //
+    //    {
+    //        if (!Opentxs::Client().ServerAction().DownloadAccount(
+    //                Identifier::Factory(mynym),
+    //                Identifier::Factory(server),
+    //                Identifier::Factory(myacct),
+    //                true)) {
+    //            LogNormal(OT_METHOD)(__FUNCTION__)(
+    //                ": Error retrieving intermediary files for account.")
+    //                .Flush();
+    //            return -1;
+    //        }
+    //    }
+    //    return 1;
+    return -1;
 }
 
 std::int32_t RecordList::confirm_payment_plan(  // static method
@@ -849,154 +889,165 @@ std::int32_t RecordList::confirmPaymentPlan_lowLevel(  // a static method
     // not use the server ID of the payments inbox where this instrument
     // came from.
     //
-    std::string server = SwigWrap::Instrmnt_GetNotaryID(plan);
-    if (server.empty()) {
-        LogNormal(OT_METHOD)(__FUNCTION__)(
-            ": Error: cannot get server from instrument.")
-            .Flush();
-        return -1;
-    }
-
-    std::string senderUser = mynym;
-
-    if (senderUser.empty()) {
-        senderUser = SwigWrap::Instrmnt_GetSenderNymID(plan);
-    }
-
-    if (senderUser.empty()) {
-        LogNormal(OT_METHOD)(__FUNCTION__)(
-            ": Error: cannot get sender user from instrument.")
-            .Flush();
-        return -1;
-    }
-
-    std::string senderAcct = myacct;
-
-    if (senderAcct.empty()) {
-        senderAcct = SwigWrap::Instrmnt_GetSenderAcctID(plan);
-    }
-
-    if (senderAcct.empty()) {
-        LogNormal(OT_METHOD)(__FUNCTION__)(
-            ": Error: cannot get sender account from instrument.")
-            .Flush();
-        return -1;
-    }
-
-    std::string recipientUser = SwigWrap::Instrmnt_GetRecipientNymID(plan);
-    if (recipientUser.empty()) {
-        LogNormal(OT_METHOD)(__FUNCTION__)(
-            ": Error: cannot get recipient user from instrument.")
-            .Flush();
-        return -1;
-    }
-
-    std::string recipientAcct = SwigWrap::Instrmnt_GetRecipientAcctID(plan);
-    if (recipientAcct.empty()) {
-        LogNormal(OT_METHOD)(__FUNCTION__)(
-            ": Error: cannot get recipient account from instrument.")
-            .Flush();
-        return -1;
-    }
-
-    {
-        if (!Opentxs::Client().ServerAction().GetTransactionNumbers(
-                Identifier::Factory(senderUser),
-                Identifier::Factory(server),
-                2)) {
-            LogNormal(OT_METHOD)(__FUNCTION__)(
-                ": Error: cannot reserve transaction numbers.")
-                .Flush();
-            return -1;
-        }
-    }
-
-    std::string confirmed = SwigWrap::ConfirmPaymentPlan(
-        server, senderUser, senderAcct, recipientUser, plan);
-    if (confirmed.empty()) {
-        LogNormal(OT_METHOD)(__FUNCTION__)(
-            ": Error: cannot confirm payment plan.")
-            .Flush();
-        return -1;
-    }
-
-    // NOTE: If we fail, then we need to harvest the transaction numbers
-    // back from the payment plan that we confirmed.
-    auto paymentPlan{Opentxs::Client().Factory().PaymentPlan()};
-
-    OT_ASSERT(false != bool(paymentPlan));
-
-    paymentPlan->LoadContractFromString(String::Factory(confirmed.c_str()));
-
-    std::string response;
-    {
-        response = Opentxs::Client()
-                       .ServerAction()
-                       .DepositPaymentPlan(
-                           Identifier::Factory(senderUser),
-                           Identifier::Factory(server),
-                           paymentPlan)
-                       ->Run();
-    }
-
-    std::int32_t success = VerifyMessageSuccess(Opentxs::Client(), response);
-    if (1 != success) {
-        LogNormal(OT_METHOD)(__FUNCTION__)(
-            ": Error: cannot deposit payment plan.")
-            .Flush();
-        SwigWrap::Msg_HarvestTransactionNumbers(
-            confirmed, senderUser, false, false, false, false, false);
-        return success;
-    }
-
-    std::int32_t reply = InterpretTransactionMsgReply(
-
-        Opentxs::Client(),
-        server,
-        senderUser,
-        senderAcct,
-        "deposit_payment_plan",
-        response);
-
-    if (1 != reply) { return reply; }
-
-    if (nullptr != pOptionalOutput) { *pOptionalOutput = response; }
-
-    {
-        if (!Opentxs::Client().ServerAction().DownloadAccount(
-                Identifier::Factory(senderUser),
-                Identifier::Factory(server),
-                Identifier::Factory(senderAcct),
-                true)) {
-            LogNormal(OT_METHOD)(__FUNCTION__)(
-                ": Error retrieving intermediary "
-                "files for account.")
-                .Flush();
-            return -1;
-        }
-    }
-
-    // NOTICE here (on success) we do NOT call RecordPayment. (Contrast this
-    // with confirmSmartContract, below.) Why does it call RecordPayment for a
-    // smart contract, yet here we do not?
+    //    std::string server = SwigWrap::Instrmnt_GetNotaryID(plan);
+    //    if (server.empty()) {
+    //        LogNormal(OT_METHOD)(__FUNCTION__)(
+    //            ": Error: cannot get server from instrument.")
+    //            .Flush();
+    //        return -1;
+    //    }
     //
-    // Because with a smart contract, it has been sent on to the next party. So
-    // it's now got a copy in the outpayments.
-    // There was no transaction performed at that time; perhaps it will go to
-    // 3 more parties before it's actually activated onto a server. Only THEN
-    // is a transaction performed. Therefore, confirmSmartContract is finished
-    // with the incoming instrument, in every respect, and can directly
-    // RecordPayment it to remove it from the payments inbox.
+    //    std::string senderUser = mynym;
     //
-    // Whereas with a payment plan, a transaction HAS just been performed.
-    // (See the call just above, to deposit_payment_plan.) Therefore, OT has
-    // already received the server reply at a lower level, and OT already should
-    // be smart enough to RecordPayment at THAT time.
+    //    if (senderUser.empty()) {
+    //        senderUser = SwigWrap::Instrmnt_GetSenderNymID(plan);
+    //    }
     //
-    // And that's why we don't need to do it here and now: Because it has
-    // already been done.
-
-    return 1;
+    //    if (senderUser.empty()) {
+    //        LogNormal(OT_METHOD)(__FUNCTION__)(
+    //            ": Error: cannot get sender user from instrument.")
+    //            .Flush();
+    //        return -1;
+    //    }
+    //
+    //    std::string senderAcct = myacct;
+    //
+    //    if (senderAcct.empty()) {
+    //        senderAcct = SwigWrap::Instrmnt_GetSenderAcctID(plan);
+    //    }
+    //
+    //    if (senderAcct.empty()) {
+    //        LogNormal(OT_METHOD)(__FUNCTION__)(
+    //            ": Error: cannot get sender account from instrument.")
+    //            .Flush();
+    //        return -1;
+    //    }
+    //
+    //    std::string recipientUser =
+    //    SwigWrap::Instrmnt_GetRecipientNymID(plan); if (recipientUser.empty())
+    //    {
+    //        LogNormal(OT_METHOD)(__FUNCTION__)(
+    //            ": Error: cannot get recipient user from instrument.")
+    //            .Flush();
+    //        return -1;
+    //    }
+    //
+    //    std::string recipientAcct =
+    //    SwigWrap::Instrmnt_GetRecipientAcctID(plan); if
+    //    (recipientAcct.empty()) {
+    //        LogNormal(OT_METHOD)(__FUNCTION__)(
+    //            ": Error: cannot get recipient account from instrument.")
+    //            .Flush();
+    //        return -1;
+    //    }
+    //
+    //    {
+    //        if (!Opentxs::Client().ServerAction().GetTransactionNumbers(
+    //                Identifier::Factory(senderUser),
+    //                Identifier::Factory(server),
+    //                2)) {
+    //            LogNormal(OT_METHOD)(__FUNCTION__)(
+    //                ": Error: cannot reserve transaction numbers.")
+    //                .Flush();
+    //            return -1;
+    //        }
+    //    }
+    //
+    //    std::string confirmed = SwigWrap::ConfirmPaymentPlan(
+    //        server, senderUser, senderAcct, recipientUser, plan);
+    //    if (confirmed.empty()) {
+    //        LogNormal(OT_METHOD)(__FUNCTION__)(
+    //            ": Error: cannot confirm payment plan.")
+    //            .Flush();
+    //        return -1;
+    //    }
+    //
+    //    // NOTE: If we fail, then we need to harvest the transaction numbers
+    //    // back from the payment plan that we confirmed.
+    //    auto paymentPlan{Opentxs::Client().Factory().PaymentPlan()};
+    //
+    //    OT_ASSERT(false != bool(paymentPlan));
+    //
+    //    paymentPlan->LoadContractFromString(String::Factory(confirmed.c_str()));
+    //
+    //    std::string response;
+    //    {
+    //        response = Opentxs::Client()
+    //                       .ServerAction()
+    //                       .DepositPaymentPlan(
+    //                           Identifier::Factory(senderUser),
+    //                           Identifier::Factory(server),
+    //                           paymentPlan)
+    //                       ->Run();
+    //    }
+    //
+    //    std::int32_t success = VerifyMessageSuccess(Opentxs::Client(),
+    //    response); if (1 != success) {
+    //        LogNormal(OT_METHOD)(__FUNCTION__)(
+    //            ": Error: cannot deposit payment plan.")
+    //            .Flush();
+    //        SwigWrap::Msg_HarvestTransactionNumbers(
+    //            confirmed, senderUser, false, false, false, false, false);
+    //        return success;
+    //    }
+    //
+    //    std::int32_t reply = InterpretTransactionMsgReply(
+    //
+    //        Opentxs::Client(),
+    //        server,
+    //        senderUser,
+    //        senderAcct,
+    //        "deposit_payment_plan",
+    //        response);
+    //
+    //    if (1 != reply) { return reply; }
+    //
+    //    if (nullptr != pOptionalOutput) { *pOptionalOutput = response; }
+    //
+    //    {
+    //        if (!Opentxs::Client().ServerAction().DownloadAccount(
+    //                Identifier::Factory(senderUser),
+    //                Identifier::Factory(server),
+    //                Identifier::Factory(senderAcct),
+    //                true)) {
+    //            LogNormal(OT_METHOD)(__FUNCTION__)(
+    //                ": Error retrieving intermediary "
+    //                "files for account.")
+    //                .Flush();
+    //            return -1;
+    //        }
+    //    }
+    //
+    //    // NOTICE here (on success) we do NOT call RecordPayment. (Contrast
+    //    this
+    //    // with confirmSmartContract, below.) Why does it call RecordPayment
+    //    for a
+    //    // smart contract, yet here we do not?
+    //    //
+    //    // Because with a smart contract, it has been sent on to the next
+    //    party. So
+    //    // it's now got a copy in the outpayments.
+    //    // There was no transaction performed at that time; perhaps it will go
+    //    to
+    //    // 3 more parties before it's actually activated onto a server. Only
+    //    THEN
+    //    // is a transaction performed. Therefore, confirmSmartContract is
+    //    finished
+    //    // with the incoming instrument, in every respect, and can directly
+    //    // RecordPayment it to remove it from the payments inbox.
+    //    //
+    //    // Whereas with a payment plan, a transaction HAS just been performed.
+    //    // (See the call just above, to deposit_payment_plan.) Therefore, OT
+    //    has
+    //    // already received the server reply at a lower level, and OT already
+    //    should
+    //    // be smart enough to RecordPayment at THAT time.
+    //    //
+    //    // And that's why we don't need to do it here and now: Because it has
+    //    // already been done.
+    //
+    //    return 1;
+    return -1;
 }
 
 // static
@@ -1021,14 +1072,14 @@ bool RecordList::checkIndices(const char* name, const std::string& indices)
     for (std::string::size_type i = 0; i < indices.length(); i++) {
         if (!isdigit(indices[i])) {
             LogNormal(OT_METHOD)(__FUNCTION__)(": Error: ")(name)(
-	       ": not a value: ")(indices)(".")
+                ": not a value: ")(indices)(".")
                 .Flush();
             return false;
         }
         for (i++; i < indices.length() && isdigit(indices[i]); i++) {}
         if (i < indices.length() && ',' != indices[i]) {
             LogNormal(OT_METHOD)(__FUNCTION__)(": Error: ")(name)(
-	       ": not a value: ")(indices)(".")
+                ": not a value: ")(indices)(".")
                 .Flush();
             return false;
         }
@@ -1082,14 +1133,14 @@ bool RecordList::checkServer(const char* name, std::string& server)
 
     if (!pServer) {
         LogNormal(OT_METHOD)(__FUNCTION__)(": Error: ")(name)(
-	   ": unknown server: ")(server)(".")
+            ": unknown server: ")(server)(".")
             .Flush();
         return false;
     }
 
     server = pServer->ID()->str();
-    LogNormal(OT_METHOD)(__FUNCTION__)(": Using ")
-      (name)(": ")(server)(".").Flush();
+    LogNormal(OT_METHOD)(__FUNCTION__)(": Using ")(name)(": ")(server)(".")
+        .Flush();
     return true;
 }
 
@@ -1115,13 +1166,13 @@ bool RecordList::checkNym(
         nym = tmp->Get();
     } else if (checkExistance) {
         LogNormal(OT_METHOD)(__FUNCTION__)(": Error: ")(name)(
-	   ": unknown nym: ")(nym)(".")
+            ": unknown nym: ")(nym)(".")
             .Flush();
         return false;
     }
 
-    LogNormal(OT_METHOD)(__FUNCTION__)(
-       ": Using ")(name)(": ")(nym)(".").Flush();
+    LogNormal(OT_METHOD)(__FUNCTION__)(": Using ")(name)(": ")(nym)(".")
+        .Flush();
     return true;
 }
 
@@ -1142,7 +1193,7 @@ bool RecordList::checkAccount(const char* name, std::string& accountID)
 
         if (converted->empty()) {
             LogNormal(OT_METHOD)(__FUNCTION__)(": Error: ")(name)(
-	       ": unknown account: ")(accountID)(".")
+                ": unknown account: ")(accountID)(".")
                 .Flush();
             return false;
         }
@@ -1153,8 +1204,7 @@ bool RecordList::checkAccount(const char* name, std::string& accountID)
     OT_ASSERT(account)
 
     accountID = account.get().GetPurportedAccountID().str();
-    LogDetail(OT_METHOD)(__FUNCTION__)(
-       ": Using ")(name)(": ")(accountID)(".")
+    LogDetail(OT_METHOD)(__FUNCTION__)(": Using ")(name)(": ")(accountID)(".")
         .Flush();
 
     return true;
@@ -1422,8 +1472,8 @@ std::int32_t RecordList::cancel_outgoing_payments(
                 continue;
             }
 
-            LogNormal(OT_METHOD)(__FUNCTION__)
-	       (": Server reply: ")(response)(".")
+            LogNormal(OT_METHOD)(__FUNCTION__)(": Server reply: ")(response)(
+                ".")
                 .Flush();
 
             if (1 != SwigWrap::Message_IsTransactionCanceled(
@@ -1524,231 +1574,256 @@ std::int32_t RecordList::acceptFromInbox(  // a static method
     const std::string& indices,
     const std::int32_t itemTypeFilter)
 {
-    std::string server = SwigWrap::GetAccountWallet_NotaryID(myacct);
-    if (server.empty()) {
-        LogNormal(OT_METHOD)(__FUNCTION__)(
-            ": Error: cannot determine server from myacct.")
-            .Flush();
-        return -1;
-    }
-
-    std::string mynym = SwigWrap::GetAccountWallet_NymID(myacct);
-    if (mynym.empty()) {
-        LogNormal(OT_METHOD)(__FUNCTION__)(
-            ": Error: cannot determine mynym from myacct.")
-            .Flush();
-        return -1;
-    }
-    // -----------------------------------------------------------
-    // NOTE: I just removed this during my most recent changes. It just seems,
-    // now with Justus' regular automated refreshes, I shouldn't have to grab
-    // these right BEFORE, when I then anyway have to grab them right AFTER
-    // (at the end of this function) once it succeeds. Should speed things
-    // up?
-    // Also, I considered the fact that we're using indices in this function
-    // So if the user has actually selected certain indices already, then seems
-    // unwise to download the inbox before processing THOSE indices. Rather
-    // have it fail and re-try, and at least be trying the actual intended
-    // indices, and cut our account retrievals in half while we're at it!
-    //
-    //    if (!Opentxs::Client().ME().retrieve_account(server, mynym, myacct,
-    //    true)) {
-    //        otOut << "Error retrieving intermediary files for account.\n";
+    //    std::string server = SwigWrap::GetAccountWallet_NotaryID(myacct);
+    //    if (server.empty()) {
+    //        LogNormal(OT_METHOD)(__FUNCTION__)(
+    //            ": Error: cannot determine server from myacct.")
+    //            .Flush();
     //        return -1;
     //    }
-    // -----------------------------------------------------------
-    // NOTE: Normally we don't have to do this, because the high-level API is
-    // smart enough, when sending server transaction requests, to grab new
-    // transaction numbers if it is running low. But in this case, we need the
-    // numbers available BEFORE sending the transaction request, because the
-    // call to SwigWrap::Ledger_CreateResponse is where the number is first
-    // needed, and that call is made before the server transaction request is
-    // actually sent.
     //
-    const auto theNotaryID = Identifier::Factory(server),
-               theNymID = Identifier::Factory(mynym),
-               theAcctID = Identifier::Factory(myacct);
-
-    {
-        if (!Opentxs::Client().ServerAction().GetTransactionNumbers(
-                theNymID, theNotaryID, 10)) {
-            LogNormal(OT_METHOD)(__FUNCTION__)(
-                ": Error: cannot reserve transaction numbers.")
-                .Flush();
-            return -1;
-        }
-    }
-    // -----------------------------------------------------------
-    auto pInbox(
-        Opentxs::Client().OTAPI().LoadInbox(theNotaryID, theNymID, theAcctID));
-    if (false == bool(pInbox)) {
-        LogNormal(OT_METHOD)(__FUNCTION__)(": Error: cannot load inbox.")
-            .Flush();
-        return -1;
-    }
-    // -----------------------------------------------------------
-    std::int32_t item_count = pInbox->GetTransactionCount();
-    // -----------------------------------------------------------
-    if (0 > item_count) {
-        LogOutput(OT_METHOD)(__FUNCTION__)(
-            ": Error: Cannot load inbox item count.").Flush();
-        return -1;
-    } else if (0 == item_count) {
-        LogDetail(OT_METHOD)(__FUNCTION__)(": The inbox is empty.").Flush();
-        return 0;
-    }
-
-    if (!RecordList::checkIndicesRange("indices", indices, item_count)) {
-        return -1;
-    }
-
-    bool all = ("" == indices || "all" == indices);
-    // -----------------------------------------------------------
-    std::set<std::int32_t>* pOnlyForIndices{nullptr};
-    std::set<std::int32_t> setForIndices;
-    if (!all) {
-        NumList numlistForIndices{indices};
-        std::set<std::int64_t> setForIndices64;
-        if (numlistForIndices.Output(setForIndices64)) {
-            pOnlyForIndices = &setForIndices;
-            for (const std::int64_t& lIndex : setForIndices64) {
-                setForIndices.insert(static_cast<std::int32_t>(lIndex));
-            }
-        }
-    }
-    std::set<TransactionNumber> receiptIds{
-        pInbox->GetTransactionNums(pOnlyForIndices)};
-
-    if (receiptIds.size() < 1) {
-        LogDetail(OT_METHOD)(__FUNCTION__)(
-            ": There are no inbox receipts to process.")
-            .Flush();
-        return 0;
-    }
-    // -----------------------------------------------------------
-    // NOTE: Indices are only optional. Otherwise it's "accept all receipts".
-    // But even if you DID pass in a comma-separated list of indices, it doesn't
-    // matter below this point.
-    // That's because we have now translated the user-selected GUI indices into
-    // an actual set of receipt IDs, each being the trans num on a transaction
-    // inside the inbox.
-
-    // -------------------------------------------------------
-    OT_API::ProcessInbox response{
-        Opentxs::Client().OTAPI().Ledger_CreateResponse(
-            theNotaryID, theNymID, theAcctID)};
-    // -------------------------------------------------------
-    auto& processInbox = std::get<0>(response);
-    auto& inbox = std::get<1>(response);
-
-    if (!bool(processInbox) || !bool(inbox)) {
-        LogDetail(OT_METHOD)(__FUNCTION__)(
-            ": Ledger_CreateResponse somehow failed.")
-            .Flush();
-        return -1;
-    }
-    // -------------------------------------------------------
-    for (const TransactionNumber& lReceiptId : receiptIds) {
-        OTTransaction* pReceipt =
-            Opentxs::Client().OTAPI().Ledger_GetTransactionByID(
-                *inbox, lReceiptId);
-
-        if (nullptr == pReceipt) {
-            LogOutput(OT_METHOD)(__FUNCTION__)(
-                  ": Unexpectedly got a nullptr for ReceiptId: ")(
-                      lReceiptId)(".").Flush();
-            return -1;
-        }  // Below this point, pReceipt is a good pointer. It's
-        //   owned by inbox, so no need to delete.
-        // ------------------------
-        // itemTypeFilter == 0 for all, 1 for transfers only, 2 for receipts
-        // only.
-        //
-        if (0 != itemTypeFilter) {
-            const transactionType receipt_type{pReceipt->GetType()};
-
-            const bool transfer = (transactionType::pending == receipt_type);
-
-            if ((1 == itemTypeFilter) && !transfer) {
-                // not a pending transfer.
-                continue;
-            }
-            if ((2 == itemTypeFilter) && transfer) {
-                // not a receipt.
-                continue;
-            }
-        }
-        // ------------------------
-        const bool bReceiptResponseCreated =
-            Opentxs::Client().OTAPI().Transaction_CreateResponse(
-                theNotaryID,
-                theNymID,
-                theAcctID,
-                *processInbox,
-                *pReceipt,
-                true);
-
-        if (!bReceiptResponseCreated) {
-            LogOutput(OT_METHOD)(__FUNCTION__)(
-                  ": Error: Cannot create transaction response.").Flush();
-            return -1;
-        }
-    }  // for
-    // -------------------------------------------------------
-    if (processInbox->GetTransactionCount() <= 0) {
-        // did not process anything
-        LogOutput(OT_METHOD)(__FUNCTION__)(
-              ": Should never happen. Might want to follow up if you see this "
-                 "log.").Flush();
-        return 0;
-    }
-    // ----------------------------------------------
-    const bool bFinalized = Opentxs::Client().OTAPI().Ledger_FinalizeResponse(
-        theNotaryID, theNymID, theAcctID, *processInbox);
-
-    if (!bFinalized) {
-        LogOutput(OT_METHOD)(__FUNCTION__)(
-            ": Error: Cannot finalize response.").Flush();
-        return -1;
-    }
-    // ----------------------------------------------
-    std::string notary_response;
-    {
-        notary_response =
-            Opentxs::Client()
-                .ServerAction()
-                .ProcessInbox(theNymID, theNotaryID, theAcctID, processInbox)
-                ->Run();
-    }
-    std::int32_t reply = InterpretTransactionMsgReply(
-
-        Opentxs::Client(),
-        server,
-        mynym,
-        myacct,
-        "process_inbox",
-        notary_response);
-
-    if (1 != reply) { return reply; }
-
-    // We KNOW they all just changed, since we just processed
-    // the inbox. Might as well refresh our copy with the new changes.
+    //    std::string mynym = SwigWrap::GetAccountWallet_NymID(myacct);
+    //    if (mynym.empty()) {
+    //        LogNormal(OT_METHOD)(__FUNCTION__)(
+    //            ": Error: cannot determine mynym from myacct.")
+    //            .Flush();
+    //        return -1;
+    //    }
+    //    // -----------------------------------------------------------
+    //    // NOTE: I just removed this during my most recent changes. It just
+    //    seems,
+    //    // now with Justus' regular automated refreshes, I shouldn't have to
+    //    grab
+    //    // these right BEFORE, when I then anyway have to grab them right
+    //    AFTER
+    //    // (at the end of this function) once it succeeds. Should speed things
+    //    // up?
+    //    // Also, I considered the fact that we're using indices in this
+    //    function
+    //    // So if the user has actually selected certain indices already, then
+    //    seems
+    //    // unwise to download the inbox before processing THOSE indices.
+    //    Rather
+    //    // have it fail and re-try, and at least be trying the actual intended
+    //    // indices, and cut our account retrievals in half while we're at it!
+    //    //
+    //    //    if (!Opentxs::Client().ME().retrieve_account(server, mynym,
+    //    myacct,
+    //    //    true)) {
+    //    //        otOut << "Error retrieving intermediary files for
+    //    account.\n";
+    //    //        return -1;
+    //    //    }
+    //    // -----------------------------------------------------------
+    //    // NOTE: Normally we don't have to do this, because the high-level API
+    //    is
+    //    // smart enough, when sending server transaction requests, to grab new
+    //    // transaction numbers if it is running low. But in this case, we need
+    //    the
+    //    // numbers available BEFORE sending the transaction request, because
+    //    the
+    //    // call to SwigWrap::Ledger_CreateResponse is where the number is
+    //    first
+    //    // needed, and that call is made before the server transaction request
+    //    is
+    //    // actually sent.
+    //    //
+    //    const auto theNotaryID = Identifier::Factory(server),
+    //               theNymID = Identifier::Factory(mynym),
+    //               theAcctID = Identifier::Factory(myacct);
     //
-    {
-        if (!Opentxs::Client().ServerAction().DownloadAccount(
-                theNymID, theNotaryID, theAcctID, true)) {
-            LogNormal(OT_METHOD)(__FUNCTION__)(
-                ": Success processing inbox, but then failed "
-                "retrieving intermediary files for account.")
-                .Flush();
-            //          return -1;
-            // By this point we DID successfully process the inbox.
-            // (We just then subsequently failed to download the updated acct
-            // files.)
-        }
-    }
-
-    return 1;
+    //    {
+    //        if (!Opentxs::Client().ServerAction().GetTransactionNumbers(
+    //                theNymID, theNotaryID, 10)) {
+    //            LogNormal(OT_METHOD)(__FUNCTION__)(
+    //                ": Error: cannot reserve transaction numbers.")
+    //                .Flush();
+    //            return -1;
+    //        }
+    //    }
+    //    // -----------------------------------------------------------
+    //    auto pInbox(
+    //        Opentxs::Client().OTAPI().LoadInbox(theNotaryID, theNymID,
+    //        theAcctID));
+    //    if (false == bool(pInbox)) {
+    //        LogNormal(OT_METHOD)(__FUNCTION__)(": Error: cannot load inbox.")
+    //            .Flush();
+    //        return -1;
+    //    }
+    //    // -----------------------------------------------------------
+    //    std::int32_t item_count = pInbox->GetTransactionCount();
+    //    // -----------------------------------------------------------
+    //    if (0 > item_count) {
+    //        LogOutput(OT_METHOD)(__FUNCTION__)(
+    //            ": Error: Cannot load inbox item count.").Flush();
+    //        return -1;
+    //    } else if (0 == item_count) {
+    //        LogDetail(OT_METHOD)(__FUNCTION__)(": The inbox is
+    //        empty.").Flush(); return 0;
+    //    }
+    //
+    //    if (!RecordList::checkIndicesRange("indices", indices, item_count)) {
+    //        return -1;
+    //    }
+    //
+    //    bool all = ("" == indices || "all" == indices);
+    //    // -----------------------------------------------------------
+    //    std::set<std::int32_t>* pOnlyForIndices{nullptr};
+    //    std::set<std::int32_t> setForIndices;
+    //    if (!all) {
+    //        NumList numlistForIndices{indices};
+    //        std::set<std::int64_t> setForIndices64;
+    //        if (numlistForIndices.Output(setForIndices64)) {
+    //            pOnlyForIndices = &setForIndices;
+    //            for (const std::int64_t& lIndex : setForIndices64) {
+    //                setForIndices.insert(static_cast<std::int32_t>(lIndex));
+    //            }
+    //        }
+    //    }
+    //    std::set<TransactionNumber> receiptIds{
+    //        pInbox->GetTransactionNums(pOnlyForIndices)};
+    //
+    //    if (receiptIds.size() < 1) {
+    //        LogDetail(OT_METHOD)(__FUNCTION__)(
+    //            ": There are no inbox receipts to process.")
+    //            .Flush();
+    //        return 0;
+    //    }
+    //    // -----------------------------------------------------------
+    //    // NOTE: Indices are only optional. Otherwise it's "accept all
+    //    receipts".
+    //    // But even if you DID pass in a comma-separated list of indices, it
+    //    doesn't
+    //    // matter below this point.
+    //    // That's because we have now translated the user-selected GUI indices
+    //    into
+    //    // an actual set of receipt IDs, each being the trans num on a
+    //    transaction
+    //    // inside the inbox.
+    //
+    //    // -------------------------------------------------------
+    //    OT_API::ProcessInbox response{
+    //        Opentxs::Client().OTAPI().Ledger_CreateResponse(
+    //            theNotaryID, theNymID, theAcctID)};
+    //    // -------------------------------------------------------
+    //    auto& processInbox = std::get<0>(response);
+    //    auto& inbox = std::get<1>(response);
+    //
+    //    if (!bool(processInbox) || !bool(inbox)) {
+    //        LogDetail(OT_METHOD)(__FUNCTION__)(
+    //            ": Ledger_CreateResponse somehow failed.")
+    //            .Flush();
+    //        return -1;
+    //    }
+    //    // -------------------------------------------------------
+    //    for (const TransactionNumber& lReceiptId : receiptIds) {
+    //        OTTransaction* pReceipt =
+    //            Opentxs::Client().OTAPI().Ledger_GetTransactionByID(
+    //                *inbox, lReceiptId);
+    //
+    //        if (nullptr == pReceipt) {
+    //            LogOutput(OT_METHOD)(__FUNCTION__)(
+    //                  ": Unexpectedly got a nullptr for ReceiptId: ")(
+    //                      lReceiptId)(".").Flush();
+    //            return -1;
+    //        }  // Below this point, pReceipt is a good pointer. It's
+    //        //   owned by inbox, so no need to delete.
+    //        // ------------------------
+    //        // itemTypeFilter == 0 for all, 1 for transfers only, 2 for
+    //        receipts
+    //        // only.
+    //        //
+    //        if (0 != itemTypeFilter) {
+    //            const transactionType receipt_type{pReceipt->GetType()};
+    //
+    //            const bool transfer = (transactionType::pending ==
+    //            receipt_type);
+    //
+    //            if ((1 == itemTypeFilter) && !transfer) {
+    //                // not a pending transfer.
+    //                continue;
+    //            }
+    //            if ((2 == itemTypeFilter) && transfer) {
+    //                // not a receipt.
+    //                continue;
+    //            }
+    //        }
+    //        // ------------------------
+    //        const bool bReceiptResponseCreated =
+    //            Opentxs::Client().OTAPI().Transaction_CreateResponse(
+    //                theNotaryID,
+    //                theNymID,
+    //                theAcctID,
+    //                *processInbox,
+    //                *pReceipt,
+    //                true);
+    //
+    //        if (!bReceiptResponseCreated) {
+    //            LogOutput(OT_METHOD)(__FUNCTION__)(
+    //                  ": Error: Cannot create transaction response.").Flush();
+    //            return -1;
+    //        }
+    //    }  // for
+    //    // -------------------------------------------------------
+    //    if (processInbox->GetTransactionCount() <= 0) {
+    //        // did not process anything
+    //        LogOutput(OT_METHOD)(__FUNCTION__)(
+    //              ": Should never happen. Might want to follow up if you see
+    //              this "
+    //                 "log.").Flush();
+    //        return 0;
+    //    }
+    //    // ----------------------------------------------
+    //    const bool bFinalized =
+    //    Opentxs::Client().OTAPI().Ledger_FinalizeResponse(
+    //        theNotaryID, theNymID, theAcctID, *processInbox);
+    //
+    //    if (!bFinalized) {
+    //        LogOutput(OT_METHOD)(__FUNCTION__)(
+    //            ": Error: Cannot finalize response.").Flush();
+    //        return -1;
+    //    }
+    //    // ----------------------------------------------
+    //    std::string notary_response;
+    //    {
+    //        notary_response =
+    //            Opentxs::Client()
+    //                .ServerAction()
+    //                .ProcessInbox(theNymID, theNotaryID, theAcctID,
+    //                processInbox)
+    //                ->Run();
+    //    }
+    //    std::int32_t reply = InterpretTransactionMsgReply(
+    //
+    //        Opentxs::Client(),
+    //        server,
+    //        mynym,
+    //        myacct,
+    //        "process_inbox",
+    //        notary_response);
+    //
+    //    if (1 != reply) { return reply; }
+    //
+    //    // We KNOW they all just changed, since we just processed
+    //    // the inbox. Might as well refresh our copy with the new changes.
+    //    //
+    //    {
+    //        if (!Opentxs::Client().ServerAction().DownloadAccount(
+    //                theNymID, theNotaryID, theAcctID, true)) {
+    //            LogNormal(OT_METHOD)(__FUNCTION__)(
+    //                ": Success processing inbox, but then failed "
+    //                "retrieving intermediary files for account.")
+    //                .Flush();
+    //            //          return -1;
+    //            // By this point we DID successfully process the inbox.
+    //            // (We just then subsequently failed to download the updated
+    //            acct
+    //            // files.)
+    //        }
+    //    }
+    //
+    //    return 1;
+    return -1;
 }
 
 void RecordList::AddAccountID(std::string str_id)
@@ -1813,669 +1888,749 @@ bool RecordList::PerformAutoAccept()
 {
     // LOOP NYMS
     //
-    if (m_bAutoAcceptCheques || m_bAutoAcceptCash) {
-        std::int32_t nNymIndex = -1;
-        for (auto& it_nym : m_nyms) {
-            ++nNymIndex;
-
-            if (0 == nNymIndex) {
-                LogVerbose("======================================").Flush();
-                LogVerbose(__FUNCTION__)(
-                    ": Beginning auto-accept loop through Nyms...")
-                    .Flush();
-            }
-
-            const std::string& str_nym_id(it_nym);
-            const auto theNymID = Identifier::Factory(str_nym_id);
-            const auto strNymID = String::Factory(theNymID);
-            ConstNym pNym = wallet_.Nym(theNymID);
-            if (!pNym) continue;
-            // LOOP SERVERS
-            //
-            // For each nym, for each server, loop through its payments inbox
-            //
-            std::int32_t nServerIndex = -1;
-            for (auto& it_server : m_servers) {
-                ++nServerIndex;
-                const std::string& str_msg_notary_id(it_server);
-                const auto theMsgNotaryID =
-                    Identifier::Factory(str_msg_notary_id);
-                auto pMsgServer = wallet_.Server(theMsgNotaryID);
-
-                if (!pMsgServer) {
-                    // This can happen if the user erases the server contract
-                    // from the wallet. Therefore we just need to skip it.
-                    LogVerbose(__FUNCTION__)(": Skipping a notary server (")(
-                        str_msg_notary_id)(
-                        ") since the contract has disappeared from "
-                        "the wallet. (Probably deleted by the user).")
-                        .Flush();
-                    continue;
-                }
-
-                const auto strMsgNotaryID = String::Factory(theMsgNotaryID);
-                LogVerbose(__FUNCTION__)(": Msg Notary ")(nServerIndex)(
-		   ", ID: ")(strMsgNotaryID)(".")
-                    .Flush();
-                mapOfPayments thePaymentMap;
-                std::map<std::int32_t, TransactionNumber> mapPaymentBoxTransNum;
-
-                // OPTIMIZE FYI:
-                // The "NoVerify" version is much faster, but you will lose the
-                // ability to get the
-                // sender/recipient name from the receipts in the box. The code
-                // will, however, work
-                // either way.
-                std::shared_ptr<Ledger> pInbox{nullptr};
-
-                if (false == theNymID->empty()) {
-                    pInbox = m_bRunFast
-                                 ? Opentxs::Client()
-                                       .OTAPI()
-                                       .LoadPaymentInboxNoVerify(
-                                           theMsgNotaryID, theNymID)
-                                 : Opentxs::Client().OTAPI().LoadPaymentInbox(
-                                       theMsgNotaryID, theNymID);
-                }
-
-                // It loaded up, so let's loop through it.
-                if (false != bool(pInbox)) {
-                    std::int32_t nIndex{-1};
-                    for (auto& it : pInbox->GetTransactionMap()) {
-                        TransactionNumber lPaymentBoxTransNum = it.first;
-                        auto pBoxTrans = it.second;
-                        OT_ASSERT(false != bool(pBoxTrans));
-                        ++nIndex;  // 0 on first iteration.
-                        //                      otInfo << __FUNCTION__
-                        //                             << ": Incoming payment: "
-                        //                             << nIndex << "\n";
-                        const std::string* p_str_asset_type =
-                            &RecordList::s_blank;  // <========== ASSET TYPE
-                        const std::string* p_str_asset_name =
-                            &RecordList::s_blank;  // instrument definition
-                                                   // display name.
-                        std::string str_type;      // Instrument type.
-                        auto pPayment = GetInstrumentByReceiptID(
-                            *pNym, lPaymentBoxTransNum, *pInbox);
-                        if (false == bool(pPayment))  // then we treat it like
-                                                      // it's abbreviated.
-                        {
-                            LogOutput(OT_METHOD)(__FUNCTION__)(
-                                  ": Payment retrieved from payments "
-                                     "inbox was nullptr. (It's abbreviated?). "
-                                     "Skipping.").Flush();
-                        }
-                        // We have pPayment, the instrument accompanying the
-                        // receipt in the payments inbox.
-                        //
-                        else if (
-                            pPayment->IsValid() && pPayment->SetTempValues()) {
-                            auto theInstrumentDefinitionID =
-                                Identifier::Factory();
-
-                            if (pPayment->GetInstrumentDefinitionID(
-                                    theInstrumentDefinitionID)) {
-                                auto strTemp =
-                                    String::Factory(theInstrumentDefinitionID);
-                                const std::string str_inpmt_asset(
-                                    strTemp->Get());  // The instrument
-                                                      // definition
-                                                      // we found
-                                                      // on the payment (if we
-                                                      // found anything.)
-                                auto it_asset = m_assets.find(str_inpmt_asset);
-                                if (it_asset != m_assets.end())  // Found it on
-                                                                 // the map of
-                                // instrument definitions
-                                // we care about.
-                                {
-                                    p_str_asset_type =
-                                        &(it_asset->first);  // Set the asset
-                                                             // type ID.
-                                    p_str_asset_name = &(
-                                        it_asset->second);  // The CurrencyTLA.
-                                                            // Examples: USD,
-                                                            // BTC, etc.
-                                } else {
-                                    // There was definitely an instrument
-                                    // definition on the
-                                    // instrument, and it definitely
-                                    // did not match any of the assets that we
-                                    // care about.
-                                    // Therefore, skip.
-                                    //
-                                    LogOutput(OT_METHOD)(__FUNCTION__)(
-                                          ": Skipping: Incoming payment (we "
-                                             "don't care about asset ")
-                                          (str_inpmt_asset)(").").Flush();
-                                    continue;
-                                }
-                            }
-                            // By this point, p_str_asset_type and
-                            // p_str_asset_name are definitely set.
-                            OT_ASSERT(nullptr != p_str_asset_type);  // and it's
-                                                                     // either
-                            // blank, or
-                            // it's one of
-                            // the asset
-                            // types we
-                            // care about.
-                            OT_ASSERT(nullptr != p_str_asset_name);  // and it's
-                                                                     // either
-                            // blank, or
-                            // it's one of
-                            // the asset
-                            // types we
-                            // care about.
-                            // Instrument type (cheque, voucher, etc)
-                            std::int32_t nType =
-                                static_cast<std::int32_t>(pPayment->GetType());
-
-                            str_type = GetTypeString(nType);
-                            // For now, we only accept cash, cheques and
-                            // vouchers.
-                            //
-                            if ((m_bAutoAcceptCheques &&
-                                 ((0 == str_type.compare("cheque")) ||
-                                  (0 == str_type.compare("voucher")))) ||
-                                (m_bAutoAcceptCash &&
-                                 (0 == str_type.compare("cash")))) {
-                                LogVerbose(__FUNCTION__)(
-                                    ": Adding to acceptance list: pending "
-                                    "incoming ")(str_type)(".")
-                                    .Flush();
-
-                                mapPaymentBoxTransNum.insert(
-                                    std::pair<std::int32_t, TransactionNumber>(
-                                        nIndex, lPaymentBoxTransNum));
-
-                                thePaymentMap.insert(
-                                    std::pair<
-                                        std::int32_t,
-                                        std::shared_ptr<OTPayment>>(
-                                        nIndex, pPayment));
-                            } else {
-                                LogVerbose(__FUNCTION__)(
-                                    ": Instrument type not enabled for "
-                                    "auto-accept (skipping): ")(str_type)
-				  (".").Flush();
-                            }
-                        } else {
-                            LogNormal(OT_METHOD)(__FUNCTION__)(
-                                ": Failed in pPayment->IsValid "
-                                "or pPayment->SetTempValues().")
-                                .Flush();
-                        }
-                    }
-                }  // looping through payments inbox.
-                else
-                    LogDetail(OT_METHOD)(__FUNCTION__)(
-                        ": Failed loading payments inbox. "
-                        "(Probably just doesn't exist yet).")
-                        .Flush();
-                // Above we compiled a list of purses, cheques / vouchers to
-                // accept.
-                // If there are any on that list, then ACCEPT them here.
-                //
-                if (!thePaymentMap.empty()) {
-                    for (mapOfPayments::reverse_iterator it =
-                             thePaymentMap.rbegin();
-                         it != thePaymentMap.rend();
-                         ++it)  // backwards since we are processing (removing)
-                                // payments by index.
-                    {
-                        std::int32_t lIndex = it->first;
-                        auto pPayment = it->second;
-                        if (false == bool(pPayment)) {
-                            LogOutput(OT_METHOD)(__FUNCTION__)(
-                                  ": Error: Payment pointer was "
-                                     "nullptr! (Should never happen). "
-                                     "Skipping.").Flush();
-                            continue;
-                        }
-                        auto payment = String::Factory();
-                        if (!pPayment->GetPaymentContents(payment)) {
-                            LogOutput(OT_METHOD)(__FUNCTION__)(
-                                  ": Error: Failed while trying to "
-                                     "get payment string contents. "
-                                     "(Skipping).").Flush();
-                            continue;
-                        }
-
-                        std::map<std::int32_t, TransactionNumber>::iterator
-                            it_pmnt_box_trns_num =
-                                mapPaymentBoxTransNum.find(lIndex);
-                        TransactionNumber lPaymentBoxTransNum = 0;
-
-                        if (it_pmnt_box_trns_num != mapPaymentBoxTransNum.end())
-                            lPaymentBoxTransNum = it_pmnt_box_trns_num->second;
-
-                        auto paymentAssetType = Identifier::Factory();
-                        bool bGotAsset = pPayment->GetInstrumentDefinitionID(
-                            paymentAssetType);
-
-                        auto paymentNotaryId = Identifier::Factory();
-                        bool bGotPaymentNotary =
-                            pPayment->GetNotaryID(paymentNotaryId);
-
-                        std::string str_instrument_definition_id,
-                            str_payment_notary_id;
-
-                        if (bGotPaymentNotary) {
-                            const auto strPaymentNotaryId =
-                                String::Factory(paymentNotaryId);
-                            str_payment_notary_id = strPaymentNotaryId->Get();
-                        }
-                        if (str_payment_notary_id.empty()) {
-                            LogOutput(OT_METHOD)(__FUNCTION__)(
-                                ": Error: Failed while trying to "
-                                   "get Notary ID from payment. (Skipping).")
-                            .Flush();
-                            continue;
-                        }
-
-                        if (bGotAsset) {
-                            const auto strInstrumentDefinitionID =
-                                String::Factory(paymentAssetType);
-                            str_instrument_definition_id =
-                                strInstrumentDefinitionID->Get();
-                        }
-                        if (str_instrument_definition_id.empty()) {
-                            LogOutput(OT_METHOD)(__FUNCTION__)(
-                                ": Error: Failed while trying to "
-                                   "get instrument definition ID from payment. "
-                                   "(Skipping).").Flush();
-                            continue;
-                        }
-                        // pick an account to deposit the cheque into.
-                        for (auto& it_acct : m_accounts) {
-                            const std::string& str_account_id(it_acct);
-                            const auto theAccountID =
-                                Identifier::Factory(str_account_id);
-                            auto account = wallet_.Account(theAccountID);
-
-                            if (false == bool(account)) {
-                                // This can happen if the user erases the
-                                // account. Therefore we just need to skip it.
-                                LogVerbose(__FUNCTION__)(
-                                    ": Skipping an account (")(str_account_id)(
-                                    ") since it has disappeared from the "
-                                    "wallet. (Probably deleted by the user).")
-                                    .Flush();
-
-                                continue;
-                            }
-
-                            const Identifier& theAcctNymID =
-                                account.get().GetNymID();
-                            const Identifier& theAcctNotaryID =
-                                account.get().GetPurportedNotaryID();
-                            const Identifier& theAcctInstrumentDefinitionID =
-                                account.get().GetInstrumentDefinitionID();
-                            const std::string str_acct_type =
-                                account.get().GetTypeString();
-                            account.Release();
-                            const auto strAcctNymID =
-                                String::Factory(theAcctNymID);
-                            const auto strAcctNotaryID =
-                                String::Factory(theAcctNotaryID);
-                            const auto strAcctInstrumentDefinitionID =
-                                String::Factory(theAcctInstrumentDefinitionID);
-                            // If the current account is owned by the Nym, AND
-                            // it has the same instrument definition ID
-                            // as the cheque being deposited, then let's deposit
-                            // the cheque into that account.
-                            //
-                            // TODO: we should first just see if the default
-                            // account matches, instead of doing
-                            // this loop in the first place.
-                            //
-                            if ((theNymID == theAcctNymID) &&
-                                (strAcctNotaryID->Compare(
-                                    str_payment_notary_id.c_str())) &&
-                                (strAcctInstrumentDefinitionID->Compare(
-                                    str_instrument_definition_id.c_str())) &&
-                                // No issuer accounts allowed here. User only.
-                                (0 == str_acct_type.compare("user"))) {
-                                // Accept it.
-                                //
-                                auto strIndices = String::Factory();
-                                strIndices->Format("%d", lIndex);
-                                const std::string str_indices(
-                                    strIndices->Get());
-
-                                std::string str_server_response;
-
-                                if (!accept_from_paymentbox(
-                                        str_msg_notary_id,
-                                        str_account_id,
-                                        str_indices,
-                                        "ANY",
-                                        &str_server_response)) {
-                                    LogOutput(OT_METHOD)(__FUNCTION__)(
-                                          ": Error while trying to "
-                                             "accept this instrument.").Flush();
-                                } else {
-                                    TransactionNumber temp_number = 0;
-                                    TransactionNumber temp_trans_number = 0;
-                                    TransactionNumber temp_display_number = 0;
-
-                                    if (pPayment->GetTransactionNum(
-                                            temp_number))
-                                        temp_trans_number = temp_number;
-                                    if (pPayment->GetTransNumDisplay(
-                                            temp_number))
-                                        temp_display_number = temp_number;
-
-                                    TransactionNumber display_number =
-                                        (temp_display_number > 0)
-                                            ? temp_display_number
-                                            : temp_trans_number;
-
-                                    // Last resort here. The number in my
-                                    // payment box is one that is guaranteed I
-                                    // will never be able to match up with a
-                                    // number in anyone else's payment box.
-                                    // So what use is it for display? It's also
-                                    // guaranteed that multiple of my receipts
-                                    // will NEVER be able to match up with each
-                                    // other in the payments table in the
-                                    // Moneychanger DB, since they will all have
-                                    // different display numbers.
-                                    //
-                                    if (display_number <= 0)
-                                        display_number = lPaymentBoxTransNum;
-                                }
-                                break;
-                            }
-                        }  // loop through accounts to find one to deposit
-                           // cheque
-                           // into.
-                    }  // Loop through payments to deposit.
-                    // Empty the list and delete the payments inside.
-                    thePaymentMap.clear();
-                }  // if (!thePaymentMap.empty())
-            }
-        }
-    }
-
-    // ASSET ACCOUNT -- INBOX
+    //    if (m_bAutoAcceptCheques || m_bAutoAcceptCash) {
+    //        std::int32_t nNymIndex = -1;
+    //        for (auto& it_nym : m_nyms) {
+    //            ++nNymIndex;
     //
-    // Loop through the Accounts.
+    //            if (0 == nNymIndex) {
+    //                LogVerbose("======================================").Flush();
+    //                LogVerbose(__FUNCTION__)(
+    //                    ": Beginning auto-accept loop through Nyms...")
+    //                    .Flush();
+    //            }
     //
-    if (m_bAutoAcceptReceipts || m_bAutoAcceptTransfers) {
-        std::int32_t nAccountIndex = -1;
-        for (auto& it_acct : m_accounts) {
-            ++nAccountIndex;  // (0 on first iteration.)
-
-            if (0 == nAccountIndex) {
-                LogVerbose("---------------------------------").Flush();
-                LogVerbose(__FUNCTION__)(
-                    ": Beginning auto-accept loop through the "
-                    "accounts in the wallet...")
-                    .Flush();
-            }
-
-            // For each account, loop through its inbox, outbox, and record box.
-            const std::string& str_account_id(it_acct);
-            const auto theAccountID = Identifier::Factory(str_account_id);
-            auto account = wallet_.Account(theAccountID);
-
-            if (false == bool(account)) {
-                // This can happen if the user erases the account.
-                // Therefore we just need to skip it.
-                LogVerbose(__FUNCTION__)(": Skipping an account (")(
-                    str_account_id)(") since it has disappeared from the "
-                                    "wallet. (Probably deleted by "
-                                    "the user).")
-                    .Flush();
-
-                continue;
-            }
-            const Identifier& theNymID = account.get().GetNymID();
-            const Identifier& theNotaryID =
-                account.get().GetPurportedNotaryID();
-            const Identifier& theInstrumentDefinitionID =
-                account.get().GetInstrumentDefinitionID();
-            account.Release();
-            const auto strNymID = String::Factory(theNymID);
-            const auto strNotaryID = String::Factory(theNotaryID);
-            const auto strInstrumentDefinitionID =
-                String::Factory(theInstrumentDefinitionID);
-            LogVerbose("------------").Flush();
-            LogVerbose(__FUNCTION__)(": Account: ")(nAccountIndex)(", ID: ")(
-	       str_account_id)(".")
-                .Flush();
-            const std::string str_nym_id(strNymID->Get());
-            const std::string str_notary_id(strNotaryID->Get());
-            const std::string str_instrument_definition_id(
-                strInstrumentDefinitionID->Get());
-            // NOTE: Since this account is already on my "care about" list for
-            // accounts,
-            // I wouldn't bother double-checking my "care about" lists for
-            // servers, nyms,
-            // and instrument definitions. But I still look up the appropriate
-            // string for
-            // each, since
-            // I have to pass a reference to it into the constructor for
-            // Record. (To a version
-            // that won't be deleted, since the Record will reference it. And
-            // the "care about"
-            // list definitely contains a copy of the string that won't be
-            // deleted.)
-            //
-            auto it_nym = std::find(m_nyms.begin(), m_nyms.end(), str_nym_id);
-            auto it_server =
-                std::find(m_servers.begin(), m_servers.end(), str_notary_id);
-            auto it_asset = m_assets.find(str_instrument_definition_id);
-            if ((m_nyms.end() == it_nym) || (m_servers.end() == it_server) ||
-                (m_assets.end() == it_asset)) {
-                LogVerbose(__FUNCTION__)(": Skipping an account (")(
-                    str_account_id)(") since its Nym, or Server, or Asset Type "
-                                    "wasn't on my list.")
-                    .Flush();
-
-                continue;
-            }
-            // Loop through asset account INBOX.
-            //
-            // OPTIMIZE FYI:
-            // NOTE: LoadInbox is much SLOWER than LoadInboxNoVerify, but it
-            // also lets you get
-            // the NAME off of the box receipt. So if you are willing to GIVE UP
-            // the NAME, in
-            // return for FASTER PERFORMANCE, then call SetFastMode() before
-            // Populating.
-
-            std::shared_ptr<Ledger> pInbox{nullptr};
-
-            if (false == theNymID.empty()) {
-                pInbox = m_bRunFast
-                             ? Opentxs::Client().OTAPI().LoadInboxNoVerify(
-                                   theNotaryID, theNymID, theAccountID)
-                             : Opentxs::Client().OTAPI().LoadInbox(
-                                   theNotaryID, theNymID, theAccountID);
-            }
-
-            if (false == bool(pInbox)) {
-                LogVerbose(__FUNCTION__)(": Skipping an account (")(
-                    str_account_id)(") since its inbox failed to load (have "
-                                    "you downloaded the latest "
-                                    "one?)")
-                    .Flush();
-
-                continue;
-            }
-            const auto strInbox = String::Factory(*pInbox);
-            const std::string str_inbox(strInbox->Get());
-            bool bFoundAnyToAccept = false;
-            std::string strResponseLedger;
-            std::int32_t nInboxIndex = -1;
-            // It loaded up, so let's loop through it.
-            for (auto& it : pInbox->GetTransactionMap()) {
-                ++nInboxIndex;  // (0 on first iteration.)
-
-                if (0 == nInboxIndex) {
-                    LogVerbose(__FUNCTION__)(
-                        ": Beginning loop through asset account INBOX...")
-                        .Flush();
-                }
-
-                auto pBoxTrans = it.second;
-
-                OT_ASSERT(false != bool(pBoxTrans));
-
-                LogVerbose(__FUNCTION__)(": Inbox index: ")(nInboxIndex)
-                    .Flush();
-                const std::string str_type(
-                    pBoxTrans->GetTypeString());  // pending, chequeReceipt,
-                                                  // etc.
-                const bool bIsTransfer =
-                    (transactionType::pending == pBoxTrans->GetType());
-                const bool bIsReceipt = !bIsTransfer;
-                if ((m_bAutoAcceptReceipts && bIsReceipt) ||
-                    (m_bAutoAcceptTransfers && bIsTransfer)) {
-                    LogVerbose(__FUNCTION__)(": Auto-accepting: incoming ")(
-                        bIsTransfer ? "pending transfer"
-                                    : "receipt")(" (str_type: ")(str_type)(")")
-                        .Flush();
-                    // If we haven't found any yet, then this must be the first
-                    // one!
-                    //
-                    if (!bFoundAnyToAccept) {
-                        bFoundAnyToAccept = true;
-
-                        std::int32_t nNumberNeeded =
-                            20;  // I'm just hardcoding: "Make sure I have at
-                                 // least 20 transaction numbers."
-                        {
-                            if (!Opentxs::Client()
-                                     .ServerAction()
-                                     .GetTransactionNumbers(
-                                         theNymID,
-                                         theNotaryID,
-                                         nNumberNeeded)) {
-                                LogNormal(OT_METHOD)(__FUNCTION__)(
-                                    ": Failure: "
-                                    "make_sure_enough_trans_nums: "
-                                    "returned false. (Skipping inbox "
-                                    "for account ")(str_account_id.c_str())
-				    (").").Flush();
-                                continue;
-                            }
-                        }
-                        strResponseLedger =
-                            Opentxs::Client().Exec().Ledger_CreateResponse(
-                                str_notary_id, str_nym_id, str_account_id);
-
-                        if (strResponseLedger.empty()) {
-                            LogNormal(OT_METHOD)(__FUNCTION__)(
-                                ": Failure: "
-                                "OT_API_Ledger_CreateResponse "
-                                "returned nullptr. (Skipping inbox "
-                                "for account ")(str_account_id.c_str())(").")
-                                .Flush();
-                            continue;
-                        }
-                    }
-                    const auto strTrans = String::Factory(*pBoxTrans);
-                    const std::string str_trans(strTrans->Get());
-                    std::string strNEW_ResponseLEDGER =
-                        Opentxs::Client().Exec().Transaction_CreateResponse(
-                            str_notary_id,
-                            str_nym_id,
-                            str_account_id,
-                            strResponseLedger,
-                            str_trans,
-                            true);  // accept = true (versus rejecting a pending
-                                    // transfer, for example.)
-
-                    if (strNEW_ResponseLEDGER.empty()) {
-                        LogNormal(OT_METHOD)(__FUNCTION__)(
-                            ": Failure: "
-                            "OT_API_Transaction_CreateResponse "
-                            "returned nullptr. (Skipping inbox for "
-                            "account ")(str_account_id.c_str())(").")
-                            .Flush();
-                        continue;
-                    }
-                    strResponseLedger = strNEW_ResponseLEDGER;
-                }
-            }  // For
-            // Okay now we have the response ledger all ready to go, let's
-            // process it!
-            //
-            if (bFoundAnyToAccept && !strResponseLedger.empty()) {
-                std::string strFinalizedResponse =
-                    Opentxs::Client().Exec().Ledger_FinalizeResponse(
-                        str_notary_id,
-                        str_nym_id,
-                        str_account_id,
-                        strResponseLedger);
-
-                if (strFinalizedResponse.empty()) {
-                    LogNormal(OT_METHOD)(__FUNCTION__)(
-                        ": Failure: "
-                        "OT_API_Ledger_FinalizeResponse returned "
-                        "nullptr. (Skipping inbox for account ")(
-                        str_account_id.c_str())(").")
-                        .Flush();
-                    continue;
-                }
-                // Server communications are handled here...
-                //
-                auto ledger{Opentxs::Client().Factory().Ledger(
-                    theNymID, theAccountID, theNotaryID)};
-
-                OT_ASSERT(false != bool(ledger));
-
-                const auto loaded = ledger->LoadLedgerFromString(
-                    String::Factory(strFinalizedResponse));
-
-                OT_ASSERT(loaded);
-
-                std::string strResponse;
-                {
-                    strResponse =
-                        Opentxs::Client()
-                            .ServerAction()
-                            .ProcessInbox(
-                                theNymID, theNotaryID, theAccountID, ledger)
-                            ->Run();
-                }
-                std::string strAttempt = "process_inbox";
-
-                std::int32_t nInterpretReply = InterpretTransactionMsgReply(
-                    Opentxs::Client(),
-                    str_notary_id,
-                    str_nym_id,
-                    str_account_id,
-                    strAttempt,
-                    strResponse);
-
-                if (1 == nInterpretReply) {
-                    // Download all the intermediary files (account balance,
-                    // inbox, outbox, etc)
-                    // since they have probably changed from this operation.
-                    //
-                    bool bRetrieved =
-                        Opentxs::Client().ServerAction().DownloadAccount(
-                            theNymID,
-                            theNotaryID,
-                            theAccountID,
-                            true);  // bForceDownload defaults to false.
-
-                    LogVerbose("Server response (")(strAttempt)(
-                        "): SUCCESS processing/accepting inbox.")
-                        .Flush();
-                    LogVerbose(bRetrieved ? "Success" : "Failed")(
-                        " retrieving intermediary files for account.")
-                        .Flush();
-                }
-            }
-        }
-    }
-    return true;
+    //            const std::string& str_nym_id(it_nym);
+    //            const auto theNymID = Identifier::Factory(str_nym_id);
+    //            const auto strNymID = String::Factory(theNymID);
+    //            ConstNym pNym = wallet_.Nym(theNymID);
+    //            if (!pNym) continue;
+    //            // LOOP SERVERS
+    //            //
+    //            // For each nym, for each server, loop through its payments
+    //            inbox
+    //            //
+    //            std::int32_t nServerIndex = -1;
+    //            for (auto& it_server : m_servers) {
+    //                ++nServerIndex;
+    //                const std::string& str_msg_notary_id(it_server);
+    //                const auto theMsgNotaryID =
+    //                    Identifier::Factory(str_msg_notary_id);
+    //                auto pMsgServer = wallet_.Server(theMsgNotaryID);
+    //
+    //                if (!pMsgServer) {
+    //                    // This can happen if the user erases the server
+    //                    contract
+    //                    // from the wallet. Therefore we just need to skip it.
+    //                    LogVerbose(__FUNCTION__)(": Skipping a notary server
+    //                    (")(
+    //                        str_msg_notary_id)(
+    //                        ") since the contract has disappeared from "
+    //                        "the wallet. (Probably deleted by the user).")
+    //                        .Flush();
+    //                    continue;
+    //                }
+    //
+    //                const auto strMsgNotaryID =
+    //                String::Factory(theMsgNotaryID);
+    //                LogVerbose(__FUNCTION__)(": Msg Notary ")(nServerIndex)(
+    //		   ", ID: ")(strMsgNotaryID)(".")
+    //                    .Flush();
+    //                mapOfPayments thePaymentMap;
+    //                std::map<std::int32_t, TransactionNumber>
+    //                mapPaymentBoxTransNum;
+    //
+    //                // OPTIMIZE FYI:
+    //                // The "NoVerify" version is much faster, but you will
+    //                lose the
+    //                // ability to get the
+    //                // sender/recipient name from the receipts in the box. The
+    //                code
+    //                // will, however, work
+    //                // either way.
+    //                std::shared_ptr<Ledger> pInbox{nullptr};
+    //
+    //                if (false == theNymID->empty()) {
+    //                    pInbox = m_bRunFast
+    //                                 ? Opentxs::Client()
+    //                                       .OTAPI()
+    //                                       .LoadPaymentInboxNoVerify(
+    //                                           theMsgNotaryID, theNymID)
+    //                                 :
+    //                                 Opentxs::Client().OTAPI().LoadPaymentInbox(
+    //                                       theMsgNotaryID, theNymID);
+    //                }
+    //
+    //                // It loaded up, so let's loop through it.
+    //                if (false != bool(pInbox)) {
+    //                    std::int32_t nIndex{-1};
+    //                    for (auto& it : pInbox->GetTransactionMap()) {
+    //                        TransactionNumber lPaymentBoxTransNum = it.first;
+    //                        auto pBoxTrans = it.second;
+    //                        OT_ASSERT(false != bool(pBoxTrans));
+    //                        ++nIndex;  // 0 on first iteration.
+    //                        //                      otInfo << __FUNCTION__
+    //                        //                             << ": Incoming
+    //                        payment: "
+    //                        //                             << nIndex << "\n";
+    //                        const std::string* p_str_asset_type =
+    //                            &RecordList::s_blank;  // <========== ASSET
+    //                            TYPE
+    //                        const std::string* p_str_asset_name =
+    //                            &RecordList::s_blank;  // instrument
+    //                            definition
+    //                                                   // display name.
+    //                        std::string str_type;      // Instrument type.
+    //                        auto pPayment = GetInstrumentByReceiptID(
+    //                            *pNym, lPaymentBoxTransNum, *pInbox);
+    //                        if (false == bool(pPayment))  // then we treat it
+    //                        like
+    //                                                      // it's abbreviated.
+    //                        {
+    //                            LogOutput(OT_METHOD)(__FUNCTION__)(
+    //                                  ": Payment retrieved from payments "
+    //                                     "inbox was nullptr. (It's
+    //                                     abbreviated?). "
+    //                                     "Skipping.").Flush();
+    //                        }
+    //                        // We have pPayment, the instrument accompanying
+    //                        the
+    //                        // receipt in the payments inbox.
+    //                        //
+    //                        else if (
+    //                            pPayment->IsValid() &&
+    //                            pPayment->SetTempValues()) { auto
+    //                            theInstrumentDefinitionID =
+    //                                Identifier::Factory();
+    //
+    //                            if (pPayment->GetInstrumentDefinitionID(
+    //                                    theInstrumentDefinitionID)) {
+    //                                auto strTemp =
+    //                                    String::Factory(theInstrumentDefinitionID);
+    //                                const std::string str_inpmt_asset(
+    //                                    strTemp->Get());  // The instrument
+    //                                                      // definition
+    //                                                      // we found
+    //                                                      // on the payment
+    //                                                      (if we
+    //                                                      // found anything.)
+    //                                auto it_asset =
+    //                                m_assets.find(str_inpmt_asset); if
+    //                                (it_asset != m_assets.end())  // Found it
+    //                                on
+    //                                                                 // the
+    //                                                                 map of
+    //                                // instrument definitions
+    //                                // we care about.
+    //                                {
+    //                                    p_str_asset_type =
+    //                                        &(it_asset->first);  // Set the
+    //                                        asset
+    //                                                             // type ID.
+    //                                    p_str_asset_name = &(
+    //                                        it_asset->second);  // The
+    //                                        CurrencyTLA.
+    //                                                            // Examples:
+    //                                                            USD,
+    //                                                            // BTC, etc.
+    //                                } else {
+    //                                    // There was definitely an instrument
+    //                                    // definition on the
+    //                                    // instrument, and it definitely
+    //                                    // did not match any of the assets
+    //                                    that we
+    //                                    // care about.
+    //                                    // Therefore, skip.
+    //                                    //
+    //                                    LogOutput(OT_METHOD)(__FUNCTION__)(
+    //                                          ": Skipping: Incoming payment
+    //                                          (we "
+    //                                             "don't care about asset ")
+    //                                          (str_inpmt_asset)(").").Flush();
+    //                                    continue;
+    //                                }
+    //                            }
+    //                            // By this point, p_str_asset_type and
+    //                            // p_str_asset_name are definitely set.
+    //                            OT_ASSERT(nullptr != p_str_asset_type);  //
+    //                            and it's
+    //                                                                     //
+    //                                                                     either
+    //                            // blank, or
+    //                            // it's one of
+    //                            // the asset
+    //                            // types we
+    //                            // care about.
+    //                            OT_ASSERT(nullptr != p_str_asset_name);  //
+    //                            and it's
+    //                                                                     //
+    //                                                                     either
+    //                            // blank, or
+    //                            // it's one of
+    //                            // the asset
+    //                            // types we
+    //                            // care about.
+    //                            // Instrument type (cheque, voucher, etc)
+    //                            std::int32_t nType =
+    //                                static_cast<std::int32_t>(pPayment->GetType());
+    //
+    //                            str_type = GetTypeString(nType);
+    //                            // For now, we only accept cash, cheques and
+    //                            // vouchers.
+    //                            //
+    //                            if ((m_bAutoAcceptCheques &&
+    //                                 ((0 == str_type.compare("cheque")) ||
+    //                                  (0 == str_type.compare("voucher")))) ||
+    //                                (m_bAutoAcceptCash &&
+    //                                 (0 == str_type.compare("cash")))) {
+    //                                LogVerbose(__FUNCTION__)(
+    //                                    ": Adding to acceptance list: pending
+    //                                    " "incoming ")(str_type)(".")
+    //                                    .Flush();
+    //
+    //                                mapPaymentBoxTransNum.insert(
+    //                                    std::pair<std::int32_t,
+    //                                    TransactionNumber>(
+    //                                        nIndex, lPaymentBoxTransNum));
+    //
+    //                                thePaymentMap.insert(
+    //                                    std::pair<
+    //                                        std::int32_t,
+    //                                        std::shared_ptr<OTPayment>>(
+    //                                        nIndex, pPayment));
+    //                            } else {
+    //                                LogVerbose(__FUNCTION__)(
+    //                                    ": Instrument type not enabled for "
+    //                                    "auto-accept (skipping): ")(str_type)
+    //				  (".").Flush();
+    //                            }
+    //                        } else {
+    //                            LogNormal(OT_METHOD)(__FUNCTION__)(
+    //                                ": Failed in pPayment->IsValid "
+    //                                "or pPayment->SetTempValues().")
+    //                                .Flush();
+    //                        }
+    //                    }
+    //                }  // looping through payments inbox.
+    //                else
+    //                    LogDetail(OT_METHOD)(__FUNCTION__)(
+    //                        ": Failed loading payments inbox. "
+    //                        "(Probably just doesn't exist yet).")
+    //                        .Flush();
+    //                // Above we compiled a list of purses, cheques / vouchers
+    //                to
+    //                // accept.
+    //                // If there are any on that list, then ACCEPT them here.
+    //                //
+    //                if (!thePaymentMap.empty()) {
+    //                    for (mapOfPayments::reverse_iterator it =
+    //                             thePaymentMap.rbegin();
+    //                         it != thePaymentMap.rend();
+    //                         ++it)  // backwards since we are processing
+    //                         (removing)
+    //                                // payments by index.
+    //                    {
+    //                        std::int32_t lIndex = it->first;
+    //                        auto pPayment = it->second;
+    //                        if (false == bool(pPayment)) {
+    //                            LogOutput(OT_METHOD)(__FUNCTION__)(
+    //                                  ": Error: Payment pointer was "
+    //                                     "nullptr! (Should never happen). "
+    //                                     "Skipping.").Flush();
+    //                            continue;
+    //                        }
+    //                        auto payment = String::Factory();
+    //                        if (!pPayment->GetPaymentContents(payment)) {
+    //                            LogOutput(OT_METHOD)(__FUNCTION__)(
+    //                                  ": Error: Failed while trying to "
+    //                                     "get payment string contents. "
+    //                                     "(Skipping).").Flush();
+    //                            continue;
+    //                        }
+    //
+    //                        std::map<std::int32_t,
+    //                        TransactionNumber>::iterator
+    //                            it_pmnt_box_trns_num =
+    //                                mapPaymentBoxTransNum.find(lIndex);
+    //                        TransactionNumber lPaymentBoxTransNum = 0;
+    //
+    //                        if (it_pmnt_box_trns_num !=
+    //                        mapPaymentBoxTransNum.end())
+    //                            lPaymentBoxTransNum =
+    //                            it_pmnt_box_trns_num->second;
+    //
+    //                        auto paymentAssetType = Identifier::Factory();
+    //                        bool bGotAsset =
+    //                        pPayment->GetInstrumentDefinitionID(
+    //                            paymentAssetType);
+    //
+    //                        auto paymentNotaryId = Identifier::Factory();
+    //                        bool bGotPaymentNotary =
+    //                            pPayment->GetNotaryID(paymentNotaryId);
+    //
+    //                        std::string str_instrument_definition_id,
+    //                            str_payment_notary_id;
+    //
+    //                        if (bGotPaymentNotary) {
+    //                            const auto strPaymentNotaryId =
+    //                                String::Factory(paymentNotaryId);
+    //                            str_payment_notary_id =
+    //                            strPaymentNotaryId->Get();
+    //                        }
+    //                        if (str_payment_notary_id.empty()) {
+    //                            LogOutput(OT_METHOD)(__FUNCTION__)(
+    //                                ": Error: Failed while trying to "
+    //                                   "get Notary ID from payment.
+    //                                   (Skipping).")
+    //                            .Flush();
+    //                            continue;
+    //                        }
+    //
+    //                        if (bGotAsset) {
+    //                            const auto strInstrumentDefinitionID =
+    //                                String::Factory(paymentAssetType);
+    //                            str_instrument_definition_id =
+    //                                strInstrumentDefinitionID->Get();
+    //                        }
+    //                        if (str_instrument_definition_id.empty()) {
+    //                            LogOutput(OT_METHOD)(__FUNCTION__)(
+    //                                ": Error: Failed while trying to "
+    //                                   "get instrument definition ID from
+    //                                   payment. "
+    //                                   "(Skipping).").Flush();
+    //                            continue;
+    //                        }
+    //                        // pick an account to deposit the cheque into.
+    //                        for (auto& it_acct : m_accounts) {
+    //                            const std::string& str_account_id(it_acct);
+    //                            const auto theAccountID =
+    //                                Identifier::Factory(str_account_id);
+    //                            auto account = wallet_.Account(theAccountID);
+    //
+    //                            if (false == bool(account)) {
+    //                                // This can happen if the user erases the
+    //                                // account. Therefore we just need to skip
+    //                                it. LogVerbose(__FUNCTION__)(
+    //                                    ": Skipping an account
+    //                                    (")(str_account_id)(
+    //                                    ") since it has disappeared from the "
+    //                                    "wallet. (Probably deleted by the
+    //                                    user).") .Flush();
+    //
+    //                                continue;
+    //                            }
+    //
+    //                            const Identifier& theAcctNymID =
+    //                                account.get().GetNymID();
+    //                            const Identifier& theAcctNotaryID =
+    //                                account.get().GetPurportedNotaryID();
+    //                            const Identifier&
+    //                            theAcctInstrumentDefinitionID =
+    //                                account.get().GetInstrumentDefinitionID();
+    //                            const std::string str_acct_type =
+    //                                account.get().GetTypeString();
+    //                            account.Release();
+    //                            const auto strAcctNymID =
+    //                                String::Factory(theAcctNymID);
+    //                            const auto strAcctNotaryID =
+    //                                String::Factory(theAcctNotaryID);
+    //                            const auto strAcctInstrumentDefinitionID =
+    //                                String::Factory(theAcctInstrumentDefinitionID);
+    //                            // If the current account is owned by the Nym,
+    //                            AND
+    //                            // it has the same instrument definition ID
+    //                            // as the cheque being deposited, then let's
+    //                            deposit
+    //                            // the cheque into that account.
+    //                            //
+    //                            // TODO: we should first just see if the
+    //                            default
+    //                            // account matches, instead of doing
+    //                            // this loop in the first place.
+    //                            //
+    //                            if ((theNymID == theAcctNymID) &&
+    //                                (strAcctNotaryID->Compare(
+    //                                    str_payment_notary_id.c_str())) &&
+    //                                (strAcctInstrumentDefinitionID->Compare(
+    //                                    str_instrument_definition_id.c_str()))
+    //                                    &&
+    //                                // No issuer accounts allowed here. User
+    //                                only. (0 ==
+    //                                str_acct_type.compare("user"))) {
+    //                                // Accept it.
+    //                                //
+    //                                auto strIndices = String::Factory();
+    //                                strIndices->Format("%d", lIndex);
+    //                                const std::string str_indices(
+    //                                    strIndices->Get());
+    //
+    //                                std::string str_server_response;
+    //
+    //                                if (!accept_from_paymentbox(
+    //                                        str_msg_notary_id,
+    //                                        str_account_id,
+    //                                        str_indices,
+    //                                        "ANY",
+    //                                        &str_server_response)) {
+    //                                    LogOutput(OT_METHOD)(__FUNCTION__)(
+    //                                          ": Error while trying to "
+    //                                             "accept this
+    //                                             instrument.").Flush();
+    //                                } else {
+    //                                    TransactionNumber temp_number = 0;
+    //                                    TransactionNumber temp_trans_number =
+    //                                    0; TransactionNumber
+    //                                    temp_display_number = 0;
+    //
+    //                                    if (pPayment->GetTransactionNum(
+    //                                            temp_number))
+    //                                        temp_trans_number = temp_number;
+    //                                    if (pPayment->GetTransNumDisplay(
+    //                                            temp_number))
+    //                                        temp_display_number = temp_number;
+    //
+    //                                    TransactionNumber display_number =
+    //                                        (temp_display_number > 0)
+    //                                            ? temp_display_number
+    //                                            : temp_trans_number;
+    //
+    //                                    // Last resort here. The number in my
+    //                                    // payment box is one that is
+    //                                    guaranteed I
+    //                                    // will never be able to match up with
+    //                                    a
+    //                                    // number in anyone else's payment
+    //                                    box.
+    //                                    // So what use is it for display? It's
+    //                                    also
+    //                                    // guaranteed that multiple of my
+    //                                    receipts
+    //                                    // will NEVER be able to match up with
+    //                                    each
+    //                                    // other in the payments table in the
+    //                                    // Moneychanger DB, since they will
+    //                                    all have
+    //                                    // different display numbers.
+    //                                    //
+    //                                    if (display_number <= 0)
+    //                                        display_number =
+    //                                        lPaymentBoxTransNum;
+    //                                }
+    //                                break;
+    //                            }
+    //                        }  // loop through accounts to find one to deposit
+    //                           // cheque
+    //                           // into.
+    //                    }  // Loop through payments to deposit.
+    //                    // Empty the list and delete the payments inside.
+    //                    thePaymentMap.clear();
+    //                }  // if (!thePaymentMap.empty())
+    //            }
+    //        }
+    //    }
+    //
+    //    // ASSET ACCOUNT -- INBOX
+    //    //
+    //    // Loop through the Accounts.
+    //    //
+    //    if (m_bAutoAcceptReceipts || m_bAutoAcceptTransfers) {
+    //        std::int32_t nAccountIndex = -1;
+    //        for (auto& it_acct : m_accounts) {
+    //            ++nAccountIndex;  // (0 on first iteration.)
+    //
+    //            if (0 == nAccountIndex) {
+    //                LogVerbose("---------------------------------").Flush();
+    //                LogVerbose(__FUNCTION__)(
+    //                    ": Beginning auto-accept loop through the "
+    //                    "accounts in the wallet...")
+    //                    .Flush();
+    //            }
+    //
+    //            // For each account, loop through its inbox, outbox, and
+    //            record box. const std::string& str_account_id(it_acct); const
+    //            auto theAccountID = Identifier::Factory(str_account_id); auto
+    //            account = wallet_.Account(theAccountID);
+    //
+    //            if (false == bool(account)) {
+    //                // This can happen if the user erases the account.
+    //                // Therefore we just need to skip it.
+    //                LogVerbose(__FUNCTION__)(": Skipping an account (")(
+    //                    str_account_id)(") since it has disappeared from the "
+    //                                    "wallet. (Probably deleted by "
+    //                                    "the user).")
+    //                    .Flush();
+    //
+    //                continue;
+    //            }
+    //            const Identifier& theNymID = account.get().GetNymID();
+    //            const Identifier& theNotaryID =
+    //                account.get().GetPurportedNotaryID();
+    //            const Identifier& theInstrumentDefinitionID =
+    //                account.get().GetInstrumentDefinitionID();
+    //            account.Release();
+    //            const auto strNymID = String::Factory(theNymID);
+    //            const auto strNotaryID = String::Factory(theNotaryID);
+    //            const auto strInstrumentDefinitionID =
+    //                String::Factory(theInstrumentDefinitionID);
+    //            LogVerbose("------------").Flush();
+    //            LogVerbose(__FUNCTION__)(": Account: ")(nAccountIndex)(", ID:
+    //            ")(
+    //	       str_account_id)(".")
+    //                .Flush();
+    //            const std::string str_nym_id(strNymID->Get());
+    //            const std::string str_notary_id(strNotaryID->Get());
+    //            const std::string str_instrument_definition_id(
+    //                strInstrumentDefinitionID->Get());
+    //            // NOTE: Since this account is already on my "care about" list
+    //            for
+    //            // accounts,
+    //            // I wouldn't bother double-checking my "care about" lists for
+    //            // servers, nyms,
+    //            // and instrument definitions. But I still look up the
+    //            appropriate
+    //            // string for
+    //            // each, since
+    //            // I have to pass a reference to it into the constructor for
+    //            // Record. (To a version
+    //            // that won't be deleted, since the Record will reference it.
+    //            And
+    //            // the "care about"
+    //            // list definitely contains a copy of the string that won't be
+    //            // deleted.)
+    //            //
+    //            auto it_nym = std::find(m_nyms.begin(), m_nyms.end(),
+    //            str_nym_id); auto it_server =
+    //                std::find(m_servers.begin(), m_servers.end(),
+    //                str_notary_id);
+    //            auto it_asset = m_assets.find(str_instrument_definition_id);
+    //            if ((m_nyms.end() == it_nym) || (m_servers.end() == it_server)
+    //            ||
+    //                (m_assets.end() == it_asset)) {
+    //                LogVerbose(__FUNCTION__)(": Skipping an account (")(
+    //                    str_account_id)(") since its Nym, or Server, or Asset
+    //                    Type "
+    //                                    "wasn't on my list.")
+    //                    .Flush();
+    //
+    //                continue;
+    //            }
+    //            // Loop through asset account INBOX.
+    //            //
+    //            // OPTIMIZE FYI:
+    //            // NOTE: LoadInbox is much SLOWER than LoadInboxNoVerify, but
+    //            it
+    //            // also lets you get
+    //            // the NAME off of the box receipt. So if you are willing to
+    //            GIVE UP
+    //            // the NAME, in
+    //            // return for FASTER PERFORMANCE, then call SetFastMode()
+    //            before
+    //            // Populating.
+    //
+    //            std::shared_ptr<Ledger> pInbox{nullptr};
+    //
+    //            if (false == theNymID.empty()) {
+    //                pInbox = m_bRunFast
+    //                             ?
+    //                             Opentxs::Client().OTAPI().LoadInboxNoVerify(
+    //                                   theNotaryID, theNymID, theAccountID)
+    //                             : Opentxs::Client().OTAPI().LoadInbox(
+    //                                   theNotaryID, theNymID, theAccountID);
+    //            }
+    //
+    //            if (false == bool(pInbox)) {
+    //                LogVerbose(__FUNCTION__)(": Skipping an account (")(
+    //                    str_account_id)(") since its inbox failed to load
+    //                    (have "
+    //                                    "you downloaded the latest "
+    //                                    "one?)")
+    //                    .Flush();
+    //
+    //                continue;
+    //            }
+    //            const auto strInbox = String::Factory(*pInbox);
+    //            const std::string str_inbox(strInbox->Get());
+    //            bool bFoundAnyToAccept = false;
+    //            std::string strResponseLedger;
+    //            std::int32_t nInboxIndex = -1;
+    //            // It loaded up, so let's loop through it.
+    //            for (auto& it : pInbox->GetTransactionMap()) {
+    //                ++nInboxIndex;  // (0 on first iteration.)
+    //
+    //                if (0 == nInboxIndex) {
+    //                    LogVerbose(__FUNCTION__)(
+    //                        ": Beginning loop through asset account INBOX...")
+    //                        .Flush();
+    //                }
+    //
+    //                auto pBoxTrans = it.second;
+    //
+    //                OT_ASSERT(false != bool(pBoxTrans));
+    //
+    //                LogVerbose(__FUNCTION__)(": Inbox index: ")(nInboxIndex)
+    //                    .Flush();
+    //                const std::string str_type(
+    //                    pBoxTrans->GetTypeString());  // pending,
+    //                    chequeReceipt,
+    //                                                  // etc.
+    //                const bool bIsTransfer =
+    //                    (transactionType::pending == pBoxTrans->GetType());
+    //                const bool bIsReceipt = !bIsTransfer;
+    //                if ((m_bAutoAcceptReceipts && bIsReceipt) ||
+    //                    (m_bAutoAcceptTransfers && bIsTransfer)) {
+    //                    LogVerbose(__FUNCTION__)(": Auto-accepting: incoming
+    //                    ")(
+    //                        bIsTransfer ? "pending transfer"
+    //                                    : "receipt")(" (str_type:
+    //                                    ")(str_type)(")")
+    //                        .Flush();
+    //                    // If we haven't found any yet, then this must be the
+    //                    first
+    //                    // one!
+    //                    //
+    //                    if (!bFoundAnyToAccept) {
+    //                        bFoundAnyToAccept = true;
+    //
+    //                        std::int32_t nNumberNeeded =
+    //                            20;  // I'm just hardcoding: "Make sure I have
+    //                            at
+    //                                 // least 20 transaction numbers."
+    //                        {
+    //                            if (!Opentxs::Client()
+    //                                     .ServerAction()
+    //                                     .GetTransactionNumbers(
+    //                                         theNymID,
+    //                                         theNotaryID,
+    //                                         nNumberNeeded)) {
+    //                                LogNormal(OT_METHOD)(__FUNCTION__)(
+    //                                    ": Failure: "
+    //                                    "make_sure_enough_trans_nums: "
+    //                                    "returned false. (Skipping inbox "
+    //                                    "for account
+    //                                    ")(str_account_id.c_str())
+    //				    (").").Flush();
+    //                                continue;
+    //                            }
+    //                        }
+    //                        strResponseLedger =
+    //                            Opentxs::Client().Exec().Ledger_CreateResponse(
+    //                                str_notary_id, str_nym_id,
+    //                                str_account_id);
+    //
+    //                        if (strResponseLedger.empty()) {
+    //                            LogNormal(OT_METHOD)(__FUNCTION__)(
+    //                                ": Failure: "
+    //                                "OT_API_Ledger_CreateResponse "
+    //                                "returned nullptr. (Skipping inbox "
+    //                                "for account
+    //                                ")(str_account_id.c_str())(").") .Flush();
+    //                            continue;
+    //                        }
+    //                    }
+    //                    const auto strTrans = String::Factory(*pBoxTrans);
+    //                    const std::string str_trans(strTrans->Get());
+    //                    std::string strNEW_ResponseLEDGER =
+    //                        Opentxs::Client().Exec().Transaction_CreateResponse(
+    //                            str_notary_id,
+    //                            str_nym_id,
+    //                            str_account_id,
+    //                            strResponseLedger,
+    //                            str_trans,
+    //                            true);  // accept = true (versus rejecting a
+    //                            pending
+    //                                    // transfer, for example.)
+    //
+    //                    if (strNEW_ResponseLEDGER.empty()) {
+    //                        LogNormal(OT_METHOD)(__FUNCTION__)(
+    //                            ": Failure: "
+    //                            "OT_API_Transaction_CreateResponse "
+    //                            "returned nullptr. (Skipping inbox for "
+    //                            "account ")(str_account_id.c_str())(").")
+    //                            .Flush();
+    //                        continue;
+    //                    }
+    //                    strResponseLedger = strNEW_ResponseLEDGER;
+    //                }
+    //            }  // For
+    //            // Okay now we have the response ledger all ready to go, let's
+    //            // process it!
+    //            //
+    //            if (bFoundAnyToAccept && !strResponseLedger.empty()) {
+    //                std::string strFinalizedResponse =
+    //                    Opentxs::Client().Exec().Ledger_FinalizeResponse(
+    //                        str_notary_id,
+    //                        str_nym_id,
+    //                        str_account_id,
+    //                        strResponseLedger);
+    //
+    //                if (strFinalizedResponse.empty()) {
+    //                    LogNormal(OT_METHOD)(__FUNCTION__)(
+    //                        ": Failure: "
+    //                        "OT_API_Ledger_FinalizeResponse returned "
+    //                        "nullptr. (Skipping inbox for account ")(
+    //                        str_account_id.c_str())(").")
+    //                        .Flush();
+    //                    continue;
+    //                }
+    //                // Server communications are handled here...
+    //                //
+    //                auto ledger{Opentxs::Client().Factory().Ledger(
+    //                    theNymID, theAccountID, theNotaryID)};
+    //
+    //                OT_ASSERT(false != bool(ledger));
+    //
+    //                const auto loaded = ledger->LoadLedgerFromString(
+    //                    String::Factory(strFinalizedResponse));
+    //
+    //                OT_ASSERT(loaded);
+    //
+    //                std::string strResponse;
+    //                {
+    //                    strResponse =
+    //                        Opentxs::Client()
+    //                            .ServerAction()
+    //                            .ProcessInbox(
+    //                                theNymID, theNotaryID, theAccountID,
+    //                                ledger)
+    //                            ->Run();
+    //                }
+    //                std::string strAttempt = "process_inbox";
+    //
+    //                std::int32_t nInterpretReply =
+    //                InterpretTransactionMsgReply(
+    //                    Opentxs::Client(),
+    //                    str_notary_id,
+    //                    str_nym_id,
+    //                    str_account_id,
+    //                    strAttempt,
+    //                    strResponse);
+    //
+    //                if (1 == nInterpretReply) {
+    //                    // Download all the intermediary files (account
+    //                    balance,
+    //                    // inbox, outbox, etc)
+    //                    // since they have probably changed from this
+    //                    operation.
+    //                    //
+    //                    bool bRetrieved =
+    //                        Opentxs::Client().ServerAction().DownloadAccount(
+    //                            theNymID,
+    //                            theNotaryID,
+    //                            theAccountID,
+    //                            true);  // bForceDownload defaults to false.
+    //
+    //                    LogVerbose("Server response (")(strAttempt)(
+    //                        "): SUCCESS processing/accepting inbox.")
+    //                        .Flush();
+    //                    LogVerbose(bRetrieved ? "Success" : "Failed")(
+    //                        " retrieving intermediary files for account.")
+    //                        .Flush();
+    //                }
+    //            }
+    //        }
+    //    }
+    //    return true;
+    return false;
 }
 
 // POPULATE:
@@ -2541,9 +2696,9 @@ bool RecordList::Populate()
 
             if (!theOutPayment->IsValid() || !theOutPayment->SetTempValues()) {
                 LogOutput(OT_METHOD)(__FUNCTION__)(
-                      ": Skipping: Unable to load outpayments "
-                         "instrument from string: ")
-                      (strOutpayment->Get())(".").Flush();
+                    ": Skipping: Unable to load outpayments "
+                    "instrument from string: ")(strOutpayment->Get())(".")
+                    .Flush();
                 continue;
             }
             Amount lAmount = 0;
@@ -2551,7 +2706,8 @@ bool RecordList::Populate()
 
             if (theOutPayment->GetAmount(lAmount)) {
                 if (((OTPayment::CHEQUE == theOutPayment->GetType()) ||
-                     (OTPayment::PURSE == theOutPayment->GetType()) ||
+                     //                     (OTPayment::PURSE ==
+                     //                     theOutPayment->GetType()) ||
                      (OTPayment::VOUCHER == theOutPayment->GetType())) &&
                     (lAmount > 0))
                     lAmount *= (-1);
@@ -2584,8 +2740,9 @@ bool RecordList::Populate()
             }
             if (str_outpayment_notary_id.empty()) {
                 LogOutput(OT_METHOD)(__FUNCTION__)(
-                      ": Error: Failed while trying to "
-                         "get Notary ID from payment. (Skipping).").Flush();
+                    ": Error: Failed while trying to "
+                    "get Notary ID from payment. (Skipping).")
+                    .Flush();
                 continue;
             }
             // --------------------------------------------------
@@ -2613,9 +2770,9 @@ bool RecordList::Populate()
                         .Flush();
 
                     LogOutput(OT_METHOD)(__FUNCTION__)(
-                          ": Skipping outpayment (we don't care "
-                             "about this unit type ")
-                          (str_outpmt_asset)(").").Flush();
+                        ": Skipping outpayment (we don't care "
+                        "about this unit type ")(str_outpmt_asset)(").")
+                        .Flush();
 
                     continue;
                 }
@@ -2677,9 +2834,9 @@ bool RecordList::Populate()
                         .Flush();
 
                     LogOutput(OT_METHOD)(__FUNCTION__)(
-                          ": Skipping outpayment (we don't care "
-                             "about this account ")
-                          (str_outpmt_account)(").").Flush();
+                        ": Skipping outpayment (we don't care "
+                        "about this account ")(str_outpmt_account)(").")
+                        .Flush();
                     continue;
                 }
             }
@@ -2861,8 +3018,9 @@ bool RecordList::Populate()
 
                 if (!message) {
                     LogOutput(OT_METHOD)(__FUNCTION__)(
-                          ": Failed to load mail message with "
-                          "ID ")(id)(" from inbox.").Flush();
+                        ": Failed to load mail message with "
+                        "ID ")(id)(" from inbox.")
+                        .Flush();
                     index++;
 
                     continue;
@@ -2985,8 +3143,9 @@ bool RecordList::Populate()
 
                 if (!message) {
                     LogOutput(OT_METHOD)(__FUNCTION__)(
-                          ": Failed to load mail message with "
-                          "ID ")(id)(" from outbox.").Flush();
+                        ": Failed to load mail message with "
+                        "ID ")(id)(" from outbox.")
+                        .Flush();
                     index++;
 
                     continue;
@@ -3334,9 +3493,10 @@ bool RecordList::Populate()
                                     // Therefore, skip.
                                     //
                                     LogOutput(OT_METHOD)(__FUNCTION__)(
-                                          ": Skipping: Incoming payment (we "
-                                             "don't care about asset ")
-                                          (str_inpmt_asset)(").").Flush();
+                                        ": Skipping: Incoming payment (we "
+                                        "don't care about asset ")(
+                                        str_inpmt_asset)(").")
+                                        .Flush();
                                     continue;
                                 }
                             }
@@ -3928,10 +4088,10 @@ bool RecordList::Populate()
                                     // care about. Therefore, skip.
                                     //
                                     LogOutput(OT_METHOD)(__FUNCTION__)(
-                                          ": Skipping: Payment record (we "
-                                             "don't care about instrument "
-                                             "definition ")
-                                          (str_inpmt_asset)(").").Flush();
+                                        ": Skipping: Payment record (we "
+                                        "don't care about instrument "
+                                        "definition ")(str_inpmt_asset)(").")
+                                        .Flush();
                                     continue;
                                 }
                             }
@@ -4514,10 +4674,11 @@ bool RecordList::Populate()
                                     // Therefore, skip.
                                     //
                                     LogOutput(OT_METHOD)(__FUNCTION__)(
-                                          ": Skipping: Expired payment "
-                                             "record (we don't care about "
-                                             "instrument definition ")
-                                          (str_inpmt_asset)(").").Flush();
+                                        ": Skipping: Expired payment "
+                                        "record (we don't care about "
+                                        "instrument definition ")(
+                                        str_inpmt_asset)(").")
+                                        .Flush();
                                     continue;
                                 }
                             }
@@ -4622,9 +4783,9 @@ bool RecordList::Populate()
 
         }  // Loop through servers for each Nym.
     }      // Loop through Nyms.
-       // ASSET ACCOUNT -- INBOX/OUTBOX + RECORD BOX
-       // Loop through the Accounts.
-       //
+           // ASSET ACCOUNT -- INBOX/OUTBOX + RECORD BOX
+           // Loop through the Accounts.
+           //
     LogVerbose("================ ")(__FUNCTION__)(
         ": Looping through the accounts in the wallet...")
         .Flush();
@@ -5058,9 +5219,10 @@ bool RecordList::Populate()
                     strTemp->Format("%" PRId64 "", lAmount);
                     str_amount = strTemp->Get();
                 }
-                std::string str_type(pBoxTrans->GetTypeString());  // pending,
-                                                                   // chequeReceipt,
-                                                                   // etc.
+                std::string str_type(
+                    pBoxTrans->GetTypeString());  // pending,
+                                                  // chequeReceipt,
+                                                  // etc.
                 if (0 == str_type.compare("pending")) str_type = "transfer";
                 LogVerbose(OT_METHOD)(__FUNCTION__)(": ADDED: ")(
                     (transactionType::pending == pBoxTrans->GetType())

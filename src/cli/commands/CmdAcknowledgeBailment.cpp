@@ -7,6 +7,8 @@
 
 #include <opentxs/opentxs.hpp>
 
+#define OT_METHOD "opentxs::CmdAcknowledgeBailment"
+
 namespace opentxs
 {
 
@@ -47,19 +49,21 @@ std::int32_t CmdAcknowledgeBailment::run(
     std::string terms = inputText("Deposit instructions");
     if (0 == terms.size()) { return -1; }
 
-    std::string response;
-    {
-        response = Opentxs::
-                       Client()
-                       .ServerAction()
-                       .AcknowledgeBailment(
-                           Identifier::Factory(mynym),
-                           Identifier::Factory(server),
-                           Identifier::Factory(hisnym),
-                           Identifier::Factory(mypurse),
-                           terms)
-                       ->Run();
+    auto task = Opentxs::Client().OTX().AcknowledgeBailment(
+        identifier::Nym::Factory(mynym),
+        identifier::Server::Factory(server),
+        identifier::Nym::Factory(hisnym),
+        Identifier::Factory(mypurse),
+        terms);
+    
+    const auto result = std::get<1>(task).get();
+
+    if (false == CmdBase::GetResultSuccess(result)) {
+        LogOutput(OT_METHOD)(__FUNCTION__)(": Failed to acknowledge bailment")
+            .Flush();
+        return -1;
     }
-    return processResponse(response, "acknowledge bailment");
+
+    return 1;
 }
 }  // namespace opentxs

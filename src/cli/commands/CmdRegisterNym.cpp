@@ -65,36 +65,24 @@ std::int32_t CmdRegisterNym::run(
         return -1;
     }
 
-    auto& sync = Opentxs::Client().Sync();
+    auto& OTX = Opentxs::Client().OTX();
 
-    OTIdentifier taskID = sync.RegisterNym(
+    auto task = OTX.RegisterNymPublic(
         Identifier::Factory(mynym),
         Identifier::Factory(server),
         shouldPublish,
         isPrimary);
 
-    ThreadStatus status = sync.Status(taskID);
-    while (status == ThreadStatus::RUNNING) {
-        Log::Sleep(std::chrono::milliseconds(100));
-        status = sync.Status(taskID);
+    const auto result = std::get<1>(task).get();
+    
+    const auto success = CmdBase::GetResultSuccess(result);
+    if (false == success) {
+        LogNormal(OT_METHOD)(__FUNCTION__)(": Nym not registered.").Flush();
+        return -1;
     }
 
-    switch (status) {
-        case ThreadStatus::FINISHED_SUCCESS: {
-            LogNormal(OT_METHOD)(__FUNCTION__)(
-                ": Nym registered successfully. ")
-                .Flush();
-        } break;
-        case ThreadStatus::FINISHED_FAILED: {
-            LogNormal(OT_METHOD)(__FUNCTION__)(": Nym not registered.").Flush();
-            [[fallthrough]];
-        }
-        case ThreadStatus::ERROR:
-        case ThreadStatus::SHUTDOWN:
-        default: {
-            return -1;
-        }
-    }
+    LogNormal(OT_METHOD)(__FUNCTION__)(": Nym registered successfully. ")
+        .Flush();
 
     return 0;
 }

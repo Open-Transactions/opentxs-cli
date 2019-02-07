@@ -10,6 +10,8 @@
 #include <stdint.h>
 #include <string>
 
+#define OT_METHOD "opentxs::CmdRegisterContractNym::"
+
 using namespace opentxs;
 using namespace std;
 
@@ -38,17 +40,18 @@ int32_t CmdRegisterContractNym::run(string server, string mynym, string hisnym)
 
     if (!checkNym("hisnym", hisnym, true)) { return -1; }
 
-    std::string response;
-    {
-        response = Opentxs::
-                       Client()
-                       .ServerAction()
-                       .PublishNym(
-                           Identifier::Factory(mynym),
-                           Identifier::Factory(server),
-                           Identifier::Factory(hisnym))
-                       ->Run();
+    auto task = Opentxs::Client().OTX().PublishServerContract(
+        identifier::Nym::Factory(mynym),
+        identifier::Server::Factory(server),
+        identifier::Nym::Factory(hisnym));
+
+    const auto result = std::get<1>(task).get();
+
+    if (false == CmdBase::GetResultSuccess(result)) {
+        LogOutput(OT_METHOD)(__FUNCTION__)(": Failed to register contract")
+            .Flush();
+        return -1;
     }
 
-    return processResponse(response, "register contract");
+    return 1;
 }

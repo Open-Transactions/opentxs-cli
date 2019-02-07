@@ -23,10 +23,12 @@ std::int32_t CmdFindNym::run(std::string hisnym)
 {
     if (!checkNym("hisnym", hisnym, false)) { return -1; }
 
-    const auto response =
-        Opentxs::Client().Sync().FindNym(Identifier::Factory(hisnym));
+    auto task = Opentxs::Client().OTX().FindNym(Identifier::Factory(hisnym));
 
-    if (String::Factory(response)->Exists()) { return 1; }
+    const auto result = std::get<1>(task).get();
+
+    const auto success = CmdBase::GetResultSuccess(result);
+    if (success) { return 1; }
 
     return -1;
 }

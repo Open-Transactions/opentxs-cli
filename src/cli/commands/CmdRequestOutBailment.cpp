@@ -7,6 +7,8 @@
 
 #include <opentxs/opentxs.hpp>
 
+#define OT_METHOD "opentxs::CmdRequestOutBailment"
+
 namespace opentxs
 {
 
@@ -55,20 +57,22 @@ std::int32_t CmdRequestOutBailment::run(
     std::int64_t outbailmentAmount = SwigWrap::StringToAmount(mypurse, amount);
     if (OT_ERROR_AMOUNT == outbailmentAmount) { return -1; }
 
-    std::string response;
-    {
-        response = Opentxs::
-                       Client()
-                       .ServerAction()
-                       .InitiateOutbailment(
-                           Identifier::Factory(mynym),
-                           Identifier::Factory(server),
-                           Identifier::Factory(hisnym),
-                           Identifier::Factory(mypurse),
-                           outbailmentAmount,
-                           terms)
-                       ->Run();
+    auto task = Opentxs::Client().OTX().InitiateOutbailment(
+        identifier::Nym::Factory(mynym),
+        identifier::Server::Factory(server),
+        identifier::Nym::Factory(hisnym),
+        identifier::UnitDefinition::Factory(mypurse),
+        outbailmentAmount,
+        terms);
+
+    const auto result = std::get<1>(task).get();
+
+    if (false == CmdBase::GetResultSuccess(result)) {
+        LogOutput(OT_METHOD)(__FUNCTION__)(": Failed to request outbailment")
+            .Flush();
+        return -1;
     }
-    return processResponse(response, "request outbailment");
+
+    return 1;
 }
 }  // namespace opentxs

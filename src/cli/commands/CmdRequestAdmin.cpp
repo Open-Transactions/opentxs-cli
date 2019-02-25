@@ -40,14 +40,14 @@ std::int32_t CmdRequestAdmin::run(
 
     std::string response;
     {
-        response = Opentxs::
-                       Client()
-                       .ServerAction()
-                       .RequestAdmin(
-                           Identifier::Factory(mynym),
-                           Identifier::Factory(server),
-                           hisnym)
-                       ->Run();
+//        response = Opentxs::
+//                       Client()
+//                       .ServerAction()
+//                       .RequestAdmin(
+//                           Identifier::Factory(mynym),
+//                           Identifier::Factory(server),
+//                           hisnym)
+//                       ->Run();
     }
 
     return processResponse(response, "request admin");

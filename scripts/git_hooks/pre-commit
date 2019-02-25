@@ -10,8 +10,8 @@ fi
 
 version=$(clang-format  --version | sed 's/clang-format version //' | head -c 1)
 
-if ! (($version == 6)) ; then
-    echo "Checking for clang-format version == 6.* ... failed"
+if ! (($version == 7)) ; then
+    echo "Checking for clang-format version == 7.* ... failed"
     exit 1
 fi
 

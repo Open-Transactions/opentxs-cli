@@ -45,23 +45,23 @@ std::int32_t CmdServerAddClaim::run(std::string server, std::string mynym)
     if (0 == section.size()) { return -1; }
 
     const std::string strPrimary = inputText("Primary? (true or false)");
-    bool primary = true;
-
-    if ("false" == strPrimary) { primary = false; }
+//    bool primary = true;
+//
+//    if ("false" == strPrimary) { primary = false; }
 
     std::string response;
     {
-        response = Opentxs::
-                       Client()
-                       .ServerAction()
-                       .AddServerClaim(
-                           Identifier::Factory(mynym),
-                           Identifier::Factory(server),
-                           proto::ContactSectionName(std::stoi(section)),
-                           proto::ContactItemType(std::stoi(type)),
-                           value,
-                           primary)
-                       ->Run();
+//        response = Opentxs::
+//                       Client()
+//                       .ServerAction()
+//                       .AddServerClaim(
+//                           Identifier::Factory(mynym),
+//                           Identifier::Factory(server),
+//                           proto::ContactSectionName(std::stoi(section)),
+//                           proto::ContactItemType(std::stoi(type)),
+//                           value,
+//                           primary)
+//                       ->Run();
     }
 
     return processResponse(response, "server add claim");

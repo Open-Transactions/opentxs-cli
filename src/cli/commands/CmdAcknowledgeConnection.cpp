@@ -7,6 +7,8 @@
 
 #include <opentxs/opentxs.hpp>
 
+#define OT_METHOD "opentxs::CmdAcknowledgeConnection"
+
 namespace opentxs
 {
 
@@ -47,24 +49,25 @@ std::int32_t CmdAcknowledgeConnection::run(
     std::string password = inputText("Password");
     std::string key = inputText("Key");
 
-    std::string response;
-    {
-        response = Opentxs::
-                       Client()
-                       .ServerAction()
-                       .AcknowledgeConnection(
-                           Identifier::Factory(mynym),
-                           Identifier::Factory(server),
-                           Identifier::Factory(hisnym),
-                           Identifier::Factory(mypurse),
-                           true,
-                           url,
-                           login,
-                           password,
-                           key)
-                       ->Run();
+    auto task = Opentxs::Client().OTX().AcknowledgeConnection(
+        identifier::Nym::Factory(mynym),
+        identifier::Server::Factory(server),
+        identifier::Nym::Factory(hisnym),
+        Identifier::Factory(mypurse),
+        true,
+        url,
+        login,
+        password,
+        key);
+
+    const auto result = std::get<1>(task).get();
+
+    if (false == CmdBase::GetResultSuccess(result)) {
+        LogOutput(OT_METHOD)(__FUNCTION__)(": Failed to acknowledge connection")
+            .Flush();
+        return -1;
     }
 
-    return processResponse(response, "acknowledge connection");
+    return 1;
 }
 }  // namespace opentxs

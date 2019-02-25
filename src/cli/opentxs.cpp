@@ -62,7 +62,6 @@
 #include "commands/CmdGetPeerReply.hpp"
 #include "commands/CmdGetPeerRequest.hpp"
 #include "commands/CmdGetPeerRequests.hpp"
-#include "commands/CmdGetReceipt.hpp"
 #include "commands/CmdHaveContact.hpp"
 #include "commands/CmdImportCash.hpp"
 #include "commands/CmdImportNym.hpp"
@@ -189,7 +188,7 @@ using namespace std;
 
 #ifndef _PASSWORD_LEN
 #define _PASSWORD_LEN 128
-#define OT_METHOD "opentxs::Opentxs"
+#define OT_METHOD "opentxs::Opentxs::"
 #endif
 const opentxs::api::client::Manager* Opentxs::client_{nullptr};
 
@@ -409,7 +408,6 @@ Opentxs::Opentxs(const opentxs::api::client::Manager& client)
             new CmdGetPeerRequest,
             new CmdGetPeerReplies,
             new CmdGetPeerReply,
-            new CmdGetReceipt,
             new CmdHaveContact,
             new CmdImportCash,
             new CmdImportNym,
@@ -631,43 +629,36 @@ int Opentxs::processCommand(AnyOption& opt)
             for (auto i = 0; i < newArgc; ++i) {
                 newArgv[i] = const_cast<char*>(c.args[i].c_str());
                 if (i) {
-                    LogNormal(OT_METHOD)(__FUNCTION__)(std::string(newArgv[i]))(
-                        " ")
-                        .Flush();
+                    std::cout << std::string(newArgv[i]) << " " << std::endl;
                 }
             }
-            LogNormal(OT_METHOD)(__FUNCTION__)(" ").Flush();
+            std::cout << " " << std::endl;
             opt.processCommandArgs(newArgc, newArgv);
             command = newArgv[1];
         }
     }
 
     if ("version" == command) {
-        LogNormal(OT_METHOD)(__FUNCTION__)(": opentxs ")(OPENTXS_VERSION_STRING)
-            .Flush();
-        LogNormal(OT_METHOD)(__FUNCTION__)(
-            ": Copyright (C) 2014 Open Transactions Developers")
-            .Flush();
+        std::cout << "opentxs " << OPENTXS_VERSION_STRING << "\n";
+        std::cout << "Copyright (C) 2014 Open Transactions Developers\n";
         return 0;
     }
 
     if ("list" == command) {
-        LogNormal(OT_METHOD)(__FUNCTION__)(": Commands").Flush();
+        std::cout << "Commands" << std::endl;
 
         for (std::size_t i = 0; i < cmds_.size(); ++i) {
             CmdBase& cmd = *cmds_[i];
-            LogNormal(OT_METHOD)(__FUNCTION__)(
-                (cmd.getCommand() + spaces24).substr(0, 24))
-                .Flush();
-            if (i % 4 == 3) { LogNormal(OT_METHOD)(__FUNCTION__)(" ").Flush(); }
+            std::cout << cmd.getCommand() + spaces24.substr(0, 24) << std::endl;
+            if (i % 4 == 3) { std::cout << " " << std::endl; }
         }
-        LogNormal(OT_METHOD)(__FUNCTION__)(" ").Flush();
+        std::cout << " " << std::endl;
 
-        LogNormal(OT_METHOD)(__FUNCTION__)(": history (h) - displays a list "
-                                           "of previously executed "
-                                           "commands.  Enter the index "
-                                           "number to re-execute a command.")
-            .Flush();
+        std::cout << "history (h) - displays a list "
+                     "of previously executed "
+                     "commands.  Enter the index "
+                     "number to re-execute a command."
+                  << std::endl;
 
         return 0;
     }
@@ -680,7 +671,7 @@ int Opentxs::processCommand(AnyOption& opt)
         }
 
         // add commands to their category group
-        LogNormal(OT_METHOD)(__FUNCTION__)(": Commands:").Flush();
+        std::cout << "Commands:" << std::endl;
         for (std::size_t i = 0; i < cmds_.size(); ++i) {
             CmdBase& cmd = *cmds_[i];
             categoryGroup[cmd.getCategory()] +=
@@ -690,28 +681,26 @@ int Opentxs::processCommand(AnyOption& opt)
 
         // print all category groups
         for (int i = 1; i < catLast; i++) {
-            LogNormal(OT_METHOD)(__FUNCTION__)(categoryGroup[i]).Flush();
+            std::cout << categoryGroup[i] << std::endl;
         }
         {
 
-            LogNormal(OT_METHOD)(__FUNCTION__)(
-                ": history (h) - displays a list "
-                "of previously executed "
-                "commands.  Enter the index "
-                "number to re-execute a command.")
-                .Flush();
+            std::cout << " history (h) - displays a list "
+                         "of previously executed "
+                         "commands.  Enter the index "
+                         "number to re-execute a command."
+                      << std::endl;
         }
         return 0;
     }
 
     if ("history" == command || "h" == command) {
         for (int idx = history.size() - 1; idx > -1; --idx) {
-            LogNormal(OT_METHOD)(__FUNCTION__)(idx)(":").Flush();
+            std::cout << idx << ":";
             Command& c = history[idx];
             for (size_t i = 1; i < c.args.size(); ++i) {
-                LogNormal(OT_METHOD)(__FUNCTION__)(" ")(c.args[i]).Flush();
+                std::cout << " " << c.args[i] << std::endl;
             }
-            LogNormal(OT_METHOD)(__FUNCTION__)(" ").Flush();
         }
 
         return 0;
@@ -722,8 +711,7 @@ int Opentxs::processCommand(AnyOption& opt)
         if (command == cmd.getCommand()) { return runCommand(cmd); }
     }
 
-    LogNormal(OT_METHOD)(__FUNCTION__)(": Expecting a single opentxs command.")
-        .Flush();
+    std::cout << "Expecting a single opentxs command." << std::endl;
 
     return -1;
 }
@@ -806,13 +794,11 @@ int Opentxs::run(int argc, char* argv[])
             while (i < cmd.length() && isspace(cmd[i])) { i++; }
 
             if (i == cmd.length() || cmd[i] != '=') {
-                LogNormal(OT_METHOD)(__FUNCTION__)(": ***ERROR*** ").Flush();
-                LogNormal(OT_METHOD)(__FUNCTION__)(
-                    ": Expected macro definition of the form: "
-                    "$macroName = macroValue")
-                    .Flush();
-                LogNormal(OT_METHOD)(__FUNCTION__)(": Command was: ")(cmd)
-                    .Flush();
+                std::cout << "***ERROR*** " << std::endl;
+                std::cout << "Expected macro definition of the form: "
+                             "$macroName = macroValue"
+                          << std::endl;
+                std::cout << "Command was: " << cmd << std::endl;
                 continue;
             }
 
@@ -843,14 +829,10 @@ int Opentxs::run(int argc, char* argv[])
             string macroName = cmd.substr(macro, macroEnd - macro);
             auto found = macros.find(macroName);
             if (found == macros.end()) {
-                LogNormal(OT_METHOD)(__FUNCTION__)(": ***ERROR*** ").Flush();
-                LogNormal(OT_METHOD)(__FUNCTION__)(": Macro expansion failed.")
-                    .Flush();
-                LogNormal(OT_METHOD)(__FUNCTION__)(": Unknown macro: ")(
-                    macroName)
-                    .Flush();
-                LogNormal(OT_METHOD)(__FUNCTION__)(": Command was: ")(cmd)
-                    .Flush();
+                std::cout << "***ERROR*** " << std::endl;
+                std::cout << "Macro expansion failed." << std::endl;
+                std::cout << "Unknown macro: " << macroName << std::endl;
+                std::cout << "Command was: " << cmd << std::endl;
                 expansions = 100;
                 break;
             }
@@ -860,30 +842,22 @@ int Opentxs::run(int argc, char* argv[])
             // limit to 100 expansions to avoid endless recusion loop
             expansions++;
             if (expansions > 100) {
-                LogNormal(OT_METHOD)(__FUNCTION__)(": ***ERROR*** ").Flush();
-                LogNormal(OT_METHOD)(__FUNCTION__)(": Macro expansion failed. ")
-                    .Flush();
-                LogNormal(OT_METHOD)(__FUNCTION__)(
-                    ": Too many expansions at macro: ")(macroName)
-                    .Flush();
-                LogNormal(OT_METHOD)(__FUNCTION__)(": Command was: ")(cmd)
-                    .Flush();
+                std::cout << "***ERROR*** " << std::endl;
+                std::cout << "Macro expansion failed. " << std::endl;
+                std::cout << "Too many expansions at macro: " << macroName
+                          << std::endl;
+                std::cout << "Command was: " << cmd << std::endl;
                 break;
             }
 
             // limit to 10000 characters to avoid crazy recursive expansions
             if (cmd.length() + macroValue.length() > 10000) {
-                LogNormal(OT_METHOD)(__FUNCTION__)(": ***ERROR*** ").Flush();
-                LogNormal(OT_METHOD)(__FUNCTION__)(": Macro expansion failed. ")
-                    .Flush();
-                LogNormal(OT_METHOD)(__FUNCTION__)(
-                    ": Command length exceeded at macro: ")(macroName)
-                    .Flush();
-                LogNormal(OT_METHOD)(__FUNCTION__)(": Macro value is: ")(
-                    macroValue)
-                    .Flush();
-                LogNormal(OT_METHOD)(__FUNCTION__)(": Command was: ")(cmd)
-                    .Flush();
+                std::cout << ": ***ERROR*** " << std::endl;
+                std::cout << ": Macro expansion failed. " << std::endl;
+                std::cout << ": Command length exceeded at macro: " << macroName
+                          << std::endl;
+                std::cout << ": Macro value is: " << macroValue << std::endl;
+                std::cout << ": Command was: " << cmd << std::endl;
                 expansions = 100;
                 break;
             }
@@ -892,9 +866,7 @@ int Opentxs::run(int argc, char* argv[])
             cmd = cmd.substr(0, macro) + macroValue + cmd.substr(macroEnd);
         }
 
-        if (echoExpand && cmd != originalCmd) {
-            LogNormal(OT_METHOD)(__FUNCTION__)(cmd).Flush();
-        }
+        if (echoExpand && cmd != originalCmd) { std::cout << cmd << std::endl; }
 
         // skip command when anything during macro expansion failed
         if (expansions > 99) { continue; }
@@ -1001,11 +973,11 @@ int Opentxs::run(int argc, char* argv[])
         if (expectFailure != (0 != processCommand(opt))) {
             errorLineNumbers.push_back(lineNumber);
             errorCommands.push_back(originalCmd);
-            LogNormal(OT_METHOD)(__FUNCTION__)(": ***ERROR*** ").Flush();
-            LogNormal(OT_METHOD)(__FUNCTION__)(
-                expectFailure ? "Expected command to fail.Succeeding"
-                              : "Failed")(" command was: ")(cmd)
-                .Flush();
+            std::cout << "***ERROR*** " << std::endl;
+            std::cout << (expectFailure
+                              ? "Expected command to fail.\nSucceeding"
+                              : "Failed")
+                      << " command was: " << cmd << std::endl;
         }
 
         delete[] newArgv;
@@ -1014,7 +986,7 @@ int Opentxs::run(int argc, char* argv[])
         newArgc = 0;
         newArgv = nullptr;
 
-        LogNormal(OT_METHOD)(__FUNCTION__)(" ").Flush();
+        // LogNormal(OT_METHOD)(__FUNCTION__)(" ").Flush();
         processed++;
     }
 

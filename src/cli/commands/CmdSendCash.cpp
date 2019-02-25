@@ -143,16 +143,17 @@ int32_t CmdSendCash::sendCash(
     bool hasPassword) const
 {
 #if OT_CASH
-    return Opentxs::Client().Cash().send_cash(
-        response,
-        server,
-        mynym,
-        assetType,
-        myacct,
-        hisnym,
-        amount,
-        indices,
-        hasPassword);
+//    return Opentxs::Client().Cash().send_cash(
+//        response,
+//        server,
+//        mynym,
+//        assetType,
+//        myacct,
+//        hisnym,
+//        amount,
+//        indices,
+//        hasPassword);
+	return -1;
 #else
     return -1;
 #endif  // OT_CASH

@@ -492,14 +492,13 @@ std::int32_t output_nymoffer_data(
 
     if (0 == nIndex)  // first iteration! (Output a header.)
     {
-       LogNormal(OT_METHOD)(__FUNCTION__)(": Scale:")(
-	   strScale)(".").Flush();
+        LogNormal(OT_METHOD)(__FUNCTION__)(": Scale:")(strScale)(".").Flush();
         LogNormal(OT_METHOD)(__FUNCTION__)(": Asset:")(
-           strInstrumentDefinitionID)(".")
-           .Flush();
-        LogNormal(OT_METHOD)(__FUNCTION__)(": Currency:")(
-	   strCurrencyTypeID)(".")
-           .Flush();
+            strInstrumentDefinitionID)(".")
+            .Flush();
+        LogNormal(OT_METHOD)(__FUNCTION__)(": Currency:")(strCurrencyTypeID)(
+            ".")
+            .Flush();
         LogNormal(OT_METHOD)(__FUNCTION__)(
             ": Index/Trans#/Type/Price/Available")
             .Flush();
@@ -528,17 +527,20 @@ CmdBase::~CmdBase() {}
 
 // CHECK USER (download a public key)
 //
-std::string CmdBase::check_nym(
+bool CmdBase::check_nym(
     const std::string& notaryID,
     const std::string& nymID,
     const std::string& targetNymID) const
 {
-    auto action = Opentxs::Client().ServerAction().DownloadNym(
+    auto task = Opentxs::Client().OTX().DownloadNym(
         Identifier::Factory(nymID),
         Identifier::Factory(notaryID),
         Identifier::Factory(targetNymID));
 
-    return action->Run();
+    const auto result = std::get<1>(task).get();
+
+    const auto success = CmdBase::GetResultSuccess(result);
+    return success;
 }
 
 bool CmdBase::checkAccount(const char* name, string& account) const
@@ -671,8 +673,8 @@ bool CmdBase::checkPurse(const char* name, string& purse) const
     }
 
     purse = pUnit->ID()->str();
-    LogNormal(OT_METHOD)(__FUNCTION__)(": Using ")(
-       name)(": ")(purse)(".").Flush();
+    LogNormal(OT_METHOD)(__FUNCTION__)(": Using ")(name)(": ")(purse)(".")
+        .Flush();
     return true;
 }
 
@@ -778,6 +780,20 @@ string CmdBase::getAccountAssetType(const string& myacct) const
     return assetType;
 }
 
+bool CmdBase::GetResultSuccess(const api::client::OTX::Result& result)
+{
+	const auto& replystatus = std::get<0>(result);
+
+    if (proto::LASTREPLYSTATUS_MESSAGESUCCESS == replystatus) {
+
+        const auto message = std::get<1>(result);
+
+        if (message) { return message->m_bSuccess; }
+    }
+
+    return false;
+}
+
 string CmdBase::getOption(string optionName) const
 {
     auto result = options.find(optionName);
@@ -832,8 +848,8 @@ string CmdBase::inputText(const char* what)
 
     string input = OT_CLI_ReadUntilEOF();
     if ("" == input) {
-        LogNormal(OT_METHOD)(__FUNCTION__)(
-	   ": Error: you did not paste ")(what)(".")
+        LogNormal(OT_METHOD)(__FUNCTION__)(": Error: you did not paste ")(what)(
+            ".")
             .Flush();
     }
     return input;

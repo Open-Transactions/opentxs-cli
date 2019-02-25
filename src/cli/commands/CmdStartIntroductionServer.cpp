@@ -26,8 +26,7 @@ std::int32_t CmdStartIntroductionServer::run(std::string mynym)
 {
     if (!checkNym("mynym", mynym)) { return -1; }
 
-    Opentxs::Client().Sync().StartIntroductionServer(
-        Identifier::Factory(mynym));
+    Opentxs::Client().OTX().StartIntroductionServer(Identifier::Factory(mynym));
 
     return 1;
 }

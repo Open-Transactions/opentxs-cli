@@ -7,6 +7,8 @@
 
 #include <opentxs/opentxs.hpp>
 
+#define OT_METHOD "opentxs::CmdAcknowledgeOutBailment"
+
 namespace opentxs
 {
 
@@ -47,19 +49,22 @@ std::int32_t CmdAcknowledgeOutBailment::run(
     std::string terms = inputText("Withdrawal instructions");
     if (0 == terms.size()) { return -1; }
 
-    std::string response;
-    {
-        response = Opentxs::
-                       Client()
-                       .ServerAction()
-                       .AcknowledgeOutbailment(
-                           Identifier::Factory(mynym),
-                           Identifier::Factory(server),
-                           Identifier::Factory(hisnym),
-                           Identifier::Factory(mypurse),
-                           terms)
-                       ->Run();
+    auto task = Opentxs::Client().OTX().AcknowledgeOutbailment(
+        identifier::Nym::Factory(mynym),
+        identifier::Server::Factory(server),
+        identifier::Nym::Factory(hisnym),
+        Identifier::Factory(mypurse),
+        terms);
+    
+    const auto result = std::get<1>(task).get();
+
+    if (false == CmdBase::GetResultSuccess(result)) {
+        LogOutput(OT_METHOD)(__FUNCTION__)(
+            ": Failed to acknowledge outbailment")
+            .Flush();
+        return -1;
     }
-    return processResponse(response, "acknowledge outbailment");
+
+    return 1;
 }
 }  // namespace opentxs

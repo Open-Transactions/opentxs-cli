@@ -70,7 +70,6 @@ set(cxx-sources
   commands/CmdGetPeerReply.cpp
   commands/CmdGetPeerRequest.cpp
   commands/CmdGetPeerRequests.cpp
-  commands/CmdGetReceipt.cpp
   commands/CmdHaveContact.cpp
   commands/CmdImportCash.cpp
   commands/CmdImportNym.cpp

@@ -82,9 +82,7 @@ int32_t CmdTransfer::run(
             .Flush();
     }
 
-    auto& sync = Opentxs::Client().Sync();
-
-    OTIdentifier taskID = sync.SendTransfer(
+    auto task = Opentxs::Client().OTX().SendTransfer(
         Identifier::Factory(mynym),
         Identifier::Factory(server),
         Identifier::Factory(myacct),
@@ -92,41 +90,31 @@ int32_t CmdTransfer::run(
         value,
         memo);
 
-    ThreadStatus status = sync.Status(taskID);
-    while (status == ThreadStatus::RUNNING) {
-        Log::Sleep(std::chrono::milliseconds(100));
-        status = sync.Status(taskID);
+    auto result = std::get<1>(task).get();
+    
+    auto success = CmdBase::GetResultSuccess(result);
+    if (false == success) {
+        LogNormal(OT_METHOD)(__FUNCTION__)(": Transfer not completed.").Flush();
+
+        return -1;
     }
 
-    switch (status) {
-        case ThreadStatus::FINISHED_SUCCESS: {
-            LogNormal(OT_METHOD)(__FUNCTION__)(
-                " : Transfer completed successfully.")
-                .Flush();
-        } break;
-        case ThreadStatus::FINISHED_FAILED: {
-            LogNormal(OT_METHOD)(__FUNCTION__)(" : Transfer not completed.")
-                .Flush();
-            [[fallthrough]];
-        }
-        case ThreadStatus::ERROR:
-        case ThreadStatus::SHUTDOWN:
-        default: {
-            return -1;
-        }
-    }
+    LogNormal(OT_METHOD)(__FUNCTION__)(" : Transfer completed successfully.")
+        .Flush();
 
-    {
-        if (!Opentxs::Client().ServerAction().DownloadAccount(
-                Identifier::Factory(mynym),
-                Identifier::Factory(server),
-                Identifier::Factory(myacct),
-                true)) {
-            LogNormal(OT_METHOD)(__FUNCTION__)(
-                " : Error retrieving intermediary files for account.")
-                .Flush();
-            return -1;
-        }
+    task = Opentxs::Client().OTX().ProcessInbox(
+        Identifier::Factory(mynym),
+        Identifier::Factory(server),
+        Identifier::Factory(myacct));
+
+    result = std::get<1>(task).get();
+    success = CmdBase::GetResultSuccess(result);
+
+    if (false == success) {
+        LogNormal(OT_METHOD)(__FUNCTION__)(": Error retrieving intermediary "
+                                           "files for myacct.")
+            .Flush();
+        return -1;
     }
 
     return 1;

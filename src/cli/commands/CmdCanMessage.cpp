@@ -34,7 +34,7 @@ int32_t CmdCanMessage::run(
     if (recipient.empty()) { return -1; }
     {
 
-        const auto response = Opentxs::Client().Sync().CanMessage(
+        const auto response = Opentxs::Client().OTX().CanMessage(
             Identifier::Factory(sender), Identifier::Factory(recipient));
         LogNormal(OT_METHOD)(__FUNCTION__)(
             std::to_string(static_cast<std::int8_t>(response)))

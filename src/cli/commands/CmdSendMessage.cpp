@@ -34,16 +34,14 @@ std::int32_t CmdSendMessage::contact(
     const auto loaded = thread.SetDraft(message);
 
     if (false == loaded) {
-        LogOutput(OT_METHOD)(__FUNCTION__)(
-            ": Failed to load message.").Flush();
+        LogOutput(OT_METHOD)(__FUNCTION__)(": Failed to load message.").Flush();
         return -1;
     }
 
     const auto sent = thread.SendDraft();
 
     if (false == sent) {
-        LogOutput(OT_METHOD)(__FUNCTION__)(
-            ": Error sending message.").Flush();
+        LogOutput(OT_METHOD)(__FUNCTION__)(": Error sending message.").Flush();
         return -1;
     }
 
@@ -57,26 +55,27 @@ std::int32_t CmdSendMessage::nym(
     const std::string& message)
 {
     if (!checkNym("hisnym", hisnym)) {
-        LogOutput(OT_METHOD)(__FUNCTION__)(
-            ": Bad recipient.").Flush();
+        LogOutput(OT_METHOD)(__FUNCTION__)(": Bad recipient.").Flush();
 
         return -1;
     }
 
-    std::string response;
-    {
-        response = Opentxs::
-                       Client()
-                       .ServerAction()
-                       .SendMessage(
-                           Identifier::Factory(mynym),
-                           Identifier::Factory(server),
-                           Identifier::Factory(hisnym),
-                           message)
-                       ->Run();
+    const auto contactid =
+        Opentxs::Client().Contacts().ContactID(Identifier::Factory(hisnym));
+
+    auto task = Opentxs::Client().OTX().MessageContact(
+        Identifier::Factory(mynym), contactid, message);
+
+    const auto result = std::get<1>(task).get();
+    
+    const auto success = CmdBase::GetResultSuccess(result);
+    if (false == success) {
+        LogOutput(OT_METHOD)(__FUNCTION__)(": Failed to send messasge.")
+            .Flush();
+        return -1;
     }
 
-    return processResponse(response, "send message");
+    return 1;
 }
 
 std::int32_t CmdSendMessage::run(

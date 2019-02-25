@@ -11,6 +11,8 @@
 #include <stdint.h>
 #include <string>
 
+#define OT_METHOD "opentxs::CmdIssueAsset::"
+
 namespace opentxs
 {
 CmdIssueAsset::CmdIssueAsset()
@@ -43,22 +45,25 @@ int32_t CmdIssueAsset::run(
         registerNym.run(server, mynym, "true", "false");
     }
 
-    const auto contract = Opentxs::Client().Wallet().UnitDefinition(
-        Identifier::Factory(mypurse));
+    const auto contract =
+        Opentxs::Client().Wallet().UnitDefinition(Identifier::Factory(mypurse));
 
     if (false == bool(contract)) { return -1; }
 
-    std::string response;
-    {
-        response = Opentxs::
-                       Client()
-                       .ServerAction()
-                       .IssueUnitDefinition(
-                           Identifier::Factory(mynym),
-                           Identifier::Factory(server),
-                           contract->PublicContract())
-                       ->Run();
+    auto task = Opentxs::Client().OTX().IssueUnitDefinition(
+        Identifier::Factory(mynym),
+        Identifier::Factory(server),
+        contract->ID());
+
+    const auto result = std::get<1>(task).get();
+    
+    const auto success = CmdBase::GetResultSuccess(result);
+    if (false == success) {
+        LogOutput(OT_METHOD)(__FUNCTION__)(": Failed to issue asset contract.")
+            .Flush();
+
+        return -1;
     }
-    return processResponse(response, "issue asset contract");
+    return 1;
 }
 }  // namespace opentxs

@@ -136,21 +136,19 @@ string CmdExportCash::exportCash(
     std::string strContract = SwigWrap::GetAssetType_Contract(assetType);
 
     if (!VerifyStringVal(strContract)) {
-        std::string response;
-        {
-            response = Opentxs::Client()
-                           .ServerAction()
-                           .DownloadContract(
-                               Identifier::Factory(mynym),
-                               Identifier::Factory(server),
-                               Identifier::Factory(assetType))
-                           ->Run();
-        }
+        auto task = Opentxs::Client().OTX().DownloadContract(
+            Identifier::Factory(mynym),
+            Identifier::Factory(server),
+            Identifier::Factory(assetType));
 
-        if (1 == VerifyMessageSuccess(Opentxs::Client(), response)) {
+        const auto result = std::get<1>(task).get();
+
+        const auto success = CmdBase::GetResultSuccess(result);
+        if (success) {
             strContract = SwigWrap::GetAssetType_Contract(assetType);
         }
     }
+
     if (strContract.empty()) {
         LogNormal(OT_METHOD)(__FUNCTION__)(": Error: cannot load asset "
                                            "contract.")
@@ -182,8 +180,8 @@ string CmdExportCash::exportCash(
                 load_or_retrieve_encrypt_key(server, mynym, hisnym);
 
             if (!VerifyStringVal(recipientPubKey)) {
-                LogNormal(OT_METHOD)(__FUNCTION__)(
-		   ": recipientPubKey is null")(".")
+                LogNormal(OT_METHOD)(__FUNCTION__)(": recipientPubKey is null")(
+                    ".")
                     .Flush();
                 return {};
             }
@@ -193,8 +191,9 @@ string CmdExportCash::exportCash(
     // for the recipient.
     // (IF the exported purse isn't meant to be password-protected.)
     //
-    return Opentxs::Client().Cash().export_cash(
-        server, mynym, assetType, hisnym, indices, hasPassword, retainedCopy);
+//    return Opentxs::Client().Cash().export_cash(
+//        server, mynym, assetType, hisnym, indices, hasPassword, retainedCopy);
+    return {};
 #else
     return {};
 #endif  // OT_CASH
@@ -215,11 +214,9 @@ std::string CmdExportCash::load_or_retrieve_encrypt_key(
     std::string strPubkey = load_public_encryption_key(targetNymID);
 
     if (!VerifyStringVal(strPubkey)) {
-        std::string strResponse = check_nym(notaryID, nymID, targetNymID);
+        const auto success = check_nym(notaryID, nymID, targetNymID);
 
-        if (1 == VerifyMessageSuccess(Opentxs::Client(), strResponse)) {
-            strPubkey = load_public_encryption_key(targetNymID);
-        }
+        if (success) { strPubkey = load_public_encryption_key(targetNymID); }
     }
 
     return strPubkey;  // might be null.

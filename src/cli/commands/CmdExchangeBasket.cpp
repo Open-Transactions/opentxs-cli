@@ -50,7 +50,7 @@ int32_t CmdExchangeBasket::run(string myacct, string direction, string multiple)
     int32_t multiplier = "" != multiple ? stol(multiple) : 1;
     if (1 > multiplier) {
         LogNormal(OT_METHOD)(__FUNCTION__)(
-	   ": Error: multiple: invalid value: ")(multiple)(".")
+            ": Error: multiple: invalid value: ")(multiple)(".")
             .Flush();
         return -1;
     }
@@ -124,16 +124,6 @@ int32_t CmdExchangeBasket::run(string myacct, string direction, string multiple)
         }
     }
 
-    {
-        if (!Opentxs::Client().ServerAction().GetTransactionNumbers(
-                Identifier::Factory(mynym), Identifier::Factory(server), 20)) {
-            LogNormal(OT_METHOD)(__FUNCTION__)(
-                ": Error: cannot reserve transaction numbers.")
-                .Flush();
-            return -1;
-        }
-    }
-
     string basket = SwigWrap::GenerateBasketExchange(
         server, mynym, assetType, myacct, multiplier);
     if ("" == basket) {
@@ -177,8 +167,8 @@ int32_t CmdExchangeBasket::run(string myacct, string direction, string multiple)
             ": Currently we need to select an account with the instrument "
             "definition:")
             .Flush();
-        LogNormal(OT_METHOD)(__FUNCTION__)(": ")(memberType)(" (")(memberTypeName)(
-            ").")
+        LogNormal(OT_METHOD)(__FUNCTION__)(": ")(memberType)(" (")(
+            memberTypeName)(").")
             .Flush();
         LogNormal(OT_METHOD)(__FUNCTION__)(
             ": Above are all the accounts in the wallet, for the relevant "
@@ -270,14 +260,17 @@ int32_t CmdExchangeBasket::run(string myacct, string direction, string multiple)
         responseReply(response, server, mynym, myacct, "exchange_basket");
     if (1 != reply) { return reply; }
 
-    {
-        if (!Opentxs::Client().ServerAction().DownloadAccount(
-                theNymID, theNotaryID, theAcctID, true)) {
-            LogNormal(OT_METHOD)(__FUNCTION__)(
-                ": Error retrieving intermediary files for account.")
-                .Flush();
-            return -1;
-        }
+    auto task =
+        Opentxs::Client().OTX().ProcessInbox(theNymID, theNotaryID, theAcctID);
+
+    const auto result = std::get<1>(task).get();
+    
+    const auto success = CmdBase::GetResultSuccess(result);
+    if (false == success) {
+        LogNormal(OT_METHOD)(__FUNCTION__)(
+            ": Error retrieving intermediary files for account.")
+            .Flush();
+        return -1;
     }
 
     return 1;

@@ -7,6 +7,8 @@
 
 #include <opentxs/opentxs.hpp>
 
+#define OT_METHOD "opentxs::CmdNotifyBailment"
+
 namespace opentxs
 {
 
@@ -62,21 +64,23 @@ std::int32_t CmdNotifyBailment::run(
 
     if (0 == txid.size()) { return -1; }
 
-    std::string response;
-    {
-        response = Opentxs::
-                       Client()
-                       .ServerAction()
-                       .NotifyBailment(
-                           Identifier::Factory(mynym),
-                           Identifier::Factory(server),
-                           Identifier::Factory(hisnym),
-                           Identifier::Factory(mypurse),
-                           Identifier::Factory(request),
-                           txid,
-                           notifybailmentAmount)
-                       ->Run();
+    auto task = Opentxs::Client().OTX().NotifyBailment(
+        identifier::Nym::Factory(mynym),
+        identifier::Server::Factory(server),
+        identifier::Nym::Factory(hisnym),
+        identifier::UnitDefinition::Factory(mypurse),
+        Identifier::Factory(request),
+        txid,
+        notifybailmentAmount);
+    
+    const auto result = std::get<1>(task).get();
+
+    if (false == CmdBase::GetResultSuccess(result)) {
+        LogOutput(OT_METHOD)(__FUNCTION__)(": Failed to notify bailment")
+            .Flush();
+        return -1;
     }
-    return processResponse(response, "notify bailment");
+
+    return 1;
 }
 }  // namespace opentxs

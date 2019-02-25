@@ -7,6 +7,8 @@
 
 #include <opentxs/opentxs.hpp>
 
+#define OT_METHOD "opentxs::CmdRequestBailment"
+
 namespace opentxs
 {
 
@@ -46,18 +48,20 @@ std::int32_t CmdRequestBailment::run(
 
     if (!checkPurse("mypurse", mypurse)) { return -1; }
 
-    std::string response;
-    {
-        response = Opentxs::
-                       Client()
-                       .ServerAction()
-                       .InitiateBailment(
-                           Identifier::Factory(mynym),
-                           Identifier::Factory(server),
-                           Identifier::Factory(hisnym),
-                           Identifier::Factory(mypurse))
-                       ->Run();
+    auto task = Opentxs::Client().OTX().InitiateBailment(
+        identifier::Nym::Factory(mynym),
+        identifier::Server::Factory(server),
+        identifier::Nym::Factory(hisnym),
+        identifier::UnitDefinition::Factory(mypurse));
+    
+    const auto result = std::get<1>(task).get();
+
+    if (false == CmdBase::GetResultSuccess(result)) {
+        LogOutput(OT_METHOD)(__FUNCTION__)(": Failed to request bailment")
+            .Flush();
+        return -1;
     }
-    return processResponse(response, "request bailment");
+
+    return 1;
 }
 }  // namespace opentxs

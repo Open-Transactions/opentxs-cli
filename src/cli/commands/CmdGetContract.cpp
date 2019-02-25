@@ -10,6 +10,8 @@
 #include <stdint.h>
 #include <string>
 
+#define OT_METHOD "opentxs::CmdGetContract::"
+
 using namespace opentxs;
 using namespace std;
 
@@ -41,16 +43,20 @@ int32_t CmdGetInstrumentDefinition::run(
 
     if (!checkMandatory("contract", contract)) { return -1; }
 
-    std::string response;
-    {
-        response = Opentxs::
-                       Client()
-                       .ServerAction()
-                       .DownloadContract(
-                           Identifier::Factory(mynym),
-                           Identifier::Factory(server),
-                           Identifier::Factory(contract))
-                       ->Run();
+    auto task = Opentxs::Client().OTX().DownloadContract(
+        Identifier::Factory(mynym),
+        Identifier::Factory(server),
+        Identifier::Factory(contract));
+
+    const auto result = std::get<1>(task).get();
+    
+    const auto success = CmdBase::GetResultSuccess(result);
+    if (false == success) {
+        LogOutput(OT_METHOD)(__FUNCTION__)(
+            ": Error: failed to retrieve contract.")
+            .Flush();
+        return -1;
     }
-    return processResponse(response, "retrieve contract");
+
+    return 1;
 }

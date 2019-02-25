@@ -10,6 +10,8 @@
 #include <stdint.h>
 #include <string>
 
+#define OT_METHOD "opentxs::CmdCheckNym"
+
 using namespace opentxs;
 using namespace std;
 
@@ -51,13 +53,13 @@ int32_t CmdCheckNym::run(string server, string mynym, string hisnym)
      so you can download his public key.)
      In this case, if the message returns false, the CLI will correctly announce
      that something has "failed." OT normally does a few re-tries in this sort
-     of case. It thinks maybe the request number is out of synch, so it re-syncs
+     of case. It thinks maybe the request number is out of OTXh, so it re-OTXs
      and then tries again.
 
      ==> BUT! what if the NymID you are checking REALLY ISN'T ON THAT SERVER?
 
      ===> In that case, it will return "success=false". But it's NOT telling you
-     that some sort of error occurred, or that you are out of synch. Rather,
+     that some sort of error occurred, or that you are out of OTXh. Rather,
      it's
      (correctly) informing you that you are trying to download a pubkey for a
      Nym
@@ -69,16 +71,17 @@ int32_t CmdCheckNym::run(string server, string mynym, string hisnym)
 
      */
 
-    std::string response;
-    {
-        response = Opentxs::
-                       Client()
-                       .ServerAction()
-                       .DownloadNym(
-                           Identifier::Factory(mynym),
-                           Identifier::Factory(server),
-                           Identifier::Factory(hisnym))
-                       ->Run();
+    auto task = Opentxs::Client().OTX().DownloadNym(
+        Identifier::Factory(mynym),
+        Identifier::Factory(server),
+        Identifier::Factory(hisnym));
+
+    const auto result = std::get<1>(task).get();
+
+    if (false == CmdBase::GetResultSuccess(result)) {
+        LogOutput(OT_METHOD)(__FUNCTION__)(": Failed to download nym").Flush();
+        return -1;
     }
-    return processResponse(response, "check nym");
+
+    return 1;
 }

@@ -103,16 +103,6 @@ int32_t CmdProposePlan::run(
         planexpiry)
         .Flush();
 
-    {
-        if (!Opentxs::Client().ServerAction().GetTransactionNumbers(
-                Identifier::Factory(mynym), Identifier::Factory(server), 2)) {
-            LogNormal(OT_METHOD)(__FUNCTION__)(
-                ": Error: cannot reserve transaction numbers.")
-                .Flush();
-            return -1;
-        }
-    }
-
     // SwigWrap::EasyProposePlan is a version of ProposePaymentPlan that
     // compresses it into a fewer number of arguments. (Then it expands them
     // and calls ProposePaymentPlan.)
@@ -148,19 +138,18 @@ int32_t CmdProposePlan::run(
 
     OT_ASSERT(false != bool(payment));
 
-    std::string response;
-    {
-        std::shared_ptr<const OTPayment> ppayment{payment.release()};
-        response = Opentxs::Client()
-                       .ServerAction()
-                       .SendPayment(
-                           Identifier::Factory(mynym),
-                           Identifier::Factory(server),
-                           Identifier::Factory(hisnym),
-                           ppayment)
-                       ->Run();
-    }
-    if (1 != responseStatus(response)) {
+    const auto contactid =
+        Opentxs::Client().Contacts().ContactID(Identifier::Factory(hisnym));
+
+    std::shared_ptr<const OTPayment> ppayment{payment.release()};
+
+    auto task = Opentxs::Client().OTX().PayContact(
+        Identifier::Factory(mynym), contactid, ppayment);
+
+    const auto result = std::get<1>(task).get();
+    
+    const auto success = CmdBase::GetResultSuccess(result);
+    if (false == success) {
         LogNormal(OT_METHOD)(__FUNCTION__)(": Error: cannot send payment plan.")
             .Flush();
         return harvestTxNumbers(plan, mynym);

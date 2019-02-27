@@ -11,7 +11,9 @@
 #include <ostream>
 #include <string>
 
+#if OT_CASH
 #define OT_METHOD "opentxs::CmdWithdrawCash::"
+#endif
 
 using namespace opentxs;
 using namespace std;
@@ -47,18 +49,15 @@ int32_t CmdWithdrawCash::withdrawCash(const string& myacct, int64_t amount)
 {
 #if OT_CASH
     const auto accountID{opentxs::Identifier::Factory(myacct)};
-
     const auto nymID{opentxs::identifier::Nym::Factory(
         Opentxs::Client().Exec().GetAccountWallet_NymID(myacct))};
     const auto serverID{opentxs::identifier::Server::Factory(
         Opentxs::Client().Exec().GetAccountWallet_NotaryID(myacct))};
-
     auto task = Opentxs::Client().OTX().WithdrawCash(
         nymID, serverID, accountID, amount);
-
     const auto result = std::get<1>(task).get();
-    
     const auto success = CmdBase::GetResultSuccess(result);
+
     if (false == success) {
         LogOutput(OT_METHOD)(__FUNCTION__)(": Failed to withdraw cash.")
             .Flush();
